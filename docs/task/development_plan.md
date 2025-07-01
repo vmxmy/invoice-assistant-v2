@@ -36,31 +36,38 @@
 
 ## Phase 1: 核心后端开发 - 认证与数据模型
 
-### 1.0 环境配置与基础设施 (Prerequisites)
+### 1.0 环境配置与基础设施 (Prerequisites) ✅ 95% 完成
 
-- [ ] **1.1 项目结构设计**
-  - [ ] 创建完整的后端项目目录结构 (`app/models/`, `app/api/`, `app/core/`, `app/services/`, `app/utils/`)
-  - [ ] 设计代码组织规范和导入路径约定
+> **完成状态**: 基础设施已基本搭建完成，数据库连接已成功配置并测试通过。
+> 
+> **关键变更**: 
+> - 使用 psycopg2 + NullPool 替代 asyncpg 以适配 Supabase pgbouncer
+> - 数据库连接使用环境变量配置 (user, password, host, port, dbname)
+> - 已验证 PostgreSQL 17.4 连接成功
 
-- [ ] **1.2 环境配置管理**
-  - [ ] 创建 `/backend/app/core/config.py` 配置文件，使用 Pydantic BaseSettings 管理环境变量
-  - [ ] 配置 Supabase 连接参数 (URL, API Key, JWT Secret)
-  - [ ] 设置开发/生产环境配置分离
+- [x] **1.1 项目结构设计**
+  - [x] 创建完整的后端项目目录结构 (`app/models/`, `app/api/`, `app/core/`, `app/services/`, `app/utils/`)
+  - [x] 设计代码组织规范和导入路径约定
 
-- [ ] **1.3 数据库连接配置**
-  - [ ] 创建 `/backend/app/core/database.py` 数据库连接模块
-  - [ ] 配置 asyncpg 连接池和 SQLAlchemy async engine
-  - [ ] 实现数据库连接生命周期管理
+- [x] **1.2 环境配置管理**
+  - [x] 创建 `/backend/app/core/config.py` 配置文件，使用 Pydantic BaseSettings 管理环境变量
+  - [x] 配置 Supabase 连接参数 (URL, API Key, JWT Secret)
+  - [x] 设置开发/生产环境配置分离
 
-- [ ] **1.4 基础工具类实现**
-  - [ ] 创建 `/backend/app/utils/logger.py` 日志配置
+- [x] **1.3 数据库连接配置**
+  - [x] 创建 `/backend/app/core/database.py` 数据库连接模块
+  - [x] 配置 ~~asyncpg 连接池和 SQLAlchemy async engine~~ psycopg2 连接池 (适配 Supabase pgbouncer)
+  - [x] 实现数据库连接生命周期管理
+
+- [ ] **1.4 基础工具类实现** (部分完成)
+  - [x] 创建 `/backend/app/utils/logger.py` 日志配置
   - [ ] 创建 `/backend/app/core/exceptions.py` 自定义异常类
   - [ ] 创建 `/backend/app/utils/responses.py` 标准化API响应格式
 
-- [ ] **1.5 API 路由架构设计**
-  - [ ] 创建 `/backend/app/api/v1/` API版本目录结构
-  - [ ] 设计路由注册机制和中间件配置
-  - [ ] 实现API路径前缀和版本管理
+- [x] **1.5 API 路由架构设计**
+  - [x] 创建 `/backend/app/api/v1/` API版本目录结构
+  - [x] 设计路由注册机制和中间件配置
+  - [x] 实现API路径前缀和版本管理
 
 ### 1.1 数据库模型定义与实现
 

@@ -5,6 +5,7 @@ pydantic-settings
 python-dotenv
 sqlalchemy[asyncio]
 asyncpg
+psycopg2-binary
 celery
 redis
 python-jose[cryptography]
