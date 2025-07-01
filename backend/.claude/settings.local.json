@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(ping:*)",
+      "Bash(source:*)",
+      "Bash(pip --version)",
+      "Bash(pip install:*)",
+      "Bash(ls:*)",
+      "Bash(python test:*)",
+      "Bash(python:*)",
+      "Bash(npm --version)",
+      "Bash(npx:*)",
+      "WebFetch(domain:supabase.com)"
+    ],
+    "deny": []
+  }
+}
