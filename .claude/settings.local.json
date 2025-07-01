@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(mkdir:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(touch:*)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}

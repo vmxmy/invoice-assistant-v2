@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+sqlalchemy
+asyncpg
+celery
+redis
+python-jose[cryptography]
