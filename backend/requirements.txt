@@ -1,9 +1,14 @@
 fastapi
 uvicorn[standard]
 pydantic
+pydantic-settings
 python-dotenv
-sqlalchemy
+sqlalchemy[asyncio]
 asyncpg
 celery
 redis
 python-jose[cryptography]
+supabase
+httpx
+pytest
+pytest-asyncio

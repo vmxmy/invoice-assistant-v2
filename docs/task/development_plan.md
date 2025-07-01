@@ -36,17 +36,104 @@
 
 ## Phase 1: 核心后端开发 - 认证与数据模型
 
-- [ ] **1. 数据库模型定义**
-  - [ ] 在 `/backend/app/models/` 目录下，使用SQLAlchemy或Pydantic创建`profiles`, `invoices`, `email_processing_tasks` 的数据模型。
-  - [ ] 在Supabase后台执行SQL脚本，创建对应的表和RLS策略。
+### 1.0 环境配置与基础设施 (Prerequisites)
 
-- [ ] **2. 核心认证与依赖**
-  - [ ] 实现一个可重用的FastAPI依赖 (`dependencies.py`)，用于验证来自Supabase的JWT。
-  - [ ] 该依赖应能从Token中提取 `user_id` 并注入到请求中。
+- [ ] **1.1 项目结构设计**
+  - [ ] 创建完整的后端项目目录结构 (`app/models/`, `app/api/`, `app/core/`, `app/services/`, `app/utils/`)
+  - [ ] 设计代码组织规范和导入路径约定
 
-- [ ] **3. 用户档案API (`/me`)**
-  - [ ] 实现 `GET /api/v1/me` 端点，返回当前登录用户的档案。
-  - [ ] 实现 `PATCH /api/v1/me` 端点，允许用户更新自己的信息。
+- [ ] **1.2 环境配置管理**
+  - [ ] 创建 `/backend/app/core/config.py` 配置文件，使用 Pydantic BaseSettings 管理环境变量
+  - [ ] 配置 Supabase 连接参数 (URL, API Key, JWT Secret)
+  - [ ] 设置开发/生产环境配置分离
+
+- [ ] **1.3 数据库连接配置**
+  - [ ] 创建 `/backend/app/core/database.py` 数据库连接模块
+  - [ ] 配置 asyncpg 连接池和 SQLAlchemy async engine
+  - [ ] 实现数据库连接生命周期管理
+
+- [ ] **1.4 基础工具类实现**
+  - [ ] 创建 `/backend/app/utils/logger.py` 日志配置
+  - [ ] 创建 `/backend/app/core/exceptions.py` 自定义异常类
+  - [ ] 创建 `/backend/app/utils/responses.py` 标准化API响应格式
+
+- [ ] **1.5 API 路由架构设计**
+  - [ ] 创建 `/backend/app/api/v1/` API版本目录结构
+  - [ ] 设计路由注册机制和中间件配置
+  - [ ] 实现API路径前缀和版本管理
+
+### 1.1 数据库模型定义与实现
+
+- [ ] **1.1.1 核心数据模型设计**
+  - [ ] 设计 `profiles` 表结构 (用户档案：用户扩展信息、邮件配置等)
+  - [ ] 设计 `invoices` 表结构 (发票核心数据：基础字段 + extracted_data JSON字段)
+  - [ ] 设计 `email_processing_tasks` 表结构 (任务状态跟踪)
+
+- [ ] **1.1.2 SQLAlchemy 模型实现**
+  - [ ] 在 `/backend/app/models/` 下创建 `profile.py`, `invoice.py`, `task.py` 模型文件
+  - [ ] 实现异步 SQLAlchemy 模型类，包含字段定义、关系映射、索引配置
+  - [ ] 添加模型验证和序列化方法
+
+- [ ] **1.1.3 Pydantic Schema 定义**
+  - [ ] 创建 `/backend/app/schemas/` 目录，定义请求/响应 schema
+  - [ ] 实现 `ProfileCreate`, `ProfileUpdate`, `ProfileResponse` 等 schema
+  - [ ] 实现 `InvoiceResponse`, `InvoiceUpdate` 等 schema (支持稀疏字段)
+
+- [ ] **1.1.4 数据库脚本与部署**
+  - [ ] 编写 Supabase SQL 迁移脚本 (CREATE TABLE, 索引, 约束)
+  - [ ] 配置 Row Level Security (RLS) 策略，确保数据隔离
+  - [ ] 在 Supabase 后台执行数据库迁移
+
+### 1.2 认证系统与安全机制
+
+- [ ] **1.2.1 JWT 认证中间件**
+  - [ ] 创建 `/backend/app/core/auth.py` Supabase JWT 验证模块
+  - [ ] 实现 `verify_jwt_token()` 函数，验证 token 签名和有效期
+  - [ ] 提取用户信息 (`user_id`, `email`) 并注入到请求上下文
+
+- [ ] **1.2.2 FastAPI 依赖注入**
+  - [ ] 创建 `/backend/app/core/dependencies.py` 依赖注入模块
+  - [ ] 实现 `get_current_user()` 依赖，从 JWT 中提取当前用户
+  - [ ] 实现 `get_current_user_id()` 依赖，提供简化的用户ID获取
+
+- [ ] **1.2.3 权限控制机制**
+  - [ ] 实现基于 `user_id` 的数据访问控制
+  - [ ] 创建权限验证装饰器/依赖，确保用户只能访问自己的数据
+  - [ ] 配置 CORS 和安全头
+
+### 1.3 用户档案 API 实现
+
+- [ ] **1.3.1 API 端点实现**
+  - [ ] 创建 `/backend/app/api/v1/endpoints/users.py` 用户相关路由
+  - [ ] 实现 `GET /api/v1/me` 端点：返回当前用户档案，支持字段筛选
+  - [ ] 实现 `PATCH /api/v1/me` 端点：更新用户档案，支持部分更新
+
+- [ ] **1.3.2 业务逻辑层**
+  - [ ] 创建 `/backend/app/services/user_service.py` 用户业务逻辑
+  - [ ] 实现用户档案的 CRUD 操作
+  - [ ] 实现数据验证和业务规则检查
+
+- [ ] **1.3.3 错误处理与响应**
+  - [ ] 实现统一的错误处理机制 (HTTP状态码、错误消息格式)
+  - [ ] 添加请求验证和业务异常处理
+  - [ ] 实现 HTTP 缓存支持 (ETag, Cache-Control)
+
+### 1.4 测试与验证
+
+- [ ] **1.4.1 单元测试**
+  - [ ] 创建 `/backend/tests/` 测试目录结构
+  - [ ] 编写数据库模型的单元测试
+  - [ ] 编写认证模块的单元测试
+
+- [ ] **1.4.2 API 集成测试**
+  - [ ] 使用 pytest + httpx 编写 API 测试
+  - [ ] 测试用户档案 API 的完整流程
+  - [ ] 测试认证和权限控制
+
+- [ ] **1.4.3 端到端验证**
+  - [ ] 使用真实的 Supabase 环境进行集成测试
+  - [ ] 验证 JWT 认证流程完整性
+  - [ ] 验证数据库 RLS 策略有效性
 
 ## Phase 2: 核心功能开发 - 邮件处理流水线
 
