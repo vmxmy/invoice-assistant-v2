@@ -7,6 +7,8 @@ API v1 路由聚合
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import users
+from app.utils.responses import success_response, error_response
+from app.core.exceptions import NotFoundError, ValidationError
 
 api_router = APIRouter()
 
@@ -53,3 +55,42 @@ async def test_database():
             "error": str(e),
             "connection_type": "psycopg2 with NullPool"
         }
+
+# 响应格式示例端点
+@api_router.get("/response-examples/success")
+async def response_success_example():
+    """成功响应示例"""
+    return success_response(
+        data={"id": 1, "name": "测试用户", "email": "test@example.com"},
+        message="获取用户信息成功"
+    )
+
+@api_router.get("/response-examples/error")
+async def response_error_example():
+    """错误响应示例"""
+    return error_response(
+        message="用户不存在",
+        error_code="USER_NOT_FOUND",
+        details={"user_id": 999},
+        status_code=404
+    )
+
+@api_router.get("/response-examples/exception/{item_id}")
+async def response_exception_example(item_id: int):
+    """异常处理示例"""
+    if item_id == 0:
+        raise ValidationError(
+            message="ID 不能为 0",
+            details={"item_id": item_id}
+        )
+    
+    if item_id < 0:
+        raise NotFoundError(
+            resource="项目",
+            details={"item_id": item_id}
+        )
+    
+    return success_response(
+        data={"id": item_id, "name": f"项目 {item_id}"},
+        message="获取成功"
+    )

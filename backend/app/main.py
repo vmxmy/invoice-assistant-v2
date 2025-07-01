@@ -63,6 +63,10 @@ app.add_middleware(
 # 注册 API 路由
 app.include_router(api_router, prefix=settings.api_v1_prefix)
 
+# 注册异常处理器
+from app.core.handlers import register_exception_handlers
+register_exception_handlers(app)
+
 # 根路径健康检查
 @app.get("/")
 async def root():
