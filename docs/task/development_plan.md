@@ -36,14 +36,17 @@
 
 ## Phase 1: 核心后端开发 - 认证与数据模型
 
-### 1.0 环境配置与基础设施 (Prerequisites) ✅ 95% 完成
+### 1.0 环境配置与基础设施 (Prerequisites) ✅ 已完成
 
-> **完成状态**: 基础设施已基本搭建完成，数据库连接已成功配置并测试通过。
+> **完成状态**: 基础设施搭建完成，所有基础工具类已实现。
+> 
+> **最后更新**: 2025-01-21
 > 
 > **关键变更**: 
 > - 使用 psycopg2 + NullPool 替代 asyncpg 以适配 Supabase pgbouncer
 > - 数据库连接使用环境变量配置 (user, password, host, port, dbname)
 > - 已验证 PostgreSQL 17.4 连接成功
+> - 实现了完整的异常处理和响应标准化系统
 
 - [x] **1.1 项目结构设计**
   - [x] 创建完整的后端项目目录结构 (`app/models/`, `app/api/`, `app/core/`, `app/services/`, `app/utils/`)
@@ -59,22 +62,29 @@
   - [x] 配置 ~~asyncpg 连接池和 SQLAlchemy async engine~~ psycopg2 连接池 (适配 Supabase pgbouncer)
   - [x] 实现数据库连接生命周期管理
 
-- [ ] **1.4 基础工具类实现** (部分完成)
+- [x] **1.4 基础工具类实现**
   - [x] 创建 `/backend/app/utils/logger.py` 日志配置
-  - [ ] 创建 `/backend/app/core/exceptions.py` 自定义异常类
-  - [ ] 创建 `/backend/app/utils/responses.py` 标准化API响应格式
+  - [x] 创建 `/backend/app/core/exceptions.py` 自定义异常类
+  - [x] 创建 `/backend/app/utils/responses.py` 标准化API响应格式
+  - [x] 创建 `/backend/app/core/handlers.py` 全局异常处理器
 
 - [x] **1.5 API 路由架构设计**
   - [x] 创建 `/backend/app/api/v1/` API版本目录结构
   - [x] 设计路由注册机制和中间件配置
   - [x] 实现API路径前缀和版本管理
 
-### 1.1 数据库模型定义与实现
+### 1.1 数据库模型定义与实现 🚧 进行中
 
-- [ ] **1.1.1 核心数据模型设计**
-  - [ ] 设计 `profiles` 表结构 (用户档案：用户扩展信息、邮件配置等)
-  - [ ] 设计 `invoices` 表结构 (发票核心数据：基础字段 + extracted_data JSON字段)
-  - [ ] 设计 `email_processing_tasks` 表结构 (任务状态跟踪)
+> **当前进度**: 已完成核心数据模型设计和基础模型类实现，正在进行具体模型实现。
+> 
+> **最后更新**: 2025-01-21
+
+- [x] **1.1.1 核心数据模型设计** ✅ 已完成
+  - [x] 设计 `profiles` 表结构 (用户档案：用户扩展信息、邮件配置等)
+  - [x] 设计 `invoices` 表结构 (发票核心数据：基础字段 + extracted_data JSON字段)
+  - [x] 设计 `email_processing_tasks` 表结构 (任务状态跟踪)
+  - [x] 创建基础模型类 (`base.py`) - 符合 Supabase 最佳实践
+  - [x] 创建模型示例和最佳实践文档
 
 - [ ] **1.1.2 SQLAlchemy 模型实现**
   - [ ] 在 `/backend/app/models/` 下创建 `profile.py`, `invoice.py`, `task.py` 模型文件
@@ -206,3 +216,18 @@
 - [ ] **3. 监控**
   - [ ] 集成日志服务（如Sentry, Logtail）来捕获应用错误。
   - [ ] 设置监控告警，特别是针对Webhook接收失败和Celery任务失败的情况。
+
+## 更新日志
+
+### 2025-01-21
+- **Phase 1.0 环境配置与基础设施** - 标记为已完成
+  - 完成所有基础工具类实现（异常处理、响应格式、日志系统）
+  - 成功配置 Supabase 数据库连接（PostgreSQL 17.4）
+  - 使用 psycopg2 + NullPool 适配 pgbouncer
+- **Phase 1.1.1 核心数据模型设计** - 标记为已完成
+  - 创建符合 Supabase 最佳实践的基础模型类
+  - 设计 UUID 主键、时间戳、软删除、JSONB 元数据等核心功能
+  - 创建模型设计示例和最佳实践文档
+- **技术决策**：
+  - 使用 psycopg2 替代 asyncpg 以适配 Supabase pgbouncer
+  - 采用 Supabase 推荐的模型设计模式（UUID、时区感知时间戳、软删除）
