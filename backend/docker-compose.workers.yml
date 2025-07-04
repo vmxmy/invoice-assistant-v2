@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # PostgreSQL任务队列Worker
+  invoice-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      - MINERU_API_TOKEN=${MINERU_API_TOKEN}
+      - WORKER_NAME=worker-1
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - invoice-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "python", "-c", "import asyncio; from app.core.config import settings; print('健康检查通过')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  invoice-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      - MINERU_API_TOKEN=${MINERU_API_TOKEN}
+      - WORKER_NAME=worker-2
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - invoice-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "python", "-c", "import asyncio; from app.core.config import settings; print('健康检查通过')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Worker管理器 (可选)
+  worker-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      - MINERU_API_TOKEN=${MINERU_API_TOKEN}
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    command: ["python", "worker_manager.py", "start", "-c", "2", "-d"]
+    restart: unless-stopped
+    networks:
+      - invoice-network
+    depends_on:
+      - postgres
+    profiles:
+      - manager  # 使用 profile 可以选择性启动
+
+  # PostgreSQL数据库 (如果需要本地数据库)
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=invoice_assistant
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - invoice-network
+    profiles:
+      - local-db  # 使用 profile，仅在需要本地数据库时启动
+
+  # Redis (如果需要缓存)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - invoice-network
+    profiles:
+      - cache
+
+  # 监控工具 (可选)
+  worker-monitor:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./monitoring:/usr/share/nginx/html:ro
+    networks:
+      - invoice-network
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+
+networks:
+  invoice-network:
+    driver: bridge

@@ -96,8 +96,14 @@ class Settings(BaseSettings):
     mailgun_domain: str = Field(default="", description="Mailgun 域名")
     mailgun_webhook_signing_key: str = Field(
         default="",
-        description="Mailgun Webhook 签名密钥"
+        description="Mailgun Webhook 签名密钥",
+        alias="MAILGUN_WEBHOOK_SIGNING_KEY"
     )
+    
+    # 邮件处理配置
+    email_processing_enabled: bool = Field(default=True, description="启用邮件处理")
+    max_email_attachments: int = Field(default=10, description="最大邮件附件数")
+    email_download_timeout: int = Field(default=30, description="邮件下载超时(秒)")
     
     # OCR 服务配置
     mineru_api_token: str = Field(default="", description="Mineru API Token")
@@ -146,7 +152,8 @@ class Settings(BaseSettings):
         if v == "change-this-secret-key-in-production":
             import os
             # 生产环境强制要求自定义密钥
-            if os.getenv("ENVIRONMENT") == "production" or not cls.is_development:
+            debug_mode = os.getenv("DEBUG", "false").lower() == "true"
+            if os.getenv("ENVIRONMENT") == "production" or not debug_mode:
                 raise ValueError("Default secret key is not allowed in production")
         
         # 检查密钥长度和复杂性

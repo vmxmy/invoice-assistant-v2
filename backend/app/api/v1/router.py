@@ -6,7 +6,8 @@ API v1 路由器
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, users, profiles, invoices, files
+from app.api.v1.endpoints import auth, users, profiles, invoices, files, tasks
+# from app.api.v1.endpoints import webhooks  # 暂时注释掉以避免Celery导入错误
 
 # 创建 v1 API 路由器
 api_router = APIRouter()
@@ -17,6 +18,8 @@ api_router.include_router(users.router, prefix="/users", tags=["用户"])
 api_router.include_router(profiles.router, prefix="/profiles", tags=["档案"])
 api_router.include_router(invoices.router, prefix="/invoices", tags=["发票"])
 api_router.include_router(files.router, prefix="/files", tags=["文件管理"])
+# api_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhook"])  # 暂时注释掉
+api_router.include_router(tasks.router, prefix="/tasks", tags=["任务管理"])
 
 # 可选：添加版本信息端点
 @api_router.get("/version", tags=["系统"])
@@ -30,6 +33,8 @@ async def get_api_version():
             "users": "/users", 
             "profiles": "/profiles",
             "invoices": "/invoices",
-            "files": "/files"
+            "files": "/files",
+            # "webhooks": "/webhooks",  # 暂时注释掉
+            "tasks": "/tasks"
         }
     }
