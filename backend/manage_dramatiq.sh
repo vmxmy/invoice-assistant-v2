@@ -95,13 +95,19 @@ start_workers() {
 start_dev() {
     local processes=${1:-1}
     
-    log_info "启动开发模式 (自动重载)..."
+    log_info "启动开发模式..."
     
-    "$PYTHON" "$DRAMATIQ_SCRIPT" \
-        --processes "$processes" \
-        --threads 2 \
-        --verbose \
-        --watch app
+    cd "$SCRIPT_DIR"
+    export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+    
+    "$VENV_PATH/bin/dramatiq" app.tasks.dramatiq_tasks \
+        --processes="$processes" \
+        --threads=2 \
+        --queues email_processing \
+        --queues ocr_processing \
+        --queues notifications \
+        --queues file_cleanup \
+        --verbose
 }
 
 # 停止workers
