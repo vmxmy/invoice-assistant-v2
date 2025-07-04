@@ -393,21 +393,85 @@
   - [x] 清理未使用的 messageClass 变量
   - [x] 优化表单验证和用户反馈
 
-### 4.3 核心页面开发 🚧 待开始
+### 4.3 邮件地址管理系统 ✅ 已完成
 
-- [ ] **4.3.1 仪表盘页面**
+> **完成状态**: 完整的邮件地址管理系统，包含API端点、数据模型、服务层和集成测试。
+> 
+> **最后更新**: 2025-07-05
+> 
+> **核心功能**: Mailgun集成、CRUD操作、用户认证、端到端测试
+
+- [x] **4.3.1 邮件地址数据模型** ✅ 已完成
+  - [x] 创建 `EmailAddress` 模型，支持多种地址类型和状态管理
+  - [x] 实现 PostgreSQL 枚举类型 (`email_address_type`, `email_address_status`)
+  - [x] 添加完整的索引、约束和 RLS 策略
+  - [x] 集成 Profile 模型关系映射
+
+- [x] **4.3.2 Mailgun 邮件服务集成** ✅ 已完成
+  - [x] 创建 `MailgunService` 服务类，支持域名验证和路由管理
+  - [x] 实现用户邮件地址生成逻辑 (`invoice-{type}-{user_id}@domain.com`)
+  - [x] 支持沙盒域名和生产域名配置
+  - [x] 实现路由自动配置和清理
+
+- [x] **4.3.3 邮件地址管理 API** ✅ 已完成
+  - [x] 实现完整的 REST API 端点 (`/api/v1/email-addresses/`)
+  - [x] 支持 CRUD 操作：创建、查询、更新、删除邮件地址
+  - [x] 实现高级功能：设置默认地址、激活/停用、统计信息
+  - [x] 集成用户认证和权限控制
+
+- [x] **4.3.4 邮件地址服务层** ✅ 已完成
+  - [x] 创建 `EmailAddressService` 业务逻辑层
+  - [x] 实现地址生成、验证、统计等核心功能
+  - [x] 支持地址类型管理和过期控制
+  - [x] 集成发件人白名单和配置管理
+
+### 4.4 集成测试系统修复 ✅ 已完成
+
+> **完成状态**: 修复所有集成测试问题，测试成功率从78.9%提升至100%。
+> 
+> **最后更新**: 2025-07-05
+> 
+> **关键修复**: 503 Service Unavailable 和 404 Not Found 错误
+
+- [x] **4.4.1 代理问题修复** ✅ 已完成
+  - [x] 识别 `HTTP_PROXY` 环境变量导致的 503 错误
+  - [x] 配置 httpx 客户端绕过代理 (`proxy=None`, `trust_env=False`)
+  - [x] 确保 localhost 连接不受代理影响
+  - [x] 验证 curl 和 httpx 一致性
+
+- [x] **4.4.2 路由注册修复** ✅ 已完成
+  - [x] 修复邮件地址 API 端点未注册到路由器的问题
+  - [x] 在 `app/api/v1/router.py` 中正确注册 `email_addresses` 路由
+  - [x] 更新 API 版本信息端点
+  - [x] 验证所有端点正确返回状态码
+
+- [x] **4.4.3 真实集成测试** ✅ 已完成
+  - [x] 创建完整的端到端集成测试套件
+  - [x] 测试数据库操作、Mailgun 服务、API 端点完整性
+  - [x] 实现自动化测试数据清理
+  - [x] 达到 100% 测试成功率
+
+### 4.5 核心页面开发 🚧 待开始
+
+- [ ] **4.5.1 仪表盘页面**
   - [ ] 实现主仪表盘 (Dashboard.tsx) 
   - [ ] 调用 `GET /api/v1/profiles/me` 和 `GET /api/v1/invoices/stats/overview`
   - [ ] 实现发票统计卡片和图表展示
   - [ ] 集成 lucide-react 图标系统
 
-- [ ] **4.3.2 发票管理页面**
+- [ ] **4.5.2 发票管理页面**
   - [ ] 实现发票列表页面，支持分页、搜索、筛选
   - [ ] 实现发票详情页面，左右布局设计
   - [ ] 调用发票相关API端点
   - [ ] 支持发票编辑和验证功能
 
-- [ ] **4.3.3 文件管理功能**
+- [ ] **4.5.3 邮件地址管理页面**
+  - [ ] 实现邮件地址管理界面 (EmailAddressManager.tsx)
+  - [ ] 集成邮件地址 API 端点调用
+  - [ ] 支持地址创建、编辑、删除操作
+  - [ ] 实现地址统计和状态监控
+
+- [ ] **4.5.4 文件管理功能**
   - [ ] 实现文件上传组件
   - [ ] 集成文件管理API
   - [ ] 实现拖拽上传和进度显示
@@ -429,6 +493,62 @@
   - [ ] 设置监控告警，特别是针对Webhook接收失败和Celery任务失败的情况。
 
 ## 更新日志
+
+### 2025-07-05 - 邮件地址管理系统与集成测试修复
+- **Phase 4.3: 邮件地址管理系统** - 全部完成 ✅
+  - **数据模型**: 完整的 EmailAddress 模型 + PostgreSQL 枚举 + 关系映射
+  - **Mailgun 集成**: 邮件服务、域名验证、路由管理
+  - **API 端点**: 完整的 REST API（CRUD + 高级功能）
+  - **服务层**: EmailAddressService 业务逻辑 + 地址生成算法
+
+- **Phase 4.4: 集成测试系统修复** - 全部完成 ✅
+  - **503 错误修复**: 解决 HTTP_PROXY 代理干扰问题
+  - **404 错误修复**: 修复 API 路由注册问题
+  - **测试成功率**: 从 78.9% 提升至 100%
+  - **端到端测试**: 完整的真实集成测试套件
+
+- **技术亮点**:
+  - 🔧 **系统级问题诊断**: 深度分析 httpx vs curl 行为差异
+  - 📧 **智能邮件地址生成**: `invoice-{type}-{user_id}@domain.com` 模式
+  - 🎯 **完美集成测试**: 数据库、API、Mailgun 服务 100% 通过
+  - 🛡️ **安全权限控制**: 用户隔离 + 认证要求 + 数据验证
+
+- **解决的关键问题**:
+  - httpx 客户端受 `HTTP_PROXY` 环境变量影响导致 localhost 连接失败
+  - 邮件地址 API 路由未正确注册到 FastAPI 路由器
+  - 枚举类型大小写不一致问题（CUSTOM → custom）
+  - 代理环境下的网络连接稳定性问题
+
+- **数据库架构**:
+  - 新增 email_addresses 表 + 完整的约束和索引
+  - PostgreSQL 原生枚举类型支持
+  - Profile-EmailAddress 一对多关系映射
+  - Row Level Security (RLS) 策略
+
+- **API 端点统计**:
+  ```
+  GET    /api/v1/email-addresses/           # 获取地址列表
+  POST   /api/v1/email-addresses/           # 创建新地址
+  GET    /api/v1/email-addresses/{id}       # 获取地址详情
+  PUT    /api/v1/email-addresses/{id}       # 更新地址信息
+  DELETE /api/v1/email-addresses/{id}       # 删除地址
+  POST   /api/v1/email-addresses/{id}/set-default      # 设置默认地址
+  POST   /api/v1/email-addresses/{id}/activate         # 激活地址
+  POST   /api/v1/email-addresses/{id}/deactivate       # 停用地址
+  GET    /api/v1/email-addresses/stats/overview        # 获取统计信息
+  POST   /api/v1/email-addresses/generate-default      # 生成默认地址
+  ```
+
+- **测试覆盖率**:
+  - ✅ 数据库操作测试：100% 成功
+  - ✅ Mailgun 服务测试：100% 成功（包含沙盒域名处理）
+  - ✅ API 端点测试：100% 成功（401认证要求为正常行为）
+  - ✅ 集成测试总成功率：100%
+
+- **下一阶段准备**:
+  - Phase 4.5: 邮件地址管理前端界面
+  - Phase 4.5: 仪表盘和发票管理页面
+  - Phase 5: 完整的邮件处理流水线集成
 
 ### 2025-07-04 - 前端现代化架构完成
 - **Phase 4.1: 现代前端技术栈搭建** - 全部完成 ✅
