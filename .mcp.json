@@ -42,6 +42,11 @@
         "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
         "OPENROUTER_API_KEY": "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"
       }
-    }        
+    },
+    "Context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    }            
   }
 }
