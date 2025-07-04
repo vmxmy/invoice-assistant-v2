@@ -1,0 +1,32 @@
+[Unit]
+Description=Invoice Assistant PostgreSQL Task Queue Worker
+After=network.target postgresql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/invoice_assist/v2/backend
+Environment=PATH=/path/to/invoice_assist/v2/backend/venv/bin
+ExecStart=/path/to/invoice_assist/v2/backend/venv/bin/python worker_manager.py start -c 2 -d
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=invoice-worker
+
+# 资源限制
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# 安全设置
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/path/to/invoice_assist/v2/backend/logs
+
+[Install]
+WantedBy=multi-user.target

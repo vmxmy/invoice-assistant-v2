@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     # 安全配置
     secret_key: str = Field(
         default="change-this-secret-key-in-production",
-        description="JWT 密钥"
+        description="JWT 密钥",
+        min_length=32
     )
     algorithm: str = Field(default="HS256", description="JWT 算法")
     access_token_expire_minutes: int = Field(
@@ -95,8 +96,14 @@ class Settings(BaseSettings):
     mailgun_domain: str = Field(default="", description="Mailgun 域名")
     mailgun_webhook_signing_key: str = Field(
         default="",
-        description="Mailgun Webhook 签名密钥"
+        description="Mailgun Webhook 签名密钥",
+        alias="MAILGUN_WEBHOOK_SIGNING_KEY"
     )
+    
+    # 邮件处理配置
+    email_processing_enabled: bool = Field(default=True, description="启用邮件处理")
+    max_email_attachments: int = Field(default=10, description="最大邮件附件数")
+    email_download_timeout: int = Field(default=30, description="邮件下载超时(秒)")
     
     # OCR 服务配置
     mineru_api_token: str = Field(default="", description="Mineru API Token")
@@ -137,6 +144,27 @@ class Settings(BaseSettings):
         if v.upper() not in allowed_levels:
             raise ValueError(f"Log level must be one of: {allowed_levels}")
         return v.upper()
+    
+    @validator("secret_key", pre=True)
+    def validate_secret_key(cls, v: str) -> str:
+        """验证密钥安全性"""
+        # 检查是否使用默认密钥
+        if v == "change-this-secret-key-in-production":
+            import os
+            # 生产环境强制要求自定义密钥
+            debug_mode = os.getenv("DEBUG", "false").lower() == "true"
+            if os.getenv("ENVIRONMENT") == "production" or not debug_mode:
+                raise ValueError("Default secret key is not allowed in production")
+        
+        # 检查密钥长度和复杂性
+        if len(v) < 32:
+            raise ValueError("Secret key must be at least 32 characters long")
+        
+        # 检查是否包含足够的随机性
+        if v.count(v[0]) > len(v) * 0.5:  # 如果超过50%是同一字符
+            raise ValueError("Secret key lacks sufficient randomness")
+        
+        return v
     
     @validator("max_file_size", pre=True)
     def validate_max_file_size(cls, v) -> int:

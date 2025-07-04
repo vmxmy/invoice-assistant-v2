@@ -8,19 +8,26 @@ from typing import Any, Dict, Optional
 from fastapi import HTTPException, status
 
 
-class InvoiceAssistantException(Exception):
-    """发票助手基础异常类"""
+class AppException(Exception):
+    """应用基础异常类"""
     
     def __init__(
         self,
         message: str,
-        code: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
+        error_type: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+        status_code: int = 500
     ):
         self.message = message
-        self.code = code or self.__class__.__name__
+        self.error_type = error_type or self.__class__.__name__
         self.details = details or {}
+        self.status_code = status_code
         super().__init__(self.message)
+
+
+class InvoiceAssistantException(AppException):
+    """发票助手基础异常类"""
+    pass
 
 
 class APIException(HTTPException):
