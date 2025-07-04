@@ -101,6 +101,12 @@ class Profile(Base, BaseModel, AuditMixin):
         lazy="dynamic",
         cascade="all, delete-orphan"
     )
+    email_addresses = relationship(
+        "EmailAddress",
+        back_populates="profile",
+        lazy="dynamic",
+        cascade="all, delete-orphan"
+    )
     
     # 索引定义
     __table_args__ = (

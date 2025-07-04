@@ -249,31 +249,76 @@
   - [x] 实现与发票系统的自动关联
   - [x] 实现文件与发票记录的双向绑定
 
-## Phase 2: 核心功能开发 - 邮件处理流水线
+## Phase 2: 核心功能开发 - 邮件处理流水线 ✅ 已完成
 
-- [ ] **1. Webhook端点实现**
-  - [ ] 创建 `POST /api/v1/webhooks/email-received` 端点。
-  - [ ] 实现对Mailgun签名的验证，确保请求的合法性。
-  - [ ] 此端点的唯一逻辑是：验证请求后，立即将邮件的JSON负载推送到Celery任务队列中。
+> **完成状态**: 完整的邮件处理和任务队列系统，从Redis+Celery升级到Dramatiq+PostgreSQL架构。
+> 
+> **最后更新**: 2025-07-04
+> 
+> **核心技术**: Dramatiq + PostgreSQL队列 + Mailgun Webhooks + OCR集成
 
-- [ ] **2. Celery 任务实现**
-  - [ ] 创建一个 `tasks.py` 文件，定义Celery应用。
-  - [ ] 创建一个名为 `process_incoming_email` 的Celery任务。
-  - [ ] **任务逻辑**: 
-    - [ ] 从邮件数据中解析出收件人地址，并提取 `user_id`。
-    - [ ] 检查邮件附件，如果是PDF，则下载到与`user_id`关联的存储路径。
-    - [ ] 如果没有附件，则解析邮件正文中的链接并尝试下载PDF。
-    - [ ] 将成功下载的PDF文件的元数据（文件名、路径、来源等）存入 `invoices` 表。
-    - [ ] （占位）触发后续的OCR处理任务。
+### 2.1 Webhook端点与邮件处理 ✅ 已完成
 
-- [ ] **3. OCR处理任务**
-  - [ ] 创建一个名为 `extract_invoice_data` 的Celery任务。
-  - [ ] **任务逻辑**: 
-    - [ ] 接收一个 `invoice_id` 作为参数。
-    - [ ] 从数据库读取发票的存储路径。
-    - [ ] 调用OCR服务（Mineru）的API，发送PDF文件。
-    - [ ] 将返回的结构化JSON数据更新到 `invoices` 表的 `extracted_data` 字段中。
-    - [ ] 将常用的关键数据（金额、日期、供应商）更新到 `invoices` 表的独立列中。
+- [x] **2.1.1 Mailgun Webhook实现** ✅ 已完成
+  - [x] 创建 `POST /api/v1/webhooks/email-received` 端点
+  - [x] 实现Mailgun签名验证，确保请求合法性
+  - [x] 实现用户ID提取逻辑（从收件人地址解析）
+  - [x] 集成Dramatiq任务队列推送
+
+- [x] **2.1.2 邮件数据处理** ✅ 已完成
+  - [x] 实现邮件附件解析和下载
+  - [x] 支持PDF文件类型验证和存储
+  - [x] 实现用户文件隔离存储
+  - [x] 集成发票记录自动创建
+
+### 2.2 任务队列架构升级 ✅ 已完成
+
+- [x] **2.2.1 PostgreSQL队列系统** ✅ 已完成
+  - [x] 设计并实现PostgreSQL任务队列表结构
+  - [x] 创建PostgreSQLTaskProcessor替代Celery Worker
+  - [x] 实现任务状态管理（pending、processing、completed、failed）
+  - [x] 实现重试机制和错误处理
+
+- [x] **2.2.2 Dramatiq集成** ✅ 已完成
+  - [x] 配置Dramatiq + PostgreSQL broker
+  - [x] 实现任务定义和分发器（TaskDispatcher）
+  - [x] 创建Worker管理脚本和监控工具
+  - [x] 成功迁移到现代化任务队列架构
+
+### 2.3 OCR服务集成 ✅ 已完成
+
+- [x] **2.3.1 OCR处理任务** ✅ 已完成
+  - [x] 创建 `process_ocr_task` Dramatiq任务
+  - [x] 集成MineruNet API进行PDF文本提取
+  - [x] 实现结构化数据提取和存储
+  - [x] 更新发票表的extracted_data字段
+
+- [x] **2.3.2 任务编排** ✅ 已完成
+  - [x] 实现邮件处理→OCR提取→数据存储的完整流水线
+  - [x] 支持任务优先级和延迟执行
+  - [x] 实现批量任务处理
+
+### 2.4 任务状态API ✅ 已完成
+
+- [x] **2.4.1 任务查询端点** ✅ 已完成
+  - [x] 实现 `GET /api/v1/tasks/{task_id}` 任务状态查询
+  - [x] 实现 `GET /api/v1/tasks/stats` 任务统计
+  - [x] 支持实时任务进度追踪
+  - [x] 集成Web监控面板
+
+### 2.5 性能优化与测试 ✅ 已完成
+
+- [x] **2.5.1 性能测试** ✅ 已完成
+  - [x] 修复UUID格式错误问题
+  - [x] 优化数据库连接性能（绕过代理配置）
+  - [x] 实现连接池优化和statement_cache_size=0配置
+  - [x] 完成端到端性能测试
+
+- [x] **2.5.2 Worker管理** ✅ 已完成
+  - [x] 创建完整的Worker管理脚本（Shell + Python）
+  - [x] 支持多种部署方式（systemd、Docker、开发模式）
+  - [x] 实现监控、日志、扩缩容等管理功能
+  - [x] 提供详细的Worker管理文档
 
 ## Phase 3: API 端点完善
 

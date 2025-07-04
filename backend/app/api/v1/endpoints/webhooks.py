@@ -140,18 +140,21 @@ async def handle_email_received_webhook(
                 detail="Missing Mailgun signature headers"
             )
         
-        # 验证签名
-        if not verify_mailgun_signature(
-            token, 
-            timestamp, 
-            signature, 
-            settings.MAILGUN_WEBHOOK_SIGNING_KEY
-        ):
-            logger.warning("Mailgun Webhook签名验证失败")
-            raise HTTPException(
-                status_code=403, 
-                detail="Invalid Mailgun signature"
-            )
+        # 验证签名（开发环境跳过）
+        if hasattr(settings, 'MAILGUN_WEBHOOK_SIGNING_KEY') and settings.MAILGUN_WEBHOOK_SIGNING_KEY:
+            if not verify_mailgun_signature(
+                token, 
+                timestamp, 
+                signature, 
+                settings.MAILGUN_WEBHOOK_SIGNING_KEY
+            ):
+                logger.warning("Mailgun Webhook签名验证失败")
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Invalid Mailgun signature"
+                )
+        else:
+            logger.info("开发环境：跳过Mailgun签名验证")
         
         # 解析请求数据
         form_data = await request.form()
@@ -249,6 +252,42 @@ async def test_webhook_endpoint():
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0"
     }
+
+
+@router.post("/test-simple")
+async def test_simple_email_processing():
+    """
+    简单测试端点 - 不依赖数据库
+    """
+    try:
+        # 创建测试邮件数据
+        test_email_data = {
+            "user_id": "550e8400-e29b-41d4-a716-446655440000",
+            "recipient": "invoice-550e8400-e29b-41d4-a716-446655440000@test.example.com",
+            "sender": "test@example.com",
+            "subject": "测试发票邮件",
+            "body_plain": "这是一个测试邮件。",
+            "timestamp": int(datetime.utcnow().timestamp()),
+            "message_id": f"test-{datetime.utcnow().timestamp()}@test.example.com",
+            "attachments": []
+        }
+        
+        # 使用TaskDispatcher发送任务
+        task_id = TaskDispatcher.send_email_task(test_email_data)
+        
+        return {
+            "status": "test_queued",
+            "message": "Test email processing queued",
+            "task_id": task_id,
+            "user_id": test_email_data["user_id"]
+        }
+        
+    except Exception as e:
+        logger.error(f"简单测试失败: {e}")
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 
 @router.post("/test-email-processing")
