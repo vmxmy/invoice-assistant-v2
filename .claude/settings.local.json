@@ -18,7 +18,19 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(kill:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(supabase init:*)",
+      "Bash(supabase link:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_c7c95f7899c63453d348af27ad36d9a7e0f99371 supabase db remote ls)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_c7c95f7899c63453d348af27ad36d9a7e0f99371 supabase db remote commit)",
+      "Bash(supabase db:*)",
+      "Bash(grep:*)",
+      "mcp__zen__codereview",
+      "Bash(find:*)",
+      "mcp__zen__planner",
+      "Bash(git checkout:*)",
+      "mcp__zen__precommit",
+      "Bash(rm:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

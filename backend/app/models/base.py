@@ -4,28 +4,26 @@
 定义所有数据模型的基类，符合 Supabase 最佳实践。
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
-from uuid import UUID, uuid4
 
-from sqlalchemy import Column, DateTime, Integer, func, text, event
+from sqlalchemy import Column, DateTime, Integer, func, text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import expression
+from sqlalchemy.orm import declarative_base, declared_attr, Session
+
+# 创建基类
+Base = declarative_base()
 
 
-@as_declarative()
-class Base:
+class BaseModel:
     """
-    所有模型的基类
+    所有模型的基础混入类
     
     提供通用字段和方法，符合 Supabase 最佳实践。
     """
     
-    # 自动生成表名
     @declared_attr
-    def __tablename__(cls) -> str:
+    def __tablename__(cls):
         """
         自动生成表名（使用下划线命名）
         例如：UserProfile -> user_profile
@@ -35,7 +33,7 @@ class Base:
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
     
     # 主键：使用 UUID（Supabase 推荐）
-    id: UUID = Column(
+    id = Column(
         PGUUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
@@ -43,14 +41,14 @@ class Base:
     )
     
     # 时间戳字段（带时区）
-    created_at: datetime = Column(
+    created_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
         comment="创建时间"
     )
     
-    updated_at: datetime = Column(
+    updated_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
@@ -59,7 +57,7 @@ class Base:
     )
     
     # 软删除字段（Supabase 推荐模式）
-    deleted_at: Optional[datetime] = Column(
+    deleted_at = Column(
         DateTime(timezone=True),
         nullable=True,
         index=True,
@@ -67,7 +65,7 @@ class Base:
     )
     
     # 元数据字段（JSONB 类型）
-    metadata: Dict[str, Any] = Column(
+    metadata = Column(
         JSONB,
         server_default=text("'{}'::jsonb"),
         nullable=False,
@@ -113,7 +111,7 @@ class Base:
     
     def soft_delete(self) -> None:
         """软删除"""
-        self.deleted_at = datetime.utcnow()
+        self.deleted_at = datetime.now(timezone.utc)
     
     def restore(self) -> None:
         """恢复软删除的记录"""
@@ -133,20 +131,20 @@ class TimestampMixin:
     """
     
     # 处理时间戳
-    started_at: Optional[datetime] = Column(
+    started_at = Column(
         DateTime(timezone=True),
         nullable=True,
         comment="开始处理时间"
     )
     
-    completed_at: Optional[datetime] = Column(
+    completed_at = Column(
         DateTime(timezone=True),
         nullable=True,
         comment="完成时间"
     )
     
     # 最后活动时间
-    last_activity_at: Optional[datetime] = Column(
+    last_activity_at = Column(
         DateTime(timezone=True),
         nullable=True,
         index=True,
@@ -163,12 +161,12 @@ class UserOwnedMixin:
     """
     
     @declared_attr
-    def user_id(cls) -> Column:
+    def user_id(cls):
         """用户 ID（关联到 Supabase auth.users）"""
         return Column(
             PGUUID(as_uuid=True),
             # 注意：在实际使用时，需要确保 auth schema 存在
-            # ForeignKey("auth.users.id"),
+            ForeignKey("auth.users.id"),
             nullable=False,
             index=True,
             comment="所属用户 ID"
@@ -183,7 +181,7 @@ class AuditMixin:
     """
     
     @declared_attr
-    def created_by(cls) -> Column:
+    def created_by(cls):
         """创建者 ID"""
         return Column(
             PGUUID(as_uuid=True),
@@ -192,7 +190,7 @@ class AuditMixin:
         )
     
     @declared_attr  
-    def updated_by(cls) -> Column:
+    def updated_by(cls):
         """最后更新者 ID"""
         return Column(
             PGUUID(as_uuid=True),
@@ -201,7 +199,7 @@ class AuditMixin:
         )
     
     # 版本号（用于乐观锁）
-    version: int = Column(
+    version = Column(
         Integer,
         nullable=False,
         server_default="1",
@@ -216,25 +214,9 @@ class SoftDeleteQuery:
     @staticmethod
     def filter_active(query):
         """过滤未删除的记录"""
-        return query.filter(Base.deleted_at.is_(None))
+        return query.filter(BaseModel.deleted_at.is_(None))
     
     @staticmethod
     def filter_deleted(query):
         """过滤已删除的记录"""
-        return query.filter(Base.deleted_at.isnot(None))
-
-
-# 模型事件监听器（用于自动更新时间戳等）
-from sqlalchemy.orm import Session as SessionBase
-
-
-@event.listens_for(SessionBase, "before_flush")
-def receive_before_flush(session, flush_context, instances):
-    """
-    在 flush 之前自动更新 updated_at
-    
-    注意：这是一个备选方案，主要依赖数据库触发器。
-    """
-    for instance in session.dirty:
-        if isinstance(instance, Base) and hasattr(instance, "updated_at"):
-            instance.updated_at = datetime.utcnow()
+        return query.filter(BaseModel.deleted_at.isnot(None))
