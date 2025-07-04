@@ -13,7 +13,7 @@ from sqlalchemy import (
     Column, String, Text, Integer, Numeric, DateTime, ForeignKey, Index, CheckConstraint, text, Enum as SAEnum
 )
 from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 
 from app.models.base import Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin
 
@@ -173,10 +173,10 @@ class EmailProcessingTask(Base, BaseModel, UserOwnedMixin, TimestampMixin, Audit
         comment="处理时间（秒）"
     )
     
-    # 关系
+    # 关系 (由于移除了外键约束，需要使用 foreign() 注解)
     profile = relationship(
         "Profile",
-        primaryjoin="EmailProcessingTask.user_id == Profile.auth_user_id",
+        primaryjoin="foreign(EmailProcessingTask.user_id) == Profile.auth_user_id",
         back_populates="email_tasks",
         uselist=False,
         lazy="joined"
