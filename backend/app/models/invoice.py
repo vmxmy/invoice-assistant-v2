@@ -15,7 +15,7 @@ from sqlalchemy import (
     ForeignKey, Index, CheckConstraint, UniqueConstraint, text, Enum as SAEnum
 )
 from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB, ARRAY
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 
 from app.models.base import Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin
 
@@ -245,10 +245,10 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="分类"
     )
     
-    # 关系
+    # 关系 (由于移除了外键约束，需要使用 foreign() 注解)
     profile = relationship(
         "Profile",
-        primaryjoin="Invoice.user_id == Profile.auth_user_id",
+        primaryjoin="foreign(Invoice.user_id) == Profile.auth_user_id",
         back_populates="invoices",
         uselist=False,
         lazy="joined"

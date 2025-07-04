@@ -1,10 +1,11 @@
 """
 数据库连接配置模块
 
-提供异步数据库连接池和会话管理。
+提供异步数据库连接池和会话管理，兼容 Supabase pgbouncer。
 """
 
 import asyncio
+import logging
 from typing import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -16,13 +17,12 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool import NullPool, QueuePool
+from sqlalchemy import text
 
-from app.core.config import get_settings
-from app.utils.logger import get_logger
+from app.core.config import settings
 
 # 获取配置和日志
-settings = get_settings()
-logger = get_logger("database")
+logger = logging.getLogger(__name__)
 
 # 创建 SQLAlchemy 基类
 Base = declarative_base()
@@ -48,18 +48,50 @@ else:
     })
 
 # 创建异步数据库引擎
-# 注意：Supabase 使用 pgbouncer，需要禁用 prepared statements
+# Supabase 使用 pgbouncer，需要特殊配置
 connect_args = {}
-if "pooler.supabase.com" in settings.database_url:
+
+# 检测是否为 Supabase 环境
+is_supabase = "pooler.supabase.com" in settings.database_url or "supabase.co" in settings.database_url
+
+if is_supabase:
+    logger.info("Detected Supabase environment, configuring for pgbouncer compatibility")
+    # 使用 psycopg (异步版本) 而不是 asyncpg，与 pgbouncer 兼容更好
+    if "postgresql+asyncpg://" in settings.database_url:
+        async_db_url = settings.database_url.replace("postgresql+asyncpg://", "postgresql+psycopg://")
+    elif "postgresql://" in settings.database_url:
+        async_db_url = settings.database_url.replace("postgresql://", "postgresql+psycopg://")
+    else:
+        async_db_url = settings.database_url
+    
+    # pgbouncer 兼容配置 (psycopg 格式)
     connect_args = {
-        "server_settings": {"jit": "off"},
-        "command_timeout": 60,
-        "prepared_statement_cache_size": 0,  # 关闭 prepared statements
-        "prepared_statement_name_func": lambda: f"__asyncpg_stmt_{hash(asyncio.current_task())}__",
+        "connect_timeout": 10,
+        "options": "-c jit=off -c statement_timeout=300000 -c application_name=invoice_assist_v2"
     }
+    
+    # 生产环境使用小型连接池，开发环境使用 NullPool
+    if settings.is_production:
+        engine_config.update({
+            "poolclass": QueuePool,
+            "pool_size": 5,  # Supabase pgbouncer 建议小型连接池
+            "max_overflow": 2,
+            "pool_timeout": 30,
+            "pool_recycle": 1800,  # 30分钟回收连接
+        })
+        logger.info("Using QueuePool with size=5 for Supabase production")
+    else:
+        engine_config["poolclass"] = NullPool
+        logger.info("Using NullPool for Supabase development")
+else:
+    # 非 Supabase 环境，使用 asyncpg
+    if "postgresql+asyncpg://" not in settings.database_url:
+        async_db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+    else:
+        async_db_url = settings.database_url
 
 engine: AsyncEngine = create_async_engine(
-    settings.database_url_async,
+    async_db_url,
     connect_args=connect_args,
     **engine_config
 )
@@ -95,6 +127,10 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
+# 为了兼容性添加别名
+get_db_session = get_db
+
+
 @asynccontextmanager
 async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
     """
@@ -125,10 +161,12 @@ async def init_db() -> None:
     try:
         # 测试连接
         async with engine.begin() as conn:
-            await conn.run_sync(lambda conn: conn.scalar("SELECT 1"))
+            await conn.scalar(text("SELECT 1"))
         
         logger.info("Database connection established successfully")
-        logger.info(f"Database URL: {settings.database_url.split('@')[1]}")  # 隐藏密码部分
+        # 隐藏敏感信息的URL显示
+        safe_url = settings.database_url.split('@')[1] if '@' in settings.database_url else settings.database_url
+        logger.info(f"Database URL: {safe_url}")
         
         if settings.is_development:
             logger.debug("Using NullPool for development")

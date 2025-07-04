@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     # 安全配置
     secret_key: str = Field(
         default="change-this-secret-key-in-production",
-        description="JWT 密钥"
+        description="JWT 密钥",
+        min_length=32
     )
     algorithm: str = Field(default="HS256", description="JWT 算法")
     access_token_expire_minutes: int = Field(
@@ -137,6 +138,26 @@ class Settings(BaseSettings):
         if v.upper() not in allowed_levels:
             raise ValueError(f"Log level must be one of: {allowed_levels}")
         return v.upper()
+    
+    @validator("secret_key", pre=True)
+    def validate_secret_key(cls, v: str) -> str:
+        """验证密钥安全性"""
+        # 检查是否使用默认密钥
+        if v == "change-this-secret-key-in-production":
+            import os
+            # 生产环境强制要求自定义密钥
+            if os.getenv("ENVIRONMENT") == "production" or not cls.is_development:
+                raise ValueError("Default secret key is not allowed in production")
+        
+        # 检查密钥长度和复杂性
+        if len(v) < 32:
+            raise ValueError("Secret key must be at least 32 characters long")
+        
+        # 检查是否包含足够的随机性
+        if v.count(v[0]) > len(v) * 0.5:  # 如果超过50%是同一字符
+            raise ValueError("Secret key lacks sufficient randomness")
+        
+        return v
     
     @validator("max_file_size", pre=True)
     def validate_max_file_size(cls, v) -> int:
