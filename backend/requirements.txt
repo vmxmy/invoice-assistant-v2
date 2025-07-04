@@ -16,3 +16,7 @@ pytest
 pytest-asyncio
 aiofiles
 python-multipart
+email-validator
+requests
+beautifulsoup4
+lxml

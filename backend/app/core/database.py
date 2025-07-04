@@ -218,12 +218,16 @@ class DatabaseSessionManager:
         return self._session
 
 
+# 为了兼容性添加别名
+get_async_db = get_db
+
 # 导出常用对象
 __all__ = [
     "Base",
     "engine",
     "async_session_maker",
     "get_db",
+    "get_async_db",
     "get_db_context",
     "init_db",
     "close_db",
