@@ -35,13 +35,6 @@ class TaskStatusResponse(BaseModel):
     metadata_: Optional[dict] = None
 
 
-class CeleryTaskResponse(BaseModel):
-    """Celery任务状态响应模型"""
-    task_id: str
-    status: str
-    result: Optional[dict] = None
-    traceback: Optional[str] = None
-    task_name: Optional[str] = None
 
 
 @router.get("/email-processing/{task_id}")
@@ -155,34 +148,6 @@ async def list_email_processing_tasks(
         )
 
 
-@router.get("/celery/{task_id}")
-async def get_celery_task_status(
-    task_id: str,
-    current_user: CurrentUser = Depends(get_current_user)
-) -> CeleryTaskResponse:
-    """
-    获取Celery任务状态
-    
-    Args:
-        task_id: Celery任务ID
-        current_user: 当前用户
-        
-    Returns:
-        CeleryTaskResponse: Celery任务状态
-    """
-    try:
-        # Celery功能已移除，返回不支持的响应
-        raise HTTPException(
-            status_code=501,
-            detail="Celery功能已移除，请使用PostgreSQL任务队列"
-        )
-        
-    except Exception as e:
-        logger.error(f"获取Celery任务状态失败: {e}")
-        raise HTTPException(
-            status_code=500, 
-            detail="获取Celery任务状态失败"
-        )
 
 
 @router.delete("/email-processing/{task_id}")
@@ -241,29 +206,6 @@ async def delete_email_processing_task(
         )
 
 
-@router.post("/test-celery")
-async def test_celery_connection(
-    current_user: CurrentUser = Depends(get_current_user)
-) -> dict:
-    """
-    测试Celery连接和任务队列
-    
-    Returns:
-        dict: 测试结果
-    """
-    try:
-        # Celery功能已移除，返回不支持的响应
-        raise HTTPException(
-            status_code=501,
-            detail="Celery功能已移除，请使用PostgreSQL任务队列"
-        )
-        
-    except Exception as e:
-        logger.error(f"Celery连接测试失败: {e}")
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Celery连接失败: {str(e)}"
-        )
 
 
 @router.get("/stats")

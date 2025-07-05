@@ -1,6 +1,6 @@
 """
 PostgreSQL任务处理器
-替代Redis+Celery的完整方案，使用PostgreSQL数据库作为任务队列
+使用PostgreSQL数据库作为任务队列的异步任务处理系统
 """
 
 import asyncio
@@ -15,7 +15,7 @@ from pathlib import Path
 import asyncpg
 from app.core.config import settings
 from app.services.email_processor import EmailProcessor
-from app.services.ocr_service import OCRService
+from app.services.ocr import OCRService
 from app.services.notification_service import NotificationService, NotificationRequest
 from app.utils.logger import get_logger
 
@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 
 class PostgreSQLTaskProcessor:
-    """PostgreSQL任务处理器，替代Celery Worker"""
+    """PostgreSQL任务处理器，用于异步任务处理"""
     
     def __init__(self, database_url: str = None, worker_name: str = None):
         """

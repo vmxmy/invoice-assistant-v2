@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from app.core.config import settings
 from app.core.database import init_db
 from app.services.email_processor import EmailProcessor
-from app.services.ocr_service import OCRService
+from app.services.ocr import OCRService
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -114,32 +114,26 @@ class EmailPipelineTest:
             logger.error(f"❌ 邮件处理器测试失败: {e}")
             return False
     
-    def test_celery_connection(self) -> bool:
-        """测试Celery连接"""
+    def test_postgresql_queue(self) -> bool:
+        """测试PostgreSQL任务队列"""
         try:
-            logger.info("开始测试Celery连接...")
+            logger.info("开始测试PostgreSQL任务队列...")
             
-            from app.core.celery_app import celery_app
+            from app.services.postgresql_task_processor import task_queue
             
-            # 检查Celery应用配置
-            logger.info(f"Celery Broker: {celery_app.conf.broker_url}")
-            logger.info(f"Celery Backend: {celery_app.conf.result_backend}")
+            # 检查任务队列状态
+            stats = asyncio.run(task_queue.get_health_status())
+            logger.info(f"任务队列状态: {stats}")
             
-            # 发送测试任务
-            from app.tasks.email_tasks import health_check
-            
-            # 同步测试任务
-            try:
-                result = health_check.delay()
-                logger.info(f"Celery任务ID: {result.id}")
-                logger.info("✅ Celery连接测试通过")
+            if stats:
+                logger.info("✅ PostgreSQL任务队列测试通过")
                 return True
-            except Exception as e:
-                logger.warning(f"⚠️ Celery任务发送失败（Redis可能未运行）: {e}")
+            else:
+                logger.warning("⚠️ PostgreSQL任务队列未就绪")
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ Celery连接测试失败: {e}")
+            logger.error(f"❌ PostgreSQL任务队列测试失败: {e}")
             return False
     
     def test_webhook_signature(self) -> bool:
@@ -222,8 +216,6 @@ class EmailPipelineTest:
             # 检查关键配置
             config_items = [
                 ("数据库URL", settings.database_url),
-                ("Redis URL", settings.redis_url),
-                ("Celery Broker", settings.celery_broker_url),
                 ("上传目录", settings.upload_dir),
                 ("下载目录", settings.downloads_dir),
                 ("Mineru API Base URL", settings.mineru_api_base_url),
@@ -235,7 +227,7 @@ class EmailPipelineTest:
                     logger.info(f"✅ {name}: {value}")
                 else:
                     logger.warning(f"⚠️ {name}: 未配置")
-                    if name in ["数据库URL", "Redis URL"]:
+                    if name in ["数据库URL"]:
                         all_configured = False
             
             # 检查可选配置
@@ -269,7 +261,7 @@ class EmailPipelineTest:
             ("数据库连接测试", self.test_database_connection),
             ("OCR服务测试", self.test_ocr_service),
             ("邮件处理器测试", self.test_email_processor),
-            ("Celery连接测试", self.test_celery_connection),
+            ("PostgreSQL任务队列测试", self.test_postgresql_queue),
             ("Webhook签名测试", self.test_webhook_signature),
             ("用户ID提取测试", self.test_user_id_extraction),
         ]
@@ -322,9 +314,9 @@ class EmailPipelineTest:
         logger.info("建议")
         logger.info("=" * 50)
         
-        if not results.get("Celery连接测试", {}).get("passed", False):
-            logger.info("🔧 启动Redis服务器: redis-server")
-            logger.info("🔧 启动Celery Worker: celery -A app.core.celery_app worker --loglevel=info")
+        if not results.get("PostgreSQL任务队列测试", {}).get("passed", False):
+            logger.info("🔧 确保PostgreSQL数据库已启动并可访问")
+            logger.info("🔧 启动任务处理器: python start_dramatiq_workers.py")
         
         if not results.get("OCR服务测试", {}).get("passed", False):
             logger.info("🔧 配置Mineru API Token以启用真实OCR功能")

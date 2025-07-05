@@ -11,7 +11,7 @@ from datetime import datetime
 
 from app.core.dramatiq_config import broker
 from app.services.email_processor import EmailProcessor
-from app.services.ocr_service import OCRService
+from app.services.ocr import OCRService
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -65,21 +65,34 @@ def process_ocr_task(ocr_data: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         OCR结果字典
     """
+    import asyncio
+    
     task_id = ocr_data.get('task_id', 'unknown')
     file_path = ocr_data.get('file_path')
     
     try:
         logger.info(f"开始OCR处理: {task_id}, 文件: {file_path}")
         
-        # 使用现有的OCR服务
-        ocr_service = OCRService()
-        result = ocr_service.extract_text(file_path)
+        # 使用异步OCR服务
+        async def run_ocr():
+            ocr_service = OCRService()
+            async with ocr_service:
+                return await ocr_service.extract_invoice_data(file_path)
+        
+        # 在事件循环中运行异步任务
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        result = loop.run_until_complete(run_ocr())
         
         logger.info(f"OCR任务完成: {task_id}")
         return {
             "status": "completed",
             "task_id": task_id,
-            "extracted_text": result,
+            "extracted_data": result,
             "processed_at": datetime.now().isoformat()
         }
         

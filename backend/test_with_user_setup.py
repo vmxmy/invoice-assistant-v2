@@ -20,7 +20,7 @@ from app.core.database import get_async_db
 from app.models.profile import Profile
 from app.models.invoice import Invoice, InvoiceSource
 from app.services.file_service import FileService
-from app.services.ocr_service import OCRService
+from app.services.ocr import OCRService
 from app.services.invoice_service import InvoiceService
 from app.services.pdf_invoice_processor import PDFInvoiceProcessor
 from app.utils.logger import get_logger

@@ -1,0 +1,16 @@
+{
+  "test_info": {
+    "pdf_file": "/Users/xumingyang/app/invoice_assist/renamed_invoices/2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf",
+    "test_time": "2025-07-05T17:36:57.044132",
+    "extraction_method": "mineru_v4"
+  },
+  "basic_info": {
+    "status": "error",
+    "confidence": 0.0,
+    "processing_time": 0.5332760810852051,
+    "error": "文件上传失败: 403 (Context: status_code=403, response_preview=<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error>\n  <Code>SignatureDoesNotMatch</Code>\n  <Message>The request signature we calculated does not match the signature you provided. Check your key and signing, request_url=https://mineru.oss-cn-shanghai.aliyuncs.com/api-upload/extract/2025-07-05/30cbd206-e185-4f48-ae5f-2ad6830e0d0b/e54e974d-25f3-44a9-9c32-de4f072079e3.pdf?Expires=1751794616&OSSAccessKeyId=LTAI5t9nGwatk85zetzojXbn&Signature=C%2BVt%2F51GJ2xYKS07IcmKOGgf564%3D)",
+    "batch_id": null
+  },
+  "raw_text": null,
+  "structured_data": null
+}

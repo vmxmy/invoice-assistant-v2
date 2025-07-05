@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
 from app.models.task import EmailProcessingTask
-from app.services.ocr_service import OCRService
+from app.services.ocr import OCRService
 from app.services.invoice_service import InvoiceService
 from app.services.file_service import FileService
 from app.utils.logger import get_logger
@@ -176,7 +176,9 @@ class PDFInvoiceProcessor:
             from app.core.config import settings
             full_path = Path(settings.upload_dir) / file_path
             
-            result = await self.ocr_service.extract_invoice_data(str(full_path))
+            # 使用异步上下文管理器
+            async with self.ocr_service:
+                result = await self.ocr_service.extract_invoice_data(str(full_path))
             
             # 添加提取元数据
             result['extraction_timestamp'] = datetime.now(timezone.utc).isoformat()

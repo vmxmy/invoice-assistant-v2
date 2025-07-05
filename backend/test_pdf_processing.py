@@ -93,7 +93,7 @@ def test_ocr_service():
     print("-" * 30)
     
     try:
-        from app.services.ocr_service import OCRService
+        from app.services.ocr import OCRService
         
         ocr_service = OCRService()
         
