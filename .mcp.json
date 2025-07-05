@@ -32,10 +32,21 @@
         "fit-aphid-EDV9NM"
       ]
     },
+    "zen": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "exec $(which uvx || echo uvx) --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
+        "OPENROUTER_API_KEY": "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"
+      }
+    },
     "Context7": {
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
-    }        
+    }
   }
 }

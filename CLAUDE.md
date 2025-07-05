@@ -3,3 +3,9 @@
 
 ## Output Configuration
 - 使用中文输出
+
+## Server Configuration
+- 后端已在 8090 端口启动
+
+## Development Environment
+- python 环境：backend/venv/

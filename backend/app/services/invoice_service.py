@@ -66,17 +66,24 @@ class InvoiceService:
         # 检查重复
         await self._check_duplicate_invoice(invoice_number, user_id)
         
+        # 准备源元数据
+        source_metadata = {
+            "original_filename": original_filename,
+            **(metadata or {})
+        }
+        
         # 创建发票记录
+        from datetime import date
         invoice_data = {
             "user_id": user_id,
             "invoice_number": invoice_number,
+            "invoice_date": date.today(),  # 使用今天作为默认日期，OCR后会更新
             "file_path": file_path,
             "file_hash": file_hash,
             "file_size": file_size,
-            "original_filename": original_filename,
             "source": InvoiceSource.UPLOAD,
             "status": InvoiceStatus.PENDING if auto_extract else InvoiceStatus.MANUAL,
-            "metadata": metadata or {}
+            "source_metadata": source_metadata
         }
         
         invoice = Invoice(**invoice_data)
@@ -96,6 +103,120 @@ class InvoiceService:
         await self._update_user_invoice_stats(user_id)
         
         return invoice
+    
+    async def create_invoice_from_ocr_data(
+        self,
+        ocr_data: Dict[str, Any],
+        file_info: Dict[str, Any],
+        user_id: UUID,
+        source: InvoiceSource = InvoiceSource.UPLOAD,
+        email_task_id: Optional[UUID] = None,
+        source_metadata: Optional[Dict[str, Any]] = None
+    ) -> Invoice:
+        """
+        从OCR解析的数据创建发票记录
+        
+        这个方法使用OCR提取的真实数据，避免临时/默认值的使用
+        
+        Args:
+            ocr_data: OCR解析的发票数据
+            file_info: 文件信息 (file_path, file_hash, file_size等)
+            user_id: 用户ID
+            source: 发票来源
+            email_task_id: 关联的邮件任务ID
+            source_metadata: 来源元数据
+            
+        Returns:
+            Invoice: 创建的发票实例
+            
+        Raises:
+            BusinessLogicError: 业务逻辑错误
+            ValidationError: 数据验证错误
+        """
+        
+        # 验证OCR数据完整性
+        if not ocr_data.get('invoice_number'):
+            raise ValidationError("OCR数据中缺少发票号码")
+        if not ocr_data.get('invoice_date'):
+            raise ValidationError("OCR数据中缺少发票日期")
+            
+        # 检查重复发票
+        await self._check_duplicate_invoice(ocr_data['invoice_number'], user_id)
+        
+        # 准备完整的源元数据
+        complete_source_metadata = {
+            **(source_metadata or {}),
+            "ocr_confidence": ocr_data.get('confidence', 0.0),
+            "ocr_processing_time": ocr_data.get('processing_time'),
+            "original_filename": file_info.get('original_filename')
+        }
+        
+        # 从OCR数据构建发票记录
+        invoice_data = {
+            "user_id": user_id,
+            "email_task_id": email_task_id,
+            "invoice_number": ocr_data['invoice_number'],
+            "invoice_code": ocr_data.get('invoice_code'),
+            "invoice_type": ocr_data.get('invoice_type'),
+            "invoice_date": self._parse_date(ocr_data['invoice_date']),
+            "amount": self._parse_amount(ocr_data.get('amount', 0)),
+            "tax_amount": self._parse_amount(ocr_data.get('tax_amount', 0)),
+            "total_amount": self._parse_amount(ocr_data.get('total_amount', 0)),
+            "currency": ocr_data.get('currency', 'CNY'),
+            "seller_name": ocr_data.get('seller_name'),
+            "seller_tax_id": ocr_data.get('seller_tax_id'),
+            "buyer_name": ocr_data.get('buyer_name'),
+            "buyer_tax_id": ocr_data.get('buyer_tax_id'),
+            "file_path": file_info['file_path'],
+            "file_hash": file_info['file_hash'],
+            "file_size": file_info['file_size'],
+            "source": source,
+            "source_metadata": complete_source_metadata,
+            "extracted_data": ocr_data,  # 保存完整的OCR原始数据
+            "status": InvoiceStatus.COMPLETED,  # OCR成功即为完成状态
+            "processing_status": None  # 不再需要处理状态
+        }
+        
+        # 创建发票记录
+        invoice = Invoice(**invoice_data)
+        self.db.add(invoice)
+        await self.db.flush()  # 获取ID
+        
+        await self.db.commit()
+        await self.db.refresh(invoice)
+        
+        # 更新用户档案统计
+        await self._update_user_invoice_stats(user_id)
+        
+        return invoice
+    
+    def _parse_date(self, date_str: str) -> date:
+        """解析日期字符串"""
+        from datetime import datetime
+        try:
+            # 尝试解析 YYYY-MM-DD 格式
+            return datetime.strptime(str(date_str).strip(), '%Y-%m-%d').date()
+        except ValueError:
+            try:
+                # 尝试解析 YYYY/MM/DD 格式
+                return datetime.strptime(str(date_str).strip(), '%Y/%m/%d').date()
+            except ValueError:
+                # 使用今天日期作为最后的fallback
+                from datetime import date
+                return date.today()
+    
+    def _parse_amount(self, amount) -> float:
+        """解析金额"""
+        if isinstance(amount, (int, float)):
+            return float(amount)
+        if isinstance(amount, str):
+            # 移除货币符号和空格
+            cleaned = amount.replace('¥', '').replace(',', '').strip()
+            try:
+                return float(cleaned)
+            except ValueError:
+                return 0.0
+        return 0.0
     
     async def update_invoice_extracted_data(
         self,

@@ -7,7 +7,7 @@
 import os
 import hashlib
 import mimetypes
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 from uuid import UUID, uuid4
 from pathlib import Path
 from datetime import datetime, timezone
@@ -93,16 +93,25 @@ class FileService:
                 f"但收到 {file.content_type}"
             )
     
-    async def calculate_file_hash(self, content: bytes) -> str:
+    async def calculate_file_hash(self, file_path_or_content: Union[str, bytes, Path]) -> str:
         """
         计算文件哈希值
         
         Args:
-            content: 文件内容
+            file_path_or_content: 文件路径或文件内容
             
         Returns:
             str: SHA256 哈希值
         """
+        if isinstance(file_path_or_content, (str, Path)):
+            # 如果是文件路径，读取文件内容
+            file_path = Path(file_path_or_content)
+            async with aiofiles.open(file_path, 'rb') as f:
+                content = await f.read()
+        else:
+            # 如果是bytes类型，直接使用
+            content = file_path_or_content
+            
         return hashlib.sha256(content).hexdigest()
     
     def get_user_upload_dir(self, user_id: UUID) -> Path:

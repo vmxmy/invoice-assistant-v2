@@ -18,6 +18,8 @@ from app.core.dependencies import CurrentUser, get_current_user, get_db_session
 from app.core.exceptions import ValidationError, BusinessLogicError
 from app.services.file_service import FileService, get_file_service, validate_pdf_file
 from app.services.invoice_service import InvoiceService, get_invoice_service
+from app.services.pdf_invoice_processor import PDFInvoiceProcessor
+from app.services.ocr_service_v4 import OCRServiceV4
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.core.config import settings
 from app.utils.path_validator import validate_file_path, validate_filename
@@ -77,19 +79,36 @@ async def upload_file(
         # 验证文件
         await validate_pdf_file(file)
         
-        # 如果需要创建发票记录，使用Service层
+        # 如果需要创建发票记录，使用完整的OCR处理流程
         if create_invoice:
-            # 创建invoice_service实例
+            # 首先保存临时文件
+            temp_file_path, file_hash, file_size, original_filename = await file_service.save_uploaded_file(
+                file, current_user.id
+            )
+            
+            # 创建服务实例
             invoice_service = get_invoice_service(db, file_service)
-            invoice = await invoice_service.create_invoice_from_file(
-                file=file,
+            ocr_service = OCRServiceV4()
+            
+            # 创建PDF处理器并执行完整流程
+            pdf_processor = PDFInvoiceProcessor(
+                db=db,
+                ocr_service=ocr_service,
+                invoice_service=invoice_service,
+                file_service=file_service
+            )
+            
+            # 执行完整的PDF发票处理流程（文件验证 + OCR + 发票创建）
+            invoice = await pdf_processor.process_pdf_invoice(
+                file_path=temp_file_path,
                 user_id=current_user.id,
-                auto_extract=True
+                source=InvoiceSource.UPLOAD,
+                source_metadata={"original_filename": original_filename}
             )
             
             return FileUploadResponse(
                 file_id=invoice.id,
-                filename=invoice.original_filename or file.filename,
+                filename=original_filename,
                 file_path=invoice.file_path,
                 file_url=file_service.get_file_url(invoice.file_path),
                 file_size=invoice.file_size,

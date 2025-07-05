@@ -5,14 +5,71 @@ OCR服务
 
 import json
 import re
+import os
 from typing import Dict, Any, Optional
 from pathlib import Path
 
 import httpx
 from app.core.config import settings
 from app.utils.logger import get_logger
+from app.utils.path_validator import validate_file_path as original_validate_file_path
 
 logger = get_logger(__name__)
+
+
+def validate_file_path(file_path: str) -> Path:
+    """
+    验证文件路径安全性（支持绝对路径）
+    
+    Args:
+        file_path: 文件路径（可以是绝对路径或相对路径）
+        
+    Returns:
+        Path: 安全的路径对象
+        
+    Raises:
+        ValueError: 路径不安全
+    """
+    try:
+        # 转换为Path对象
+        path = Path(file_path).resolve()
+        
+        # 确保是文件而不是目录
+        if path.is_dir():
+            raise ValueError("路径指向目录而非文件")
+        
+        # 确保文件在允许的目录内
+        allowed_dirs = []
+        
+        # 添加配置的上传目录
+        if hasattr(settings, 'upload_dir'):
+            allowed_dirs.append(Path(settings.upload_dir).resolve())
+        
+        # 添加配置的下载目录
+        if hasattr(settings, 'downloads_dir'):
+            allowed_dirs.append(Path(settings.downloads_dir).resolve())
+        
+        # 添加临时目录
+        allowed_dirs.append(Path('/tmp').resolve())
+        allowed_dirs.append(Path('/var/tmp').resolve())
+        
+        # 检查文件是否在允许的目录内
+        path_allowed = False
+        for allowed_dir in allowed_dirs:
+            try:
+                path.relative_to(allowed_dir)
+                path_allowed = True
+                break
+            except ValueError:
+                continue
+        
+        if not path_allowed and allowed_dirs:
+            raise ValueError(f"文件路径不在允许的目录范围内")
+        
+        return path
+        
+    except Exception as e:
+        raise ValueError(f"无效的文件路径: {str(e)}")
 
 
 class OCRService:
@@ -38,16 +95,27 @@ class OCRService:
             Dict: 提取的发票数据
         """
         try:
+            # 验证文件路径安全性
+            safe_path = validate_file_path(file_path)
+            
+            # 检查文件是否存在
+            if not safe_path.exists():
+                raise FileNotFoundError(f"文件不存在: {file_path}")
+            
+            # 检查文件扩展名
+            if safe_path.suffix.lower() != '.pdf':
+                raise ValueError(f"不支持的文件类型: {safe_path.suffix}")
+            
             if not self.api_token:
-                return await self._mock_extraction(file_path)
+                return await self._mock_extraction(str(safe_path))
             
             # 上传文件并获取提取结果
-            result = await self._call_mineru_api(file_path)
+            result = await self._call_mineru_api(str(safe_path))
             
             # 解析和标准化结果
             parsed_result = self._parse_extraction_result(result)
             
-            logger.info(f"OCR提取完成 - 文件: {file_path}")
+            logger.info(f"OCR提取完成 - 文件: {safe_path}")
             return parsed_result
             
         except Exception as e:
@@ -63,10 +131,13 @@ class OCRService:
     async def _call_mineru_api(self, file_path: str) -> Dict[str, Any]:
         """调用Mineru API"""
         try:
+            # 再次验证文件路径（双重保护）
+            safe_path = validate_file_path(file_path)
+            
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 # 上传文件
-                with open(file_path, 'rb') as file:
-                    files = {"file": (Path(file_path).name, file, "application/pdf")}
+                with open(safe_path, 'rb') as file:
+                    files = {"file": (safe_path.name, file, "application/pdf")}
                     headers = {
                         "Authorization": f"Bearer {self.api_token}",
                         "User-Agent": "InvoiceAssistant/2.0"
@@ -242,7 +313,9 @@ class OCRService:
         根据文件名和基本信息生成模拟数据
         """
         try:
-            filename = Path(file_path).stem
+            # 验证文件路径
+            safe_path = validate_file_path(file_path)
+            filename = safe_path.stem
             
             # 尝试从文件名提取信息
             invoice_number = None

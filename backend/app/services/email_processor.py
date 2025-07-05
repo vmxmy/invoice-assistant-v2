@@ -20,9 +20,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
-from app.models.invoice import Invoice, InvoiceStatus
+from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.models.task import EmailProcessingTask, TaskStatus
 from app.services.file_service import FileService
+from app.services.ocr_service import OCRService
+from app.services.invoice_service import InvoiceService
+from app.services.pdf_invoice_processor import PDFInvoiceProcessor
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -45,6 +48,7 @@ class EmailProcessor:
             expire_on_commit=False
         )
         self.file_service = FileService()
+        self.ocr_service = OCRService()
         
     async def process_email(self, email_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -64,6 +68,9 @@ class EmailProcessor:
             try:
                 # 创建处理任务记录
                 task = await self._create_processing_task(db, email_data)
+                
+                # 保存任务ID供后续使用
+                self._current_task_id = task.id
                 
                 # 更新任务状态为处理中
                 await self._update_task_status(
@@ -275,17 +282,36 @@ class EmailProcessor:
             if not file_path:
                 return None
             
-            # 上传到文件服务
-            file_info = await self.file_service.save_invoice_file(
-                user_id=user_id,
-                file_path=file_path,
-                original_filename=pdf_info["name"],
-                source="email"
+            # 构建来源元数据
+            source_metadata = {
+                "email_subject": email_data.get("subject", ""),
+                "email_sender": email_data.get("sender", ""),
+                "email_timestamp": email_data.get("timestamp"),
+                "email_message_id": email_data.get("message_id", ""),
+                "attachment_info": pdf_info
+            }
+            
+            # 创建服务实例
+            invoice_service = InvoiceService(db, self.file_service)
+            pdf_processor = PDFInvoiceProcessor(
+                db=db,
+                ocr_service=self.ocr_service,
+                invoice_service=invoice_service,
+                file_service=self.file_service
             )
             
-            # 创建发票记录
-            invoice = await self._create_invoice_record(
-                db, user_id, file_info, email_data, pdf_info
+            # 获取任务ID（如果存在）
+            email_task_id = None
+            if hasattr(self, '_current_task_id'):
+                email_task_id = self._current_task_id
+            
+            # 处理PDF发票
+            invoice = await pdf_processor.process_pdf_invoice(
+                file_path=file_path,
+                user_id=user_id,
+                source=InvoiceSource.EMAIL,
+                email_task_id=email_task_id,
+                source_metadata=source_metadata
             )
             
             # 清理临时文件
@@ -298,12 +324,21 @@ class EmailProcessor:
             
             return {
                 "invoice_id": str(invoice.id),
+                "invoice_number": invoice.invoice_number,
                 "file_name": pdf_info["name"],
-                "file_path": file_info["file_path"]
+                "file_path": invoice.file_path,
+                "status": invoice.status,
+                "amount": float(invoice.total_amount) if invoice.total_amount else 0
             }
             
         except Exception as e:
             logger.error(f"处理PDF文件失败: {pdf_info.get('name')}, 错误: {e}")
+            # 清理临时文件
+            if 'file_path' in locals():
+                try:
+                    Path(file_path).unlink()
+                except:
+                    pass
             return None
     
     async def _download_pdf_file(self, pdf_info: Dict[str, Any]) -> Optional[str]:
@@ -340,67 +375,6 @@ class EmailProcessor:
             logger.error(f"下载PDF文件失败: {pdf_info.get('url')}, 错误: {e}")
             return None
     
-    async def _create_invoice_record(
-        self, 
-        db: AsyncSession, 
-        user_id: str, 
-        file_info: Dict[str, Any], 
-        email_data: Dict[str, Any],
-        pdf_info: Dict[str, Any]
-    ) -> Invoice:
-        """创建发票记录"""
-        # 从邮件主题提取可能的发票信息
-        subject = email_data.get("subject", "")
-        sender = email_data.get("sender", "")
-        
-        invoice = Invoice(
-            user_id=user_id,
-            invoice_number=self._extract_invoice_number_from_subject(subject),
-            file_path=file_info["file_path"],
-            file_hash=file_info["file_hash"],
-            original_filename=pdf_info["name"],
-            seller_name=self._extract_company_from_email(sender),
-            status=InvoiceStatus.PENDING,
-            source="email",
-            extracted_data={
-                "email_subject": subject,
-                "email_sender": sender,
-                "email_timestamp": email_data.get("timestamp"),
-                "attachment_info": pdf_info
-            }
-        )
-        
-        db.add(invoice)
-        await db.commit()
-        await db.refresh(invoice)
-        
-        return invoice
-    
-    def _extract_invoice_number_from_subject(self, subject: str) -> Optional[str]:
-        """从邮件主题提取发票号"""
-        # 匹配常见的发票号格式
-        patterns = [
-            r'发票[号]?[:：]?\s*([A-Z0-9\-]+)',
-            r'invoice[#:]?\s*([A-Z0-9\-]+)',
-            r'票号[:：]?\s*([A-Z0-9\-]+)',
-            r'([A-Z]{2,}\d{8,})',  # 大写字母+数字组合
-        ]
-        
-        for pattern in patterns:
-            match = re.search(pattern, subject, re.IGNORECASE)
-            if match:
-                return match.group(1)
-        
-        return None
-    
-    def _extract_company_from_email(self, email: str) -> Optional[str]:
-        """从邮箱地址提取公司名"""
-        try:
-            domain = email.split('@')[1]
-            company = domain.split('.')[0]
-            return company.title()
-        except:
-            return None
     
     async def close(self):
         """关闭数据库连接"""

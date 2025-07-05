@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any, AsyncGenerator
 from uuid import UUID
 import logging
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Request, status, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -76,6 +76,11 @@ async def get_current_user_optional(
     
     try:
         token = credentials.credentials
+        
+        # 检查认证服务是否可用
+        if not supabase_auth:
+            logger.error("Authentication service not available")
+            return None
         
         # 使用 Supabase Auth 验证 Token
         user_info = supabase_auth.validate_token(token)
@@ -279,21 +284,31 @@ def require_feature(feature_name: str):
 
 def require_rate_limit(max_requests: int = 100, window_seconds: int = 3600):
     """
-    要求速率限制的装饰器依赖
+    速率限制装饰器依赖（已禁用Redis依赖）
+    
+    注意：已移除Redis依赖以避免服务启动问题。
+    如需速率限制功能，请考虑使用其他实现方案。
     
     Args:
-        max_requests: 最大请求数
-        window_seconds: 时间窗口（秒）
+        max_requests: 最大请求数（当前未使用）
+        window_seconds: 时间窗口（当前未使用）
         
     Returns:
-        Depends: 依赖函数
+        Depends: 依赖函数（始终允许请求）
     """
     async def check_rate_limit(
         request: Request,
-        client_ip: str = Depends(get_client_ip)
+        response: Response,
+        client_ip: str = Depends(get_client_ip),
+        current_user: Optional[CurrentUser] = Depends(get_current_user_optional)
     ):
-        # TODO: 实现真实的速率限制逻辑
-        # 可以使用 Redis 存储速率限制信息
+        # 暂时禁用速率限制以避免Redis依赖
+        # 设置响应头以保持API兼容性
+        response.headers["X-RateLimit-Limit"] = str(max_requests)
+        response.headers["X-RateLimit-Remaining"] = str(max_requests)
+        response.headers["X-RateLimit-Window"] = str(window_seconds)
+        
+        # 始终允许请求
         return True
     
     return Depends(check_rate_limit)

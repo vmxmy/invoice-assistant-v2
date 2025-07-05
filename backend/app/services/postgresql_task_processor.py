@@ -16,6 +16,7 @@ import asyncpg
 from app.core.config import settings
 from app.services.email_processor import EmailProcessor
 from app.services.ocr_service import OCRService
+from app.services.notification_service import NotificationService, NotificationRequest
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -41,6 +42,7 @@ class PostgreSQLTaskProcessor:
         # 服务组件
         self.email_processor = EmailProcessor(self.database_url)
         self.ocr_service = OCRService()
+        self.notification_service = NotificationService(settings)
         
         # 注册任务处理器
         self._register_task_handlers()
@@ -88,6 +90,10 @@ class PostgreSQLTaskProcessor:
             await self.connection.close()
             self.connection = None
             logger.info(f"Worker {self.worker_name} 已断开数据库连接")
+        
+        # 关闭通知服务
+        if hasattr(self, 'notification_service'):
+            await self.notification_service.close()
     
     async def on_new_task_notification(self, connection, pid, channel, payload):
         """接收到新任务通知时的回调"""
@@ -328,20 +334,34 @@ class PostgreSQLTaskProcessor:
     async def handle_send_notification(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """处理发送通知任务"""
         try:
-            notification_type = payload.get('type', 'email')
-            recipient = payload.get('recipient')
-            message = payload.get('message')
+            # 构建通知请求
+            notification_request = NotificationRequest(
+                type=payload.get('type', 'email'),
+                recipient=payload.get('recipient'),
+                subject=payload.get('subject'),
+                message=payload.get('message'),
+                metadata=payload.get('metadata'),
+                priority=payload.get('priority', 'normal')
+            )
             
-            logger.info(f"发送{notification_type}通知给 {recipient}")
+            logger.info(f"发送{notification_request.type}通知给 {notification_request.recipient}")
             
-            # TODO: 实现具体的通知发送逻辑
-            # 这里可以集成邮件服务、短信服务、推送通知等
+            # 使用通知服务发送
+            response = await self.notification_service.send_notification(notification_request)
+            
+            # 记录结果
+            if response.status == "success":
+                logger.info(f"通知发送成功: {response.notification_id}")
+            else:
+                logger.error(f"通知发送失败: {response.error}")
             
             return {
-                "status": "success",
-                "notification_type": notification_type,
-                "recipient": recipient,
-                "sent_at": datetime.now(timezone.utc).isoformat()
+                "status": response.status,
+                "notification_id": response.notification_id,
+                "notification_type": response.notification_type,
+                "recipient": response.recipient,
+                "sent_at": response.sent_at,
+                "error": response.error
             }
             
         except Exception as e:
