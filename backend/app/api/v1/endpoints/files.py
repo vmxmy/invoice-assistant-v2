@@ -19,7 +19,7 @@ from app.core.exceptions import ValidationError, BusinessLogicError
 from app.services.file_service import FileService, get_file_service, validate_pdf_file
 from app.services.invoice_service import InvoiceService, get_invoice_service
 from app.services.pdf_invoice_processor import PDFInvoiceProcessor
-from app.services.ocr_service_v4 import OCRServiceV4
+from app.services.ocr import OCRService
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.core.config import settings
 from app.utils.path_validator import validate_file_path, validate_filename
@@ -88,7 +88,7 @@ async def upload_file(
             
             # 创建服务实例
             invoice_service = get_invoice_service(db, file_service)
-            ocr_service = OCRServiceV4()
+            ocr_service = OCRService()
             
             # 创建PDF处理器并执行完整流程
             pdf_processor = PDFInvoiceProcessor(

@@ -228,7 +228,7 @@ async def process_incoming_email_task(email_data: dict, db_url: str):
         db_url: 数据库连接URL
     """
     try:
-        # 使用PostgreSQL队列替代Celery
+        # 使用PostgreSQL队列处理异步任务
         from app.services.postgresql_task_processor import enqueue_email_processing
         
         # 异步调用PostgreSQL任务队列

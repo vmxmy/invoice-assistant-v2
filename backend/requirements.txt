@@ -7,8 +7,6 @@ sqlalchemy[asyncio]
 asyncpg
 psycopg2-binary
 psycopg[asyncio]
-celery
-redis
 python-jose[cryptography]
 supabase
 httpx

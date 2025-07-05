@@ -1,0 +1,16 @@
+{
+  "test_info": {
+    "pdf_file": "/Users/xumingyang/app/invoice_assist/renamed_invoices/2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf",
+    "test_time": "2025-07-05T17:28:56.415668",
+    "extraction_method": "mineru_v4"
+  },
+  "basic_info": {
+    "status": "error",
+    "confidence": 0.0,
+    "processing_time": 7.5678839683532715,
+    "error": "API请求失败: 405 (Context: status_code=405, response_preview=<html>\r\n<head><title>405 Not Allowed</title></head>\r\n<body>\r\n<center><h1>405 Not Allowed</h1></center>\r\n<hr><center>nginx/1.24.0</center>\r\n</body>\r\n</html>\r\n, request_url=https://mineru.net/v4/batch/upload)",
+    "batch_id": null
+  },
+  "raw_text": null,
+  "structured_data": null
+}

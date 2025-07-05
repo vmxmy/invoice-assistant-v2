@@ -52,7 +52,7 @@ class EmailProcessingTask(Base, BaseModel, UserOwnedMixin, TimestampMixin, Audit
         String(100),
         nullable=True,
         index=True,
-        comment="Celery 任务 ID"
+        comment="任务 ID"
     )
     
     # 状态管理
