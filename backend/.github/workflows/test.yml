@@ -1,0 +1,243 @@
+name: 邮件地址管理系统测试
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: 缓存pip依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: 安装系统依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sqlite3
+
+    - name: 安装Python依赖
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r tests/requirements.txt
+
+    - name: 代码格式检查
+      working-directory: ./backend
+      run: |
+        # 安装格式化工具
+        pip install black isort flake8
+        
+        # 检查代码格式
+        black --check --diff .
+        isort --check-only --diff .
+        flake8 --max-line-length=120 --extend-ignore=E203,W503 .
+
+    - name: 类型检查
+      working-directory: ./backend
+      run: |
+        pip install mypy
+        mypy app --ignore-missing-imports
+
+    - name: 运行单元测试
+      working-directory: ./backend
+      run: |
+        python run_tests.py unit --coverage --verbose
+      env:
+        TESTING: true
+        DATABASE_URL: sqlite:///./test.db
+        MAILGUN_API_KEY: test-key-123
+        MAILGUN_DOMAIN: test.example.com
+
+    - name: 运行集成测试
+      working-directory: ./backend
+      run: |
+        python run_tests.py integration --verbose
+      env:
+        TESTING: true
+        DATABASE_URL: sqlite:///./test.db
+
+    - name: 上传覆盖率报告到Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/test_reports/coverage/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: 上传测试报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-reports-python-${{ matrix.python-version }}
+        path: |
+          backend/test_reports/
+          backend/htmlcov/
+        retention-days: 30
+
+    - name: 发布测试结果
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: 测试结果 (Python ${{ matrix.python-version }})
+        path: backend/test_reports/*.json
+        reporter: mocha-json
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: 安装安全扫描工具
+      working-directory: ./backend
+      run: |
+        pip install safety bandit semgrep
+
+    - name: 依赖安全扫描
+      working-directory: ./backend
+      run: |
+        safety check --json --output safety-report.json || true
+        
+    - name: 代码安全扫描
+      working-directory: ./backend
+      run: |
+        bandit -r app -f json -o bandit-report.json || true
+
+    - name: Semgrep安全扫描
+      working-directory: ./backend
+      run: |
+        semgrep --config=auto --json --output=semgrep-report.json app/ || true
+
+    - name: 上传安全报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          backend/*-report.json
+        retention-days: 30
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: 安装依赖
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r tests/requirements.txt
+
+    - name: 运行性能测试
+      working-directory: ./backend
+      run: |
+        python run_tests.py performance --verbose
+      env:
+        TESTING: true
+        DATABASE_URL: sqlite:///./test.db
+
+    - name: 上传性能报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-reports
+        path: backend/test_reports/benchmark.html
+        retention-days: 30
+
+  build-check:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: 构建检查
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel
+        
+        # 检查包能否正确构建
+        python -m build --wheel
+        
+        # 检查包安装
+        pip install dist/*.whl
+
+    - name: 文档构建检查
+      working-directory: ./backend
+      run: |
+        pip install sphinx sphinx-rtd-theme
+        
+        # 如果有文档目录，构建文档
+        if [ -d "docs" ]; then
+          cd docs
+          make html
+        fi
+
+  notification:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan, performance-test, build-check]
+    if: always()
+
+    steps:
+    - name: 测试结果通知
+      if: failure()
+      run: |
+        echo "🚨 测试失败！请检查测试报告。"
+        echo "查看详细信息: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+    - name: 成功通知
+      if: success()
+      run: |
+        echo "✅ 所有测试通过！"
+        echo "提交SHA: ${{ github.sha }}"
+        echo "分支: ${{ github.ref }}"

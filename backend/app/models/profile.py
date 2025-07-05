@@ -103,6 +103,7 @@ class Profile(Base, BaseModel, AuditMixin):
     )
     email_addresses = relationship(
         "EmailAddress",
+        primaryjoin="Profile.auth_user_id == foreign(EmailAddress.user_id)",
         back_populates="profile",
         lazy="dynamic",
         cascade="all, delete-orphan"

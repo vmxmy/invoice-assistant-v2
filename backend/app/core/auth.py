@@ -25,12 +25,12 @@ class SupabaseAuth:
         self.jwt_secret = settings.supabase_jwt_secret
         self.supabase_url = settings.supabase_url
         
-        # 生产环境强制要求JWT密钥
-        if settings.is_production and not self.jwt_secret:
-            raise RuntimeError("SUPABASE_JWT_SECRET is required in production environment")
-        
+        # JWT密钥是必需的（在生产环境）
         if not self.jwt_secret:
-            logger.warning("SUPABASE_JWT_SECRET not configured - using fallback authentication for development only")
+            if settings.is_production:
+                raise RuntimeError("SUPABASE_JWT_SECRET is required for authentication in production")
+            else:
+                logger.warning("SUPABASE_JWT_SECRET not configured - authentication will not work properly")
     
     def verify_jwt_token(self, token: str) -> Dict[str, Any]:
         """
@@ -46,19 +46,9 @@ class SupabaseAuth:
             AuthenticationError: Token 无效或过期
         """
         try:
-            # 生产环境禁止测试令牌
-            if settings.is_production and (not self.jwt_secret or token.startswith("test-")):
-                raise AuthenticationError("Invalid authentication method in production")
-            
-            # 如果没有配置 JWT Secret，使用测试模式（仅开发环境）
+            # JWT Secret 是必需的
             if not self.jwt_secret:
-                if not settings.debug:
-                    raise AuthenticationError("JWT Secret not configured")
-                return self._verify_test_token(token)
-            
-            # 首先检查是否是测试 token（开发模式下）
-            if settings.debug and token.startswith("test-"):
-                return self._verify_test_token(token)
+                raise AuthenticationError("JWT Secret not configured")
             
             # 验证 JWT
             payload = jwt.decode(
@@ -91,64 +81,6 @@ class SupabaseAuth:
         except Exception as e:
             logger.error(f"JWT verification error: {str(e)}")
             raise AuthenticationError("Token 验证失败")
-    
-    def _verify_test_token(self, token: str) -> Dict[str, Any]:
-        """
-        测试模式的 Token 验证
-        
-        仅用于开发环境，不依赖真实的 JWT Secret。
-        生产环境严格禁止使用。
-        """
-        # 严格检查环境
-        if settings.is_production:
-            raise AuthenticationError("Test tokens are strictly forbidden in production")
-        
-        if not settings.debug:
-            raise AuthenticationError("测试 Token 只能在开发模式下使用")
-        
-        logger.warning(f"Using test authentication - DEVELOPMENT ONLY: {token}")
-        
-        # 预定义的测试 token
-        test_tokens = {
-            "test-user-token": {
-                "sub": "00000000-0000-0000-0000-000000000001",
-                "email": "test@example.com",
-                "role": "authenticated",
-                "user_metadata": {
-                    "name": "Test User"
-                },
-                "app_metadata": {
-                    "provider": "email",
-                    "providers": ["email"]
-                },
-                "aud": "authenticated",
-                "exp": 9999999999,  # 很久以后才过期
-                "iat": 1700000000,
-            },
-            "test-admin-token": {
-                "sub": "00000000-0000-0000-0000-000000000002",
-                "email": "admin@example.com",
-                "role": "authenticated",
-                "user_metadata": {
-                    "name": "Admin User",
-                    "role": "admin"
-                },
-                "app_metadata": {
-                    "provider": "email",
-                    "providers": ["email"],
-                    "role": "admin"
-                },
-                "aud": "authenticated",
-                "exp": 9999999999,
-                "iat": 1700000000,
-            }
-        }
-        
-        if token in test_tokens:
-            logger.info(f"Using test token: {token}")
-            return test_tokens[token]
-        
-        raise AuthenticationError(f"未知的测试 Token: {token}")
     
     def extract_user_info(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -206,72 +138,27 @@ class SupabaseAuth:
         """
         payload = self.verify_jwt_token(token)
         return self.extract_user_info(payload)
+    
+    def verify_admin_role(self, user_info: Dict[str, Any]) -> bool:
+        """
+        验证用户是否具有管理员角色
+        
+        Args:
+            user_info: 用户信息
+            
+        Returns:
+            bool: 是否为管理员
+        """
+        return user_info.get("role") == "admin"
 
 
 # 创建全局认证实例
-supabase_auth = SupabaseAuth()
-
-
-# ===== 辅助函数 =====
-
-def extract_bearer_token(authorization: str) -> str:
-    """
-    从 Authorization 头部提取 Bearer Token
-    
-    Args:
-        authorization: Authorization 头部值
-        
-    Returns:
-        str: Token 字符串
-        
-    Raises:
-        AuthenticationError: 头部格式无效
-    """
-    if not authorization:
-        raise AuthenticationError("缺少 Authorization 头部")
-    
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise AuthenticationError("无效的 Authorization 头部格式")
-    
-    return parts[1]
-
-
-def validate_user_access(user_id: UUID, resource_user_id: UUID) -> None:
-    """
-    验证用户是否有权访问特定资源
-    
-    Args:
-        user_id: 当前用户 ID
-        resource_user_id: 资源所属用户 ID
-        
-    Raises:
-        AuthorizationError: 用户无权访问
-    """
-    if user_id != resource_user_id:
-        raise AuthorizationError("无权访问此资源")
-
-
-def require_admin_role(user_role: str) -> None:
-    """
-    要求管理员角色
-    
-    Args:
-        user_role: 用户角色
-        
-    Raises:
-        AuthorizationError: 不是管理员
-    """
-    if user_role != "admin":
-        raise AuthorizationError("需要管理员权限")
-
-
-# ===== 导出 =====
-
-__all__ = [
-    "SupabaseAuth",
-    "supabase_auth",
-    "extract_bearer_token",
-    "validate_user_access",
-    "require_admin_role",
-]
+try:
+    supabase_auth = SupabaseAuth()
+except RuntimeError as e:
+    logger.error(f"Failed to initialize Supabase auth: {e}")
+    # 在非生产环境下，创建一个空的实例以避免导入错误
+    if not settings.is_production:
+        supabase_auth = None
+    else:
+        raise

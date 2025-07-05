@@ -1,95 +1,76 @@
 """
-发票相关 API 端点
-
-处理发票的创建、查询、更新、删除等操作。
+发票管理API端点
+提供发票的查询、详情、统计等功能
 """
 
-from typing import List, Optional
+from datetime import date, datetime
+from typing import List, Optional, Dict, Any
 from uuid import UUID
-from datetime import date
-from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, desc
 from pydantic import BaseModel, Field
 
-from app.core.dependencies import CurrentUser, get_current_user, get_db_session, PaginationParams, get_pagination_params
-from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
+from app.core.database import get_async_db
+from app.core.dependencies import get_current_user
+from app.models.profile import Profile
+from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
+from app.services.invoice_service import InvoiceService
+from app.services.file_service import FileService
+from app.utils.logger import get_logger
 
+logger = get_logger(__name__)
 router = APIRouter()
 
 
-# ===== Pydantic 模型 =====
-
-class InvoiceCreate(BaseModel):
-    """创建发票请求模型"""
-    invoice_number: str = Field(..., max_length=100, description="发票号码")
-    invoice_code: Optional[str] = Field(None, max_length=50, description="发票代码")
-    invoice_type: Optional[str] = Field(None, max_length=50, description="发票类型")
-    amount: Decimal = Field(..., ge=0, description="金额（不含税）")
-    tax_amount: Optional[Decimal] = Field(None, ge=0, description="税额")
-    total_amount: Optional[Decimal] = Field(None, ge=0, description="价税合计")
-    currency: str = Field("CNY", max_length=3, description="币种")
-    invoice_date: date = Field(..., description="开票日期")
-    seller_name: Optional[str] = Field(None, max_length=200, description="销售方名称")
-    seller_tax_id: Optional[str] = Field(None, max_length=50, description="销售方纳税人识别号")
-    buyer_name: Optional[str] = Field(None, max_length=200, description="购买方名称")
-    buyer_tax_id: Optional[str] = Field(None, max_length=50, description="购买方纳税人识别号")
-    tags: List[str] = Field([], description="标签列表")
-    category: Optional[str] = Field(None, max_length=50, description="分类")
-    source: InvoiceSource = Field(InvoiceSource.UPLOAD, description="发票来源")
-
-
-class InvoiceUpdate(BaseModel):
-    """更新发票请求模型"""
-    invoice_number: Optional[str] = Field(None, max_length=100)
-    invoice_code: Optional[str] = Field(None, max_length=50)
-    invoice_type: Optional[str] = Field(None, max_length=50)
-    amount: Optional[Decimal] = Field(None, ge=0)
-    tax_amount: Optional[Decimal] = Field(None, ge=0)
-    total_amount: Optional[Decimal] = Field(None, ge=0)
-    currency: Optional[str] = Field(None, max_length=3)
-    invoice_date: Optional[date] = None
-    seller_name: Optional[str] = Field(None, max_length=200)
-    seller_tax_id: Optional[str] = Field(None, max_length=50)
-    buyer_name: Optional[str] = Field(None, max_length=200)
-    buyer_tax_id: Optional[str] = Field(None, max_length=50)
-    tags: Optional[List[str]] = None
-    category: Optional[str] = Field(None, max_length=50)
-    verification_notes: Optional[str] = None
-
-
-class InvoiceResponse(BaseModel):
-    """发票响应模型"""
+# 响应模型
+class InvoiceListItem(BaseModel):
+    """发票列表项"""
     id: UUID
-    user_id: UUID
+    invoice_number: str
+    invoice_date: date
+    seller_name: Optional[str]
+    buyer_name: Optional[str]
+    total_amount: float
+    status: str
+    processing_status: Optional[str]
+    source: str
+    created_at: datetime
+    tags: List[str] = []
+    
+    class Config:
+        from_attributes = True
+
+
+class InvoiceDetail(BaseModel):
+    """发票详情"""
+    id: UUID
     invoice_number: str
     invoice_code: Optional[str]
     invoice_type: Optional[str]
-    status: InvoiceStatus
-    processing_status: Optional[ProcessingStatus]
-    amount: Decimal
-    tax_amount: Optional[Decimal]
-    total_amount: Optional[Decimal]
-    currency: str
     invoice_date: date
     seller_name: Optional[str]
     seller_tax_id: Optional[str]
     buyer_name: Optional[str]
     buyer_tax_id: Optional[str]
-    extracted_data: dict
+    amount: float
+    tax_amount: Optional[float]
+    total_amount: Optional[float]
+    currency: str
+    status: str
+    processing_status: Optional[str]
+    source: str
     file_path: Optional[str]
     file_url: Optional[str]
     file_size: Optional[int]
-    source: InvoiceSource
     is_verified: bool
-    verified_at: Optional[str]
-    verification_notes: Optional[str]
-    tags: List[str]
+    verified_at: Optional[datetime]
+    tags: List[str] = []
     category: Optional[str]
-    created_at: str
-    updated_at: str
+    extracted_data: Dict[str, Any] = {}
+    source_metadata: Optional[Dict[str, Any]] = {}
+    created_at: datetime
+    updated_at: datetime
     
     class Config:
         from_attributes = True
@@ -97,314 +78,260 @@ class InvoiceResponse(BaseModel):
 
 class InvoiceListResponse(BaseModel):
     """发票列表响应"""
-    invoices: List[InvoiceResponse]
+    items: List[InvoiceListItem]
     total: int
     page: int
-    size: int
-    pages: int
+    page_size: int
+    has_next: bool
+    has_prev: bool
 
 
-# ===== API 端点 =====
+class InvoiceStatisticsResponse(BaseModel):
+    """发票统计响应"""
+    total_count: int
+    amount_stats: Dict[str, float]
+    status_distribution: Dict[str, int]
+    source_distribution: Dict[str, int]
+    recent_activity: Dict[str, Any] = {}
 
+
+# API端点
 @router.get("/", response_model=InvoiceListResponse)
 async def list_invoices(
-    current_user: CurrentUser = Depends(get_current_user),
-    pagination: PaginationParams = Depends(get_pagination_params),
-    status_filter: Optional[InvoiceStatus] = Query(None, alias="status", description="发票状态筛选"),
-    start_date: Optional[date] = Query(None, description="开始日期筛选"),
-    end_date: Optional[date] = Query(None, description="结束日期筛选"),
-    min_amount: Optional[Decimal] = Query(None, ge=0, description="最小金额筛选"),
-    max_amount: Optional[Decimal] = Query(None, ge=0, description="最大金额筛选"),
-    seller_name: Optional[str] = Query(None, description="销售方名称筛选"),
-    category: Optional[str] = Query(None, description="分类筛选"),
-    search: Optional[str] = Query(None, description="搜索关键词"),
-    db: AsyncSession = Depends(get_db_session)
+    query: Optional[str] = Query(None, description="搜索关键词"),
+    seller_name: Optional[str] = Query(None, description="销售方名称"),
+    invoice_number: Optional[str] = Query(None, description="发票号码"),
+    date_from: Optional[date] = Query(None, description="开始日期"),
+    date_to: Optional[date] = Query(None, description="结束日期"),
+    amount_min: Optional[float] = Query(None, description="最小金额"),
+    amount_max: Optional[float] = Query(None, description="最大金额"),
+    status: Optional[InvoiceStatus] = Query(None, description="发票状态"),
+    source: Optional[InvoiceSource] = Query(None, description="发票来源"),
+    page: int = Query(1, ge=1, description="页码"),
+    page_size: int = Query(20, ge=1, le=100, description="每页数量"),
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
     """
-    获取当前用户的发票列表
-    
-    支持多种筛选条件和分页。
+    获取发票列表
+    支持多种筛选条件和分页
     """
-    
-    # 构建基础查询
-    query = select(Invoice).where(
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    
-    # 应用筛选条件
-    filters = []
-    
-    if status_filter:
-        filters.append(Invoice.status == status_filter)
-    
-    if start_date:
-        filters.append(Invoice.invoice_date >= start_date)
-    
-    if end_date:
-        filters.append(Invoice.invoice_date <= end_date)
-    
-    if min_amount is not None:
-        filters.append(Invoice.amount >= min_amount)
-    
-    if max_amount is not None:
-        filters.append(Invoice.amount <= max_amount)
-    
-    if seller_name:
-        filters.append(Invoice.seller_name.ilike(f"%{seller_name}%"))
-    
-    if category:
-        filters.append(Invoice.category == category)
-    
-    if search:
-        search_pattern = f"%{search}%"
-        filters.append(
-            or_(
-                Invoice.invoice_number.ilike(search_pattern),
-                Invoice.seller_name.ilike(search_pattern),
-                Invoice.buyer_name.ilike(search_pattern)
-            )
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 搜索发票
+        invoices, total = await invoice_service.search_invoices(
+            user_id=current_user.auth_user_id,
+            query=query,
+            seller_name=seller_name,
+            invoice_number=invoice_number,
+            date_from=date_from,
+            date_to=date_to,
+            amount_min=amount_min,
+            amount_max=amount_max,
+            status=status,
+            source=source,
+            limit=page_size,
+            offset=offset
         )
-    
-    if filters:
-        query = query.where(and_(*filters))
-    
-    # 获取总数
-    count_query = select(func.count()).select_from(query.subquery())
-    total_result = await db.execute(count_query)
-    total = total_result.scalar()
-    
-    # 分页查询
-    query = query.offset(pagination.offset).limit(pagination.limit)
-    query = query.order_by(desc(Invoice.created_at))
-    
-    result = await db.execute(query)
-    invoices = result.scalars().all()
-    
-    # 计算页数
-    pages = (total + pagination.size - 1) // pagination.size
-    
-    return InvoiceListResponse(
-        invoices=[InvoiceResponse.from_orm(invoice) for invoice in invoices],
-        total=total,
-        page=pagination.page,
-        size=pagination.size,
-        pages=pages
-    )
+        
+        # 构造响应
+        return InvoiceListResponse(
+            items=[InvoiceListItem.from_orm(invoice) for invoice in invoices],
+            total=total,
+            page=page,
+            page_size=page_size,
+            has_next=offset + page_size < total,
+            has_prev=page > 1
+        )
+        
+    except Exception as e:
+        logger.error(f"获取发票列表失败: {e}")
+        raise HTTPException(status_code=500, detail="获取发票列表失败")
 
 
-@router.post("/", response_model=InvoiceResponse)
-async def create_invoice(
-    invoice_data: InvoiceCreate,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
+@router.get("/statistics", response_model=InvoiceStatisticsResponse)
+async def get_invoice_statistics(
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
-    """创建新发票"""
-    
-    # 检查发票号是否重复
-    existing_stmt = select(Invoice).where(
-        Invoice.user_id == current_user.id,
-        Invoice.invoice_number == invoice_data.invoice_number,
-        Invoice.deleted_at.is_(None)
-    )
-    existing_result = await db.execute(existing_stmt)
-    if existing_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"发票号 {invoice_data.invoice_number} 已存在"
+    """
+    获取发票统计信息
+    包括总数、金额统计、状态分布等
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        stats = await invoice_service.get_invoice_statistics(current_user.auth_user_id)
+        
+        # 添加最近活动信息
+        recent_invoices, _ = await invoice_service.search_invoices(
+            user_id=current_user.auth_user_id,
+            limit=5,
+            offset=0
         )
-    
-    # 自动计算总金额（如果未提供）
-    invoice_dict = invoice_data.dict()
-    if not invoice_dict.get("total_amount"):
-        amount = invoice_dict.get("amount", 0)
-        tax_amount = invoice_dict.get("tax_amount", 0)
-        invoice_dict["total_amount"] = amount + tax_amount
-    
-    # 创建发票
-    invoice = Invoice(
-        user_id=current_user.id,
-        **invoice_dict
-    )
-    
-    db.add(invoice)
-    await db.commit()
-    await db.refresh(invoice)
-    
-    return InvoiceResponse.from_orm(invoice)
+        
+        stats["recent_activity"] = {
+            "recent_count": len(recent_invoices),
+            "recent_invoices": [
+                {
+                    "id": str(inv.id),
+                    "invoice_number": inv.invoice_number,
+                    "amount": float(inv.total_amount or 0),
+                    "date": inv.invoice_date.isoformat() if inv.invoice_date else None,
+                    "created_at": inv.created_at.isoformat()
+                }
+                for inv in recent_invoices
+            ]
+        }
+        
+        return InvoiceStatisticsResponse(**stats)
+        
+    except Exception as e:
+        logger.error(f"获取发票统计失败: {e}")
+        raise HTTPException(status_code=500, detail="获取发票统计失败")
 
 
-@router.get("/{invoice_id}", response_model=InvoiceResponse)
-async def get_invoice(
-    invoice_id: UUID,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
+@router.get("/{invoice_id}", response_model=InvoiceDetail)
+async def get_invoice_detail(
+    invoice_id: UUID = Path(..., description="发票ID"),
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
-    """获取指定发票详情"""
-    
-    stmt = select(Invoice).where(
-        Invoice.id == invoice_id,
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    result = await db.execute(stmt)
-    invoice = result.scalar_one_or_none()
-    
-    if not invoice:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="发票不存在"
+    """
+    获取发票详情
+    包括完整的提取数据和元信息
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        invoice = await invoice_service.get_invoice_by_id(
+            invoice_id=invoice_id,
+            user_id=current_user.auth_user_id
         )
-    
-    return InvoiceResponse.from_orm(invoice)
-
-
-@router.put("/{invoice_id}", response_model=InvoiceResponse)
-async def update_invoice(
-    invoice_id: UUID,
-    invoice_data: InvoiceUpdate,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
-):
-    """更新发票信息"""
-    
-    # 查询现有发票
-    stmt = select(Invoice).where(
-        Invoice.id == invoice_id,
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    result = await db.execute(stmt)
-    invoice = result.scalar_one_or_none()
-    
-    if not invoice:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="发票不存在"
-        )
-    
-    # 检查发票号是否与其他发票重复
-    if invoice_data.invoice_number and invoice_data.invoice_number != invoice.invoice_number:
-        existing_stmt = select(Invoice).where(
-            Invoice.user_id == current_user.id,
-            Invoice.invoice_number == invoice_data.invoice_number,
-            Invoice.id != invoice_id,
-            Invoice.deleted_at.is_(None)
-        )
-        existing_result = await db.execute(existing_stmt)
-        if existing_result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"发票号 {invoice_data.invoice_number} 已存在"
-            )
-    
-    # 更新字段
-    update_data = invoice_data.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(invoice, field, value)
-    
-    await db.commit()
-    await db.refresh(invoice)
-    
-    return InvoiceResponse.from_orm(invoice)
+        
+        if not invoice:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        return InvoiceDetail.from_orm(invoice)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取发票详情失败: {e}")
+        raise HTTPException(status_code=500, detail="获取发票详情失败")
 
 
 @router.delete("/{invoice_id}")
 async def delete_invoice(
-    invoice_id: UUID,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
+    invoice_id: UUID = Path(..., description="发票ID"),
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
-    """删除发票（软删除）"""
-    
-    # 查询现有发票
-    stmt = select(Invoice).where(
-        Invoice.id == invoice_id,
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    result = await db.execute(stmt)
-    invoice = result.scalar_one_or_none()
-    
-    if not invoice:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="发票不存在"
+    """
+    删除发票（软删除）
+    同时删除关联的文件
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        success = await invoice_service.delete_invoice(
+            invoice_id=invoice_id,
+            user_id=current_user.auth_user_id
         )
-    
-    # 软删除
-    invoice.soft_delete()
-    
-    await db.commit()
-    
-    return {"message": "发票已删除"}
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        return {"message": "发票删除成功", "invoice_id": str(invoice_id)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除发票失败: {e}")
+        raise HTTPException(status_code=500, detail="删除发票失败")
 
 
-@router.post("/{invoice_id}/verify", response_model=InvoiceResponse)
+@router.post("/{invoice_id}/verify")
 async def verify_invoice(
-    invoice_id: UUID,
-    notes: Optional[str] = Query(None, description="验证备注"),
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
+    invoice_id: UUID = Path(..., description="发票ID"),
+    notes: Optional[str] = None,
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
-    """验证发票"""
-    
-    # 查询现有发票
-    stmt = select(Invoice).where(
-        Invoice.id == invoice_id,
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    result = await db.execute(stmt)
-    invoice = result.scalar_one_or_none()
-    
-    if not invoice:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="发票不存在"
+    """
+    标记发票为已验证
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        invoice = await invoice_service.get_invoice_by_id(
+            invoice_id=invoice_id,
+            user_id=current_user.auth_user_id
         )
-    
-    # 标记为已验证
-    invoice.mark_as_verified(current_user.id, notes)
-    
-    await db.commit()
-    await db.refresh(invoice)
-    
-    return InvoiceResponse.from_orm(invoice)
+        
+        if not invoice:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        # 标记为已验证
+        invoice.mark_as_verified(current_user.auth_user_id, notes)
+        await db.commit()
+        
+        return {
+            "message": "发票验证成功",
+            "invoice_id": str(invoice_id),
+            "verified_at": invoice.verified_at.isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"验证发票失败: {e}")
+        raise HTTPException(status_code=500, detail="验证发票失败")
 
 
-@router.get("/stats/overview")
-async def get_invoice_stats(
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
+@router.put("/{invoice_id}/tags")
+async def update_invoice_tags(
+    invoice_id: UUID = Path(..., description="发票ID"),
+    tags: List[str] = [],
+    current_user: Profile = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
 ):
-    """获取发票统计信息"""
-    
-    base_query = select(Invoice).where(
-        Invoice.user_id == current_user.id,
-        Invoice.deleted_at.is_(None)
-    )
-    
-    # 总发票数
-    total_stmt = select(func.count()).select_from(base_query.subquery())
-    total_result = await db.execute(total_stmt)
-    total_invoices = total_result.scalar()
-    
-    # 已验证发票数
-    verified_stmt = select(func.count()).select_from(
-        base_query.where(Invoice.is_verified == True).subquery()
-    )
-    verified_result = await db.execute(verified_stmt)
-    verified_invoices = verified_result.scalar()
-    
-    # 总金额
-    amount_stmt = select(func.sum(Invoice.total_amount)).select_from(base_query.subquery())
-    amount_result = await db.execute(amount_stmt)
-    total_amount = amount_result.scalar() or 0
-    
-    return {
-        "total_invoices": total_invoices,
-        "verified_invoices": verified_invoices,
-        "unverified_invoices": total_invoices - verified_invoices,
-        "total_amount": float(total_amount)
-    }
+    """
+    更新发票标签
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        invoice = await invoice_service.get_invoice_by_id(
+            invoice_id=invoice_id,
+            user_id=current_user.auth_user_id
+        )
+        
+        if not invoice:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        # 更新标签
+        invoice.tags = tags
+        await db.commit()
+        
+        return {
+            "message": "标签更新成功",
+            "invoice_id": str(invoice_id),
+            "tags": invoice.tags
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新发票标签失败: {e}")
+        raise HTTPException(status_code=500, detail="更新发票标签失败")

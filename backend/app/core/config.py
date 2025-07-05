@@ -77,19 +77,6 @@ class Settings(BaseSettings):
     database_pool_size: int = Field(default=20, description="数据库连接池大小")
     database_max_overflow: int = Field(default=0, description="数据库连接池溢出")
     
-    # Redis 配置
-    redis_url: str = Field(default="redis://localhost:6379/0", description="Redis URL")
-    redis_cache_db: int = Field(default=1, description="Redis 缓存数据库")
-    
-    # Celery 配置
-    celery_broker_url: str = Field(
-        default="redis://localhost:6379/0",
-        description="Celery 消息代理 URL"
-    )
-    celery_result_backend: str = Field(
-        default="redis://localhost:6379/0",
-        description="Celery 结果后端 URL"
-    )
     
     # Mailgun 配置
     mailgun_api_key: str = Field(default="", description="Mailgun API 密钥")

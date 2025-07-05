@@ -1,0 +1,140 @@
+{
+  "total_tests": 19,
+  "passed_tests": 19,
+  "failed_tests": 0,
+  "results": [
+    {
+      "test_name": "设置测试环境",
+      "success": true,
+      "message": "创建测试用户: 集成测试用户",
+      "details": {},
+      "timestamp": "2025-07-05T01:36:58.527541"
+    },
+    {
+      "test_name": "配置-数据库URL",
+      "success": true,
+      "message": "数据库配置: 有效",
+      "details": {},
+      "timestamp": "2025-07-05T01:36:58.616155"
+    },
+    {
+      "test_name": "配置-Supabase",
+      "success": true,
+      "message": "Supabase配置: 已配置",
+      "details": {},
+      "timestamp": "2025-07-05T01:36:58.616185"
+    },
+    {
+      "test_name": "配置-Mailgun",
+      "success": true,
+      "message": "Mailgun配置: 已配置",
+      "details": {},
+      "timestamp": "2025-07-05T01:36:58.616193"
+    },
+    {
+      "test_name": "配置-安全密钥",
+      "success": true,
+      "message": "密钥长度: 41 字符",
+      "details": {},
+      "timestamp": "2025-07-05T01:36:58.616202"
+    },
+    {
+      "test_name": "数据库-创建邮件地址",
+      "success": true,
+      "message": "创建地址: invoice-main-2d93e83a-71c3-4e6e-ad3e-5460790fe61c@sandboxb4697cc4a0c84b3ca0a4d46ff64d5078.mailgun.org",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:05.684829"
+    },
+    {
+      "test_name": "数据库-查询邮件地址",
+      "success": true,
+      "message": "查询到 1 个地址",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:06.070855"
+    },
+    {
+      "test_name": "数据库-更新邮件地址",
+      "success": true,
+      "message": "更新别名: 更新后的别名",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:07.454545"
+    },
+    {
+      "test_name": "数据库-统计信息",
+      "success": true,
+      "message": "总地址数: 1",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:07.531706"
+    },
+    {
+      "test_name": "Mailgun-生成邮件地址",
+      "success": true,
+      "message": "生成地址: invoice-2d93e83a-71c3-4e6e-ad3e-5460790fe61c@sandboxb4697cc4a0c84b3ca0a4d46ff64d5078.mailgun.org",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:07.609257"
+    },
+    {
+      "test_name": "Mailgun-用户ID提取",
+      "success": true,
+      "message": "提取结果: 2d93e83a-71c3-4e6e-ad3e-5460790fe61c",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:07.609831"
+    },
+    {
+      "test_name": "Mailgun-配置检查",
+      "success": true,
+      "message": "API密钥配置: 已配置",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:07.609853"
+    },
+    {
+      "test_name": "Mailgun-域名验证",
+      "success": true,
+      "message": "沙盒域名正常（404预期）",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:08.939336"
+    },
+    {
+      "test_name": "API-健康检查",
+      "success": true,
+      "message": "状态码: 200",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:10.477778"
+    },
+    {
+      "test_name": "API-根路径",
+      "success": true,
+      "message": "状态码: 200",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:10.481278"
+    },
+    {
+      "test_name": "API-文档访问",
+      "success": true,
+      "message": "文档可访问: True",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:10.483160"
+    },
+    {
+      "test_name": "API-创建邮件地址",
+      "success": true,
+      "message": "状态码: 401",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:10.495407"
+    },
+    {
+      "test_name": "API-获取地址列表",
+      "success": true,
+      "message": "状态码: 401",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:10.497065"
+    },
+    {
+      "test_name": "清理测试数据",
+      "success": true,
+      "message": "清理了 1 个地址",
+      "details": {},
+      "timestamp": "2025-07-05T01:37:11.717385"
+    }
+  ]
+}
