@@ -9,11 +9,14 @@ from typing import Optional, List, Dict, Any, Tuple
 from uuid import UUID
 from datetime import datetime, timezone, date
 from pathlib import Path
+import json
+import logging
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
 from sqlalchemy.orm import selectinload
+from sqlalchemy.exc import IntegrityError
 
 from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
 from app.models.profile import Profile
@@ -22,6 +25,9 @@ from app.services.file_service import FileService
 from app.utils.dict_utils import deep_merge
 from app.utils.query_optimizer import QueryOptimizer
 from app.core.config import settings
+from app.utils.json_serializer import serialize_for_json
+
+logger = logging.getLogger(__name__)
 
 
 class InvoiceService:
@@ -104,6 +110,191 @@ class InvoiceService:
         
         return invoice
     
+    async def create_or_update_from_file(
+        self,
+        file: UploadFile,
+        user_id: UUID,
+        original_filename: str
+    ) -> Tuple[Invoice, bool]:
+        """
+        从上传文件创建或更新发票（包含OCR处理）
+        
+        Args:
+            file: 上传的文件
+            user_id: 用户ID
+            original_filename: 原始文件名
+            
+        Returns:
+            Tuple[Invoice, bool]: (发票实例, 是否为新创建)
+            
+        Raises:
+            BusinessLogicError: 业务逻辑错误
+            ValidationError: 验证错误
+        """
+        # 1. 保存文件
+        temp_file_path, file_hash, file_size, _ = await self.file_service.save_uploaded_file(
+            file, user_id
+        )
+        
+        # 2. 使用OCR服务
+        from app.services.ocr import OCRService, OCRConfig
+        
+        # 构造完整文件路径
+        full_file_path = Path(settings.upload_dir) / temp_file_path
+        
+        # 创建OCR配置和服务实例
+        ocr_config = OCRConfig()
+        ocr_service = OCRService(ocr_config)
+        
+        # 调用OCR提取
+        ocr_result = await ocr_service.extract_invoice_data(str(full_file_path))
+        
+        # 3. 处理OCR结果
+        structured_data = ocr_result.get('structured_data')
+        raw_data = ocr_result.get('raw_data', {})
+        
+        # 4. 构建发票数据
+        if structured_data:
+            invoice_data = self._build_invoice_from_structured_data(
+                structured_data, 
+                temp_file_path, 
+                file_hash, 
+                file_size,
+                user_id,
+                original_filename
+            )
+        else:
+            invoice_data = self._build_invoice_from_raw_data(
+                raw_data,
+                temp_file_path,
+                file_hash,
+                file_size,
+                user_id,
+                original_filename
+            )
+        
+        # 5. 保存或更新发票
+        try:
+            invoice = Invoice(**invoice_data)
+            self.db.add(invoice)
+            await self.db.commit()
+            await self.db.refresh(invoice)
+            return invoice, True
+        except IntegrityError as e:
+            await self.db.rollback()
+            
+            # 处理重复发票
+            if "duplicate key value violates unique constraint" in str(e) and "uk_invoice_number_user" in str(e):
+                invoice_number = (
+                    structured_data.main_info.invoice_number if structured_data 
+                    else raw_data.get('invoice_number', f"UPLOAD_{file_hash[:8]}")
+                )
+                
+                # 查找并更新已存在的发票
+                existing_invoice = await self._find_invoice_by_number(invoice_number, user_id)
+                if existing_invoice:
+                    await self._update_invoice_data(existing_invoice, invoice_data)
+                    await self.db.commit()
+                    await self.db.refresh(existing_invoice)
+                    return existing_invoice, False
+            
+            raise BusinessLogicError(f"数据库保存失败: {str(e)}")
+    
+    def _build_invoice_from_structured_data(
+        self,
+        structured_data,
+        file_path: str,
+        file_hash: str,
+        file_size: int,
+        user_id: UUID,
+        original_filename: str
+    ) -> Dict[str, Any]:
+        """从结构化数据构建发票字典"""
+        return {
+            "user_id": user_id,
+            "invoice_number": structured_data.main_info.invoice_number or f"UPLOAD_{file_hash[:8]}",
+            "invoice_code": structured_data.main_info.invoice_code,
+            "invoice_type": structured_data.main_info.invoice_type or '增值税普通发票',
+            "invoice_date": structured_data.main_info.invoice_date,
+            "amount": float(structured_data.summary.amount) if structured_data.summary.amount else 0,
+            "tax_amount": float(structured_data.summary.tax_amount) if structured_data.summary.tax_amount else 0,
+            "total_amount": float(structured_data.summary.total_amount) if structured_data.summary.total_amount else 0,
+            "currency": 'CNY',
+            "seller_name": structured_data.seller_info.name,
+            "seller_tax_id": structured_data.seller_info.tax_id,
+            "buyer_name": structured_data.buyer_info.name,
+            "buyer_tax_id": structured_data.buyer_info.tax_id,
+            "file_path": file_path,
+            "file_url": self.file_service.get_file_url(file_path),
+            "file_size": file_size,
+            "file_hash": file_hash,
+            "source": InvoiceSource.UPLOAD,
+            "status": InvoiceStatus.COMPLETED,
+            "processing_status": ProcessingStatus.OCR_COMPLETED,
+            "extracted_data": {
+                **json.loads(structured_data.json()),
+                **serialize_for_json(structured_data.dict())
+            },
+            "source_metadata": {"original_filename": original_filename},
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+    
+    def _build_invoice_from_raw_data(
+        self,
+        raw_data: Dict[str, Any],
+        file_path: str,
+        file_hash: str,
+        file_size: int,
+        user_id: UUID,
+        original_filename: str
+    ) -> Dict[str, Any]:
+        """从原始数据构建发票字典"""
+        return {
+            "user_id": user_id,
+            "invoice_number": raw_data.get('invoice_number', f"UPLOAD_{file_hash[:8]}"),
+            "invoice_code": raw_data.get('invoice_code'),
+            "invoice_type": raw_data.get('invoice_type', '增值税普通发票'),
+            "invoice_date": self._parse_date(raw_data.get('invoice_date')),
+            "amount": self._parse_amount(raw_data.get('amount', 0)),
+            "tax_amount": self._parse_amount(raw_data.get('tax_amount', 0)),
+            "total_amount": self._parse_amount(raw_data.get('total_amount', 0)),
+            "currency": 'CNY',
+            "seller_name": raw_data.get('seller_name'),
+            "seller_tax_id": raw_data.get('seller_tax_id'),
+            "buyer_name": raw_data.get('buyer_name'),
+            "buyer_tax_id": raw_data.get('buyer_tax_id'),
+            "file_path": file_path,
+            "file_url": self.file_service.get_file_url(file_path),
+            "file_size": file_size,
+            "file_hash": file_hash,
+            "source": InvoiceSource.UPLOAD,
+            "status": InvoiceStatus.COMPLETED,
+            "processing_status": ProcessingStatus.OCR_COMPLETED,
+            "extracted_data": raw_data,
+            "source_metadata": {"original_filename": original_filename},
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+    
+    async def _find_invoice_by_number(self, invoice_number: str, user_id: UUID) -> Optional[Invoice]:
+        """根据发票号码查找发票"""
+        stmt = select(Invoice).where(
+            Invoice.invoice_number == invoice_number,
+            Invoice.user_id == user_id
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+    
+    async def _update_invoice_data(self, invoice: Invoice, new_data: Dict[str, Any]) -> None:
+        """更新发票数据"""
+        # 更新所有字段
+        for key, value in new_data.items():
+            if hasattr(invoice, key) and key not in ['id', 'created_at']:
+                setattr(invoice, key, value)
+        
+        invoice.updated_at = datetime.now(timezone.utc)
+
     async def create_invoice_from_ocr_data(
         self,
         ocr_data: Dict[str, Any],
@@ -391,6 +582,17 @@ class InvoiceService:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
     
+    async def get_invoice_by_file_path(self, file_path: str, user_id: UUID) -> Optional[Invoice]:
+        """根据文件路径获取发票"""
+        query = select(Invoice).where(
+            Invoice.file_path == file_path,
+            Invoice.user_id == user_id,
+            Invoice.deleted_at.is_(None)
+        )
+        
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
+    
     async def delete_invoice(self, invoice_id: UUID, user_id: UUID) -> bool:
         """软删除发票"""
         invoice = await self.get_invoice_by_id(invoice_id, user_id)
@@ -556,4 +758,17 @@ def get_invoice_service(
     file_service: FileService
 ) -> InvoiceService:
     """获取发票服务实例"""
+    return InvoiceService(db, file_service)
+
+
+# 用于API端点的简化依赖注入
+from fastapi import Depends
+from app.core.dependencies import get_db_session
+from app.services.file_service import get_file_service
+
+async def get_invoice_service_from_request(
+    db: AsyncSession = Depends(get_db_session),
+    file_service: FileService = Depends(get_file_service)
+) -> InvoiceService:
+    """从请求中获取发票服务实例"""
     return InvoiceService(db, file_service)

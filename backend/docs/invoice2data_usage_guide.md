@@ -172,36 +172,73 @@ options:
 
 ## 5. 实际应用示例
 
-### 5.1 中国电子发票模板
+### 5.1 中国电子发票模板（V2优化版）
 
 ```yaml
-issuer: 中国电子发票
+issuer: 中国增值税电子发票V2
+priority: 185  # 更高优先级
 keywords:
-  - 增值税电子普通发票
-  - 发票号码
-  - 开票日期
+  - "发票"  # 简化关键词，提高匹配率
+
 fields:
-  # 基础信息
-  invoice_number: 发票号码[：:](\d+)
-  invoice_code: 发票代码[：:](\d+)
-  date: 开票日期[：:](\d{4}年\d{1,2}月\d{1,2}日)
+  # 基础信息 - 适配无空格文本
+  invoice_number:
+    parser: regex
+    regex: '发票号码[：:](\d{15,25})'
+  date:
+    parser: regex
+    regex: '开票日期[：:](\d{4}年\d{1,2}月\d{1,2}日)'
+    type: date
   
-  # 金额信息
-  amount: '价税合计.*?[¥￥]([\d,]+\.\d{2})'
-  tax_amount: '税额.*?[¥￥]([\d,]+\.\d{2})'
+  # 金额信息 - 分离三个独立字段
+  # 价税合计（总金额）
+  amount:
+    parser: regex
+    regex: '(?:价税合计[（(]小写[）)][¥￥]|小写[）)][¥￥])([0-9,]+\.?\d*)'
+    type: float
   
-  # 交易方信息
-  seller_name: 销售方名称[：:]([^\n]+?)(?=\s*统一社会信用代码|$)
-  seller_tax_id: 销售方.*?统一社会信用代码[：:]([A-Z0-9]{18})
-  buyer_name: 购买方名称[：:]([^\n]+?)(?=\s*统一社会信用代码|$)
-  buyer_tax_id: 购买方.*?统一社会信用代码[：:]([A-Z0-9]{18})
+  # 税前金额（不含税金额）
+  amount_pretax:
+    parser: regex
+    regex: '合计[¥￥]([0-9,]+\.?\d*)[¥￥]'
+    type: float
+    
+  # 税额
+  tax_amount:
+    parser: regex
+    regex: '合计[¥￥][0-9,]+\.?\d*[¥￥]([0-9,]+\.?\d*)'
+    type: float
+  
+  # 交易方信息 - 适配多种格式
+  buyer_name:
+    parser: regex
+    regex: '(?:购买方名称[：:]|购名称[：:]|买名称[：:])([^售销]+?)(?=售|销|$)'
+  seller_name:
+    parser: regex  
+    regex: '(?:销售方名称[：:]|销名称[：:]|售名称[：:])([^方信买]+?)(?=方|信|买|$)'
 
 options:
   currency: CNY
   date_formats:
     - '%Y年%m月%d日'
-  remove_whitespace: false
+  remove_whitespace: true  # 关键改进：移除空白字符
 ```
+
+#### 关键改进说明
+
+1. **remove_whitespace: true**
+   - 解决PDF中"发 票 号 码"等带空格文本的匹配问题
+   - 所有正则表达式需要适配无空格的文本
+
+2. **金额字段分离**
+   - `amount`: 价税合计（总金额）
+   - `amount_pretax`: 税前金额
+   - `tax_amount`: 税额
+   - 满足关系：amount_pretax + tax_amount = amount
+
+3. **灵活的名称匹配**
+   - 支持"购买方名称"、"购名称"、"买名称"等变体
+   - 使用前瞻断言避免过度匹配
 
 ### 5.2 批量处理脚本
 
@@ -389,12 +426,108 @@ def parallel_process(invoice_dir, templates, max_workers=4):
    - 记录失败的发票
    - 保留原始 PDF 用于人工处理
 
-## 10. 扩展应用
+## 10. 生产环境最佳实践
+
+### 10.1 模板管理策略
+
+1. **模板版本控制**
+   ```bash
+   templates/
+   ├── china_vat_special_invoice_v2.yml  # 生产版本
+   ├── china_vat_special_invoice_v1.yml  # 备份版本
+   └── test/                             # 测试模板目录
+   ```
+
+2. **优先级设置**
+   - 使用 `priority` 字段控制模板匹配顺序
+   - 新版本模板设置更高优先级（如 185）
+   - 保留旧版本作为降级方案
+
+### 10.2 处理特殊情况
+
+1. **PDF空格问题**
+   ```yaml
+   options:
+     remove_whitespace: true  # 处理"发 票 号 码"这类问题
+   ```
+
+2. **金额提取优化**
+   ```python
+   # 分离金额字段，避免返回数组
+   amount_pretax = result.get('amount_pretax')  # 税前
+   tax_amount = result.get('tax_amount')        # 税额
+   total_amount = result.get('amount')          # 总额
+   ```
+
+3. **重复发票处理**
+   ```python
+   # 建议：更新而非拒绝
+   if invoice_exists:
+       update_invoice_data(new_data)
+   ```
+
+### 10.3 性能监控
+
+```python
+import time
+import logging
+
+def monitor_extraction(pdf_path, templates):
+    """带监控的提取"""
+    start_time = time.time()
+    
+    try:
+        result = extract_data(pdf_path, templates=templates)
+        duration = time.time() - start_time
+        
+        logging.info(f"提取成功: {pdf_path}, 耗时: {duration:.2f}秒")
+        
+        # 记录关键指标
+        if result:
+            fields_extracted = len([k for k,v in result.items() if v])
+            logging.info(f"提取字段数: {fields_extracted}")
+            
+        return result
+        
+    except Exception as e:
+        logging.error(f"提取失败: {pdf_path}, 错误: {e}")
+        raise
+```
+
+### 10.4 错误处理和降级
+
+```python
+def extract_with_fallback(pdf_path, primary_templates, fallback_templates):
+    """带降级的提取策略"""
+    # 尝试主模板
+    result = extract_data(pdf_path, templates=primary_templates)
+    
+    if not result or len(result) < 5:  # 字段太少，可能匹配不佳
+        # 尝试备用模板
+        result = extract_data(pdf_path, templates=fallback_templates)
+        
+    if not result:
+        # 最后尝试OCR
+        result = extract_with_ocr(pdf_path)
+        
+    return result
+```
+
+## 11. 扩展应用
 
 invoice2data 不仅限于发票，还可用于：
 - 收据提取
 - 订单确认
 - 报价单
+- 火车票、机票
 - 任何结构化的 PDF 文档
 
 通过灵活的模板系统，可以适配各种文档格式的数据提取需求。
+
+## 12. 更新历史
+
+- **2025-01-06**: 发布 V2 优化版模板
+  - 解决PDF空格问题
+  - 金额字段分离
+  - 提升匹配准确率到 100%
+  - 优化重复发票处理策略

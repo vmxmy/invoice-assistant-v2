@@ -19,6 +19,7 @@ from .base import BaseOCRClient
 from .exceptions import OCRProcessError, OCRConfigError
 from .models import StructuredInvoiceData, InvoiceMainInfo, InvoicePartyInfo, InvoiceSummary
 from .config import OCRConfig
+from .post_processors import PostProcessorChain
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class Invoice2DataClient(BaseOCRClient):
         self.templates_dir = self._setup_templates_directory()
         self.custom_templates = None
         self._load_templates()
+        self.post_processor_chain = PostProcessorChain.default_chain()
     
     async def extract_invoice_data(self, file_path: str) -> Dict[str, Any]:
         """
@@ -127,16 +129,19 @@ class Invoice2DataClient(BaseOCRClient):
             if not result:
                 raise OCRProcessError(f"invoice2data未能提取到数据: {file_path}")
             
+            # 应用后处理器链
+            processed_result = self.post_processor_chain.process(result)
+            
             # 转换为标准格式
-            structured_data = self._convert_to_structured_data(result)
+            structured_data = self._convert_to_structured_data(processed_result)
             
             logger.info(f"invoice2data处理完成: {file_path}")
             
             return {
                 'status': 'success',
                 'structured_data': structured_data,
-                'raw_data': result,
-                'confidence': self._calculate_confidence(result),
+                'raw_data': processed_result,
+                'confidence': self._calculate_confidence(processed_result),
                 'extraction_method': 'invoice2data'
             }
             
