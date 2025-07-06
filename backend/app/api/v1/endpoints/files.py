@@ -114,25 +114,37 @@ async def upload_invoice_file(
             file, current_user.id
         )
         
-        # 2. 直接调用本地增强规则提取器
-        from app.services.ocr.enhanced_rule_extractor import EnhancedRuleExtractor
-        from app.services.ocr.config import OCRConfig
+        # 2. 使用OCR服务（自动使用Invoice2Data）
+        from app.services.ocr import OCRService, OCRConfig
         from app.core.config import settings
         from pathlib import Path
         
         # 构造完整文件路径
         full_file_path = Path(settings.upload_dir) / temp_file_path
         
-        # 创建OCR配置并初始化提取器
+        # 创建OCR配置和服务实例
         ocr_config = OCRConfig()
-        extractor = EnhancedRuleExtractor(ocr_config)
+        ocr_service = OCRService(ocr_config)
         
-        # 直接同步调用OCR提取 
-        ocr_result = await extractor.extract_invoice_data(str(full_file_path))
+        # 调用OCR提取
+        ocr_result = await ocr_service.extract_invoice_data(str(full_file_path))
         
         # 3. 直接创建完整的发票记录（无需复杂状态流转）
         from datetime import datetime, timezone
         import json
+        
+        def serialize_for_json(obj):
+            """安全的JSON序列化函数"""
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            elif hasattr(obj, '__dict__'):
+                return obj.__dict__
+            elif isinstance(obj, dict):
+                return {k: serialize_for_json(v) for k, v in obj.items() if not k.startswith('_')}
+            elif isinstance(obj, list):
+                return [serialize_for_json(item) for item in obj]
+            else:
+                return obj
         
         # 从增强规则提取器的结果中提取数据
         # ocr_result是包含structured_data和raw_data的字典
@@ -162,7 +174,10 @@ async def upload_invoice_file(
                 source=InvoiceSource.UPLOAD,
                 status=InvoiceStatus.COMPLETED,  # 直接完成状态
                 processing_status=ProcessingStatus.OCR_COMPLETED,  # OCR已完成
-                extracted_data=json.loads(structured_data.json()),  # 转换为JSON兼容的字典
+                extracted_data={
+                    **json.loads(structured_data.json()),  # 结构化数据
+                    **serialize_for_json(raw_data)  # 安全序列化原始数据
+                },
                 source_metadata={"original_filename": original_filename},
                 created_at=datetime.now(timezone.utc),
                 updated_at=datetime.now(timezone.utc)

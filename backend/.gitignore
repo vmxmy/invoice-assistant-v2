@@ -1,0 +1,50 @@
+# 认证令牌文件
+.auth_token
+.supabase_token
+.user_token
+
+# 测试结果文件
+*_test_results_*.json
+*_results_*.json
+
+# 测试脚本
+test_*.py
+test_*.sh
+
+# 调试脚本
+debug_*.py
+analyze_*.py
+verify_*.py
+process_*.py
+design_*.py
+
+# 获取令牌脚本
+get_token*.py
+get_auth_token.py
+get_mcp_auth_token.py
+
+# 检查脚本
+check_*.py
+
+# 临时文件夹
+scrips/
+
+# 日志文件
+*.log
+
+# Python缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE配置
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
