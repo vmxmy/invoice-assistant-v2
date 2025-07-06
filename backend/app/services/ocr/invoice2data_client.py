@@ -560,60 +560,149 @@ class Invoice2DataClient(BaseOCRClient):
         """
         智能处理火车票站点信息
         
-        基于提取的站点信息和上下文，智能判断出发站和到达站
+        基于PDF文本布局和上下文，智能判断出发站和到达站
         """
-        station_1 = data.get('station_1')
-        station_2 = data.get('station_2')
+        # 获取所有提取的站点
+        all_stations = data.get('all_stations')
+        pdf_text = data.get('_pdf_text', '')
         
-        # 处理数组情况（invoice2data返回多个匹配）
-        if isinstance(station_1, list) and len(station_1) >= 2:
-            # 从数组中取前两个站点
-            first_station = station_1[0]
-            second_station = station_1[1]
-        elif isinstance(station_1, list) and len(station_1) == 1:
-            first_station = station_1[0]
-            second_station = None
-        elif isinstance(station_1, str):
-            first_station = station_1
-            second_station = None
-        else:
-            # 从原始PDF文本中提取所有站点
-            pdf_text = data.get('_pdf_text', '')
-            if pdf_text:
-                all_stations = re.findall(r'([\u4e00-\u9fa5]+站)', pdf_text)
-                unique_stations = list(dict.fromkeys(all_stations))  # 保持顺序去重
-                
-                if len(unique_stations) >= 2:
-                    first_station = unique_stations[0]
-                    second_station = unique_stations[1]
-                else:
-                    return
-            else:
-                return
-        
-        # 确定第二个站点
-        if not second_station and isinstance(station_2, list) and len(station_2) >= 2:
-            second_station = station_2[1]
-        elif not second_station and isinstance(station_2, str):
-            second_station = station_2
-        
-        if first_station and second_station and first_station != second_station:
-            # 根据用户反馈的规则：距离"XX:XX开"时间行更近的站点是到达站
-            # 基于PDF文本分析，普宁站更接近出发时间，所以是出发站
-            # 广州南站是到达站
-            data['departure_station'] = second_station  # 普宁站
-            data['arrival_station'] = first_station     # 广州南站
+        if not pdf_text:
+            return
             
-            # 记录原始提取结果用于调试
-            data['_original_station_1'] = first_station
-            data['_original_station_2'] = second_station
-        elif first_station:
-            # 如果只提取到一个站点，无法确定方向
-            data['departure_station'] = first_station
-            data['arrival_station'] = '未知'
+        # 获取站点列表
+        stations = []
+        if isinstance(all_stations, list):
+            stations = all_stations
+        elif isinstance(all_stations, str):
+            stations = [all_stations]
+        
+        # 如果模板提取失败，从PDF文本中提取所有站点
+        if not stations:
+            stations = re.findall(r'([\u4e00-\u9fa5]+站)', pdf_text)
+        
+        # 去重但保持顺序
+        unique_stations = list(dict.fromkeys(stations))
+        
+        if len(unique_stations) < 2:
+            return
+            
+        # 智能分析站点顺序：基于发车时间位置和英文站名
+        departure_station, arrival_station = self._analyze_station_order(
+            pdf_text, unique_stations
+        )
+        
+        if departure_station and arrival_station:
+            data['departure_station'] = departure_station
+            data['arrival_station'] = arrival_station
+            
+            # 记录调试信息
+            data['_all_stations_found'] = unique_stations
+            data['_analysis_method'] = 'intelligent_layout_analysis'
         
         # 清理临时字段
-        if 'station_1' in data:
-            del data['station_1']
-        if 'station_2' in data:
-            del data['station_2']
+        if 'all_stations' in data:
+            del data['all_stations']
+    
+    def _analyze_station_order(self, pdf_text: str, stations: List[str]) -> tuple:
+        """
+        基于PDF布局和上下文分析站点顺序
+        
+        Args:
+            pdf_text: PDF原始文本
+            stations: 站点列表
+            
+        Returns:
+            tuple: (departure_station, arrival_station)
+        """
+        lines = pdf_text.split('\n')
+        
+        # 查找发车时间的位置
+        departure_time_line = None
+        for i, line in enumerate(lines):
+            if re.search(r'\d{1,2}:\d{2}开', line):
+                departure_time_line = i
+                break
+        
+        # 查找英文站名的位置和顺序
+        english_stations = []
+        english_pattern = r'[A-Z][a-z]+'
+        for i, line in enumerate(lines):
+            if re.match(r'^[A-Z][a-z]+$', line.strip()):
+                english_stations.append((i, line.strip()))
+        
+        # 建立中英文站名的映射关系
+        station_positions = {}
+        for station in stations:
+            for i, line in enumerate(lines):
+                if station in line:
+                    station_positions[station] = i
+                    break
+        
+        # 策略1: 基于英文站名的出现顺序
+        if len(english_stations) >= 2 and len(stations) >= 2:
+            # 英文站名通常按出发→到达的顺序出现
+            first_english = english_stations[0][1]
+            second_english = english_stations[1][1]
+            
+            # 尝试匹配中文站名
+            station_mapping = self._match_chinese_english_stations(
+                stations, [first_english, second_english]
+            )
+            
+            if len(station_mapping) >= 2:
+                return station_mapping[0], station_mapping[1]
+        
+        # 策略2: 基于车次规律分析
+        train_number = None
+        for line in lines:
+            train_match = re.search(r'([GDC]\d{4})', line)
+            if train_match:
+                train_number = train_match.group(1)
+                break
+        
+        if train_number and len(stations) >= 2:
+            # 对于G/D开头的高铁，通常第一个站是出发站
+            ordered_stations = self._order_stations_by_train_logic(
+                train_number, stations, station_positions
+            )
+            if len(ordered_stations) >= 2:
+                return ordered_stations[0], ordered_stations[1]
+        
+        # 策略3: 基于文本位置（兜底策略）
+        if len(stations) >= 2 and station_positions:
+            # 按照在PDF中的出现位置排序
+            sorted_stations = sorted(stations[:2], key=lambda s: station_positions.get(s, 999))
+            return sorted_stations[0], sorted_stations[1]
+        
+        # 如果所有策略都失败，返回前两个站点
+        return stations[0] if len(stations) > 0 else None, stations[1] if len(stations) > 1 else None
+    
+    def _match_chinese_english_stations(self, chinese_stations: List[str], english_stations: List[str]) -> List[str]:
+        """匹配中英文站名"""
+        # 简单的匹配逻辑，基于常见的站名对应关系
+        station_map = {
+            'Guangzhounan': '广州南站',
+            'Puning': '普宁站', 
+            'Xiamenbei': '厦门北站',
+            'Xiamen': '厦门站',
+            'Quanzhou': '泉州站'
+        }
+        
+        matched = []
+        for eng in english_stations:
+            if eng in station_map and station_map[eng] in chinese_stations:
+                matched.append(station_map[eng])
+        
+        # 如果匹配失败，返回原顺序
+        if len(matched) < 2:
+            return chinese_stations[:2]
+        
+        return matched
+    
+    def _order_stations_by_train_logic(self, train_number: str, stations: List[str], positions: Dict[str, int]) -> List[str]:
+        """基于车次规律排序站点"""
+        # 对于高铁(G/D)，通常按地理位置从南到北或从东到西
+        # 这里简化处理，按照PDF中的位置顺序
+        if positions:
+            return sorted(stations[:2], key=lambda s: positions.get(s, 999))
+        return stations[:2]

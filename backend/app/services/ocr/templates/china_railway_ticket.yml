@@ -28,15 +28,17 @@ fields:
   
   seat_number: "(\\d+车\\d+[A-Z]号)"
   
-  # 站点信息 - 使用简单匹配，避免先行断言
-  # 匹配第一个站点（通常是出发站）
-  station_1: "([一-龥]+站)"
-  
-  # 匹配第二个站点（通过排除第一个匹配来获得）
-  station_2: "([一-龥]+站)"
+  # 站点信息 - 提取所有站点，后续通过智能分析确定出发站和到达站
+  all_stations: "([\u4e00-\u9fa5]+站)"
   
   # 出发时间
   departure_time: "(\\d{1,2}:\\d{2})开"
+  
+  # 发车日期 - 使用上下文定位，匹配紧邻发车时间前面的日期(排除开票日期)
+  departure_date: "(?<!开票日期:)(\\d{4}年\\d{1,2}月\\d{1,2}日)(?=.*\\d{1,2}:\\d{2}开)"
+  
+  # 到达时间
+  arrival_time: "到(\\d{1,2}:\\d{2})"
   
   passenger_name: "([\\u4e00-\\u9fa5]{2,4})\\s*电子客票号"
   
@@ -48,6 +50,7 @@ options:
   decimal_separator: "."
   date_formats:
     - "%Y年%m月%d日"
+    - "%Y-%m-%d"
   remove_whitespace: false
   remove_accents: false
   lowercase: false
