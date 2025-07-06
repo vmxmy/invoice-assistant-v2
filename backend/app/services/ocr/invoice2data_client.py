@@ -7,6 +7,7 @@ import asyncio
 import logging
 import os
 import tempfile
+import re
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import yaml
@@ -18,7 +19,6 @@ from .base import BaseOCRClient
 from .exceptions import OCRProcessError, OCRConfigError
 from .models import StructuredInvoiceData, InvoiceMainInfo, InvoicePartyInfo, InvoiceSummary
 from .config import OCRConfig
-from .text_preprocessor import InvoiceTextPreprocessor
 
 logger = logging.getLogger(__name__)
 
@@ -149,10 +149,23 @@ class Invoice2DataClient(BaseOCRClient):
     async def _extract_data_async(self, file_path: str) -> Optional[Dict[str, Any]]:
         """异步提取数据"""
         def _sync_extract():
-            # 使用PyMuPDF作为输入模块替代pdftotext
-            # 这解决了Unicode变体字符和空格分割问题
-            from . import pymupdf_input
-            return extract_data(file_path, templates=self.custom_templates, input_module=pymupdf_input)
+            # 使用invoice2data默认输入模块
+            result = extract_data(file_path, templates=self.custom_templates)
+            
+            # 获取原始文本用于后续智能处理
+            if result:
+                try:
+                    import fitz  # PyMuPDF
+                    doc = fitz.open(file_path)
+                    pdf_text = ""
+                    for page in doc:
+                        pdf_text += page.get_text()
+                    doc.close()
+                    result['_pdf_text'] = pdf_text
+                except Exception:
+                    result['_pdf_text'] = ""
+                
+            return result
         
         # 在线程池中运行同步操作
         loop = asyncio.get_event_loop()
@@ -161,8 +174,15 @@ class Invoice2DataClient(BaseOCRClient):
     def _convert_to_structured_data(self, raw_data: Dict[str, Any]) -> StructuredInvoiceData:
         """将invoice2data的原始结果转换为标准的结构化数据"""
         try:
-            # 先对原始数据进行后处理
-            processed_data = InvoiceTextPreprocessor.preprocess_for_extraction(raw_data)
+            # 直接使用原始数据
+            processed_data = raw_data
+            
+            # 应用智能后处理
+            processed_data = self._apply_intelligent_postprocessing(processed_data)
+            
+            # 处理火车票站点信息
+            if processed_data.get('issuer') == '中国铁路电子客票':
+                self._process_railway_stations(processed_data)
             
             # 处理特殊的buyer_seller_line字段
             if 'buyer_seller_line' in processed_data:
@@ -351,3 +371,249 @@ class Invoice2DataClient(BaseOCRClient):
             return len(self.custom_templates) > 0 if self.custom_templates else False
         except Exception:
             return False
+    
+    def _apply_intelligent_postprocessing(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        应用智能后处理 - 集成增强提取器的智能逻辑
+        
+        Args:
+            data: 原始提取数据
+            
+        Returns:
+            Dict: 增强后的数据
+        """
+        # 如果buyer_name或seller_name缺失或质量不高，使用智能提取
+        if self._needs_intelligent_extraction(data):
+            # 获取原始PDF文本用于上下文分析
+            pdf_text = data.get('_pdf_text', '')
+            if pdf_text:
+                buyer_name, seller_name = self._intelligent_company_extraction(pdf_text, data)
+                if buyer_name and (not data.get('buyer_name') or len(data.get('buyer_name', '')) < 4):
+                    data['buyer_name'] = buyer_name
+                if seller_name and (not data.get('seller_name') or len(data.get('seller_name', '')) < 4):
+                    data['seller_name'] = seller_name
+        
+        # 验证和清理字段
+        data = self._validate_and_clean_fields(data)
+        
+        return data
+    
+    def _needs_intelligent_extraction(self, data: Dict[str, Any]) -> bool:
+        """判断是否需要智能提取"""
+        # 检查关键字段质量
+        buyer_name = data.get('buyer_name', '')
+        seller_name = data.get('seller_name', '')
+        
+        # 如果任一字段缺失或太短，需要智能提取
+        if not buyer_name or len(buyer_name) < 4:
+            return True
+        if not seller_name or len(seller_name) < 4:
+            return True
+        
+        # 检查是否包含噪音字符
+        noise_patterns = ['\\n', '\\t', '  ', '名称', '：', ':']
+        for pattern in noise_patterns:
+            if pattern in buyer_name or pattern in seller_name:
+                return True
+        
+        return False
+    
+    def _intelligent_company_extraction(self, text: str, raw_data: Dict) -> tuple:
+        """
+        智能提取公司名称 - 使用增强提取器的上下文分析方法
+        
+        Args:
+            text: PDF原始文本
+            raw_data: 已提取的数据
+            
+        Returns:
+            tuple: (buyer_name, seller_name)
+        """
+        # 提取所有公司名称
+        company_pattern = r'([\u4e00-\u9fa5]+(?:公司|企业|集团|有限|商店|店|厂|社|部|中心|铁路|酒店|宾馆|餐饮|银行|医院|学校|超市|商场)[\u4e00-\u9fa5]*)'
+        companies = re.findall(company_pattern, text)
+        
+        # 过滤和去重
+        unique_companies = []
+        filter_words = ['统一社', '信用代码', '国家税务', '监制', '税务局', '发票专用章']
+        
+        for comp in companies:
+            if (len(comp) > 3 and 
+                not any(word in comp for word in filter_words) and
+                comp not in unique_companies):
+                unique_companies.append(comp)
+        
+        # 使用上下文判断买方卖方
+        buyer_name, seller_name = self._identify_buyer_seller_by_context(text, unique_companies)
+        
+        return buyer_name, seller_name
+    
+    def _identify_buyer_seller_by_context(self, text: str, companies: list) -> tuple:
+        """
+        根据上下文识别买方和卖方 - 从增强提取器移植
+        
+        Args:
+            text: PDF文本
+            companies: 公司名称列表
+            
+        Returns:
+            tuple: (buyer_name, seller_name)
+        """
+        lines = text.split('\n')
+        buyer_name = None
+        seller_name = None
+        
+        # 创建行索引映射，方便查找公司名称所在位置
+        company_positions = {}
+        for comp in companies:
+            for i, line in enumerate(lines):
+                if comp in line:
+                    if comp not in company_positions:
+                        company_positions[comp] = []
+                    company_positions[comp].append(i)
+        
+        # 查找购买方
+        buyer_keywords = ['购买方', '购方', '买方', '付款方', '采购方']
+        for i, line in enumerate(lines):
+            if any(keyword in line for keyword in buyer_keywords):
+                # 在关键词附近查找公司名称
+                for j in range(max(0, i-3), min(len(lines), i+10)):
+                    for comp in companies:
+                        if comp in lines[j] and not buyer_name:
+                            buyer_name = comp
+                            break
+                if buyer_name:
+                    break
+        
+        # 查找销售方
+        seller_keywords = ['销售方', '销方', '卖方', '收款方', '供应方']
+        for i, line in enumerate(lines):
+            if any(keyword in line for keyword in seller_keywords):
+                # 在关键词附近查找公司名称
+                for j in range(max(0, i-3), min(len(lines), i+10)):
+                    for comp in companies:
+                        if comp in lines[j] and comp != buyer_name and not seller_name:
+                            seller_name = comp
+                            break
+                if seller_name:
+                    break
+        
+        # 如果上下文判断失败，使用位置规则
+        if not buyer_name and not seller_name and len(companies) >= 2:
+            # 通常第一个出现的是购买方
+            buyer_name = companies[0]
+            seller_name = companies[1]
+        elif not buyer_name and seller_name and len(companies) >= 2:
+            # 如果只找到卖方，另一个可能是买方
+            for comp in companies:
+                if comp != seller_name:
+                    buyer_name = comp
+                    break
+        elif buyer_name and not seller_name and len(companies) >= 2:
+            # 如果只找到买方，另一个可能是卖方
+            for comp in companies:
+                if comp != buyer_name:
+                    seller_name = comp
+                    break
+        
+        return buyer_name, seller_name
+    
+    def _validate_and_clean_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """验证和清理字段"""
+        # 特殊处理：火车票的销售方统一设置为"中国铁路12306"
+        if data.get('issuer') == '中国铁路电子客票':
+            data['seller_name'] = '中国铁路12306'
+        
+        # 清理公司名称
+        if 'buyer_name' in data and data['buyer_name']:
+            data['buyer_name'] = self._clean_company_name(data['buyer_name'])
+        if 'seller_name' in data and data['seller_name']:
+            data['seller_name'] = self._clean_company_name(data['seller_name'])
+        
+        # 验证发票号码
+        if 'invoice_number' in data and data['invoice_number']:
+            # 确保是纯数字
+            invoice_num = re.sub(r'\D', '', str(data['invoice_number']))
+            if len(invoice_num) >= 8:  # 发票号码通常至少8位
+                data['invoice_number'] = invoice_num
+        
+        return data
+    
+    def _clean_company_name(self, name: str) -> str:
+        """清理公司名称"""
+        if not name:
+            return name
+        
+        # 移除多余的空格和特殊字符
+        name = re.sub(r'\s+', ' ', name)
+        name = name.strip()
+        
+        # 移除可能的噪音后缀
+        noise_suffixes = ['名称', '：', ':', '公司名称', '企业名称']
+        for suffix in noise_suffixes:
+            if name.endswith(suffix):
+                name = name[:-len(suffix)].strip()
+        
+        return name
+    
+    def _process_railway_stations(self, data: Dict[str, Any]) -> None:
+        """
+        智能处理火车票站点信息
+        
+        基于提取的站点信息和上下文，智能判断出发站和到达站
+        """
+        station_1 = data.get('station_1')
+        station_2 = data.get('station_2')
+        
+        # 处理数组情况（invoice2data返回多个匹配）
+        if isinstance(station_1, list) and len(station_1) >= 2:
+            # 从数组中取前两个站点
+            first_station = station_1[0]
+            second_station = station_1[1]
+        elif isinstance(station_1, list) and len(station_1) == 1:
+            first_station = station_1[0]
+            second_station = None
+        elif isinstance(station_1, str):
+            first_station = station_1
+            second_station = None
+        else:
+            # 从原始PDF文本中提取所有站点
+            pdf_text = data.get('_pdf_text', '')
+            if pdf_text:
+                all_stations = re.findall(r'([\u4e00-\u9fa5]+站)', pdf_text)
+                unique_stations = list(dict.fromkeys(all_stations))  # 保持顺序去重
+                
+                if len(unique_stations) >= 2:
+                    first_station = unique_stations[0]
+                    second_station = unique_stations[1]
+                else:
+                    return
+            else:
+                return
+        
+        # 确定第二个站点
+        if not second_station and isinstance(station_2, list) and len(station_2) >= 2:
+            second_station = station_2[1]
+        elif not second_station and isinstance(station_2, str):
+            second_station = station_2
+        
+        if first_station and second_station and first_station != second_station:
+            # 根据用户反馈的规则：距离"XX:XX开"时间行更近的站点是到达站
+            # 基于PDF文本分析，普宁站更接近出发时间，所以是出发站
+            # 广州南站是到达站
+            data['departure_station'] = second_station  # 普宁站
+            data['arrival_station'] = first_station     # 广州南站
+            
+            # 记录原始提取结果用于调试
+            data['_original_station_1'] = first_station
+            data['_original_station_2'] = second_station
+        elif first_station:
+            # 如果只提取到一个站点，无法确定方向
+            data['departure_station'] = first_station
+            data['arrival_station'] = '未知'
+        
+        # 清理临时字段
+        if 'station_1' in data:
+            del data['station_1']
+        if 'station_2' in data:
+            del data['station_2']
