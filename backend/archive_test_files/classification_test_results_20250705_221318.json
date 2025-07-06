@@ -1,0 +1,96 @@
+{
+  "test_time": "2025-07-05T22:13:18.269510",
+  "total_files": 10,
+  "success_count": 5,
+  "classification_stats": {
+    "餐饮": 1,
+    "住宿/酒店": 1,
+    "其他": 2,
+    "null": 1
+  },
+  "type_stats": {
+    "电子发票": 5
+  },
+  "results": [
+    {
+      "invoice_number": "25432000000031789815",
+      "invoice_type": "电子发票",
+      "amount": 80.0,
+      "seller": "湖南曾小厨餐饮管理有限公司贤童店",
+      "primary_category": "餐饮",
+      "secondary_category": null,
+      "confidence": 0.6,
+      "rule_type": "keyword_combination",
+      "status": "success"
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "status": "ocr_failed",
+      "error": "处理文件失败: Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "status": "ocr_failed",
+      "error": "处理文件失败: Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "status": "ocr_failed",
+      "error": "处理文件失败: Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "status": "ocr_failed",
+      "error": "处理文件失败: Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "invoice_number": "25432000000029033553",
+      "invoice_type": "电子发票",
+      "amount": 507.0,
+      "seller": "娄底星奕酒店管理有限公司",
+      "primary_category": "住宿",
+      "secondary_category": "酒店",
+      "confidence": 0.85,
+      "rule_type": "seller_name_pattern",
+      "status": "success"
+    },
+    {
+      "invoice_number": "25432000000032177192",
+      "invoice_type": "电子发票",
+      "amount": 500.0,
+      "seller": "娄底市中税通财税咨询有限公司",
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default",
+      "status": "success"
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "status": "ocr_failed",
+      "error": "处理文件失败: Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "invoice_number": "25512000000059075953",
+      "invoice_type": "电子发票",
+      "amount": 479.0,
+      "seller": "高新区盘烤一烧烤肉店（个体工商户）",
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default",
+      "status": "success"
+    },
+    {
+      "invoice_number": "25432000000022014229",
+      "invoice_type": "电子发票",
+      "amount": 146.0,
+      "seller": "娄底市娄星区老堂屋城南店",
+      "primary_category": null,
+      "secondary_category": null,
+      "confidence": 0.0,
+      "rule_type": null,
+      "status": "success"
+    }
+  ]
+}

@@ -11,18 +11,18 @@ from typing import Dict, Optional
 from datetime import datetime
 import logging
 
-from .base import BaseOCRClient
+# from .base import BaseOCRClient  # 暂时不使用基类
 from .models import StructuredInvoiceData, InvoiceMainInfo, InvoicePartyInfo, InvoiceSummary
 from .config import OCRConfig
 
 logger = logging.getLogger(__name__)
 
 
-class EnhancedRuleExtractor(BaseOCRClient):
+class EnhancedRuleExtractor:
     """增强规则提取器，使用智能规则提取发票信息"""
     
     def __init__(self, config: OCRConfig):
-        super().__init__(config)
+        self.config = config
         
     async def extract_invoice_data(self, file_path: str) -> Dict[str, any]:
         """
@@ -191,6 +191,10 @@ class EnhancedRuleExtractor(BaseOCRClient):
             r'小写[）)]\s*[¥￥]\s*([\d,]+\.?\d*)',
             r'Total.*?[¥￥]\s*([\d,]+\.?\d*)',
             r'票价[：:]\s*[¥￥]?\s*([\d,]+\.?\d*)',  # 火车票
+            # 新增火车票金额模式
+            r'^[¥￥]([\d,]+\.?\d*)$',  # 独立行的￥金额
+            r'[¥￥]([\d,]+\.?\d*)',    # 任意￥后的数字
+            r'[¥￥]\s*([\d,]+\.?\d*)', # ￥后可能有空格的数字
         ]
         
         amounts = []

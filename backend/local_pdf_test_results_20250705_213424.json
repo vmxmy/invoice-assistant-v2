@@ -1,0 +1,108 @@
+{
+  "test_time": "2025-07-05 21:34:24.624857",
+  "total_files": 10,
+  "success_count": 5,
+  "classification_stats": {
+    "其他/None": 5
+  },
+  "type_stats": {
+    "电子发票": 10
+  },
+  "results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "status": "success",
+      "invoice_number": "25432000000031789815",
+      "invoice_type": "电子发票",
+      "amount": 0.0,
+      "seller": null,
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default"
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "status": "success",
+      "invoice_number": "25439165666000019624",
+      "invoice_type": "电子发票",
+      "amount": 96.5,
+      "seller": null,
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default"
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "status": "success",
+      "invoice_number": "25439122799000011090",
+      "invoice_type": "电子发票",
+      "amount": 339.0,
+      "seller": null,
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default"
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "status": "success",
+      "invoice_number": "25439165660000008536",
+      "invoice_type": "电子发票",
+      "amount": 12.0,
+      "seller": null,
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default"
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "status": "success",
+      "invoice_number": "25429165848000614665",
+      "invoice_type": "电子发票",
+      "amount": 377.0,
+      "seller": null,
+      "primary_category": "其他",
+      "secondary_category": null,
+      "confidence": 0.1,
+      "rule_type": "default"
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "status": "classification_failed",
+      "invoice_number": "25432000000029033553",
+      "invoice_type": "电子发票",
+      "error": "无法分类"
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "status": "classification_failed",
+      "invoice_number": "25432000000032177192",
+      "invoice_type": "电子发票",
+      "error": "无法分类"
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "status": "classification_failed",
+      "invoice_number": "25429165818000393965",
+      "invoice_type": "电子发票",
+      "error": "无法分类"
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "status": "classification_failed",
+      "invoice_number": "25512000000059075953",
+      "invoice_type": "电子发票",
+      "error": "无法分类"
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "status": "classification_failed",
+      "invoice_number": "25432000000022014229",
+      "invoice_type": "电子发票",
+      "error": "无法分类"
+    }
+  ]
+}

@@ -176,9 +176,8 @@ class PDFInvoiceProcessor:
             from app.core.config import settings
             full_path = Path(settings.upload_dir) / file_path
             
-            # 使用异步上下文管理器
-            async with self.ocr_service:
-                result = await self.ocr_service.extract_invoice_data(str(full_path))
+            # 直接调用OCR服务（增强规则提取器不需要异步上下文管理器）
+            result = await self.ocr_service.extract_invoice_data(str(full_path))
             
             # 添加提取元数据
             result['extraction_timestamp'] = datetime.now(timezone.utc).isoformat()

@@ -1,0 +1,1136 @@
+{
+  "statistics": {
+    "total": 90,
+    "success": 90,
+    "errors": [],
+    "field_extraction": {
+      "invoice_number": 90,
+      "invoice_date": 90,
+      "buyer_name": 90,
+      "seller_name": 90,
+      "total_amount": 35,
+      "project_name": 90
+    },
+    "invoice_types": {
+      "铁路电子客票": 55,
+      "电子普通发票": 28,
+      "未知类型": 2,
+      "增值税专用发票": 5
+    }
+  },
+  "results": [
+    {
+      "file": "25359134169000052039.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000423011",
+        "invoice_date": "2025-02-20",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000022014229",
+        "invoice_date": "2025-02-19",
+        "total_amount": 146.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区老堂屋城南店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000022020617",
+        "invoice_date": "2025-02-19",
+        "total_amount": 240.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025-03-06",
+        "total_amount": 507.0,
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025-03-06",
+        "total_amount": 1018.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25432000000031789815.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025-03-12",
+        "total_amount": 79.21,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25442000000101203423",
+        "invoice_date": "2025-02-24",
+        "total_amount": 316.98,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "广州寿司郎餐饮有限公司",
+        "project_name": "餐饮服务餐饮服务"
+      }
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025-03-16",
+        "total_amount": 474.26,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "高新区盘烤一烧烤肉店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025-03-11",
+        "total_amount": 648.51,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南链城数字科技有限公司",
+        "project_name": "文具印章",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025-03-13",
+        "total_amount": 495.05,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "project_name": "经纪代理服务代办费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-28-杭州安朵酒店管理有限公司-537.00-25332000000124103793.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25332000000124103793",
+        "invoice_date": "2025-03-28",
+        "total_amount": 506.6,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "杭州安朵酒店管理有限公司",
+        "project_name": "住宿服务住宿费",
+        "invoice_type": "增值税专用发票"
+      }
+    },
+    {
+      "file": "2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000027470610",
+        "invoice_date": "2025-03-03",
+        "total_amount": 900.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国建设银行股份有限公司娄底市分行营业部",
+        "project_name": "住宿服务住宿",
+        "invoice_type": "增值税专用发票"
+      }
+    },
+    {
+      "file": "2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032621839",
+        "invoice_date": "2025-03-13",
+        "total_amount": 507.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-26-国家税务总局-199.50-25429165848000900998.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000900998",
+        "invoice_date": "2025-03-26",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-26-国家税务总局-347.00-25429165818000582787.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000582787",
+        "invoice_date": "2025-03-26",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-26-国家税务总局-407.00-25449165860000523079.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25449165860000523079",
+        "invoice_date": "2025-03-26",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-26-国家税务总局福建省税务局-57.00-25359134169000059454.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25359134169000059454",
+        "invoice_date": "2025-03-26",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-26-娄底星奕酒店管理有限公司-330.00-25432000000038618104.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000038618104",
+        "invoice_date": "2025-03-26",
+        "total_amount": 330.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "长沙银行股份有限公司娄底娄星支行",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "增值税专用发票"
+      }
+    },
+    {
+      "file": "2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25352000000032937490",
+        "invoice_date": "2025-03-26",
+        "total_amount": 377.36,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "泉州佳穗酒店管理有限责任公司丰泽洲际酒店分公司",
+        "project_name": "住宿服务住宿费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-26-阿斯兰航空服务（上海）有限公司-1020.00-25317000000510550956.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25317000000510550956",
+        "invoice_date": "2025-03-26",
+        "total_amount": 1020.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "有限公司",
+        "project_name": "经纪代理服务代订机票",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-26-阿斯兰航空服务（上海）有限公司-1365.00-25317000000510550938.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25317000000510550938",
+        "invoice_date": "2025-03-26",
+        "total_amount": 1365.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "有限公司",
+        "project_name": "经纪代理服务代订机票",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-26-阿斯兰航空服务（上海）有限公司-192.00-25317000000510550926.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25317000000510550926",
+        "invoice_date": "2025-03-26",
+        "total_amount": 192.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "有限公司",
+        "project_name": "经纪代理服务退票费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-26-阿斯兰航空服务（上海）有限公司-670.00-25317000000510550955.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25317000000510550955",
+        "invoice_date": "2025-03-26",
+        "total_amount": 670.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "有限公司",
+        "project_name": "经纪代理服务代订机票",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25442000000101203423",
+        "invoice_date": "2025-02-24",
+        "total_amount": 316.98,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "广州寿司郎餐饮有限公司",
+        "project_name": "餐饮服务餐饮服务"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000027470610",
+        "invoice_date": "2025-03-03",
+        "total_amount": 900.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国建设银行股份有限公司娄底市分行营业部",
+        "project_name": "住宿服务住宿",
+        "invoice_type": "增值税专用发票"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025-03-06",
+        "total_amount": 1018.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025-03-06",
+        "total_amount": 507.0,
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025-03-11",
+        "total_amount": 648.51,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南链城数字科技有限公司",
+        "project_name": "文具印章",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025-03-12",
+        "total_amount": 79.21,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025-03-13",
+        "total_amount": 495.05,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "project_name": "经纪代理服务代办费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032621839",
+        "invoice_date": "2025-03-13",
+        "total_amount": 507.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025-03-16",
+        "total_amount": 474.26,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "高新区盘烤一烧烤肉店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-186.50-25959165876000012546.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局湖北省税务局-377.00-25429165848000790553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-28-国家税务总局-74.50-25449165860000541164.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25449165860000541164",
+        "invoice_date": "2025-03-28",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-28-国家税务总局厦门市税务局-230.00-25949134583000068752.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25949134583000068752",
+        "invoice_date": "2025-03-28",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025-03-06",
+        "total_amount": 1018.0,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025-03-06",
+        "total_amount": 507.0,
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025-03-11",
+        "total_amount": 648.51,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南链城数字科技有限公司",
+        "project_name": "文具印章",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025-03-12",
+        "total_amount": 79.21,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025-03-13",
+        "total_amount": 495.05,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "project_name": "经纪代理服务代办费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025-03-16",
+        "total_amount": 474.26,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "高新区盘烤一烧烤肉店",
+        "project_name": "餐饮服务餐饮费",
+        "invoice_type": "电子普通发票"
+      }
+    },
+    {
+      "file": "2025-03-18-成都大鸿置业有限公司首座万豪酒店分公司-1467.99-25512000000061092195.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25512000000061092195",
+        "invoice_date": "2025-03-18",
+        "total_amount": 1467.99,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "成都大鸿置业有限公司首座万豪酒店分公司",
+        "project_name": "住宿服务住宿服务",
+        "invoice_type": "增值税专用发票"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-377.00-25429165848000790553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "中国铁路祝您旅途愉快",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-19-深圳市税务局-186.50-25959165876000012546.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "中国铁路祝您旅途愉快",
+        "invoice_type": "铁路电子客票",
+        "project_name": "铁路旅客运输"
+      }
+    },
+    {
+      "file": "2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25352000000032937490",
+        "invoice_date": "2025-03-26",
+        "total_amount": 377.36,
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "泉州佳穗酒店管理有限责任公司丰泽洲际酒店分公司",
+        "project_name": "住宿服务住宿费",
+        "invoice_type": "电子普通发票"
+      }
+    }
+  ]
+}

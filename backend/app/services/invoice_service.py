@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
 from sqlalchemy.orm import selectinload
 
-from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
+from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
 from app.models.profile import Profile
 from app.core.exceptions import BusinessLogicError, ValidationError
 from app.services.file_service import FileService
@@ -174,7 +174,7 @@ class InvoiceService:
             "source_metadata": complete_source_metadata,
             "extracted_data": ocr_data,  # 保存完整的OCR原始数据
             "status": InvoiceStatus.COMPLETED,  # OCR成功即为完成状态
-            "processing_status": None  # 不再需要处理状态
+            "processing_status": ProcessingStatus.OCR_COMPLETED  # OCR已完成
         }
         
         # 创建发票记录

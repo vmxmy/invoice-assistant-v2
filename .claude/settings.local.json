@@ -66,7 +66,8 @@
       "Bash(./venv/bin/pip install flake8 black mypy)",
       "Bash(./venv/bin/python -m flake8:*)",
       "Bash(./venv/bin/python:*)",
-      "WebFetch(domain:mineru.net)"
+      "WebFetch(domain:mineru.net)",
+      "Bash(unset HTTP_PROXY)"
     ]
   },
   "enableAllProjectMcpServers": true,

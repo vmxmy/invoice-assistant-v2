@@ -31,11 +31,11 @@ class InvoiceStatus(str, Enum):
 
 class ProcessingStatus(str, Enum):
     """处理状态"""
-    WAITING = "waiting"
-    OCR_PROCESSING = "ocr_processing"
-    OCR_COMPLETED = "ocr_completed"
-    OCR_FAILED = "ocr_failed"
-    MANUAL_REVIEW = "manual_review"
+    WAITING = "WAITING"
+    OCR_PROCESSING = "OCR_PROCESSING"
+    OCR_COMPLETED = "OCR_COMPLETED"
+    OCR_FAILED = "OCR_FAILED"
+    MANUAL_REVIEW = "MANUAL_REVIEW"
 
 
 class InvoiceSource(str, Enum):

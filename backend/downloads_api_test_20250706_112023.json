@@ -1,0 +1,833 @@
+{
+  "summary": {
+    "total_files": 91,
+    "success_count": 91,
+    "timeout_count": 0,
+    "error_count": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 4.723478313287099,
+    "avg_time_per_file": 3.1143813054640215,
+    "total_size_mb": 6.495730400085449
+  },
+  "results": [
+    {
+      "status": "success",
+      "file_path": "downloads/25359134169000052039.pdf",
+      "size": 68640,
+      "process_time": 2.955767869949341,
+      "invoice_id": "57d3c79b-289e-4890-acf6-c77e76068aad",
+      "filename": "25359134169000052039.pdf",
+      "upload_time": "2025-07-06 03:15:43.216321+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25369125403000228801.pdf",
+      "size": 44078,
+      "process_time": 2.8422982692718506,
+      "invoice_id": "d4096f39-825f-40af-a438-1aef53b77dc7",
+      "filename": "25369125403000228801.pdf",
+      "upload_time": "2025-07-06 03:15:46.059972+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165818000355594.pdf",
+      "size": 44075,
+      "process_time": 2.814979076385498,
+      "invoice_id": "df98734e-9e56-430b-bdf6-ba1218ee7859",
+      "filename": "25429165818000355594.pdf",
+      "upload_time": "2025-07-06 03:15:48.875373+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165818000355594_1.pdf",
+      "size": 44075,
+      "process_time": 5.766736268997192,
+      "invoice_id": "df98734e-9e56-430b-bdf6-ba1218ee7859",
+      "filename": "25429165818000355594_1.pdf",
+      "upload_time": "2025-07-06 03:15:54.640108+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165818000393965.pdf",
+      "size": 44063,
+      "process_time": 2.7237918376922607,
+      "invoice_id": "eec6fc08-37eb-46c9-8197-9d0ed4d5e78c",
+      "filename": "25429165818000393965.pdf",
+      "upload_time": "2025-07-06 03:15:57.369382+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165818000508972.pdf",
+      "size": 44042,
+      "process_time": 3.422128200531006,
+      "invoice_id": "6aa01c1f-7edf-492d-8677-f7348cf9c511",
+      "filename": "25429165818000508972.pdf",
+      "upload_time": "2025-07-06 03:16:00.791957+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165818000508973.pdf",
+      "size": 44004,
+      "process_time": 2.82861328125,
+      "invoice_id": "86b29e39-aa53-42f2-b79f-ac676adcfd0e",
+      "filename": "25429165818000508973.pdf",
+      "upload_time": "2025-07-06 03:16:03.619998+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165848000423011.pdf",
+      "size": 44066,
+      "process_time": 2.996903896331787,
+      "invoice_id": "4761aa70-6325-46a3-8630-ce2c80bcdbb0",
+      "filename": "25429165848000423011.pdf",
+      "upload_time": "2025-07-06 03:16:06.617685+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165848000614665.pdf",
+      "size": 44082,
+      "process_time": 3.350120782852173,
+      "invoice_id": "162675ec-ca96-40de-a584-72a27570b81a",
+      "filename": "25429165848000614665.pdf",
+      "upload_time": "2025-07-06 03:16:09.960348+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25429165848000790553.pdf",
+      "size": 68707,
+      "process_time": 2.7180569171905518,
+      "invoice_id": "7ec95356-2200-440a-9293-3b7b305cd46f",
+      "filename": "25429165848000790553.pdf",
+      "upload_time": "2025-07-06 03:16:12.690119+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000022014229.pdf",
+      "size": 60805,
+      "process_time": 2.982753038406372,
+      "invoice_id": "dccce182-56a5-46f2-a27c-91b80a56ec9f",
+      "filename": "25432000000022014229.pdf",
+      "upload_time": "2025-07-06 03:16:15.672448+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000022020617-杭州趣链科技有限公司.pdf",
+      "size": 60152,
+      "process_time": 2.6832969188690186,
+      "invoice_id": "45d2a549-c87c-4096-9eb1-7d858e1d8c7f",
+      "filename": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "upload_time": "2025-07-06 03:16:18.358362+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000022020617-杭州趣链科技有限公司_annotated.pdf",
+      "size": 76762,
+      "process_time": 4.547086000442505,
+      "invoice_id": "c3f8e64a-38d4-4f17-9bdf-bef0a96d5ef8",
+      "filename": "25432000000022020617-杭州趣链科技有限公司_annotated.pdf",
+      "upload_time": "2025-07-06 03:16:22.902061+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "size": 62566,
+      "process_time": 3.189642906188965,
+      "invoice_id": "c57f5a1f-4d76-4bc5-9fde-add2f7f2210e",
+      "filename": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "upload_time": "2025-07-06 03:16:26.092055+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000029373425-杭州趣链科技有限公司.pdf",
+      "size": 60327,
+      "process_time": 2.6890320777893066,
+      "invoice_id": "efaa1ca1-bca8-40c5-bceb-eb66de79eb1b",
+      "filename": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "upload_time": "2025-07-06 03:16:28.784483+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25432000000031789815.pdf",
+      "size": 150298,
+      "process_time": 4.432284116744995,
+      "invoice_id": "d43c731e-edfb-43f0-92b7-9a648c78dcb9",
+      "filename": "25432000000031789815.pdf",
+      "upload_time": "2025-07-06 03:16:33.090031+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439122799000011090.pdf",
+      "size": 68998,
+      "process_time": 3.7919769287109375,
+      "invoice_id": "06c5eed1-fdb1-4d4c-bc48-4fe91962c74f",
+      "filename": "25439122799000011090.pdf",
+      "upload_time": "2025-07-06 03:16:37.004794+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165660000008536.pdf",
+      "size": 69103,
+      "process_time": 2.6423888206481934,
+      "invoice_id": "3e4e2532-e2ca-4056-85c6-71b58a327c1f",
+      "filename": "25439165660000008536.pdf",
+      "upload_time": "2025-07-06 03:16:39.644744+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165660000008536_1.pdf",
+      "size": 69103,
+      "process_time": 3.298373222351074,
+      "invoice_id": "3e4e2532-e2ca-4056-85c6-71b58a327c1f",
+      "filename": "25439165660000008536_1.pdf",
+      "upload_time": "2025-07-06 03:16:42.953543+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165666000013950.pdf",
+      "size": 44138,
+      "process_time": 2.8618249893188477,
+      "invoice_id": "a9cdb12f-30ec-4d68-9ec4-b69f3277560a",
+      "filename": "25439165666000013950.pdf",
+      "upload_time": "2025-07-06 03:16:45.809418+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165666000013950_1.pdf",
+      "size": 44138,
+      "process_time": 3.2208492755889893,
+      "invoice_id": "a9cdb12f-30ec-4d68-9ec4-b69f3277560a",
+      "filename": "25439165666000013950_1.pdf",
+      "upload_time": "2025-07-06 03:16:49.032995+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165666000015358.pdf",
+      "size": 68741,
+      "process_time": 5.778239965438843,
+      "invoice_id": "82433ed1-edac-414e-9189-7e5b3292ec6e",
+      "filename": "25439165666000015358.pdf",
+      "upload_time": "2025-07-06 03:16:54.811458+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25439165666000019624.pdf",
+      "size": 44046,
+      "process_time": 3.1014420986175537,
+      "invoice_id": "26676d68-a9ec-43c0-a975-09eb24ef99e9",
+      "filename": "25439165666000019624.pdf",
+      "upload_time": "2025-07-06 03:16:57.922164+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25442000000101203423.pdf",
+      "size": 72977,
+      "process_time": 2.8433921337127686,
+      "invoice_id": "4def723e-38b1-4005-93a0-7419cdb75465",
+      "filename": "25442000000101203423.pdf",
+      "upload_time": "2025-07-06 03:17:00.761667+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25512000000059075953.pdf",
+      "size": 141208,
+      "process_time": 2.673936128616333,
+      "invoice_id": "1ecb7356-6e51-4745-99a0-03dd2229ecea",
+      "filename": "25512000000059075953.pdf",
+      "upload_time": "2025-07-06 03:17:03.437087+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25949134178000153214.pdf",
+      "size": 44152,
+      "process_time": 3.008641004562378,
+      "invoice_id": "1ba6c5fe-ed19-41a0-bc2c-a3ae2ad26705",
+      "filename": "25949134178000153214.pdf",
+      "upload_time": "2025-07-06 03:17:06.440837+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/25959165876000012546.pdf",
+      "size": 44072,
+      "process_time": 3.5530412197113037,
+      "invoice_id": "f255b667-cd75-4f71-9685-70bb21875270",
+      "filename": "25959165876000012546.pdf",
+      "upload_time": "2025-07-06 03:17:10.001909+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "size": 159639,
+      "process_time": 3.268669843673706,
+      "invoice_id": "0cc7ee3f-162c-4884-b9f2-c4359e4b94bf",
+      "filename": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "upload_time": "2025-07-06 03:17:12.995557+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "size": 148709,
+      "process_time": 2.738071918487549,
+      "invoice_id": "3fbde23a-fe8a-4c7c-97c7-34c82187d9c5",
+      "filename": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "upload_time": "2025-07-06 03:17:16.003981+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/2025-03-28-杭州安朵酒店管理有限公司-537.00-25332000000124103793.pdf",
+      "size": 147552,
+      "process_time": 2.7522099018096924,
+      "invoice_id": "f89fb950-9222-4eef-89cb-b7899cadaf44",
+      "filename": "2025-03-28-杭州安朵酒店管理有限公司-537.00-25332000000124103793.pdf",
+      "upload_time": "2025-07-06 03:17:18.754845+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "size": 66782,
+      "process_time": 2.820805311203003,
+      "invoice_id": "de80c0c2-e130-49ec-b2fd-2e0809a15ac5",
+      "filename": "2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "upload_time": "2025-07-06 03:17:21.573258+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "size": 61628,
+      "process_time": 3.140381097793579,
+      "invoice_id": "ae810216-bb2e-463c-8b54-cfd5a924b5f8",
+      "filename": "2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "upload_time": "2025-07-06 03:17:24.714308+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-国家税务总局-199.50-25429165848000900998.pdf",
+      "size": 69452,
+      "process_time": 2.716658115386963,
+      "invoice_id": "1fa90dd0-3a60-48f9-8b3b-33c3c9309bc0",
+      "filename": "2025-03-26-国家税务总局-199.50-25429165848000900998.pdf",
+      "upload_time": "2025-07-06 03:17:27.438720+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-国家税务总局-347.00-25429165818000582787.pdf",
+      "size": 43998,
+      "process_time": 3.1662380695343018,
+      "invoice_id": "67bf0592-c9de-4153-9ede-49192f212152",
+      "filename": "2025-03-26-国家税务总局-347.00-25429165818000582787.pdf",
+      "upload_time": "2025-07-06 03:17:30.607518+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-国家税务总局-407.00-25449165860000523079.pdf",
+      "size": 68406,
+      "process_time": 2.9895291328430176,
+      "invoice_id": "95c9e250-50c1-45d4-b2e6-1a18d7290106",
+      "filename": "2025-03-26-国家税务总局-407.00-25449165860000523079.pdf",
+      "upload_time": "2025-07-06 03:17:33.592618+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-国家税务总局福建省税务局-57.00-25359134169000059454.pdf",
+      "size": 44034,
+      "process_time": 2.7712690830230713,
+      "invoice_id": "dfe03f18-836b-432f-bfba-56e7f6059fe4",
+      "filename": "2025-03-26-国家税务总局福建省税务局-57.00-25359134169000059454.pdf",
+      "upload_time": "2025-07-06 03:17:36.360911+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-娄底星奕酒店管理有限公司-330.00-25432000000038618104.pdf",
+      "size": 66390,
+      "process_time": 2.818378210067749,
+      "invoice_id": "27e2d624-0c22-4bb1-b5a8-d81732469618",
+      "filename": "2025-03-26-娄底星奕酒店管理有限公司-330.00-25432000000038618104.pdf",
+      "upload_time": "2025-07-06 03:17:39.185276+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326162847/2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "size": 142717,
+      "process_time": 2.6385772228240967,
+      "invoice_id": "28f3da1e-94cb-4b58-809a-8f9bd71d9ea9",
+      "filename": "2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "upload_time": "2025-07-06 03:17:41.826283+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326164322/2025-03-26-阿斯兰航空服务（上海）有限公司-1020.00-25317000000510550956.pdf",
+      "size": 140790,
+      "process_time": 2.678334951400757,
+      "invoice_id": "4280de6a-a759-4fb7-a421-61e7bc646fea",
+      "filename": "2025-03-26-阿斯兰航空服务（上海）有限公司-1020.00-25317000000510550956.pdf",
+      "upload_time": "2025-07-06 03:17:44.490318+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326164322/2025-03-26-阿斯兰航空服务（上海）有限公司-1365.00-25317000000510550938.pdf",
+      "size": 141278,
+      "process_time": 3.25591778755188,
+      "invoice_id": "71310129-28c2-48cf-8481-5c80b231b94a",
+      "filename": "2025-03-26-阿斯兰航空服务（上海）有限公司-1365.00-25317000000510550938.pdf",
+      "upload_time": "2025-07-06 03:17:47.489803+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326164322/2025-03-26-阿斯兰航空服务（上海）有限公司-192.00-25317000000510550926.pdf",
+      "size": 140701,
+      "process_time": 2.8027560710906982,
+      "invoice_id": "0011cf6e-62e0-4ea2-ba06-0917ec57c790",
+      "filename": "2025-03-26-阿斯兰航空服务（上海）有限公司-192.00-25317000000510550926.pdf",
+      "upload_time": "2025-07-06 03:17:50.561203+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326164322/2025-03-26-阿斯兰航空服务（上海）有限公司-670.00-25317000000510550955.pdf",
+      "size": 140683,
+      "process_time": 2.956768035888672,
+      "invoice_id": "331298b9-00dd-4390-880f-ffc0bbc3184b",
+      "filename": "2025-03-26-阿斯兰航空服务（上海）有限公司-670.00-25317000000510550955.pdf",
+      "upload_time": "2025-07-06 03:17:53.516748+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf",
+      "size": 72977,
+      "process_time": 2.7058379650115967,
+      "invoice_id": "4def723e-38b1-4005-93a0-7419cdb75465",
+      "filename": "2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf",
+      "upload_time": "2025-07-06 03:17:56.201183+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "size": 44075,
+      "process_time": 4.255973815917969,
+      "invoice_id": "df98734e-9e56-430b-bdf6-ba1218ee7859",
+      "filename": "2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "upload_time": "2025-07-06 03:18:00.270479+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "size": 69103,
+      "process_time": 2.8344719409942627,
+      "invoice_id": "3e4e2532-e2ca-4056-85c6-71b58a327c1f",
+      "filename": "2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "upload_time": "2025-07-06 03:18:03.316820+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "size": 44138,
+      "process_time": 3.108485221862793,
+      "invoice_id": "a9cdb12f-30ec-4d68-9ec4-b69f3277560a",
+      "filename": "2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "upload_time": "2025-07-06 03:18:06.425690+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "size": 66782,
+      "process_time": 4.362797737121582,
+      "invoice_id": "de80c0c2-e130-49ec-b2fd-2e0809a15ac5",
+      "filename": "2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf",
+      "upload_time": "2025-07-06 03:18:10.590144+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "size": 44078,
+      "process_time": 3.1024229526519775,
+      "invoice_id": "d4096f39-825f-40af-a438-1aef53b77dc7",
+      "filename": "2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "upload_time": "2025-07-06 03:18:13.883367+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "size": 44082,
+      "process_time": 3.1664111614227295,
+      "invoice_id": "162675ec-ca96-40de-a584-72a27570b81a",
+      "filename": "2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "upload_time": "2025-07-06 03:18:17.059387+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "size": 44063,
+      "process_time": 2.7597930431365967,
+      "invoice_id": "eec6fc08-37eb-46c9-8197-9d0ed4d5e78c",
+      "filename": "2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "upload_time": "2025-07-06 03:18:19.817430+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "size": 68741,
+      "process_time": 3.536113977432251,
+      "invoice_id": "82433ed1-edac-414e-9189-7e5b3292ec6e",
+      "filename": "2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "upload_time": "2025-07-06 03:18:23.349350+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "size": 60327,
+      "process_time": 2.8303422927856445,
+      "invoice_id": "efaa1ca1-bca8-40c5-bceb-eb66de79eb1b",
+      "filename": "2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "upload_time": "2025-07-06 03:18:26.189523+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "size": 62566,
+      "process_time": 3.032843828201294,
+      "invoice_id": "c57f5a1f-4d76-4bc5-9fde-add2f7f2210e",
+      "filename": "2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "upload_time": "2025-07-06 03:18:28.944843+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "size": 159639,
+      "process_time": 2.9112260341644287,
+      "invoice_id": "0cc7ee3f-162c-4884-b9f2-c4359e4b94bf",
+      "filename": "2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "upload_time": "2025-07-06 03:18:32.132724+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "size": 150298,
+      "process_time": 2.867238998413086,
+      "invoice_id": "d43c731e-edfb-43f0-92b7-9a648c78dcb9",
+      "filename": "2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "upload_time": "2025-07-06 03:18:34.997576+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "size": 148709,
+      "process_time": 3.344301700592041,
+      "invoice_id": "3fbde23a-fe8a-4c7c-97c7-34c82187d9c5",
+      "filename": "2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "upload_time": "2025-07-06 03:18:38.340949+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "size": 61628,
+      "process_time": 3.080946922302246,
+      "invoice_id": "ae810216-bb2e-463c-8b54-cfd5a924b5f8",
+      "filename": "2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf",
+      "upload_time": "2025-07-06 03:18:41.423213+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "size": 141208,
+      "process_time": 2.706122875213623,
+      "invoice_id": "1ecb7356-6e51-4745-99a0-03dd2229ecea",
+      "filename": "2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "upload_time": "2025-07-06 03:18:44.131342+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局-186.50-25959165876000012546.pdf",
+      "size": 44072,
+      "process_time": 2.969435930252075,
+      "invoice_id": "f255b667-cd75-4f71-9685-70bb21875270",
+      "filename": "2025-03-19-国家税务总局-186.50-25959165876000012546.pdf",
+      "upload_time": "2025-07-06 03:18:47.104795+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "size": 68640,
+      "process_time": 2.7446327209472656,
+      "invoice_id": "57d3c79b-289e-4890-acf6-c77e76068aad",
+      "filename": "2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "upload_time": "2025-07-06 03:18:49.841399+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "size": 44042,
+      "process_time": 3.0652871131896973,
+      "invoice_id": "6aa01c1f-7edf-492d-8677-f7348cf9c511",
+      "filename": "2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "upload_time": "2025-07-06 03:18:52.916404+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "size": 44004,
+      "process_time": 2.574615716934204,
+      "invoice_id": "86b29e39-aa53-42f2-b79f-ac676adcfd0e",
+      "filename": "2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "upload_time": "2025-07-06 03:18:55.488036+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "size": 44152,
+      "process_time": 4.130419731140137,
+      "invoice_id": "1ba6c5fe-ed19-41a0-bc2c-a3ae2ad26705",
+      "filename": "2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "upload_time": "2025-07-06 03:18:59.619872+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局湖北省税务局-377.00-25429165848000790553.pdf",
+      "size": 68707,
+      "process_time": 3.548125743865967,
+      "invoice_id": "7ec95356-2200-440a-9293-3b7b305cd46f",
+      "filename": "2025-03-19-国家税务总局湖北省税务局-377.00-25429165848000790553.pdf",
+      "upload_time": "2025-07-06 03:19:03.156655+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "size": 68998,
+      "process_time": 2.97332501411438,
+      "invoice_id": "06c5eed1-fdb1-4d4c-bc48-4fe91962c74f",
+      "filename": "2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "upload_time": "2025-07-06 03:19:06.141920+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250326171507/2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "size": 44046,
+      "process_time": 2.8697259426116943,
+      "invoice_id": "26676d68-a9ec-43c0-a975-09eb24ef99e9",
+      "filename": "2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "upload_time": "2025-07-06 03:19:09.009200+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250328134824/2025-03-28-国家税务总局-74.50-25449165860000541164.pdf",
+      "size": 68683,
+      "process_time": 2.9910740852355957,
+      "invoice_id": "4097d090-bef8-43e9-a33a-9656db288767",
+      "filename": "2025-03-28-国家税务总局-74.50-25449165860000541164.pdf",
+      "upload_time": "2025-07-06 03:19:12.005135+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/invoices_20250328134824/2025-03-28-国家税务总局厦门市税务局-230.00-25949134583000068752.pdf",
+      "size": 68492,
+      "process_time": 2.688156843185425,
+      "invoice_id": "07c928fc-9f55-4168-93a9-6785d9fda134",
+      "filename": "2025-03-28-国家税务总局厦门市税务局-230.00-25949134583000068752.pdf",
+      "upload_time": "2025-07-06 03:19:14.690075+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "size": 44075,
+      "process_time": 2.9775230884552,
+      "invoice_id": "df98734e-9e56-430b-bdf6-ba1218ee7859",
+      "filename": "2025-03-03-国家税务总局-377.00-25429165818000355594.pdf",
+      "upload_time": "2025-07-06 03:19:17.649597+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "size": 69103,
+      "process_time": 3.0742790699005127,
+      "invoice_id": "3e4e2532-e2ca-4056-85c6-71b58a327c1f",
+      "filename": "2025-03-03-国家税务总局湖南省税务局-12.00-25439165660000008536.pdf",
+      "upload_time": "2025-07-06 03:19:20.732736+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "size": 44138,
+      "process_time": 2.819124221801758,
+      "invoice_id": "a9cdb12f-30ec-4d68-9ec4-b69f3277560a",
+      "filename": "2025-03-03-国家税务总局湖南省税务局-86.50-25439165666000013950.pdf",
+      "upload_time": "2025-07-06 03:19:23.567039+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "size": 44078,
+      "process_time": 4.187972784042358,
+      "invoice_id": "d4096f39-825f-40af-a438-1aef53b77dc7",
+      "filename": "2025-03-06-国家税务总局-296.00-25369125403000228801.pdf",
+      "upload_time": "2025-07-06 03:19:27.752722+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "size": 44082,
+      "process_time": 2.7375919818878174,
+      "invoice_id": "162675ec-ca96-40de-a584-72a27570b81a",
+      "filename": "2025-03-06-国家税务总局-377.00-25429165848000614665.pdf",
+      "upload_time": "2025-07-06 03:19:30.485327+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "size": 44063,
+      "process_time": 2.7321207523345947,
+      "invoice_id": "eec6fc08-37eb-46c9-8197-9d0ed4d5e78c",
+      "filename": "2025-03-06-国家税务总局-57.50-25429165818000393965.pdf",
+      "upload_time": "2025-07-06 03:19:33.225730+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "size": 68741,
+      "process_time": 2.6152758598327637,
+      "invoice_id": "82433ed1-edac-414e-9189-7e5b3292ec6e",
+      "filename": "2025-03-06-国家税务总局湖南省税务局-379.50-25439165666000015358.pdf",
+      "upload_time": "2025-07-06 03:19:35.843163+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "size": 60327,
+      "process_time": 3.0021250247955322,
+      "invoice_id": "efaa1ca1-bca8-40c5-bceb-eb66de79eb1b",
+      "filename": "2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf",
+      "upload_time": "2025-07-06 03:19:38.838665+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "size": 62566,
+      "process_time": 2.7461459636688232,
+      "invoice_id": "c57f5a1f-4d76-4bc5-9fde-add2f7f2210e",
+      "filename": "2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf",
+      "upload_time": "2025-07-06 03:19:41.580469+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "size": 159639,
+      "process_time": 2.75469708442688,
+      "invoice_id": "0cc7ee3f-162c-4884-b9f2-c4359e4b94bf",
+      "filename": "2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf",
+      "upload_time": "2025-07-06 03:19:44.341571+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "size": 150298,
+      "process_time": 2.761965036392212,
+      "invoice_id": "d43c731e-edfb-43f0-92b7-9a648c78dcb9",
+      "filename": "2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf",
+      "upload_time": "2025-07-06 03:19:47.111020+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "size": 148709,
+      "process_time": 2.6244418621063232,
+      "invoice_id": "3fbde23a-fe8a-4c7c-97c7-34c82187d9c5",
+      "filename": "2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf",
+      "upload_time": "2025-07-06 03:19:49.730458+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "size": 141208,
+      "process_time": 2.6397018432617188,
+      "invoice_id": "1ecb7356-6e51-4745-99a0-03dd2229ecea",
+      "filename": "2025-03-16-高新区盘烤一烧烤肉店（个体工商户）-479.00-25512000000059075953.pdf",
+      "upload_time": "2025-07-06 03:19:52.365803+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-18-成都大鸿置业有限公司首座万豪酒店分公司-1467.99-25512000000061092195.pdf",
+      "size": 60435,
+      "process_time": 2.857234001159668,
+      "invoice_id": "7ef998fa-dcd6-4831-8ef0-2a44aa650f05",
+      "filename": "2025-03-18-成都大鸿置业有限公司首座万豪酒店分公司-1467.99-25512000000061092195.pdf",
+      "upload_time": "2025-07-06 03:19:55.230736+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "size": 68640,
+      "process_time": 2.766422986984253,
+      "invoice_id": "57d3c79b-289e-4890-acf6-c77e76068aad",
+      "filename": "2025-03-19-国家税务总局-35.50-25359134169000052039.pdf",
+      "upload_time": "2025-07-06 03:19:57.995256+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局-377.00-25429165848000790553.pdf",
+      "size": 68707,
+      "process_time": 3.5623769760131836,
+      "invoice_id": "7ec95356-2200-440a-9293-3b7b305cd46f",
+      "filename": "2025-03-19-国家税务总局-377.00-25429165848000790553.pdf",
+      "upload_time": "2025-07-06 03:20:01.563646+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "size": 44042,
+      "process_time": 2.6985747814178467,
+      "invoice_id": "6aa01c1f-7edf-492d-8677-f7348cf9c511",
+      "filename": "2025-03-19-国家税务总局-556.00-25429165818000508972.pdf",
+      "upload_time": "2025-07-06 03:20:04.254984+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "size": 44004,
+      "process_time": 3.3461036682128906,
+      "invoice_id": "86b29e39-aa53-42f2-b79f-ac676adcfd0e",
+      "filename": "2025-03-19-国家税务总局-57.50-25429165818000508973.pdf",
+      "upload_time": "2025-07-06 03:20:07.608473+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "size": 44152,
+      "process_time": 2.6164050102233887,
+      "invoice_id": "1ba6c5fe-ed19-41a0-bc2c-a3ae2ad26705",
+      "filename": "2025-03-19-国家税务总局厦门市税务局-123.00-25949134178000153214.pdf",
+      "upload_time": "2025-07-06 03:20:10.224969+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "size": 68998,
+      "process_time": 2.876378059387207,
+      "invoice_id": "06c5eed1-fdb1-4d4c-bc48-4fe91962c74f",
+      "filename": "2025-03-19-国家税务总局湖南省税务局-339.00-25439122799000011090.pdf",
+      "upload_time": "2025-07-06 03:20:13.097118+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "size": 44046,
+      "process_time": 2.893609046936035,
+      "invoice_id": "26676d68-a9ec-43c0-a975-09eb24ef99e9",
+      "filename": "2025-03-19-国家税务总局湖南省税务局-96.50-25439165666000019624.pdf",
+      "upload_time": "2025-07-06 03:20:15.996112+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-19-深圳市税务局-186.50-25959165876000012546.pdf",
+      "size": 44072,
+      "process_time": 2.6764700412750244,
+      "invoice_id": "f255b667-cd75-4f71-9685-70bb21875270",
+      "filename": "2025-03-19-深圳市税务局-186.50-25959165876000012546.pdf",
+      "upload_time": "2025-07-06 03:20:18.661803+00:00"
+    },
+    {
+      "status": "success",
+      "file_path": "downloads/报销/selected_invoices_20250326153155/2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "size": 142717,
+      "process_time": 5.003041982650757,
+      "invoice_id": "28f3da1e-94cb-4b58-809a-8f9bd71d9ea9",
+      "filename": "2025-03-26-泉州佳穗酒店管理有限责任公司丰泽洲际酒店-400.00-25352000000032937490.pdf",
+      "upload_time": "2025-07-06 03:20:23.144837+00:00"
+    }
+  ]
+}

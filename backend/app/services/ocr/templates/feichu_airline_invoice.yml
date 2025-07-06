@@ -1,0 +1,87 @@
+# 飞猪机票发票专用模板
+issuer: 飞猪航空服务发票
+priority: 130  # 最高优先级，优于项目修正版
+keywords:
+  - "阿斯兰航空服务"
+  - "经纪代理服务"
+
+fields:
+  # 基本信息 - 兼容飞猪发票格式
+  invoice_number:
+    parser: regex
+    regex: '发票号码[：:]\s*(\d+)'
+  date:
+    parser: regex
+    regex: '开票日期[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)'
+    type: date
+  
+  # 金额信息 - 支持全角和半角符号
+  amount:
+    parser: regex
+    regex: '价税合计.*?[（(]\s*小写\s*[）)]\s*[¥￥]\s*([0-9,]+\.?\d*)'
+    type: float
+  chinese_amount:
+    parser: regex
+    regex: '价税合计[（(]\s*大写\s*[）)]\s*([^\s（(]+)'
+  
+  # 购买方和销售方信息 - 飞猪发票专用格式
+  buyer_name:
+    parser: regex
+    regex: '名\s*称[：:]\s*([^\n]+?)(?=\n.*?购)'
+  seller_name:
+    parser: regex  
+    regex: '名\s*称[：:]\s*([^\n]+?)(?=\n.*?销)'
+  
+  # 税号信息
+  buyer_tax_id:
+    parser: regex
+    regex: '购.*?纳税人识别号[：:]\s*([A-Z0-9]{15,18})'
+  seller_tax_id:
+    parser: regex
+    regex: '销.*?纳税人识别号[：:]\s*([A-Z0-9]{15,18})'
+  
+  # 开票人
+  issuer_person:
+    parser: regex
+    regex: '开\s*票\s*人[：:]\s*([^\s\n]+)'
+  
+  # 项目明细信息 - 机票代理服务专用
+  service_type:
+    parser: regex
+    regex: '\*([^*]+)\*'
+    
+  project_name:
+    parser: regex
+    regex: '\*[^*]+\*([^*\s\n]+)'
+    
+  project_amount:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?([0-9,]+\.?\d*)\s+\d+%'
+    type: float
+    
+  project_tax_rate:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?(\d+%)'
+    
+  project_tax_amount:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?\d+%\s+([0-9,]+\.?\d*)'
+    type: float
+
+  # 机票特有信息
+  airline_service:
+    parser: regex
+    regex: '(阿斯兰航空服务[^）)]*?[）)]?[^公]*?公司)'
+    
+  booking_service:
+    parser: regex
+    regex: '(代订机票[费服务]*)'
+
+options:
+  currency: CNY
+  decimal_separator: '.'
+  date_formats:
+    - '%Y年%m月%d日'
+  remove_whitespace: false
+  remove_accents: false
+  lowercase: false
