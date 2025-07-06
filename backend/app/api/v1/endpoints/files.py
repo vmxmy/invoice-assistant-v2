@@ -235,7 +235,30 @@ async def upload_invoice_file(
                 existing_invoice = existing_invoice.scalar_one_or_none()
                 
                 if existing_invoice:
-                    # 返回已存在发票的信息
+                    # 更新已存在的发票记录
+                    existing_invoice.invoice_code = invoice.invoice_code
+                    existing_invoice.invoice_type = invoice.invoice_type
+                    existing_invoice.invoice_date = invoice.invoice_date
+                    existing_invoice.amount = invoice.amount
+                    existing_invoice.tax_amount = invoice.tax_amount
+                    existing_invoice.total_amount = invoice.total_amount
+                    existing_invoice.seller_name = invoice.seller_name
+                    existing_invoice.seller_tax_id = invoice.seller_tax_id
+                    existing_invoice.buyer_name = invoice.buyer_name
+                    existing_invoice.buyer_tax_id = invoice.buyer_tax_id
+                    existing_invoice.file_path = invoice.file_path
+                    existing_invoice.file_url = invoice.file_url
+                    existing_invoice.file_size = invoice.file_size
+                    existing_invoice.file_hash = invoice.file_hash
+                    existing_invoice.extracted_data = invoice.extracted_data
+                    existing_invoice.processing_status = ProcessingStatus.OCR_COMPLETED
+                    existing_invoice.updated_at = datetime.now(timezone.utc)
+                    
+                    # 提交更新
+                    await db.commit()
+                    await db.refresh(existing_invoice)
+                    
+                    # 返回更新后的发票信息
                     return FileUploadResponse(
                         file_id=existing_invoice.id,
                         filename=original_filename,
@@ -245,7 +268,7 @@ async def upload_invoice_file(
                         file_hash=existing_invoice.file_hash,
                         mime_type="application/pdf",
                         invoice_id=existing_invoice.id,
-                        uploaded_at=existing_invoice.created_at.isoformat()
+                        uploaded_at=existing_invoice.updated_at.isoformat()
                     )
             
             # 其他数据库错误
