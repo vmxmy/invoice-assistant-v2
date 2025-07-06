@@ -1,5 +1,5 @@
 """
-OCR服务配置管理 - 增强规则提取器
+OCR服务配置管理 - Invoice2Data客户端
 """
 
 from dataclasses import dataclass
@@ -9,24 +9,26 @@ from app.core.config import settings
 
 @dataclass
 class OCRConfig:
-    """增强规则提取器配置类"""
+    """Invoice2Data客户端配置类"""
     
-    # 保持兼容性的配置（增强规则提取器不需要API token）
-    api_token: str = "enhanced_rule_extractor"  # 默认值，仅用于兼容性
+    # 基本配置
+    api_token: str = "invoice2data_client"  # 默认值，用于标识
+    api_base: str = "local"  # 本地处理，无需API
+    max_retries: int = 3  # 最大重试次数
+    timeout: float = 30.0  # 超时时间（秒）
     
     # 功能配置
-    enable_vertical_text_fix: bool = True  # 是否启用垂直文本修复
-    enable_amount_extraction: bool = True  # 是否启用金额提取
-    enable_company_extraction: bool = True  # 是否启用公司名称提取
-    enable_project_extraction: bool = True  # 是否启用项目名称提取
+    enable_batch_processing: bool = True  # 是否启用批量处理
+    enable_intelligent_postprocessing: bool = True  # 是否启用智能后处理
     
     @classmethod
     def from_settings(cls) -> 'OCRConfig':
         """从应用配置创建OCR配置"""
         return cls(
-            api_token="enhanced_rule_extractor",  # 不需要真实API token
-            enable_vertical_text_fix=getattr(settings, 'ocr_enable_vertical_fix', True),
-            enable_amount_extraction=getattr(settings, 'ocr_enable_amount', True),
-            enable_company_extraction=getattr(settings, 'ocr_enable_company', True),
-            enable_project_extraction=getattr(settings, 'ocr_enable_project', True)
+            api_token="invoice2data_client",
+            api_base="local",
+            max_retries=getattr(settings, 'ocr_max_retries', 3),
+            timeout=getattr(settings, 'ocr_timeout', 30.0),
+            enable_batch_processing=getattr(settings, 'ocr_enable_batch', True),
+            enable_intelligent_postprocessing=getattr(settings, 'ocr_enable_postprocessing', True)
         ) 

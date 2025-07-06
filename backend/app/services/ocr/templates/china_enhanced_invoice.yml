@@ -1,0 +1,114 @@
+# 中国电子发票增强模板 - 集成增强提取器的智能规则
+issuer: 中国电子发票增强版
+priority: 150  # 最高优先级
+keywords:
+  - "电子"
+  - "发票"
+  - "增值税"
+
+fields:
+  # 发票号码 - 多级回退模式
+  invoice_number:
+    parser: regex
+    regex: '(?:发票号码[：:]\s*(\d{20})|号码[：:]\s*(\d{20})|(\d{20})(?=\s*\d{4}年)|发票号码[：:]\s*(\d{15,25})|号\s*码[：:]\s*(\d+))'
+    type: str
+    
+  # 开票日期 - 支持多种日期格式
+  date:
+    parser: regex
+    regex: '(?:开票日期[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)|日期[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)|(\d{4}年\d{1,2}月\d{1,2}日)(?!.*开票日期)|开票日期[：:]\s*(\d{4}-\d{1,2}-\d{1,2})|(\d{4}/\d{1,2}/\d{1,2}))'
+    type: date
+    
+  # 购买方名称 - 增强的公司名称提取
+  buyer_name:
+    parser: regex
+    regex: '(?:购买方名称[：:]\s*([^\s\n]+(?:\s+[^\s\n]+)*?)(?=\s+销|$|\n)|购.*?名\s*称\s*[：:]\s*([^\s\n]+(?:\s+[^\s\n]+)*?)(?=\s+销|$|\n)|购\s*买?方?.*?[：:]\s*([^\s\n]+(?:\s+[^\s\n]+)*?)(?=\s+销|$|\n)|买\s*方.*?[：:]\s*([^\s\n]+(?:\s+[^\s\n]+)*?)(?=\s+销|$|\n))'
+    postprocess: company_name_clean
+    
+  # 销售方名称 - 增强的公司名称提取
+  seller_name:
+    parser: regex
+    regex: '(?:销售方名称[：:]\s*([^\n]+?)(?=\n|$)|销.*?名\s*称\s*[：:]\s*([^\n]+?)(?=\n|$)|销\s*售?方?.*?[：:]\s*([^\n]+?)(?=\n|$)|卖\s*方.*?[：:]\s*([^\n]+?)(?=\n|$))'
+    postprocess: company_name_clean
+    
+  # 购买方税号
+  buyer_tax_id:
+    parser: regex
+    regex: '(?:购.*?统一社会信用代码/?纳税人识别号[：:]\s*([A-Z0-9]{18})|购.*?纳税人识别号[：:]\s*([A-Z0-9]{18})|买方.*?税.*?号[：:]\s*([A-Z0-9]{18}))'
+    
+  # 销售方税号
+  seller_tax_id:
+    parser: regex  
+    regex: '(?:销.*?统一社会信用代码/?纳税人识别号[：:]\s*([A-Z0-9]{18})|销.*?纳税人识别号[：:]\s*([A-Z0-9]{18})|卖方.*?税.*?号[：:]\s*([A-Z0-9]{18}))'
+    
+  # 金额信息 - 智能金额提取
+  amount:
+    parser: regex
+    regex: '(?:价税合计.*?[（(]\s*小写\s*[）)]\s*[¥￥]\s*([0-9,]+\.?\d*)|合\s*计.*?[¥￥]\s*([0-9,]+\.?\d*)|[¥￥]\s*([0-9,]+\.?\d*)(?=.*价税合计)|小写[）)]\s*[¥￥]\s*([0-9,]+\.?\d*)|票价[：:]\s*[¥￥]?\s*([0-9,]+\.?\d*)|^[¥￥]([0-9,]+\.?\d*)$)'
+    type: float
+    
+  # 中文大写金额
+  chinese_amount:
+    parser: regex
+    regex: '价税合计[（(]\s*大写\s*[）)]\s*([^\s（(]+)'
+    
+  # 开票人
+  issuer_person:
+    parser: regex
+    regex: '(?:开票人[：:]\s*([^\s\n]+)|开\s*票\s*人\s*[：:]\s*([^\s\n]+)|票\s*人\s*[：:]\s*([^\s\n]+))'
+    
+  # 项目信息 - 增强的项目提取
+  service_type:
+    parser: regex
+    regex: '\*([^*]+)\*'
+    
+  project_name:
+    parser: regex
+    regex: '(?:\*[^*]+\*([^*\s\n]+)|\*([^*\n]+)\*([^*\n]+?)(?=\s|$)|项目名称[：:]\s*([^\n]+)|品名[：:]\s*([^\n]+)|货物或应税劳务[：:]\s*([^\n]+))'
+    
+  # 项目金额和税率信息
+  project_details:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?([0-9,]+\.?\d*)\s+(\d+)%\s+([0-9,]+\.?\d*)'
+    type: list
+
+# 后处理函数定义
+postprocess:
+  company_name_clean:
+    # 清理公司名称的噪音
+    remove_suffixes: ['名称', '：', ':', '公司名称', '企业名称']
+    trim_spaces: true
+    min_length: 4
+
+# 智能提取配置
+intelligent_extraction:
+  enable: true
+  fallback_fields: ['buyer_name', 'seller_name']
+  context_window: 10  # 上下文搜索范围（行数）
+
+# 验证规则
+validation:
+  invoice_number:
+    min_length: 8
+    max_length: 25
+    numeric_only: true
+  buyer_name:
+    min_length: 4
+    required: true
+  seller_name:
+    min_length: 4
+    required: true
+  amount:
+    min_value: 0.01
+    required: true
+
+options:
+  currency: CNY
+  decimal_separator: '.'
+  date_formats:
+    - '%Y年%m月%d日'
+    - '%Y-%m-%d'
+    - '%Y/%m/%d'
+  remove_whitespace: false
+  remove_accents: false
+  lowercase: false

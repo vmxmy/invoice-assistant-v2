@@ -1,24 +1,23 @@
 """
-OCR服务模块 - 100%成功率增强规则提取器
+OCR服务模块 - Invoice2Data提取器
 
 提供统一的OCR服务接口，支持：
-- 增强规则提取器（100%成功率）
-- 智能字段提取和识别
-- 垂直文本处理
-- 火车票金额提取
+- Invoice2Data模板驱动的发票解析
+- YAML模板灵活配置
 - 本地化处理，无API依赖
+- 异步批量处理
 """
 
-# 使用增强规则提取器作为主要OCR服务
-from .enhanced_ocr_service import EnhancedOCRService as OCRService
-from .enhanced_rule_extractor import EnhancedRuleExtractor
+# 使用Invoice2Data作为主要OCR服务
+from .invoice2data_client import Invoice2DataClient as OCRService
+from .invoice2data_client import Invoice2DataClient
 from .config import OCRConfig
 from .exceptions import OCRError
 from .models import OCRResult, StructuredInvoiceData
 
 __all__ = [
-    'OCRService',  # EnhancedOCRService
-    'EnhancedRuleExtractor',
+    'OCRService',  # Invoice2DataClient
+    'Invoice2DataClient',
     'OCRConfig', 
     'OCRResult',
     'StructuredInvoiceData',
