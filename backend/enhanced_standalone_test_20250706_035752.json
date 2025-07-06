@@ -1,0 +1,67 @@
+{
+  "test_type": "enhanced_standalone",
+  "description": "独立增强规则提取器测试",
+  "statistics": {
+    "total": 4,
+    "success": 4,
+    "success_rate": "100.0%",
+    "field_extraction": {
+      "invoice_number": 4,
+      "invoice_date": 4,
+      "buyer_name": 4,
+      "seller_name": 4,
+      "total_amount": 4,
+      "project_name": 4
+    }
+  },
+  "results": [
+    {
+      "invoice_number": "25432000000031789815",
+      "invoice_date": "2025-03-12",
+      "total_amount": 79.21,
+      "buyer_name": "杭州趣链科技有限公司",
+      "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+      "project_name": "餐饮服务餐饮费",
+      "invoice_type": "电子普通发票",
+      "success": true,
+      "file": "25432000000031789815.pdf",
+      "processing_time": 0.006195
+    },
+    {
+      "invoice_number": "25442000000101203423",
+      "invoice_date": "2025-02-24",
+      "total_amount": 316.98,
+      "buyer_name": "杭州趣链科技有限公司",
+      "seller_name": "广州寿司郎餐饮有限公司",
+      "project_name": "餐饮服务餐饮服务",
+      "invoice_type": "电子发票",
+      "success": true,
+      "file": "25442000000101203423.pdf",
+      "processing_time": 0.006413
+    },
+    {
+      "invoice_number": "25432000000022020617",
+      "invoice_date": "2025-02-19",
+      "total_amount": 240.0,
+      "buyer_name": "杭州趣链科技有限公司",
+      "seller_name": "娄底市娄星区萝卜餐饮店",
+      "project_name": "餐饮服务餐饮费",
+      "invoice_type": "电子普通发票",
+      "success": true,
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "processing_time": 0.001804
+    },
+    {
+      "invoice_number": "25439165666000019624",
+      "invoice_date": "2025-03-19",
+      "total_amount": 96.5,
+      "buyer_name": "杭州趣链科技有限公司",
+      "seller_name": "中国铁路祝您旅途愉快",
+      "project_name": "铁路旅客运输",
+      "invoice_type": "铁路电子客票",
+      "success": true,
+      "file": "25439165666000019624.pdf",
+      "processing_time": 0.00229
+    }
+  ]
+}
