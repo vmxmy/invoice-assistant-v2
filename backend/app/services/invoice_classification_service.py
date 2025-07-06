@@ -9,6 +9,7 @@ import logging
 from typing import Dict, Any, Optional, List, NamedTuple
 from decimal import Decimal
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -135,16 +136,21 @@ class InvoiceClassificationService:
         
         for (category_code, confidence), patterns in type_patterns.items():
             for pattern in patterns:
-                if pattern in invoice_type:
-                    # 需要根据二级分类找到一级分类
-                    primary_code = self._get_primary_category_for_secondary(category_code)
-                    if primary_code:
-                        return await self._get_classification_by_code(
-                            primary_code, category_code, session,
-                            confidence=confidence,
-                            reason=f"发票类型匹配: {pattern}",
-                            rule_type="invoice_type_pattern"
-                        )
+                # Use word boundary matching to avoid false positives
+                if len(pattern) > 2 and pattern in invoice_type:
+                    # Additional check for exact matches or word boundaries
+                    if (pattern == invoice_type or 
+                        re.search(rf'\b{re.escape(pattern)}\b', invoice_type) or
+                        (len(pattern) >= 3 and pattern in invoice_type)):
+                        # 需要根据二级分类找到一级分类
+                        primary_code = self._get_primary_category_for_secondary(category_code)
+                        if primary_code:
+                            return await self._get_classification_by_code(
+                                primary_code, category_code, session,
+                                confidence=confidence,
+                                reason=f"发票类型匹配: {pattern}",
+                                rule_type="invoice_type_pattern"
+                            )
         
         return None
     

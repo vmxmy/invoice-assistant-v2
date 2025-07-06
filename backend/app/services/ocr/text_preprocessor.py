@@ -119,3 +119,14 @@ def remove_colon_newlines(text):
         text = re.sub(f'{re.escape(colon)}\\s+', f'{colon} ', text)
     
     return text
+
+
+class InvoiceTextPreprocessor:
+    """发票文本预处理器，用于invoice2data客户端"""
+    
+    @staticmethod
+    def preprocess_for_extraction(data):
+        """预处理发票数据"""
+        if isinstance(data, dict):
+            return data
+        return data

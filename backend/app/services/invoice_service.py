@@ -193,6 +193,15 @@ class InvoiceService:
     def _parse_date(self, date_str: str) -> date:
         """解析日期字符串"""
         from datetime import datetime
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        
+        if not date_str:
+            logger.warning("Empty date string provided, using today's date")
+            from datetime import date
+            return date.today()
+            
         try:
             # 尝试解析 YYYY-MM-DD 格式
             return datetime.strptime(str(date_str).strip(), '%Y-%m-%d').date()
@@ -201,21 +210,41 @@ class InvoiceService:
                 # 尝试解析 YYYY/MM/DD 格式
                 return datetime.strptime(str(date_str).strip(), '%Y/%m/%d').date()
             except ValueError:
-                # 使用今天日期作为最后的fallback
+                # 记录解析失败并使用今天日期作为最后的fallback
+                logger.error(f"Failed to parse date string: '{date_str}', using today's date as fallback")
                 from datetime import date
                 return date.today()
     
     def _parse_amount(self, amount) -> float:
         """解析金额"""
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        
+        if amount is None:
+            logger.warning("None amount provided, returning 0.0")
+            return 0.0
+            
         if isinstance(amount, (int, float)):
             return float(amount)
+            
         if isinstance(amount, str):
             # 移除货币符号和空格
             cleaned = amount.replace('¥', '').replace(',', '').strip()
-            try:
-                return float(cleaned)
-            except ValueError:
+            if not cleaned:
+                logger.warning("Empty amount string after cleaning, returning 0.0")
                 return 0.0
+            try:
+                parsed_amount = float(cleaned)
+                if parsed_amount < 0:
+                    logger.warning(f"Negative amount parsed: {parsed_amount}, returning 0.0")
+                    return 0.0
+                return parsed_amount
+            except ValueError:
+                logger.error(f"Failed to parse amount string: '{amount}' (cleaned: '{cleaned}'), returning 0.0")
+                return 0.0
+        
+        logger.warning(f"Unsupported amount type: {type(amount)}, returning 0.0")
         return 0.0
     
     async def update_invoice_extracted_data(
