@@ -241,27 +241,48 @@ class Invoice2DataClient(BaseOCRClient):
             )
             
             # 提取卖方信息
+            seller_tax_id = processed_data.get('seller_tax_id')
+            # 处理可能返回数组的情况
+            if isinstance(seller_tax_id, list) and len(seller_tax_id) > 0:
+                seller_tax_id = seller_tax_id[0]  # 取第一个税号
+            
             seller_info = InvoicePartyInfo(
                 name=processed_data.get('seller_name', '').strip() if processed_data.get('seller_name') else None,
-                tax_id=processed_data.get('seller_tax_id'),
+                tax_id=seller_tax_id if isinstance(seller_tax_id, str) else None,
                 address=None,  # invoice2data模板未提取地址
                 phone=None     # invoice2data模板未提取电话
             )
             
             # 提取买方信息
+            buyer_tax_id = processed_data.get('buyer_tax_id')
+            # 处理可能返回数组的情况
+            if isinstance(buyer_tax_id, list) and len(buyer_tax_id) > 0:
+                buyer_tax_id = buyer_tax_id[0]  # 取第一个税号
+            
             buyer_info = InvoicePartyInfo(
                 name=processed_data.get('buyer_name', '').strip() if processed_data.get('buyer_name') else None,
-                tax_id=processed_data.get('buyer_tax_id'),
+                tax_id=buyer_tax_id if isinstance(buyer_tax_id, str) else None,
                 address=None,
                 phone=None
             )
             
             # 提取汇总信息
+            # 优先使用amount_pretax作为税前金额，如果没有则使用amount
+            amount_pretax = self._safe_get_decimal(processed_data, 'amount_pretax')
+            if amount_pretax == 0:
+                amount_pretax = self._safe_get_decimal(processed_data, 'amount')
+            
+            # 获取税额
+            tax_amount = self._safe_get_decimal(processed_data, 'tax_amount')
+            
+            # 获取总金额（价税合计）
+            total_amount = self._safe_get_decimal(processed_data, 'amount')
+            
             summary = InvoiceSummary(
-                amount=self._safe_get_decimal(processed_data, 'amount'),
-                tax_amount=None,  # invoice2data模板未单独提取税额
-                total_amount=self._safe_get_decimal(processed_data, 'amount'),
-                amount_in_words=processed_data.get('chinese_words', '').strip() if processed_data.get('chinese_words') else None
+                amount=amount_pretax,  # 税前金额
+                tax_amount=tax_amount,  # 税额
+                total_amount=total_amount,  # 价税合计
+                amount_in_words=processed_data.get('chinese_amount', '').strip() if processed_data.get('chinese_amount') else None
             )
             
             return StructuredInvoiceData(

@@ -1,6 +1,6 @@
 # 飞猪机票发票专用模板
 issuer: 飞猪航空服务发票
-priority: 130  # 最高优先级，优于项目修正版
+priority: 190  # 最高优先级，优于项目修正版
 keywords:
   - "阿斯兰航空服务"
   - "经纪代理服务"
@@ -24,21 +24,21 @@ fields:
     parser: regex
     regex: '价税合计[（(]\s*大写\s*[）)]\s*([^\s（(]+)'
   
-  # 购买方和销售方信息 - 飞猪发票专用格式
+  # 购买方和销售方信息 - 飞猪发票专用格式（适配pdftotext格式）
   buyer_name:
     parser: regex
-    regex: '名\s*称[：:]\s*([^\n]+?)(?=\n.*?购)'
+    regex: '买\s*名称[：:]\s*([^\s]+)'
   seller_name:
     parser: regex  
-    regex: '名\s*称[：:]\s*([^\n]+?)(?=\n.*?销)'
+    regex: '售\s*名称[：:]\s*([^\n]+)'
   
-  # 税号信息
+  # 税号信息 - 基于位置提取（同一行内的两个税号）
   buyer_tax_id:
     parser: regex
-    regex: '购.*?纳税人识别号[：:]\s*([A-Z0-9]{15,18})'
+    regex: '统一社会信用代码/纳税人识别号[：:]\s*([A-Z0-9]{15,20})'
   seller_tax_id:
     parser: regex
-    regex: '销.*?纳税人识别号[：:]\s*([A-Z0-9]{15,18})'
+    regex: '统一社会信用代码/纳税人识别号[：:]\s*[A-Z0-9]{15,20}\s+统一社会信用代码/纳税人识别号[：:]\s*([A-Z0-9]{15,20})'
   
   # 开票人
   issuer_person:
@@ -73,9 +73,7 @@ fields:
     parser: regex
     regex: '(阿斯兰航空服务[^）)]*?[）)]?[^公]*?公司)'
     
-  booking_service:
-    parser: regex
-    regex: '(代订机票[费服务]*)'
+  # booking_service 字段已移除，因为在此发票中不存在
 
 options:
   currency: CNY
