@@ -1,0 +1,298 @@
+{
+  "summary": {
+    "total_files": 28,
+    "successful_files": 28,
+    "field_stats": {
+      "invoice_number": 9,
+      "invoice_date": 28,
+      "buyer_name": 28,
+      "seller_name": 9,
+      "buyer_tax_id": 9,
+      "seller_tax_id": 9,
+      "amount": 0,
+      "project_name": 0
+    },
+    "method_stats": {
+      "invoice2data_only": 0,
+      "coordinate_only": 28,
+      "mixed": 0,
+      "failed": 0
+    },
+    "coordinate_improvements": {
+      "buyer_name": 28,
+      "seller_name": 9,
+      "buyer_tax_id": 9,
+      "seller_tax_id": 9
+    }
+  },
+  "results": {
+    "25432000000031789815.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91431302MA4PRFYA3N",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000031789815",
+      "invoice_date": "2025年03月12日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165666000019624.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25439122799000011090.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165660000008536_1.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165848000614665.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月06日",
+      "invoice_date_method": "coordinate"
+    },
+    "25432000000029033553-杭州趣链物联科技有限公司.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链物联科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "娄底星奕酒店管理有限公司",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA2KGJLF4Q",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91431302MA4RPRTN14",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000029033553",
+      "invoice_date": "2025年03月06日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "娄底市中税通财税咨询有限公司",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91431302MA4PBFXH78",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000032177192",
+      "invoice_date": "2025年03月13日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165818000393965.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月06日",
+      "invoice_date_method": "coordinate"
+    },
+    "25512000000059075953.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "92510100MAE5BA8Y35",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25512000000059075953",
+      "invoice_date": "2025年03月16日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25432000000022014229.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "娄底市娄星区老堂屋城南店",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "92431302MABTLNCM74",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000022014229",
+      "invoice_date": "2025年02月19日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165848000423011.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年02月20日",
+      "invoice_date_method": "coordinate"
+    },
+    "25369125403000228801.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月06日",
+      "invoice_date_method": "coordinate"
+    },
+    "25949134178000153214.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25959165876000012546.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25432000000029373425-杭州趣链科技有限公司.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "娄底市娄星区萝卜餐饮店",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "92431302MA4QP59721",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000029373425",
+      "invoice_date": "2025年03月06日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25432000000022020617-杭州趣链科技有限公司.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "娄底市娄星区萝卜餐饮店",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "92431302MA4QP59721",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000022020617",
+      "invoice_date": "2025年02月19日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165666000013950.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    },
+    "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "销方开户银行:湖南娄底农村商业银行股份有限公司;    银行账号:82013300000018413;",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91330108MA27Y5XH5G",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25432000000031411143",
+      "invoice_date": "2025年03月11日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165818000355594_1.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165666000013950_1.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165666000015358.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月06日",
+      "invoice_date_method": "coordinate"
+    },
+    "25442000000101203423.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "广州寿司郎餐饮有限公司",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91440101MA9W38GN08",
+      "seller_tax_id_method": "coordinate",
+      "invoice_number": "25442000000101203423",
+      "invoice_date": "2025年02月24日",
+      "invoice_number_method": "coordinate",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165848000790553.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165818000508973.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165818000508972.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25359134169000052039.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月19日",
+      "invoice_date_method": "coordinate"
+    },
+    "25429165818000355594.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    },
+    "25439165660000008536.pdf": {
+      "extraction_method": "coordinate_only",
+      "buyer_name": "购买方名称:杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "invoice_date": "2025年03月03日",
+      "invoice_date_method": "coordinate"
+    }
+  }
+}

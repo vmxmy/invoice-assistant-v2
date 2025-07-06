@@ -1,0 +1,586 @@
+{
+  "total_files": 40,
+  "success_count": 28,
+  "project_count": 9,
+  "feichu_count": 8,
+  "error_count": 12,
+  "detailed_results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "035022200211_39533037.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number'}"
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165666000019624",
+        "date": "2025-03-19 00:00:00",
+        "amount": "96.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439122799000011090",
+        "date": "2025-03-19 00:00:00",
+        "amount": "339.0",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165660000008536",
+        "date": "2025-03-03 00:00:00",
+        "amount": "12.0",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "043002000211_94346247.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'date'}"
+    },
+    {
+      "file": "043002000211_94346247 2.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'date'}"
+    },
+    {
+      "file": "【飞猪】订单5258158921288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52245322",
+        "date": "2023-05-07 00:00:00",
+        "amount": "1304.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": "经纪代理服务",
+        "project_name": "经纪代理服务",
+        "project_amount": "1230.19",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165848000614665",
+        "date": "2025-03-06 00:00:00",
+        "amount": "377.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165818000393965",
+        "date": "2025-03-06 00:00:00",
+        "amount": "57.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "【飞猪】订单5057560375288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52530047",
+        "date": "2023-04-24 00:00:00",
+        "amount": "640.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " > 1 - / > +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "603.77",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165848000423011",
+        "date": "2025-02-20 00:00:00",
+        "amount": "404.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "【飞猪】订单5070887806288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52530045",
+        "date": "2023-04-24 00:00:00",
+        "amount": "1770.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " - 5 5 > 9 - - 0 1 1 7 1 7 1 9 7 0 5 4 2 9 9 1 8 +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "1669.81",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25369125403000228801",
+        "date": "2025-03-06 00:00:00",
+        "amount": "296.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25949134178000153214",
+        "date": "2025-03-19 00:00:00",
+        "amount": "123.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25959165876000012546",
+        "date": "2025-03-19 00:00:00",
+        "amount": "186.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "【飞猪】订单5054763495288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52530046",
+        "date": "2023-04-24 00:00:00",
+        "amount": "590.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " 5 / 8 8 0 5 0 1 1 7 1 7 1 9 3 < 5 3 8 1 8 7 6 >\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "556.6",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165666000013950",
+        "date": "2025-03-03 00:00:00",
+        "amount": "86.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165818000355594",
+        "date": "2025-03-03 00:00:00",
+        "amount": "377.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "晨林辉5.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "15777622",
+        "date": "2023-04-13 00:00:00",
+        "amount": "10000.0"
+      },
+      "project_info": {
+        "service_type": "\n\n     合   计                                                         ¥10000.00                   ",
+        "project_name": "餐饮费"
+      },
+      "error": null
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165666000013950",
+        "date": "2025-03-03 00:00:00",
+        "amount": "86.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "【飞猪】订单5205652477288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "50044970",
+        "date": "2023-04-24 00:00:00",
+        "amount": "1310.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " 0 + 3 6 8 + 0 1 1 9 1 7 1 9 > 1 4 9 4 0 1 0 - 3\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "1235.85",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165666000015358",
+        "date": "2025-03-06 00:00:00",
+        "amount": "379.5",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "success": false,
+      "template": null,
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {},
+      "project_info": {},
+      "error": "Unable to parse required field(s): {'invoice_number', 'amount', 'date'}"
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165848000790553",
+        "date": "2025-03-19 00:00:00",
+        "amount": "377.0",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "【飞猪】订单5197213525288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "50044971",
+        "date": "2023-04-24 00:00:00",
+        "amount": "1260.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": "经纪代理服务",
+        "project_name": "经纪代理服务",
+        "project_amount": "1188.68",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "【飞猪】订单5111184066288-机票款凭证 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52469929",
+        "date": "2023-04-24 00:00:00",
+        "amount": "1510.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " 0 1 1 7 1 7 1 9 - 5 + 3 6 6 - 0 3 8\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "1424.53",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "【飞猪】订单5205652477288-改签手续费 报销凭证.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": true,
+      "is_feichu": true,
+      "basic_info": {
+        "invoice_number": "52370598",
+        "date": "2023-05-07 00:00:00",
+        "amount": "369.0",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "阿斯兰航空服务（上海）有限公司"
+      },
+      "project_info": {
+        "service_type": " 9\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n",
+        "project_name": "经纪代理服务",
+        "project_amount": "348.11",
+        "project_tax_rate": "6%"
+      },
+      "error": null
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165818000508973",
+        "date": "2025-03-19 00:00:00",
+        "amount": "57.5"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165818000508972",
+        "date": "2025-03-19 00:00:00",
+        "amount": "556.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25359134169000052039.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25359134169000052039",
+        "date": "2025-03-19 00:00:00",
+        "amount": "35.5",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25429165818000355594",
+        "date": "2025-03-03 00:00:00",
+        "amount": "377.0"
+      },
+      "project_info": {},
+      "error": null
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "success": true,
+      "template": "Unknown",
+      "has_project_info": false,
+      "is_feichu": false,
+      "basic_info": {
+        "invoice_number": "25439165660000008536",
+        "date": "2025-03-03 00:00:00",
+        "amount": "12.0",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "project_info": {},
+      "error": null
+    }
+  ]
+}

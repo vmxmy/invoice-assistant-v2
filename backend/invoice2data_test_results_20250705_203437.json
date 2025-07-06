@@ -1,0 +1,3728 @@
+{
+  "timestamp": "20250705_203437",
+  "summary_stats": {
+    "total_files": 28,
+    "processed_files": 28,
+    "success_count": 28,
+    "error_count": 0,
+    "total_processing_time": 0.4144906997680664,
+    "successful_extractions": {
+      "25432000000031789815.pdf": {
+        "processing_time": 0.029883146286010742,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000031789815",
+          "invoice_date": "2025-03-12",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.029840707778930664,
+          "raw_data": {
+            "issuer": "中国电子发票-空格分隔格式",
+            "invoice_number": "25432000000031789815",
+            "date": "2025-03-12 00:00:00",
+            "amount": [
+              0.79,
+              80.0,
+              79.21
+            ],
+            "issuer_person": "彭丽芳",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票-空格分隔格式"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000031789815",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-12"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000031789815",
+          "invoice_date": "2025-03-12",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000019624.pdf": {
+        "processing_time": 0.019803285598754883,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0197601318359375,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 96.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25439165666000019624",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000019624",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "96.5",
+              "tax_amount": "0",
+              "total_amount": "96.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439122799000011090.pdf": {
+        "processing_time": 0.010890960693359375,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.010854721069335938,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 339.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25439122799000011090",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439122799000011090",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "339.0",
+              "tax_amount": "0",
+              "total_amount": "339.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165660000008536_1.pdf": {
+        "processing_time": 0.009890079498291016,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009861230850219727,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 12.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25439165660000008536",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165848000614665.pdf": {
+        "processing_time": 0.01702094078063965,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016988277435302734,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 377.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25429165848000614665",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000614665",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25432000000029033553-杭州趣链物联科技有限公司.pdf": {
+        "processing_time": 0.009470939636230469,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000029033553",
+          "invoice_date": "2025-03-06",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.00943899154663086,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              5.02,
+              507.0,
+              501.98
+            ],
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25432000000029033553",
+            "issuer_person": "冯乐",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000029033553",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000029033553",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf": {
+        "processing_time": 0.010367870330810547,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000032177192",
+          "invoice_date": "2025-03-13",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.010325908660888672,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              4.95,
+              500.0,
+              495.05
+            ],
+            "date": "2025-03-13 00:00:00",
+            "invoice_number": "25432000000032177192",
+            "issuer_person": "黄红玲",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000032177192",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-13"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000032177192",
+          "invoice_date": "2025-03-13",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000393965.pdf": {
+        "processing_time": 0.016962051391601562,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016928911209106445,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 57.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25429165818000393965",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000393965",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25512000000059075953.pdf": {
+        "processing_time": 0.01778411865234375,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25512000000059075953",
+          "invoice_date": "2025-03-16",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.017704010009765625,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              474.26,
+              4.74,
+              479.0
+            ],
+            "date": "2025-03-16 00:00:00",
+            "invoice_number": "25512000000059075953",
+            "issuer_person": "张渊",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25512000000059075953",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-16"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25512000000059075953",
+          "invoice_date": "2025-03-16",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000022014229.pdf": {
+        "processing_time": 0.01165628433227539,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000022014229",
+          "invoice_date": "2025-02-19",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.011607170104980469,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              144.55,
+              1.45,
+              146.0
+            ],
+            "date": "2025-02-19 00:00:00",
+            "invoice_number": "25432000000022014229",
+            "issuer_person": "李雪英",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000022014229",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000022014229",
+          "invoice_date": "2025-02-19",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000423011.pdf": {
+        "processing_time": 0.017555952072143555,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.017514944076538086,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 404.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-02-20 00:00:00",
+            "invoice_number": "25429165848000423011",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000423011",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-20"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "404.5",
+              "tax_amount": "0",
+              "total_amount": "404.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "invoice_type": "电子发票",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25369125403000228801.pdf": {
+        "processing_time": 0.017480134963989258,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0174410343170166,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 296.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25369125403000228801",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25369125403000228801",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "296.0",
+              "tax_amount": "0",
+              "total_amount": "296.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25949134178000153214.pdf": {
+        "processing_time": 0.021439075469970703,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.02139902114868164,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 123.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25949134178000153214",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25949134178000153214",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "123.0",
+              "tax_amount": "0",
+              "total_amount": "123.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25959165876000012546.pdf": {
+        "processing_time": 0.01920604705810547,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.019170045852661133,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 186.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25959165876000012546",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25959165876000012546",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "186.5",
+              "tax_amount": "0",
+              "total_amount": "186.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25432000000029373425-杭州趣链科技有限公司.pdf": {
+        "processing_time": 0.01034998893737793,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000029373425",
+          "invoice_date": "2025-03-06",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.010293006896972656,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              10.08,
+              1018.0,
+              1007.92
+            ],
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25432000000029373425",
+            "issuer_person": "胡起贵",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000029373425",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000029373425",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000022020617-杭州趣链科技有限公司.pdf": {
+        "processing_time": 0.00895380973815918,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000022020617",
+          "invoice_date": "2025-02-19",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.008927345275878906,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              240.0,
+              2.38,
+              237.62
+            ],
+            "date": "2025-02-19 00:00:00",
+            "invoice_number": "25432000000022020617",
+            "issuer_person": "胡起贵",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000022020617",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000022020617",
+          "invoice_date": "2025-02-19",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000013950.pdf": {
+        "processing_time": 0.016311168670654297,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016284942626953125,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 86.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25439165666000013950",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf": {
+        "processing_time": 0.009177684783935547,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25432000000031411143",
+          "invoice_date": "2025-03-11",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009152889251708984,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              648.51,
+              6.49,
+              655.0
+            ],
+            "date": "2025-03-11 00:00:00",
+            "invoice_number": "25432000000031411143",
+            "issuer_person": "彭光峰",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000031411143",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-11"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000031411143",
+          "invoice_date": "2025-03-11",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000355594_1.pdf": {
+        "processing_time": 0.01677417755126953,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01674175262451172,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 377.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25429165818000355594",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165666000013950_1.pdf": {
+        "processing_time": 0.01647496223449707,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01644420623779297,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 86.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25439165666000013950",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165666000015358.pdf": {
+        "processing_time": 0.008878946304321289,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.008854150772094727,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 379.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-06 00:00:00",
+            "invoice_number": "25439165666000015358",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000015358",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "379.5",
+              "tax_amount": "0",
+              "total_amount": "379.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25442000000101203423.pdf": {
+        "processing_time": 0.01658487319946289,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25442000000101203423",
+          "invoice_date": "2025-02-24",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016558170318603516,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": [
+              336.0,
+              19.02,
+              316.98
+            ],
+            "date": "2025-02-24 00:00:00",
+            "invoice_number": "25442000000101203423",
+            "issuer_person": "蓝晓燕",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25442000000101203423",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-24"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25442000000101203423",
+          "invoice_date": "2025-02-24",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000790553.pdf": {
+        "processing_time": 0.009502887725830078,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009473085403442383,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 377.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25429165848000790553",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000790553",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000508973.pdf": {
+        "processing_time": 0.016544818878173828,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016518831253051758,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 57.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25429165818000508973",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508973",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000508972.pdf": {
+        "processing_time": 0.017805814743041992,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.017779111862182617,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 556.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25429165818000508972",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508972",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "556.0",
+              "tax_amount": "0",
+              "total_amount": "556.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25359134169000052039.pdf": {
+        "processing_time": 0.009512901306152344,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009479045867919922,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 35.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-19 00:00:00",
+            "invoice_number": "25359134169000052039",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25359134169000052039",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "35.5",
+              "tax_amount": "0",
+              "total_amount": "35.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000355594.pdf": {
+        "processing_time": 0.01725482940673828,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01720714569091797,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 377.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25429165818000355594",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165660000008536.pdf": {
+        "processing_time": 0.010952949523925781,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01091313362121582,
+          "raw_data": {
+            "issuer": "AAA_万能发票模板",
+            "amount": 12.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "date": "2025-03-03 00:00:00",
+            "invoice_number": "25439165660000008536",
+            "currency": "CNY",
+            "desc": "Invoice from AAA_万能发票模板"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      }
+    },
+    "failed_files": [],
+    "field_extraction_stats": {
+      "invoice_number": 28,
+      "invoice_date": 28,
+      "total_amount": 28,
+      "amount": 28,
+      "tax_amount": 28,
+      "buyer_name": 19,
+      "buyer_tax_id": 19
+    }
+  },
+  "detailed_results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000031789815.pdf",
+      "status": "success",
+      "processing_time": 0.029883146286010742,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.029840707778930664,
+        "raw_data": {
+          "issuer": "中国电子发票-空格分隔格式",
+          "invoice_number": "25432000000031789815",
+          "date": "2025-03-12 00:00:00",
+          "amount": [
+            0.79,
+            80.0,
+            79.21
+          ],
+          "issuer_person": "彭丽芳",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票-空格分隔格式"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000031789815",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-12"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025-03-12",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000019624.pdf",
+      "status": "success",
+      "processing_time": 0.019803285598754883,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0197601318359375,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 96.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25439165666000019624",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000019624",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "96.5",
+            "tax_amount": "0",
+            "total_amount": "96.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "96.5",
+        "amount": "96.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439122799000011090.pdf",
+      "status": "success",
+      "processing_time": 0.010890960693359375,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.010854721069335938,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 339.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25439122799000011090",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439122799000011090",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "339.0",
+            "tax_amount": "0",
+            "total_amount": "339.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "339.0",
+        "amount": "339.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536_1.pdf",
+      "status": "success",
+      "processing_time": 0.009890079498291016,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009861230850219727,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 12.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25439165660000008536",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000614665.pdf",
+      "status": "success",
+      "processing_time": 0.01702094078063965,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016988277435302734,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 377.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25429165848000614665",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000614665",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.009470939636230469,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.00943899154663086,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            5.02,
+            507.0,
+            501.98
+          ],
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25432000000029033553",
+          "issuer_person": "冯乐",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000029033553",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "status": "success",
+      "processing_time": 0.010367870330810547,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.010325908660888672,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            4.95,
+            500.0,
+            495.05
+          ],
+          "date": "2025-03-13 00:00:00",
+          "invoice_number": "25432000000032177192",
+          "issuer_person": "黄红玲",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000032177192",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-13"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025-03-13",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000393965.pdf",
+      "status": "success",
+      "processing_time": 0.016962051391601562,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016928911209106445,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 57.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25429165818000393965",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000393965",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25512000000059075953.pdf",
+      "status": "success",
+      "processing_time": 0.01778411865234375,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.017704010009765625,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            474.26,
+            4.74,
+            479.0
+          ],
+          "date": "2025-03-16 00:00:00",
+          "invoice_number": "25512000000059075953",
+          "issuer_person": "张渊",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25512000000059075953",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-16"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025-03-16",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022014229.pdf",
+      "status": "success",
+      "processing_time": 0.01165628433227539,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.011607170104980469,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            144.55,
+            1.45,
+            146.0
+          ],
+          "date": "2025-02-19 00:00:00",
+          "invoice_number": "25432000000022014229",
+          "issuer_person": "李雪英",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000022014229",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000022014229",
+        "invoice_date": "2025-02-19",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000423011.pdf",
+      "status": "success",
+      "processing_time": 0.017555952072143555,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.017514944076538086,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 404.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-02-20 00:00:00",
+          "invoice_number": "25429165848000423011",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000423011",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-20"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "404.5",
+            "tax_amount": "0",
+            "total_amount": "404.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000423011",
+        "invoice_date": "2025-02-20",
+        "invoice_type": "电子发票",
+        "total_amount": "404.5",
+        "amount": "404.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25369125403000228801.pdf",
+      "status": "success",
+      "processing_time": 0.017480134963989258,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0174410343170166,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 296.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25369125403000228801",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25369125403000228801",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "296.0",
+            "tax_amount": "0",
+            "total_amount": "296.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "296.0",
+        "amount": "296.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25949134178000153214.pdf",
+      "status": "success",
+      "processing_time": 0.021439075469970703,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.02139902114868164,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 123.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25949134178000153214",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25949134178000153214",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "123.0",
+            "tax_amount": "0",
+            "total_amount": "123.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "123.0",
+        "amount": "123.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25959165876000012546.pdf",
+      "status": "success",
+      "processing_time": 0.01920604705810547,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.019170045852661133,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 186.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25959165876000012546",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25959165876000012546",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "186.5",
+            "tax_amount": "0",
+            "total_amount": "186.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "186.5",
+        "amount": "186.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029373425-杭州趣链科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.01034998893737793,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.010293006896972656,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            10.08,
+            1018.0,
+            1007.92
+          ],
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25432000000029373425",
+          "issuer_person": "胡起贵",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000029373425",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022020617-杭州趣链科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.00895380973815918,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.008927345275878906,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            240.0,
+            2.38,
+            237.62
+          ],
+          "date": "2025-02-19 00:00:00",
+          "invoice_number": "25432000000022020617",
+          "issuer_person": "胡起贵",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000022020617",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000022020617",
+        "invoice_date": "2025-02-19",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950.pdf",
+      "status": "success",
+      "processing_time": 0.016311168670654297,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016284942626953125,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 86.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25439165666000013950",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "status": "success",
+      "processing_time": 0.009177684783935547,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009152889251708984,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            648.51,
+            6.49,
+            655.0
+          ],
+          "date": "2025-03-11 00:00:00",
+          "invoice_number": "25432000000031411143",
+          "issuer_person": "彭光峰",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000031411143",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-11"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025-03-11",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594_1.pdf",
+      "status": "success",
+      "processing_time": 0.01677417755126953,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01674175262451172,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 377.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25429165818000355594",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950_1.pdf",
+      "status": "success",
+      "processing_time": 0.01647496223449707,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01644420623779297,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 86.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25439165666000013950",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000015358.pdf",
+      "status": "success",
+      "processing_time": 0.008878946304321289,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.008854150772094727,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 379.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-06 00:00:00",
+          "invoice_number": "25439165666000015358",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000015358",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "379.5",
+            "tax_amount": "0",
+            "total_amount": "379.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "379.5",
+        "amount": "379.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25442000000101203423.pdf",
+      "status": "success",
+      "processing_time": 0.01658487319946289,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016558170318603516,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": [
+            336.0,
+            19.02,
+            316.98
+          ],
+          "date": "2025-02-24 00:00:00",
+          "invoice_number": "25442000000101203423",
+          "issuer_person": "蓝晓燕",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25442000000101203423",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-24"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25442000000101203423",
+        "invoice_date": "2025-02-24",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000790553.pdf",
+      "status": "success",
+      "processing_time": 0.009502887725830078,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009473085403442383,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 377.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25429165848000790553",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000790553",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508973.pdf",
+      "status": "success",
+      "processing_time": 0.016544818878173828,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016518831253051758,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 57.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25429165818000508973",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508973",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508972.pdf",
+      "status": "success",
+      "processing_time": 0.017805814743041992,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.017779111862182617,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 556.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25429165818000508972",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508972",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "556.0",
+            "tax_amount": "0",
+            "total_amount": "556.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "556.0",
+        "amount": "556.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25359134169000052039.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25359134169000052039.pdf",
+      "status": "success",
+      "processing_time": 0.009512901306152344,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009479045867919922,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 35.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-19 00:00:00",
+          "invoice_number": "25359134169000052039",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25359134169000052039",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "35.5",
+            "tax_amount": "0",
+            "total_amount": "35.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "35.5",
+        "amount": "35.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594.pdf",
+      "status": "success",
+      "processing_time": 0.01725482940673828,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01720714569091797,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 377.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25429165818000355594",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536.pdf",
+      "status": "success",
+      "processing_time": 0.010952949523925781,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01091313362121582,
+        "raw_data": {
+          "issuer": "AAA_万能发票模板",
+          "amount": 12.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "date": "2025-03-03 00:00:00",
+          "invoice_number": "25439165660000008536",
+          "currency": "CNY",
+          "desc": "Invoice from AAA_万能发票模板"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    }
+  ]
+}

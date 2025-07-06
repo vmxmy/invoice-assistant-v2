@@ -1,0 +1,4117 @@
+{
+  "timestamp": "20250706_010031",
+  "summary_stats": {
+    "total_files": 40,
+    "processed_files": 40,
+    "success_count": 28,
+    "error_count": 12,
+    "total_processing_time": 0.2503170967102051,
+    "successful_extractions": {
+      "25439165666000019624.pdf": {
+        "processing_time": 0.005913257598876953,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005583763122558594,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165666000019624",
+            "date": "2025-03-19 00:00:00",
+            "amount": 96.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000019624",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "96.5",
+              "tax_amount": "0",
+              "total_amount": "96.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439122799000011090.pdf": {
+        "processing_time": 0.00395965576171875,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003944873809814453,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439122799000011090",
+            "date": "2025-03-19 00:00:00",
+            "amount": 339.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439122799000011090",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "339.0",
+              "tax_amount": "0",
+              "total_amount": "339.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165660000008536_1.pdf": {
+        "processing_time": 0.004209995269775391,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0041959285736083984,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165660000008536",
+            "date": "2025-03-03 00:00:00",
+            "amount": 12.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5258158921288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.00676727294921875,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52245322",
+          "invoice_date": "2023-05-07",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "1304.0",
+          "amount": "1304.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.006747007369995117,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52245322",
+            "date": "2023-05-07 00:00:00",
+            "amount": 1304.0,
+            "chinese_amount": "壹仟叁佰零肆元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " 8 / < 3 ",
+              " > -\n   纳税人识别号: 91330108MA27Y5XH5G                                                           9 0 0 3 / - / 3 6 1 > 6 1 7 1 ",
+              " 6 < 2 ",
+              " 8 7 2 1 - 1 5 - 3 >\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           4 5 6 8 ",
+              " < ",
+              "经纪代理服务"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 1230.19,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 73.81,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52245322",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-05-07"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "1304.0",
+              "tax_amount": "0",
+              "total_amount": "1304.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52245322",
+          "invoice_date": "2023-05-07",
+          "invoice_type": "电子发票",
+          "total_amount": "1304.0",
+          "amount": "1304.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000614665.pdf": {
+        "processing_time": 0.002897024154663086,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0028848648071289062,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165848000614665",
+            "date": "2025-03-06 00:00:00",
+            "amount": 377.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000614665",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000393965.pdf": {
+        "processing_time": 0.0033388137817382812,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003329038619995117,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165818000393965",
+            "date": "2025-03-06 00:00:00",
+            "amount": 57.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000393965",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5057560375288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005594015121459961,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52530047",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "640.0",
+          "amount": "640.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005585908889770508,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52530047",
+            "date": "2023-04-24 00:00:00",
+            "amount": 640.0,
+            "chinese_amount": "陆佰肆拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " > 8 0 6 ",
+              " 1 1 - 6 + 1 ",
+              " 3 9买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      + 8 7 4 ",
+              " 5 ",
+              " > 1 - / > +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 603.77,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 36.23,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52530047",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "640.0",
+              "tax_amount": "0",
+              "total_amount": "640.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52530047",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "640.0",
+          "amount": "640.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000423011.pdf": {
+        "processing_time": 0.0027048587799072266,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0026988983154296875,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165848000423011",
+            "date": "2025-02-20 00:00:00",
+            "amount": 404.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000423011",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-20"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "404.5",
+              "tax_amount": "0",
+              "total_amount": "404.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "invoice_type": "电子发票",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5070887806288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005549192428588867,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52530045",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "1770.0",
+          "amount": "1770.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005542278289794922,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52530045",
+            "date": "2023-04-24 00:00:00",
+            "amount": 1770.0,
+            "chinese_amount": "壹仟柒佰柒拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " 4 / 9 7 ",
+              " 3 +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      0 0 < 1 < 7 7 > 1 > > 9 9 4 7 < < 9 > 6 + > 7 5 7 + 5 -\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110                      / ",
+              " - 5 5 > 9 - - 0 1 1 7 1 7 1 9 7 0 5 4 2 9 9 1 8 +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 1669.81,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 100.19,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52530045",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "1770.0",
+              "tax_amount": "0",
+              "total_amount": "1770.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52530045",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "1770.0",
+          "amount": "1770.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25369125403000228801.pdf": {
+        "processing_time": 0.002706766128540039,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.002694845199584961,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25369125403000228801",
+            "date": "2025-03-06 00:00:00",
+            "amount": 296.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25369125403000228801",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "296.0",
+              "tax_amount": "0",
+              "total_amount": "296.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25949134178000153214.pdf": {
+        "processing_time": 0.0035080909729003906,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0034940242767333984,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25949134178000153214",
+            "date": "2025-03-19 00:00:00",
+            "amount": 123.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25949134178000153214",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "123.0",
+              "tax_amount": "0",
+              "total_amount": "123.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25959165876000012546.pdf": {
+        "processing_time": 0.00412297248840332,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.004114866256713867,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25959165876000012546",
+            "date": "2025-03-19 00:00:00",
+            "amount": 186.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25959165876000012546",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "186.5",
+              "tax_amount": "0",
+              "total_amount": "186.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5054763495288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005666971206665039,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52530046",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "590.0",
+          "amount": "590.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.00565791130065918,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52530046",
+            "date": "2023-04-24 00:00:00",
+            "amount": 590.0,
+            "chinese_amount": "伍佰玖拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " < 7 8 > 3 / 8 5 4 8 4\n   纳税人识别号: 91330108MA27Y5XH5G                                                           1 5 < 4 0 < 0 0 7 ",
+              " 5 / 8 8 0 5 0 1 1 7 1 7 1 9 3 < 5 3 8 1 8 7 6 >\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 556.6,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 33.4,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52530046",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "590.0",
+              "tax_amount": "0",
+              "total_amount": "590.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52530046",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "590.0",
+          "amount": "590.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000013950.pdf": {
+        "processing_time": 0.00542902946472168,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0054128170013427734,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165666000013950",
+            "date": "2025-03-03 00:00:00",
+            "amount": 86.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000355594_1.pdf": {
+        "processing_time": 0.0029218196868896484,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0029098987579345703,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165818000355594",
+            "date": "2025-03-03 00:00:00",
+            "amount": 377.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "晨林辉5.pdf": {
+        "processing_time": 0.007132768630981445,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "15777622",
+          "invoice_date": "2023-04-13",
+          "total_amount": "10000.0",
+          "amount": "10000.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.007120847702026367,
+          "raw_data": {
+            "issuer": "中国标准电子发票项目修正版",
+            "invoice_number": "15777622",
+            "date": "2023-04-13 00:00:00",
+            "amount": 10000.0,
+            "chinese_amount": "壹万圆整",
+            "issuer_person": "宝安电子发票发放",
+            "service_type": [
+              "39+5050\n方                                    区   ",
+              ">",
+              "/-/83</0108021969<092   开户行及账号： 浙商银行杭州玉泉支行3310010510120100057110\n\n      项目名称        规格型号   单位  数 量   单价     金 额    税率    税 额\n餐饮住宿服务",
+              "               ",
+              "\n\n     合   计                                                         ¥10000.00                   "
+            ],
+            "project_name": [
+              "/-",
+              "餐饮费"
+            ],
+            "currency": "CNY",
+            "desc": "Invoice from 中国标准电子发票项目修正版"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "15777622",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-13"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "10000.0",
+              "tax_amount": "0",
+              "total_amount": "10000.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "15777622",
+          "invoice_date": "2023-04-13",
+          "invoice_type": "电子发票",
+          "total_amount": "10000.0",
+          "amount": "10000.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000013950_1.pdf": {
+        "processing_time": 0.002794027328491211,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0027871131896972656,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165666000013950",
+            "date": "2025-03-03 00:00:00",
+            "amount": 86.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5205652477288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005610942840576172,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "50044970",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "1310.0",
+          "amount": "1310.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005599021911621094,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "50044970",
+            "date": "2023-04-24 00:00:00",
+            "amount": 1310.0,
+            "chinese_amount": "壹仟叁佰壹拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " 0 1 5 9 5 0 > / 3 3 > 6\n   纳税人识别号: 91330108MA27Y5XH5G                                                           6 1 4 7 6 + > 0 5 + 9 6 ",
+              " - 3 0 0 / 4 7 7 9 9 2 +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      7 6 9 2 ",
+              " 0 + 3 6 8 + 0 1 1 9 1 7 1 9 > 1 4 9 4 0 1 0 - 3\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 1235.85,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 74.15,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "50044970",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "1310.0",
+              "tax_amount": "0",
+              "total_amount": "1310.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "50044970",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "1310.0",
+          "amount": "1310.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000015358.pdf": {
+        "processing_time": 0.0030100345611572266,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003002166748046875,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165666000015358",
+            "date": "2025-03-06 00:00:00",
+            "amount": 379.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000015358",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "379.5",
+              "tax_amount": "0",
+              "total_amount": "379.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165848000790553.pdf": {
+        "processing_time": 0.003148794174194336,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0031366348266601562,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165848000790553",
+            "date": "2025-03-19 00:00:00",
+            "amount": 377.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000790553",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "【飞猪】订单5197213525288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005671977996826172,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "50044971",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "1260.0",
+          "amount": "1260.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0056629180908203125,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "50044971",
+            "date": "2023-04-24 00:00:00",
+            "amount": 1260.0,
+            "chinese_amount": "壹仟贰佰陆拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " ",
+              " 1 7 4 / 3 < 8 5 3 4 ",
+              " - 1 ",
+              " 1 0买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      3 ",
+              " 7 + 6 0 5 4 4 / < 0 < > 9 9 7 5 8 ",
+              "经纪代理服务"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 1188.68,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 71.32,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "50044971",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "1260.0",
+              "tax_amount": "0",
+              "total_amount": "1260.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "50044971",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "1260.0",
+          "amount": "1260.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "【飞猪】订单5111184066288-机票款凭证 报销凭证.pdf": {
+        "processing_time": 0.005549907684326172,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52469929",
+          "invoice_date": "2023-04-24",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "1510.0",
+          "amount": "1510.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005543947219848633,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52469929",
+            "date": "2023-04-24 00:00:00",
+            "amount": 1510.0,
+            "chinese_amount": "壹仟伍佰壹拾元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " 0 > 4 6 8 0 7 0 ",
+              " 5 3 > 4 4 + +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      > < 2 7 < + 8 - > 1 1 1 5 7 6 1 3 1 0 - < < 8 4 2 7 - 9\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           > 1 0 < > < 7 1 ",
+              " 0 1 1 7 1 7 1 9 - 5 + 3 6 6 - 0 3 8\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 1424.53,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 85.47,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52469929",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-04-24"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "1510.0",
+              "tax_amount": "0",
+              "total_amount": "1510.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52469929",
+          "invoice_date": "2023-04-24",
+          "invoice_type": "电子发票",
+          "total_amount": "1510.0",
+          "amount": "1510.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "【飞猪】订单5205652477288-改签手续费 报销凭证.pdf": {
+        "processing_time": 0.005619049072265625,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "52370598",
+          "invoice_date": "2023-05-07",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "369.0",
+          "amount": "369.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.005612850189208984,
+          "raw_data": {
+            "issuer": "飞猪航空服务发票",
+            "invoice_number": "52370598",
+            "date": "2023-05-07 00:00:00",
+            "amount": 369.0,
+            "chinese_amount": "叁佰陆拾玖元整",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "阿斯兰航空服务（上海）有限公司",
+            "issuer_person": "航筱东",
+            "service_type": [
+              " < ",
+              " 6 + 0 4 - 2 3 2 6 ",
+              " + / 6 < 5 9 / 3 7 5 ",
+              " 5 5 8 - 2 7 8 < 1 + 1 0 - 8 0 / > 6 1 > 3 8 1 5\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           2 2 0 ",
+              " 9\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+            ],
+            "project_name": "经纪代理服务",
+            "project_amount": 348.11,
+            "project_tax_rate": "6%",
+            "project_tax_amount": 20.89,
+            "airline_service": "阿斯兰航空服务（上海）有限公司",
+            "booking_service": "代订机票费",
+            "currency": "CNY",
+            "desc": "Invoice from 飞猪航空服务发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "52370598",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2023-05-07"
+            },
+            "seller_info": {
+              "name": "阿斯兰航空服务（上海）有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "369.0",
+              "tax_amount": "0",
+              "total_amount": "369.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "52370598",
+          "invoice_date": "2023-05-07",
+          "invoice_type": "电子发票",
+          "total_amount": "369.0",
+          "amount": "369.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000508973.pdf": {
+        "processing_time": 0.0031862258911132812,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003175973892211914,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165818000508973",
+            "date": "2025-03-19 00:00:00",
+            "amount": 57.5,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508973",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000508972.pdf": {
+        "processing_time": 0.003287076950073242,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003281116485595703,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165818000508972",
+            "date": "2025-03-19 00:00:00",
+            "amount": 556.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508972",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "556.0",
+              "tax_amount": "0",
+              "total_amount": "556.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25359134169000052039.pdf": {
+        "processing_time": 0.003226757049560547,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003217935562133789,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25359134169000052039",
+            "date": "2025-03-19 00:00:00",
+            "amount": 35.5,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25359134169000052039",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "35.5",
+              "tax_amount": "0",
+              "total_amount": "35.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25429165818000355594.pdf": {
+        "processing_time": 0.0032079219818115234,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.0031998157501220703,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25429165818000355594",
+            "date": "2025-03-03 00:00:00",
+            "amount": 377.0,
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      },
+      "25439165660000008536.pdf": {
+        "processing_time": 0.003937721252441406,
+        "confidence": 0.9600000000000001,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.9600000000000001,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.003930807113647461,
+          "raw_data": {
+            "issuer": "中国铁路电子客票",
+            "invoice_number": "25439165660000008536",
+            "date": "2025-03-03 00:00:00",
+            "amount": 12.0,
+            "buyer_name": "杭州趣链科技有限公司",
+            "buyer_tax_id": "91330108MA27Y5XH5G",
+            "currency": "CNY",
+            "desc": "Invoice from 中国铁路电子客票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": "91330108MA27Y5XH5G",
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G"
+        }
+      }
+    },
+    "failed_files": [
+      {
+        "file": "25432000000031789815.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.07951188087463379
+      },
+      {
+        "file": "035022200211_39533037.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'invoice_number'}",
+        "processing_time": 0.009310007095336914
+      },
+      {
+        "file": "043002000211_94346247.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'date'}",
+        "processing_time": 0.0044498443603515625
+      },
+      {
+        "file": "043002000211_94346247 2.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'date'}",
+        "processing_time": 0.003999948501586914
+      },
+      {
+        "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.003384113311767578
+      },
+      {
+        "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.0043239593505859375
+      },
+      {
+        "file": "25512000000059075953.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.003549814224243164
+      },
+      {
+        "file": "25432000000022014229.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.003612995147705078
+      },
+      {
+        "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.0033469200134277344
+      },
+      {
+        "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.0035648345947265625
+      },
+      {
+        "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.005617856979370117
+      },
+      {
+        "file": "25442000000101203423.pdf",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "processing_time": 0.004971981048583984
+      }
+    ],
+    "field_extraction_stats": {
+      "invoice_number": 28,
+      "invoice_date": 28,
+      "total_amount": 28,
+      "amount": 28,
+      "tax_amount": 28,
+      "buyer_tax_id": 19,
+      "buyer_name": 14,
+      "seller_name": 8
+    }
+  },
+  "detailed_results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000031789815.pdf",
+      "status": "error",
+      "processing_time": 0.07951188087463379,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "035022200211_39533037.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/035022200211_39533037.pdf",
+      "status": "error",
+      "processing_time": 0.009310007095336914,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000019624.pdf",
+      "status": "success",
+      "processing_time": 0.005913257598876953,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005583763122558594,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165666000019624",
+          "date": "2025-03-19 00:00:00",
+          "amount": 96.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000019624",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "96.5",
+            "tax_amount": "0",
+            "total_amount": "96.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "96.5",
+        "amount": "96.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439122799000011090.pdf",
+      "status": "success",
+      "processing_time": 0.00395965576171875,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003944873809814453,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439122799000011090",
+          "date": "2025-03-19 00:00:00",
+          "amount": 339.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439122799000011090",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "339.0",
+            "tax_amount": "0",
+            "total_amount": "339.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "339.0",
+        "amount": "339.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536_1.pdf",
+      "status": "success",
+      "processing_time": 0.004209995269775391,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0041959285736083984,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165660000008536",
+          "date": "2025-03-03 00:00:00",
+          "amount": 12.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "043002000211_94346247.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/043002000211_94346247.pdf",
+      "status": "error",
+      "processing_time": 0.0044498443603515625,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'date'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "043002000211_94346247 2.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/043002000211_94346247 2.pdf",
+      "status": "error",
+      "processing_time": 0.003999948501586914,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'date'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "【飞猪】订单5258158921288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5258158921288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.00676727294921875,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.006747007369995117,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52245322",
+          "date": "2023-05-07 00:00:00",
+          "amount": 1304.0,
+          "chinese_amount": "壹仟叁佰零肆元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " 8 / < 3 ",
+            " > -\n   纳税人识别号: 91330108MA27Y5XH5G                                                           9 0 0 3 / - / 3 6 1 > 6 1 7 1 ",
+            " 6 < 2 ",
+            " 8 7 2 1 - 1 5 - 3 >\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           4 5 6 8 ",
+            " < ",
+            "经纪代理服务"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 1230.19,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 73.81,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52245322",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-05-07"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "1304.0",
+            "tax_amount": "0",
+            "total_amount": "1304.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52245322",
+        "invoice_date": "2023-05-07",
+        "invoice_type": "电子发票",
+        "total_amount": "1304.0",
+        "amount": "1304.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000614665.pdf",
+      "status": "success",
+      "processing_time": 0.002897024154663086,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0028848648071289062,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165848000614665",
+          "date": "2025-03-06 00:00:00",
+          "amount": 377.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000614665",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "status": "error",
+      "processing_time": 0.003384113311767578,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "status": "error",
+      "processing_time": 0.0043239593505859375,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000393965.pdf",
+      "status": "success",
+      "processing_time": 0.0033388137817382812,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003329038619995117,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165818000393965",
+          "date": "2025-03-06 00:00:00",
+          "amount": 57.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000393965",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25512000000059075953.pdf",
+      "status": "error",
+      "processing_time": 0.003549814224243164,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022014229.pdf",
+      "status": "error",
+      "processing_time": 0.003612995147705078,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "【飞猪】订单5057560375288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5057560375288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005594015121459961,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005585908889770508,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52530047",
+          "date": "2023-04-24 00:00:00",
+          "amount": 640.0,
+          "chinese_amount": "陆佰肆拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " > 8 0 6 ",
+            " 1 1 - 6 + 1 ",
+            " 3 9买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      + 8 7 4 ",
+            " 5 ",
+            " > 1 - / > +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 603.77,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 36.23,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52530047",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "640.0",
+            "tax_amount": "0",
+            "total_amount": "640.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52530047",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "640.0",
+        "amount": "640.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000423011.pdf",
+      "status": "success",
+      "processing_time": 0.0027048587799072266,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0026988983154296875,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165848000423011",
+          "date": "2025-02-20 00:00:00",
+          "amount": 404.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000423011",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-20"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "404.5",
+            "tax_amount": "0",
+            "total_amount": "404.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000423011",
+        "invoice_date": "2025-02-20",
+        "invoice_type": "电子发票",
+        "total_amount": "404.5",
+        "amount": "404.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "【飞猪】订单5070887806288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5070887806288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005549192428588867,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005542278289794922,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52530045",
+          "date": "2023-04-24 00:00:00",
+          "amount": 1770.0,
+          "chinese_amount": "壹仟柒佰柒拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " 4 / 9 7 ",
+            " 3 +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      0 0 < 1 < 7 7 > 1 > > 9 9 4 7 < < 9 > 6 + > 7 5 7 + 5 -\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110                      / ",
+            " - 5 5 > 9 - - 0 1 1 7 1 7 1 9 7 0 5 4 2 9 9 1 8 +\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 1669.81,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 100.19,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52530045",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "1770.0",
+            "tax_amount": "0",
+            "total_amount": "1770.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52530045",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "1770.0",
+        "amount": "1770.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25369125403000228801.pdf",
+      "status": "success",
+      "processing_time": 0.002706766128540039,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.002694845199584961,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25369125403000228801",
+          "date": "2025-03-06 00:00:00",
+          "amount": 296.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25369125403000228801",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "296.0",
+            "tax_amount": "0",
+            "total_amount": "296.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "296.0",
+        "amount": "296.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25949134178000153214.pdf",
+      "status": "success",
+      "processing_time": 0.0035080909729003906,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0034940242767333984,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25949134178000153214",
+          "date": "2025-03-19 00:00:00",
+          "amount": 123.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25949134178000153214",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "123.0",
+            "tax_amount": "0",
+            "total_amount": "123.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "123.0",
+        "amount": "123.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25959165876000012546.pdf",
+      "status": "success",
+      "processing_time": 0.00412297248840332,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.004114866256713867,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25959165876000012546",
+          "date": "2025-03-19 00:00:00",
+          "amount": 186.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25959165876000012546",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "186.5",
+            "tax_amount": "0",
+            "total_amount": "186.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "186.5",
+        "amount": "186.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029373425-杭州趣链科技有限公司.pdf",
+      "status": "error",
+      "processing_time": 0.0033469200134277344,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "【飞猪】订单5054763495288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5054763495288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005666971206665039,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.00565791130065918,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52530046",
+          "date": "2023-04-24 00:00:00",
+          "amount": 590.0,
+          "chinese_amount": "伍佰玖拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " < 7 8 > 3 / 8 5 4 8 4\n   纳税人识别号: 91330108MA27Y5XH5G                                                           1 5 < 4 0 < 0 0 7 ",
+            " 5 / 8 8 0 5 0 1 1 7 1 7 1 9 3 < 5 3 8 1 8 7 6 >\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 556.6,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 33.4,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52530046",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "590.0",
+            "tax_amount": "0",
+            "total_amount": "590.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52530046",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "590.0",
+        "amount": "590.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022020617-杭州趣链科技有限公司.pdf",
+      "status": "error",
+      "processing_time": 0.0035648345947265625,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950.pdf",
+      "status": "success",
+      "processing_time": 0.00542902946472168,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0054128170013427734,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165666000013950",
+          "date": "2025-03-03 00:00:00",
+          "amount": 86.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "status": "error",
+      "processing_time": 0.005617856979370117,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594_1.pdf",
+      "status": "success",
+      "processing_time": 0.0029218196868896484,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0029098987579345703,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165818000355594",
+          "date": "2025-03-03 00:00:00",
+          "amount": 377.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "晨林辉5.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/晨林辉5.pdf",
+      "status": "success",
+      "processing_time": 0.007132768630981445,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.007120847702026367,
+        "raw_data": {
+          "issuer": "中国标准电子发票项目修正版",
+          "invoice_number": "15777622",
+          "date": "2023-04-13 00:00:00",
+          "amount": 10000.0,
+          "chinese_amount": "壹万圆整",
+          "issuer_person": "宝安电子发票发放",
+          "service_type": [
+            "39+5050\n方                                    区   ",
+            ">",
+            "/-/83</0108021969<092   开户行及账号： 浙商银行杭州玉泉支行3310010510120100057110\n\n      项目名称        规格型号   单位  数 量   单价     金 额    税率    税 额\n餐饮住宿服务",
+            "               ",
+            "\n\n     合   计                                                         ¥10000.00                   "
+          ],
+          "project_name": [
+            "/-",
+            "餐饮费"
+          ],
+          "currency": "CNY",
+          "desc": "Invoice from 中国标准电子发票项目修正版"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "15777622",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-13"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "10000.0",
+            "tax_amount": "0",
+            "total_amount": "10000.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "15777622",
+        "invoice_date": "2023-04-13",
+        "invoice_type": "电子发票",
+        "total_amount": "10000.0",
+        "amount": "10000.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950_1.pdf",
+      "status": "success",
+      "processing_time": 0.002794027328491211,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0027871131896972656,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165666000013950",
+          "date": "2025-03-03 00:00:00",
+          "amount": 86.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "【飞猪】订单5205652477288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5205652477288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005610942840576172,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005599021911621094,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "50044970",
+          "date": "2023-04-24 00:00:00",
+          "amount": 1310.0,
+          "chinese_amount": "壹仟叁佰壹拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " 0 1 5 9 5 0 > / 3 3 > 6\n   纳税人识别号: 91330108MA27Y5XH5G                                                           6 1 4 7 6 + > 0 5 + 9 6 ",
+            " - 3 0 0 / 4 7 7 9 9 2 +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      7 6 9 2 ",
+            " 0 + 3 6 8 + 0 1 1 9 1 7 1 9 > 1 4 9 4 0 1 0 - 3\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 1235.85,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 74.15,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "50044970",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "1310.0",
+            "tax_amount": "0",
+            "total_amount": "1310.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "50044970",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "1310.0",
+        "amount": "1310.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000015358.pdf",
+      "status": "success",
+      "processing_time": 0.0030100345611572266,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003002166748046875,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165666000015358",
+          "date": "2025-03-06 00:00:00",
+          "amount": 379.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000015358",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "379.5",
+            "tax_amount": "0",
+            "total_amount": "379.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "379.5",
+        "amount": "379.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25442000000101203423.pdf",
+      "status": "error",
+      "processing_time": 0.004971981048583984,
+      "result": {
+        "status": "error",
+        "error": "处理文件失败: Unable to parse required field(s): {'amount', 'date', 'invoice_number'}",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000790553.pdf",
+      "status": "success",
+      "processing_time": 0.003148794174194336,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0031366348266601562,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165848000790553",
+          "date": "2025-03-19 00:00:00",
+          "amount": 377.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000790553",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "【飞猪】订单5197213525288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5197213525288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005671977996826172,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0056629180908203125,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "50044971",
+          "date": "2023-04-24 00:00:00",
+          "amount": 1260.0,
+          "chinese_amount": "壹仟贰佰陆拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " ",
+            " 1 7 4 / 3 < 8 5 3 4 ",
+            " - 1 ",
+            " 1 0买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      3 ",
+            " 7 + 6 0 5 4 4 / < 0 < > 9 9 7 5 8 ",
+            "经纪代理服务"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 1188.68,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 71.32,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "50044971",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "1260.0",
+            "tax_amount": "0",
+            "total_amount": "1260.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "50044971",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "1260.0",
+        "amount": "1260.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "【飞猪】订单5111184066288-机票款凭证 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5111184066288-机票款凭证 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005549907684326172,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005543947219848633,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52469929",
+          "date": "2023-04-24 00:00:00",
+          "amount": 1510.0,
+          "chinese_amount": "壹仟伍佰壹拾元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " 0 > 4 6 8 0 7 0 ",
+            " 5 3 > 4 4 + +买                                    码\n   地 址、电 话: 浙江省杭州市滨江区丹枫路399号2号楼A楼2001室0571-81180103      > < 2 7 < + 8 - > 1 1 1 5 7 6 1 3 1 0 - < < 8 4 2 7 - 9\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           > 1 0 < > < 7 1 ",
+            " 0 1 1 7 1 7 1 9 - 5 + 3 6 6 - 0 3 8\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 1424.53,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 85.47,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52469929",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-04-24"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "1510.0",
+            "tax_amount": "0",
+            "total_amount": "1510.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52469929",
+        "invoice_date": "2023-04-24",
+        "invoice_type": "电子发票",
+        "total_amount": "1510.0",
+        "amount": "1510.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "【飞猪】订单5205652477288-改签手续费 报销凭证.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/【飞猪】订单5205652477288-改签手续费 报销凭证.pdf",
+      "status": "success",
+      "processing_time": 0.005619049072265625,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.005612850189208984,
+        "raw_data": {
+          "issuer": "飞猪航空服务发票",
+          "invoice_number": "52370598",
+          "date": "2023-05-07 00:00:00",
+          "amount": 369.0,
+          "chinese_amount": "叁佰陆拾玖元整",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "阿斯兰航空服务（上海）有限公司",
+          "issuer_person": "航筱东",
+          "service_type": [
+            " < ",
+            " 6 + 0 4 - 2 3 2 6 ",
+            " + / 6 < 5 9 / 3 7 5 ",
+            " 5 5 8 - 2 7 8 < 1 + 1 0 - 8 0 / > 6 1 > 3 8 1 5\n方                                   区\n   开户行及账号: 浙商银行杭州玉泉支行 3310010510120100057110           2 2 0 ",
+            " 9\n\n  货物或应税劳务、服务名称    规格型号   单位   数　量   单　价    金　额    税率   税　额\n"
+          ],
+          "project_name": "经纪代理服务",
+          "project_amount": 348.11,
+          "project_tax_rate": "6%",
+          "project_tax_amount": 20.89,
+          "airline_service": "阿斯兰航空服务（上海）有限公司",
+          "booking_service": "代订机票费",
+          "currency": "CNY",
+          "desc": "Invoice from 飞猪航空服务发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "52370598",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2023-05-07"
+          },
+          "seller_info": {
+            "name": "阿斯兰航空服务（上海）有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "369.0",
+            "tax_amount": "0",
+            "total_amount": "369.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "52370598",
+        "invoice_date": "2023-05-07",
+        "invoice_type": "电子发票",
+        "total_amount": "369.0",
+        "amount": "369.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": "阿斯兰航空服务（上海）有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508973.pdf",
+      "status": "success",
+      "processing_time": 0.0031862258911132812,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003175973892211914,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165818000508973",
+          "date": "2025-03-19 00:00:00",
+          "amount": 57.5,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508973",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508972.pdf",
+      "status": "success",
+      "processing_time": 0.003287076950073242,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003281116485595703,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165818000508972",
+          "date": "2025-03-19 00:00:00",
+          "amount": 556.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508972",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "556.0",
+            "tax_amount": "0",
+            "total_amount": "556.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "556.0",
+        "amount": "556.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25359134169000052039.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25359134169000052039.pdf",
+      "status": "success",
+      "processing_time": 0.003226757049560547,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003217935562133789,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25359134169000052039",
+          "date": "2025-03-19 00:00:00",
+          "amount": 35.5,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25359134169000052039",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "35.5",
+            "tax_amount": "0",
+            "total_amount": "35.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "35.5",
+        "amount": "35.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594.pdf",
+      "status": "success",
+      "processing_time": 0.0032079219818115234,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0031998157501220703,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25429165818000355594",
+          "date": "2025-03-03 00:00:00",
+          "amount": 377.0,
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536.pdf",
+      "status": "success",
+      "processing_time": 0.003937721252441406,
+      "result": {
+        "status": "success",
+        "confidence": 0.9600000000000001,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.003930807113647461,
+        "raw_data": {
+          "issuer": "中国铁路电子客票",
+          "invoice_number": "25439165660000008536",
+          "date": "2025-03-03 00:00:00",
+          "amount": 12.0,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": "91330108MA27Y5XH5G",
+          "currency": "CNY",
+          "desc": "Invoice from 中国铁路电子客票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": "91330108MA27Y5XH5G",
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": "91330108MA27Y5XH5G"
+      }
+    }
+  ]
+}

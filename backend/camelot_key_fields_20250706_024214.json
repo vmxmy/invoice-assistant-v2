@@ -1,0 +1,656 @@
+{
+  "statistics": {
+    "total": 28,
+    "success": 28,
+    "field_counts": {
+      "invoice_date": 28,
+      "invoice_number": 28,
+      "total_amount": 9,
+      "seller_name": 9,
+      "buyer_name": 28,
+      "items": 8
+    }
+  },
+  "results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025年03月12日",
+        "total_amount": "80.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+        "items": [
+          {
+            "name": "名称：\n湖南曾小厨餐饮管理有限公司贤童店"
+          },
+          {
+            "name": "餐饮服务餐饮费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            11,
+            4
+          ],
+          "accuracy": 95.72437289246975
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            5
+          ],
+          "accuracy": 88.4596248833919
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.60248525974795
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.60248525974795
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025年03月06日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.99035885179335
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025年03月06日",
+        "total_amount": "507.00",
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "items": [
+          {
+            "name": "住宿服务住宿服务",
+            "amount": "501.980198019802",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            13,
+            4
+          ],
+          "accuracy": 94.18630093051807
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025年03月13日",
+        "total_amount": "500.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "items": [
+          {
+            "name": "经纪代理服务代办费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            11,
+            4
+          ],
+          "accuracy": 95.5993318205772
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025年03月06日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.41850305680957
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025年03月16日",
+        "total_amount": "479.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "高新区盘烤一烧烤肉店",
+        "items": [
+          {
+            "name": "餐饮服务餐饮费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            11,
+            4
+          ],
+          "accuracy": 95.71302978140902
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000022014229",
+        "invoice_date": "2025年02月19日",
+        "total_amount": "146.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区老堂屋城南店",
+        "items": [
+          {
+            "name": "餐饮服务餐饮费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            11,
+            4
+          ],
+          "accuracy": 95.49074822353379
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000423011",
+        "invoice_date": "2025年02月20日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.41850305680957
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025年03月06日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.57193956474609
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.51479535776133
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.6862252790318
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025年03月06日",
+        "total_amount": "1018.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "items": [
+          {
+            "name": "娄底市娄星区萝卜餐饮店\n名称："
+          },
+          {
+            "name": "餐饮服务餐饮费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            12,
+            4
+          ],
+          "accuracy": 95.60941274396714
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000022020617",
+        "invoice_date": "2025年02月19日",
+        "total_amount": "240.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "items": [
+          {
+            "name": "娄底市娄星区萝卜餐饮店\n名称："
+          },
+          {
+            "name": "餐饮服务餐饮费",
+            "tax_rate": "1%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            11,
+            4
+          ],
+          "accuracy": 95.49074822353379
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.65765452538133
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025年03月11日",
+        "total_amount": "655.00",
+        "seller_name": "湖南娄底农村商业银行股份有限公司",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            16,
+            4
+          ],
+          "accuracy": 87.83178993258639
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 87.01892960544382
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.65765452538133
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025年03月06日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.60248525974795
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25442000000101203423",
+        "invoice_date": "2025年02月24日",
+        "total_amount": "336.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "广州寿司郎餐饮有限公司",
+        "items": [
+          {
+            "name": "广州寿司郎餐饮有限公司"
+          },
+          {
+            "name": "餐饮服务餐饮服务",
+            "amount": "1",
+            "tax_rate": "6%"
+          }
+        ]
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            8
+          ],
+          "accuracy": 89.40895418948271
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.93519034912975
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 86.41850305680957
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 87.01892960544382
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25359134169000052039.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025年03月19日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.60248525974795
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            14,
+            7
+          ],
+          "accuracy": 87.01892960544382
+        }
+      ],
+      "table_count": 1
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "success": true,
+      "data": {
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025年03月03日",
+        "buyer_name": "杭州趣链科技有限公司"
+      },
+      "debug_info": [
+        {
+          "table_index": 0,
+          "shape": [
+            15,
+            6
+          ],
+          "accuracy": 87.60248525974795
+        }
+      ],
+      "table_count": 1
+    }
+  ]
+}

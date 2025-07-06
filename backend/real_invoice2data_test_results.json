@@ -1,0 +1,33 @@
+{
+  "25432000000022020617-杭州趣链科技有限公司.pdf": {
+    "original": {
+      "invoice_number": "开票日期："
+    },
+    "processed": {
+      "invoice_number": "开票日期："
+    },
+    "improvement": 0
+  },
+  "25439165666000019624.pdf": {
+    "original": {
+      "invoice_number": "25439165666000019624",
+      "invoice_date": "2025年03月19日",
+      "buyer_tax_id": "91330108MA27Y5XH5G"
+    },
+    "processed": {
+      "invoice_number": "25439165666000019624",
+      "invoice_date": "2025年03月19日",
+      "buyer_tax_id": "91330108MA27Y5XH5G"
+    },
+    "improvement": 0
+  },
+  "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf": {
+    "original": {
+      "invoice_number": "开票日期："
+    },
+    "processed": {
+      "invoice_number": "开票日期："
+    },
+    "improvement": 0
+  }
+}

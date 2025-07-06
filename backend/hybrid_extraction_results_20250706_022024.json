@@ -1,0 +1,42 @@
+{
+  "summary": {
+    "total_files": 28,
+    "successful_files": 28,
+    "field_stats": {
+      "invoice_number": 26,
+      "invoice_date": 26,
+      "buyer_name": 28,
+      "seller_name": 9,
+      "buyer_tax_id": 28,
+      "seller_tax_id": 9,
+      "amount": 26,
+      "project_name": 7
+    },
+    "method_stats": {
+      "invoice2data_only": 0,
+      "coordinate_only": 26,
+      "mixed": 2,
+      "failed": 0
+    },
+    "coordinate_improvements": {
+      "buyer_name": 28,
+      "seller_name": 9,
+      "buyer_tax_id": 9,
+      "seller_tax_id": 9
+    }
+  },
+  "results": {
+    "25432000000031789815.pdf": {
+      "buyer_name": "杭州趣链科技有限公司",
+      "buyer_name_method": "coordinate",
+      "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+      "seller_name_method": "coordinate",
+      "buyer_tax_id": "91330108MA27Y5XH5G",
+      "buyer_tax_id_method": "coordinate",
+      "seller_tax_id": "91431302MA4PRFYA3N",
+      "seller_tax_id_method": "coordinate"
+    },
+    "25439165666000019624.pdf": {
+      "issuer": "中国铁路电子客票",
+      "invoice_number": "25439165666000019624",
+      "date": 

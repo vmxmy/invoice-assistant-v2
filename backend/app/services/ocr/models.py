@@ -61,6 +61,8 @@ class StructuredInvoiceData(BaseModel):
     buyer_info: InvoicePartyInfo
     summary: InvoiceSummary
     items: List[InvoiceItem] = Field(default_factory=list, description="发票明细")
+    issuer_person: Optional[str] = Field(None, description="开票人")
+    project_name: Optional[str] = Field(None, description="项目名称")
     
     class Config:
         json_encoders = {
@@ -73,7 +75,7 @@ class OCRResult(BaseModel):
     """OCR处理结果"""
     status: str = Field(..., description="处理状态: success, error, pending")
     confidence: float = Field(0.0, ge=0.0, le=1.0, description="置信度")
-    extraction_method: str = Field(..., description="提取方法: mineru_v4, mock, fallback")
+    extraction_method: str = Field(..., description="提取方法: enhanced_rule, invoice2data, mock, fallback")
     structured_data: Optional[StructuredInvoiceData] = Field(None, description="结构化数据")
     raw_text: Optional[str] = Field(None, description="原始文本")
     error: Optional[str] = Field(None, description="错误信息")
@@ -92,7 +94,7 @@ class OCRResult(BaseModel):
 class BatchUploadResponse(BaseModel):
     """批量上传响应"""
     batch_id: str = Field(..., description="批次ID")
-    upload_urls: List[str] = Field(..., description="上传URL列表")  # Mineru API返回简单的URL字符串列表
+    upload_urls: List[str] = Field(..., description="上传URL列表")  # API返回的URL字符串列表
     expires_at: Optional[str] = Field(None, description="过期时间")
 
 

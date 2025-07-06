@@ -1,0 +1,3445 @@
+{
+  "timestamp": "20250705_201300",
+  "summary_stats": {
+    "total_files": 28,
+    "processed_files": 28,
+    "success_count": 26,
+    "error_count": 2,
+    "total_processing_time": 0.39896535873413086,
+    "successful_extractions": {
+      "25439165666000019624.pdf": {
+        "processing_time": 0.02100992202758789,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.020968198776245117,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165666000019624",
+            "date": "2025-03-19 00:00:00",
+            "amount": 96.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000019624",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "96.5",
+              "tax_amount": "0",
+              "total_amount": "96.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000019624",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "96.5",
+          "amount": "96.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439122799000011090.pdf": {
+        "processing_time": 0.009984970092773438,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.00995182991027832,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439122799000011090",
+            "date": "2025-03-19 00:00:00",
+            "amount": 339.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439122799000011090",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "339.0",
+              "tax_amount": "0",
+              "total_amount": "339.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439122799000011090",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "339.0",
+          "amount": "339.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165660000008536_1.pdf": {
+        "processing_time": 0.010276079177856445,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.010238885879516602,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165660000008536",
+            "date": "2025-03-03 00:00:00",
+            "amount": 12.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000614665.pdf": {
+        "processing_time": 0.01663494110107422,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016605854034423828,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165848000614665",
+            "date": "2025-03-06 00:00:00",
+            "amount": 377.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000614665",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000614665",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000029033553-杭州趣链物联科技有限公司.pdf": {
+        "processing_time": 0.00967097282409668,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000029033553",
+          "invoice_date": "2025-03-06",
+          "seller_name": "娄底星奕酒店管理有限公司",
+          "buyer_name": "杭州趣链物联科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "伍佰零柒圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009642839431762695,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000029033553",
+            "date": "2025-03-06 00:00:00",
+            "buyer_name": "杭州趣链物联科技有限公司",
+            "seller_name": "娄底星奕酒店管理有限公司",
+            "amount": [
+              5.02,
+              507.0,
+              501.98
+            ],
+            "chinese_words": "伍佰零柒圆整                               ",
+            "issuer_person": "冯乐",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000029033553",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": "娄底星奕酒店管理有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链物联科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "伍佰零柒圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000029033553",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "伍佰零柒圆整",
+          "seller_name": "娄底星奕酒店管理有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链物联科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf": {
+        "processing_time": 0.00972890853881836,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000032177192",
+          "invoice_date": "2025-03-13",
+          "seller_name": "娄底市中税通财税咨询有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "伍佰圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009695053100585938,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000032177192",
+            "date": "2025-03-13 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "娄底市中税通财税咨询有限公司",
+            "amount": [
+              4.95,
+              500.0,
+              495.05
+            ],
+            "chinese_words": "伍佰圆整                           ",
+            "issuer_person": "黄红玲",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000032177192",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-13"
+            },
+            "seller_info": {
+              "name": "娄底市中税通财税咨询有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "伍佰圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000032177192",
+          "invoice_date": "2025-03-13",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "伍佰圆整",
+          "seller_name": "娄底市中税通财税咨询有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000393965.pdf": {
+        "processing_time": 0.017117738723754883,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.017087936401367188,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165818000393965",
+            "date": "2025-03-06 00:00:00",
+            "amount": 57.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000393965",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000393965",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25512000000059075953.pdf": {
+        "processing_time": 0.009886980056762695,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25512000000059075953",
+          "invoice_date": "2025-03-16",
+          "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "肆佰柒拾玖圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009820938110351562,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25512000000059075953",
+            "date": "2025-03-16 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+            "amount": [
+              474.26,
+              4.74,
+              479.0
+            ],
+            "chinese_words": "肆佰柒拾玖圆整                         ",
+            "issuer_person": "张渊",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25512000000059075953",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-16"
+            },
+            "seller_info": {
+              "name": "高新区盘烤一烧烤肉店（个体工商户）",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "肆佰柒拾玖圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25512000000059075953",
+          "invoice_date": "2025-03-16",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "肆佰柒拾玖圆整",
+          "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000022014229.pdf": {
+        "processing_time": 0.010006904602050781,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000022014229",
+          "invoice_date": "2025-02-19",
+          "seller_name": "娄底市娄星区老堂屋城南店",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "壹佰肆拾陆圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009979248046875,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000022014229",
+            "date": "2025-02-19 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "娄底市娄星区老堂屋城南店",
+            "amount": [
+              144.55,
+              1.45,
+              146.0
+            ],
+            "chinese_words": "壹佰肆拾陆圆整                         ",
+            "issuer_person": "李雪英",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000022014229",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-19"
+            },
+            "seller_info": {
+              "name": "娄底市娄星区老堂屋城南店",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "壹佰肆拾陆圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000022014229",
+          "invoice_date": "2025-02-19",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "壹佰肆拾陆圆整",
+          "seller_name": "娄底市娄星区老堂屋城南店",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000423011.pdf": {
+        "processing_time": 0.01615738868713379,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01612997055053711,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165848000423011",
+            "date": "2025-02-20 00:00:00",
+            "amount": 404.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000423011",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-20"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "404.5",
+              "tax_amount": "0",
+              "total_amount": "404.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000423011",
+          "invoice_date": "2025-02-20",
+          "invoice_type": "电子发票",
+          "total_amount": "404.5",
+          "amount": "404.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25369125403000228801.pdf": {
+        "processing_time": 0.01623082160949707,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016203880310058594,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25369125403000228801",
+            "date": "2025-03-06 00:00:00",
+            "amount": 296.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25369125403000228801",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "296.0",
+              "tax_amount": "0",
+              "total_amount": "296.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25369125403000228801",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "296.0",
+          "amount": "296.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25949134178000153214.pdf": {
+        "processing_time": 0.016689777374267578,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01666712760925293,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25949134178000153214",
+            "date": "2025-03-19 00:00:00",
+            "amount": 123.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25949134178000153214",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "123.0",
+              "tax_amount": "0",
+              "total_amount": "123.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25949134178000153214",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "123.0",
+          "amount": "123.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25959165876000012546.pdf": {
+        "processing_time": 0.01757192611694336,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01754593849182129,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25959165876000012546",
+            "date": "2025-03-19 00:00:00",
+            "amount": 186.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25959165876000012546",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "186.5",
+              "tax_amount": "0",
+              "total_amount": "186.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25959165876000012546",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "186.5",
+          "amount": "186.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000029373425-杭州趣链科技有限公司.pdf": {
+        "processing_time": 0.009390830993652344,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000029373425",
+          "invoice_date": "2025-03-06",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "壹仟零壹拾捌圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009362220764160156,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000029373425",
+            "date": "2025-03-06 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "娄底市娄星区萝卜餐饮店",
+            "amount": [
+              10.08,
+              1018.0,
+              1007.92
+            ],
+            "chinese_words": "壹仟零壹拾捌圆整                          ",
+            "issuer_person": "胡起贵",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000029373425",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": "娄底市娄星区萝卜餐饮店",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "壹仟零壹拾捌圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000029373425",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "壹仟零壹拾捌圆整",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25432000000022020617-杭州趣链科技有限公司.pdf": {
+        "processing_time": 0.00846099853515625,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000022020617",
+          "invoice_date": "2025-02-19",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "贰佰肆拾圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.008437871932983398,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000022020617",
+            "date": "2025-02-19 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "娄底市娄星区萝卜餐饮店",
+            "amount": [
+              240.0,
+              2.38,
+              237.62
+            ],
+            "chinese_words": "贰佰肆拾圆整                          ",
+            "issuer_person": "胡起贵",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000022020617",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-02-19"
+            },
+            "seller_info": {
+              "name": "娄底市娄星区萝卜餐饮店",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "贰佰肆拾圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000022020617",
+          "invoice_date": "2025-02-19",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "贰佰肆拾圆整",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000013950.pdf": {
+        "processing_time": 0.016204833984375,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016171693801879883,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165666000013950",
+            "date": "2025-03-03 00:00:00",
+            "amount": 86.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf": {
+        "processing_time": 0.00966191291809082,
+        "confidence": 1.0,
+        "extracted_fields": {
+          "invoice_number": "25432000000031411143",
+          "invoice_date": "2025-03-11",
+          "seller_name": "娄底市金盾印章有限公司",
+          "buyer_name": "杭州趣链科技有限公司",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "陆佰伍拾伍圆整"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 1.0,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009632110595703125,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25432000000031411143",
+            "date": "2025-03-11 00:00:00",
+            "buyer_name": "杭州趣链科技有限公司",
+            "seller_name": "娄底市金盾印章有限公司",
+            "amount": [
+              648.51,
+              6.49,
+              655.0
+            ],
+            "chinese_words": "陆佰伍拾伍圆整                              ",
+            "issuer_person": "彭光峰",
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25432000000031411143",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-11"
+            },
+            "seller_info": {
+              "name": "娄底市金盾印章有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": "杭州趣链科技有限公司",
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "0.0",
+              "tax_amount": "0",
+              "total_amount": "0.0",
+              "amount_in_words": "陆佰伍拾伍圆整"
+            },
+            "items": []
+          },
+          "invoice_number": "25432000000031411143",
+          "invoice_date": "2025-03-11",
+          "invoice_type": "电子发票",
+          "total_amount": "0.0",
+          "amount": "0.0",
+          "tax_amount": "0",
+          "amount_in_words": "陆佰伍拾伍圆整",
+          "seller_name": "娄底市金盾印章有限公司",
+          "seller_tax_id": null,
+          "buyer_name": "杭州趣链科技有限公司",
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000355594_1.pdf": {
+        "processing_time": 0.01726698875427246,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.017230987548828125,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165818000355594",
+            "date": "2025-03-03 00:00:00",
+            "amount": 377.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000013950_1.pdf": {
+        "processing_time": 0.01680588722229004,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016775131225585938,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165666000013950",
+            "date": "2025-03-03 00:00:00",
+            "amount": 86.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000013950",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "86.5",
+              "tax_amount": "0",
+              "total_amount": "86.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000013950",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "86.5",
+          "amount": "86.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165666000015358.pdf": {
+        "processing_time": 0.009233951568603516,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009205818176269531,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165666000015358",
+            "date": "2025-03-06 00:00:00",
+            "amount": 379.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165666000015358",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-06"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "379.5",
+              "tax_amount": "0",
+              "total_amount": "379.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165666000015358",
+          "invoice_date": "2025-03-06",
+          "invoice_type": "电子发票",
+          "total_amount": "379.5",
+          "amount": "379.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165848000790553.pdf": {
+        "processing_time": 0.009338140487670898,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009308338165283203,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165848000790553",
+            "date": "2025-03-19 00:00:00",
+            "amount": 377.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165848000790553",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165848000790553",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000508973.pdf": {
+        "processing_time": 0.016711950302124023,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.016674041748046875,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165818000508973",
+            "date": "2025-03-19 00:00:00",
+            "amount": 57.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508973",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "57.5",
+              "tax_amount": "0",
+              "total_amount": "57.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508973",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "57.5",
+          "amount": "57.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000508972.pdf": {
+        "processing_time": 0.01707172393798828,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01703667640686035,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165818000508972",
+            "date": "2025-03-19 00:00:00",
+            "amount": 556.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000508972",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "556.0",
+              "tax_amount": "0",
+              "total_amount": "556.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000508972",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "556.0",
+          "amount": "556.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25359134169000052039.pdf": {
+        "processing_time": 0.009871959686279297,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.009843111038208008,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25359134169000052039",
+            "date": "2025-03-19 00:00:00",
+            "amount": 35.5,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25359134169000052039",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-19"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "35.5",
+              "tax_amount": "0",
+              "total_amount": "35.5",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25359134169000052039",
+          "invoice_date": "2025-03-19",
+          "invoice_type": "电子发票",
+          "total_amount": "35.5",
+          "amount": "35.5",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25429165818000355594.pdf": {
+        "processing_time": 0.016927242279052734,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.01689600944519043,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25429165818000355594",
+            "date": "2025-03-03 00:00:00",
+            "amount": 377.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25429165818000355594",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "377.0",
+              "tax_amount": "0",
+              "total_amount": "377.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25429165818000355594",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "377.0",
+          "amount": "377.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      },
+      "25439165660000008536.pdf": {
+        "processing_time": 0.010003805160522461,
+        "confidence": 0.92,
+        "extracted_fields": {
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0"
+        },
+        "raw_result": {
+          "status": "success",
+          "confidence": 0.92,
+          "extraction_method": "invoice2data",
+          "processing_time": 0.00997614860534668,
+          "raw_data": {
+            "issuer": "中国电子发票",
+            "invoice_number": "25439165660000008536",
+            "date": "2025-03-03 00:00:00",
+            "amount": 12.0,
+            "currency": "CNY",
+            "desc": "Invoice from 中国电子发票"
+          },
+          "structured_data": {
+            "main_info": {
+              "invoice_number": "25439165660000008536",
+              "invoice_code": null,
+              "invoice_type": "电子发票",
+              "invoice_date": "2025-03-03"
+            },
+            "seller_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "buyer_info": {
+              "name": null,
+              "tax_id": null,
+              "address": null,
+              "phone": null,
+              "bank_account": null
+            },
+            "summary": {
+              "amount": "12.0",
+              "tax_amount": "0",
+              "total_amount": "12.0",
+              "amount_in_words": null
+            },
+            "items": []
+          },
+          "invoice_number": "25439165660000008536",
+          "invoice_date": "2025-03-03",
+          "invoice_type": "电子发票",
+          "total_amount": "12.0",
+          "amount": "12.0",
+          "tax_amount": "0",
+          "amount_in_words": null,
+          "seller_name": null,
+          "seller_tax_id": null,
+          "buyer_name": null,
+          "buyer_tax_id": null
+        }
+      }
+    },
+    "failed_files": [
+      {
+        "file": "25432000000031789815.pdf",
+        "error": "invoice2data未能提取到数据: /Users/xumingyang/app/invoice_assist/downloads/25432000000031789815.pdf",
+        "processing_time": 0.03501486778259277
+      },
+      {
+        "file": "25442000000101203423.pdf",
+        "error": "invoice2data未能提取到数据: /Users/xumingyang/app/invoice_assist/downloads/25442000000101203423.pdf",
+        "processing_time": 0.016032934188842773
+      }
+    ],
+    "field_extraction_stats": {
+      "invoice_number": 26,
+      "invoice_date": 26,
+      "total_amount": 26,
+      "amount": 26,
+      "tax_amount": 26,
+      "seller_name": 7,
+      "buyer_name": 7,
+      "amount_in_words": 7
+    }
+  },
+  "detailed_results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000031789815.pdf",
+      "status": "error",
+      "processing_time": 0.03501486778259277,
+      "result": {
+        "status": "error",
+        "error": "invoice2data未能提取到数据: /Users/xumingyang/app/invoice_assist/downloads/25432000000031789815.pdf",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000019624.pdf",
+      "status": "success",
+      "processing_time": 0.02100992202758789,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.020968198776245117,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165666000019624",
+          "date": "2025-03-19 00:00:00",
+          "amount": 96.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000019624",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "96.5",
+            "tax_amount": "0",
+            "total_amount": "96.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000019624",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "96.5",
+        "amount": "96.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439122799000011090.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439122799000011090.pdf",
+      "status": "success",
+      "processing_time": 0.009984970092773438,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.00995182991027832,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439122799000011090",
+          "date": "2025-03-19 00:00:00",
+          "amount": 339.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439122799000011090",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "339.0",
+            "tax_amount": "0",
+            "total_amount": "339.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439122799000011090",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "339.0",
+        "amount": "339.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165660000008536_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536_1.pdf",
+      "status": "success",
+      "processing_time": 0.010276079177856445,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.010238885879516602,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165660000008536",
+          "date": "2025-03-03 00:00:00",
+          "amount": 12.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000614665.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000614665.pdf",
+      "status": "success",
+      "processing_time": 0.01663494110107422,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016605854034423828,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165848000614665",
+          "date": "2025-03-06 00:00:00",
+          "amount": 377.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000614665",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000614665",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029033553-杭州趣链物联科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.00967097282409668,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009642839431762695,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000029033553",
+          "date": "2025-03-06 00:00:00",
+          "buyer_name": "杭州趣链物联科技有限公司",
+          "seller_name": "娄底星奕酒店管理有限公司",
+          "amount": [
+            5.02,
+            507.0,
+            501.98
+          ],
+          "chinese_words": "伍佰零柒圆整                               ",
+          "issuer_person": "冯乐",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000029033553",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": "娄底星奕酒店管理有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链物联科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "伍佰零柒圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000029033553",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "伍佰零柒圆整",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000032177192_杭州趣链科技有限公司_20250313093318.pdf",
+      "status": "success",
+      "processing_time": 0.00972890853881836,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009695053100585938,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000032177192",
+          "date": "2025-03-13 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "娄底市中税通财税咨询有限公司",
+          "amount": [
+            4.95,
+            500.0,
+            495.05
+          ],
+          "chinese_words": "伍佰圆整                           ",
+          "issuer_person": "黄红玲",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000032177192",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-13"
+          },
+          "seller_info": {
+            "name": "娄底市中税通财税咨询有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "伍佰圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000032177192",
+        "invoice_date": "2025-03-13",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "伍佰圆整",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000393965.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000393965.pdf",
+      "status": "success",
+      "processing_time": 0.017117738723754883,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.017087936401367188,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165818000393965",
+          "date": "2025-03-06 00:00:00",
+          "amount": 57.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000393965",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000393965",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25512000000059075953.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25512000000059075953.pdf",
+      "status": "success",
+      "processing_time": 0.009886980056762695,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009820938110351562,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25512000000059075953",
+          "date": "2025-03-16 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+          "amount": [
+            474.26,
+            4.74,
+            479.0
+          ],
+          "chinese_words": "肆佰柒拾玖圆整                         ",
+          "issuer_person": "张渊",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25512000000059075953",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-16"
+          },
+          "seller_info": {
+            "name": "高新区盘烤一烧烤肉店（个体工商户）",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "肆佰柒拾玖圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25512000000059075953",
+        "invoice_date": "2025-03-16",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "肆佰柒拾玖圆整",
+        "seller_name": "高新区盘烤一烧烤肉店（个体工商户）",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000022014229.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022014229.pdf",
+      "status": "success",
+      "processing_time": 0.010006904602050781,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009979248046875,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000022014229",
+          "date": "2025-02-19 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "娄底市娄星区老堂屋城南店",
+          "amount": [
+            144.55,
+            1.45,
+            146.0
+          ],
+          "chinese_words": "壹佰肆拾陆圆整                         ",
+          "issuer_person": "李雪英",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000022014229",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-19"
+          },
+          "seller_info": {
+            "name": "娄底市娄星区老堂屋城南店",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "壹佰肆拾陆圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000022014229",
+        "invoice_date": "2025-02-19",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "壹佰肆拾陆圆整",
+        "seller_name": "娄底市娄星区老堂屋城南店",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165848000423011.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000423011.pdf",
+      "status": "success",
+      "processing_time": 0.01615738868713379,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01612997055053711,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165848000423011",
+          "date": "2025-02-20 00:00:00",
+          "amount": 404.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000423011",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-20"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "404.5",
+            "tax_amount": "0",
+            "total_amount": "404.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000423011",
+        "invoice_date": "2025-02-20",
+        "invoice_type": "电子发票",
+        "total_amount": "404.5",
+        "amount": "404.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25369125403000228801.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25369125403000228801.pdf",
+      "status": "success",
+      "processing_time": 0.01623082160949707,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016203880310058594,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25369125403000228801",
+          "date": "2025-03-06 00:00:00",
+          "amount": 296.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25369125403000228801",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "296.0",
+            "tax_amount": "0",
+            "total_amount": "296.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25369125403000228801",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "296.0",
+        "amount": "296.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25949134178000153214.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25949134178000153214.pdf",
+      "status": "success",
+      "processing_time": 0.016689777374267578,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01666712760925293,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25949134178000153214",
+          "date": "2025-03-19 00:00:00",
+          "amount": 123.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25949134178000153214",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "123.0",
+            "tax_amount": "0",
+            "total_amount": "123.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25949134178000153214",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "123.0",
+        "amount": "123.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25959165876000012546.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25959165876000012546.pdf",
+      "status": "success",
+      "processing_time": 0.01757192611694336,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01754593849182129,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25959165876000012546",
+          "date": "2025-03-19 00:00:00",
+          "amount": 186.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25959165876000012546",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "186.5",
+            "tax_amount": "0",
+            "total_amount": "186.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25959165876000012546",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "186.5",
+        "amount": "186.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000029373425-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000029373425-杭州趣链科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.009390830993652344,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009362220764160156,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000029373425",
+          "date": "2025-03-06 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "amount": [
+            10.08,
+            1018.0,
+            1007.92
+          ],
+          "chinese_words": "壹仟零壹拾捌圆整                          ",
+          "issuer_person": "胡起贵",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000029373425",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": "娄底市娄星区萝卜餐饮店",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "壹仟零壹拾捌圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000029373425",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "壹仟零壹拾捌圆整",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25432000000022020617-杭州趣链科技有限公司.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25432000000022020617-杭州趣链科技有限公司.pdf",
+      "status": "success",
+      "processing_time": 0.00846099853515625,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.008437871932983398,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000022020617",
+          "date": "2025-02-19 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "amount": [
+            240.0,
+            2.38,
+            237.62
+          ],
+          "chinese_words": "贰佰肆拾圆整                          ",
+          "issuer_person": "胡起贵",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000022020617",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-02-19"
+          },
+          "seller_info": {
+            "name": "娄底市娄星区萝卜餐饮店",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "贰佰肆拾圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000022020617",
+        "invoice_date": "2025-02-19",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "贰佰肆拾圆整",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000013950.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950.pdf",
+      "status": "success",
+      "processing_time": 0.016204833984375,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016171693801879883,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165666000013950",
+          "date": "2025-03-03 00:00:00",
+          "amount": 86.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/dzfp_25432000000031411143_娄底市金盾印章有限公司_20250311151550.pdf",
+      "status": "success",
+      "processing_time": 0.00966191291809082,
+      "result": {
+        "status": "success",
+        "confidence": 1.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009632110595703125,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25432000000031411143",
+          "date": "2025-03-11 00:00:00",
+          "buyer_name": "杭州趣链科技有限公司",
+          "seller_name": "娄底市金盾印章有限公司",
+          "amount": [
+            648.51,
+            6.49,
+            655.0
+          ],
+          "chinese_words": "陆佰伍拾伍圆整                              ",
+          "issuer_person": "彭光峰",
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25432000000031411143",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-11"
+          },
+          "seller_info": {
+            "name": "娄底市金盾印章有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "0.0",
+            "tax_amount": "0",
+            "total_amount": "0.0",
+            "amount_in_words": "陆佰伍拾伍圆整"
+          },
+          "items": []
+        },
+        "invoice_number": "25432000000031411143",
+        "invoice_date": "2025-03-11",
+        "invoice_type": "电子发票",
+        "total_amount": "0.0",
+        "amount": "0.0",
+        "tax_amount": "0",
+        "amount_in_words": "陆佰伍拾伍圆整",
+        "seller_name": "娄底市金盾印章有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000355594_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594_1.pdf",
+      "status": "success",
+      "processing_time": 0.01726698875427246,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.017230987548828125,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165818000355594",
+          "date": "2025-03-03 00:00:00",
+          "amount": 377.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000013950_1.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950_1.pdf",
+      "status": "success",
+      "processing_time": 0.01680588722229004,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016775131225585938,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165666000013950",
+          "date": "2025-03-03 00:00:00",
+          "amount": 86.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000013950",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "86.5",
+            "tax_amount": "0",
+            "total_amount": "86.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000013950",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "86.5",
+        "amount": "86.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165666000015358.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165666000015358.pdf",
+      "status": "success",
+      "processing_time": 0.009233951568603516,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009205818176269531,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165666000015358",
+          "date": "2025-03-06 00:00:00",
+          "amount": 379.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165666000015358",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-06"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "379.5",
+            "tax_amount": "0",
+            "total_amount": "379.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165666000015358",
+        "invoice_date": "2025-03-06",
+        "invoice_type": "电子发票",
+        "total_amount": "379.5",
+        "amount": "379.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25442000000101203423.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25442000000101203423.pdf",
+      "status": "error",
+      "processing_time": 0.016032934188842773,
+      "result": {
+        "status": "error",
+        "error": "invoice2data未能提取到数据: /Users/xumingyang/app/invoice_assist/downloads/25442000000101203423.pdf",
+        "confidence": 0.0,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.0
+      }
+    },
+    {
+      "file": "25429165848000790553.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165848000790553.pdf",
+      "status": "success",
+      "processing_time": 0.009338140487670898,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009308338165283203,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165848000790553",
+          "date": "2025-03-19 00:00:00",
+          "amount": 377.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165848000790553",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165848000790553",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000508973.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508973.pdf",
+      "status": "success",
+      "processing_time": 0.016711950302124023,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.016674041748046875,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165818000508973",
+          "date": "2025-03-19 00:00:00",
+          "amount": 57.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508973",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "57.5",
+            "tax_amount": "0",
+            "total_amount": "57.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508973",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "57.5",
+        "amount": "57.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000508972.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508972.pdf",
+      "status": "success",
+      "processing_time": 0.01707172393798828,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01703667640686035,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165818000508972",
+          "date": "2025-03-19 00:00:00",
+          "amount": 556.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000508972",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "556.0",
+            "tax_amount": "0",
+            "total_amount": "556.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000508972",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "556.0",
+        "amount": "556.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25359134169000052039.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25359134169000052039.pdf",
+      "status": "success",
+      "processing_time": 0.009871959686279297,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.009843111038208008,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25359134169000052039",
+          "date": "2025-03-19 00:00:00",
+          "amount": 35.5,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25359134169000052039",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-19"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "35.5",
+            "tax_amount": "0",
+            "total_amount": "35.5",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25359134169000052039",
+        "invoice_date": "2025-03-19",
+        "invoice_type": "电子发票",
+        "total_amount": "35.5",
+        "amount": "35.5",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25429165818000355594.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594.pdf",
+      "status": "success",
+      "processing_time": 0.016927242279052734,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.01689600944519043,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25429165818000355594",
+          "date": "2025-03-03 00:00:00",
+          "amount": 377.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25429165818000355594",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "377.0",
+            "tax_amount": "0",
+            "total_amount": "377.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25429165818000355594",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "377.0",
+        "amount": "377.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    },
+    {
+      "file": "25439165660000008536.pdf",
+      "file_path": "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536.pdf",
+      "status": "success",
+      "processing_time": 0.010003805160522461,
+      "result": {
+        "status": "success",
+        "confidence": 0.92,
+        "extraction_method": "invoice2data",
+        "processing_time": 0.00997614860534668,
+        "raw_data": {
+          "issuer": "中国电子发票",
+          "invoice_number": "25439165660000008536",
+          "date": "2025-03-03 00:00:00",
+          "amount": 12.0,
+          "currency": "CNY",
+          "desc": "Invoice from 中国电子发票"
+        },
+        "structured_data": {
+          "main_info": {
+            "invoice_number": "25439165660000008536",
+            "invoice_code": null,
+            "invoice_type": "电子发票",
+            "invoice_date": "2025-03-03"
+          },
+          "seller_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "buyer_info": {
+            "name": null,
+            "tax_id": null,
+            "address": null,
+            "phone": null,
+            "bank_account": null
+          },
+          "summary": {
+            "amount": "12.0",
+            "tax_amount": "0",
+            "total_amount": "12.0",
+            "amount_in_words": null
+          },
+          "items": []
+        },
+        "invoice_number": "25439165660000008536",
+        "invoice_date": "2025-03-03",
+        "invoice_type": "电子发票",
+        "total_amount": "12.0",
+        "amount": "12.0",
+        "tax_amount": "0",
+        "amount_in_words": null,
+        "seller_name": null,
+        "seller_tax_id": null,
+        "buyer_name": null,
+        "buyer_tax_id": null
+      }
+    }
+  ]
+}

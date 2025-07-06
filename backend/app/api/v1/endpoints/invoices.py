@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, Field
 
 from app.core.database import get_async_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, CurrentUser
 from app.models.profile import Profile
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.services.invoice_service import InvoiceService
@@ -109,7 +109,7 @@ async def list_invoices(
     source: Optional[InvoiceSource] = Query(None, description="发票来源"),
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -125,7 +125,7 @@ async def list_invoices(
         
         # 搜索发票
         invoices, total = await invoice_service.search_invoices(
-            user_id=current_user.auth_user_id,
+            user_id=current_user.id,
             query=query,
             seller_name=seller_name,
             invoice_number=invoice_number,
@@ -156,7 +156,7 @@ async def list_invoices(
 
 @router.get("/statistics", response_model=InvoiceStatisticsResponse)
 async def get_invoice_statistics(
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -167,11 +167,11 @@ async def get_invoice_statistics(
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
         
-        stats = await invoice_service.get_invoice_statistics(current_user.auth_user_id)
+        stats = await invoice_service.get_invoice_statistics(current_user.id)
         
         # 添加最近活动信息
         recent_invoices, _ = await invoice_service.search_invoices(
-            user_id=current_user.auth_user_id,
+            user_id=current_user.id,
             limit=5,
             offset=0
         )
@@ -200,7 +200,7 @@ async def get_invoice_statistics(
 @router.get("/{invoice_id}", response_model=InvoiceDetail)
 async def get_invoice_detail(
     invoice_id: UUID = Path(..., description="发票ID"),
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -213,7 +213,7 @@ async def get_invoice_detail(
         
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
-            user_id=current_user.auth_user_id
+            user_id=current_user.id
         )
         
         if not invoice:
@@ -231,7 +231,7 @@ async def get_invoice_detail(
 @router.delete("/{invoice_id}")
 async def delete_invoice(
     invoice_id: UUID = Path(..., description="发票ID"),
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -244,7 +244,7 @@ async def delete_invoice(
         
         success = await invoice_service.delete_invoice(
             invoice_id=invoice_id,
-            user_id=current_user.auth_user_id
+            user_id=current_user.id
         )
         
         if not success:
@@ -263,7 +263,7 @@ async def delete_invoice(
 async def verify_invoice(
     invoice_id: UUID = Path(..., description="发票ID"),
     notes: Optional[str] = None,
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -275,14 +275,14 @@ async def verify_invoice(
         
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
-            user_id=current_user.auth_user_id
+            user_id=current_user.id
         )
         
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
         
         # 标记为已验证
-        invoice.mark_as_verified(current_user.auth_user_id, notes)
+        invoice.mark_as_verified(current_user.id, notes)
         await db.commit()
         
         return {
@@ -302,7 +302,7 @@ async def verify_invoice(
 async def update_invoice_tags(
     invoice_id: UUID = Path(..., description="发票ID"),
     tags: List[str] = [],
-    current_user: Profile = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -314,7 +314,7 @@ async def update_invoice_tags(
         
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
-            user_id=current_user.auth_user_id
+            user_id=current_user.id
         )
         
         if not invoice:

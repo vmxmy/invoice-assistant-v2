@@ -1,0 +1,71 @@
+# 中国标准电子发票模板 - 项目明细修正版
+issuer: 中国标准电子发票项目修正版
+priority: 120  # 最高优先级
+keywords:
+  - "电子"
+  - "普通发票"
+
+fields:
+  # 基本信息 - 兼容PyMuPDF输出格式和中文标点符号，处理各种空格情况
+  invoice_number:
+    parser: regex
+    regex: '发票号码[：:]\s*(\d+)'
+  date:
+    parser: regex
+    regex: '开票日期[：:]\s*(\d{4}年\d{1,2}月\d{1,2}日)'
+    type: date
+  
+  # 金额信息 - 兼容多种金额格式和全角半角符号
+  amount:
+    parser: regex
+    regex: '(?:价税合计.*?[（(]\s*小写\s*[）)]\s*[¥￥]\s*|合\s*计.*?[¥￥]\s*)([0-9,]+\.?\d*)'
+    type: float
+  chinese_amount:
+    parser: regex
+    regex: '价税合计[（(]\s*大写\s*[）)]\s*([^\s（(]+)'
+  
+  # 购买方和销售方信息 - 兼容多种格式
+  buyer_name:
+    parser: regex
+    regex: '购.*?名\s*称[：:]\s*([^\n\s]+(?:\s+[^\n\s]+)*?)(?=\s+销|$)'
+  seller_name:
+    parser: regex  
+    regex: '销.*?名\s*称[：:]\s*([^\n]+?)(?=\n|$)'
+  
+  # 开票人
+  issuer_person:
+    parser: regex
+    regex: '开\s*票\s*人[：:]\s*([^\s\n]+)'
+  
+  # 项目明细信息 - 修正版本，支持常见格式
+  # *餐饮服务*餐饮服务、*餐饮服务*餐饮费、*住宿服务*住宿服务等
+  service_type:
+    parser: regex
+    regex: '\*([^*]+)\*'
+    
+  project_name:
+    parser: regex
+    regex: '\*[^*]+\*([^*\s\n]+)'
+    
+  project_amount:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?([0-9,]+\.?\d*)\s+\d+%'
+    type: float
+    
+  project_tax_rate:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?(\d+%)'
+    
+  project_tax_amount:
+    parser: regex
+    regex: '\*[^*]+\*[^*\s\n]+.*?\d+%\s+([0-9,]+\.?\d*)'
+    type: float
+
+options:
+  currency: CNY
+  decimal_separator: '.'
+  date_formats:
+    - '%Y年%m月%d日'
+  remove_whitespace: false
+  remove_accents: false
+  lowercase: false

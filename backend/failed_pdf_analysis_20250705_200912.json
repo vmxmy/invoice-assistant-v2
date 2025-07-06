@@ -1,0 +1,1256 @@
+{
+  "timestamp": "20250705_200912",
+  "failed_files_count": 19,
+  "failed_files": [
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165666000019624.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439122799000011090.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536_1.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165848000614665.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165818000393965.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165848000423011.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25369125403000228801.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25949134178000153214.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25959165876000012546.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594_1.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165666000013950_1.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165666000015358.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165848000790553.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508973.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165818000508972.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25359134169000052039.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25429165818000355594.pdf",
+    "/Users/xumingyang/app/invoice_assist/downloads/25439165660000008536.pdf"
+  ],
+  "text_analysis_results": [
+    {
+      "file_name": "25439165666000019624.pdf",
+      "raw_text_length": 271,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "96.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "96.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25439165666000019624",
+            "23662025",
+            "3207051981",
+            "2012",
+            "6566679086031491199262025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 9
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "96.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "96.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000019624LoudinanG23662025年03月13日电子发票（铁路电子客票）16:28开01车08D号票价:￥96.50一等座3207051981****2012徐明扬电子客票号:6566679086031491199262025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Changshanan长沙南站娄底南站始发改签中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000019624LoudinanG23662025年03月13日电子发票（铁路电子客票）16:28开01车08D号票价:￥96.50一等座3207051981****2012徐明扬电子客票号:6566679086031491199262025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Changshanan长沙南站娄底南站始发改签中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439122799000011090.pdf",
+      "raw_text_length": 322,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "339.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "339.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25439122799000011090",
+            "2025",
+            "3046",
+            "2025",
+            "339.00",
+            "3207051981",
+            "2012",
+            "2279920177011695647782025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 11
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "339.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "339.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25439122799000011090\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n广州东站\nGuangzhoudong\n\nG3046\n\n厦门北站\nXiamenbei\n\n2025年01月16日 12:34开\n\n15车02D号\n\n二等座\n\n票价:\n\n￥339.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:2279920177011695647782025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25439122799000011090\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n广州东站\nGuangzhoudong\n\nG3046\n\n厦门北站\nXiamenbei\n\n2025年01月16日 12:34开\n\n15车02D号\n\n二等座\n\n票价:\n\n￥339.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:2279920177011695647782025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439165660000008536_1.pdf",
+      "raw_text_length": 321,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "12.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "12.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25439165660000008536",
+            "2025",
+            "1752",
+            "2025",
+            "3207051981",
+            "2012",
+            "6566076086022196138362025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "12.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "12.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25439165660000008536\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月03日\n\n湘潭北站\nXiangtanbei\n\nG1752\n\n长沙南站\nChangshanan\n\n2025年02月20日 15:57开\n\n01车08F号\n\n二等座\n\n票价:\n\n￥12.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566076086022196138362025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25439165660000008536\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月03日\n\n湘潭北站\nXiangtanbei\n\nG1752\n\n长沙南站\nChangshanan\n\n2025年02月20日 15:57开\n\n01车08F号\n\n二等座\n\n票价:\n\n￥12.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566076086022196138362025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165848000614665.pdf",
+      "raw_text_length": 271,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165848000614665",
+            "8142025",
+            "377.00",
+            "3207051981",
+            "2012",
+            "6584876086030399193212025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165848000614665GuangzhounanG8142025年03月03日电子发票（铁路电子客票）09:50开11车05D号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6584876086030399193212025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Changshanan长沙南站广州南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165848000614665GuangzhounanG8142025年03月03日电子发票（铁路电子客票）09:50开11车05D号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6584876086030399193212025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Changshanan长沙南站广州南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165818000393965.pdf",
+      "raw_text_length": 267,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "57.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "57.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165818000393965",
+            "14212025",
+            "3207051981",
+            "2012",
+            "6581876086030390843592025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 9
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "57.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "57.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000393965ChangshananG14212025年03月03日电子发票（铁路电子客票）12:06开03车13D号票价:￥57.50二等座3207051981****2012徐明扬电子客票号:6581876086030390843592025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Loudinan娄底南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000393965ChangshananG14212025年03月03日电子发票（铁路电子客票）12:06开03车13D号票价:￥57.50二等座3207051981****2012徐明扬电子客票号:6581876086030390843592025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Loudinan娄底南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165848000423011.pdf",
+      "raw_text_length": 269,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "404.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "404.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165848000423011",
+            "60662025",
+            "404.50",
+            "3207051981",
+            "2012",
+            "6584876086021797958882025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "404.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "404.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165848000423011GuangzhounanG60662025年02月17日电子发票（铁路电子客票）13:11开10车11D号票价:￥404.50二等座3207051981****2012徐明扬电子客票号:6584876086021797958882025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年02月20日Loudinan娄底南站广州南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165848000423011GuangzhounanG60662025年02月17日电子发票（铁路电子客票）13:11开10车11D号票价:￥404.50二等座3207051981****2012徐明扬电子客票号:6584876086021797958882025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年02月20日Loudinan娄底南站广州南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25369125403000228801.pdf",
+      "raw_text_length": 266,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "296.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "296.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25369125403000228801",
+            "32872025",
+            "296.00",
+            "3207051981",
+            "2012",
+            "2540376086030799797022025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "296.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "296.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省西江买票请到12306 发货请到95306发票号码:25369125403000228801NanchangxiD32872025年03月06日电子发票（铁路电子客票）13:29开02车07D号票价:￥296.00一等座3207051981****2012徐明扬电子客票号:2540376086030799797022025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Quanzhou泉州站南昌西站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省西江买票请到12306 发货请到95306发票号码:25369125403000228801NanchangxiD32872025年03月06日电子发票（铁路电子客票）13:29开02车07D号票价:￥296.00一等座3207051981****2012徐明扬电子客票号:2540376086030799797022025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月06日Quanzhou泉州站南昌西站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25949134178000153214.pdf",
+      "raw_text_length": 263,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "123.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "123.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25949134178000153214",
+            "37432025",
+            "123.00",
+            "3207051981",
+            "2012",
+            "3417876086030897678022025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "123.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "123.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税市门厦买票请到12306 发货请到95306发票号码:25949134178000153214XiamenbeiG37432025年03月08日电子发票（铁路电子客票）13:26开06车11B号票价:￥123.00二等座3207051981****2012徐明扬电子客票号:3417876086030897678022025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Puning普宁站厦门北站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税市门厦买票请到12306 发货请到95306发票号码:25949134178000153214XiamenbeiG37432025年03月08日电子发票（铁路电子客票）13:26开06车11B号票价:￥123.00二等座3207051981****2012徐明扬电子客票号:3417876086030897678022025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Puning普宁站厦门北站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25959165876000012546.pdf",
+      "raw_text_length": 266,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "186.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "186.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25959165876000012546",
+            "37432025",
+            "186.50",
+            "3207051981",
+            "2012",
+            "6587676086030898924692025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "186.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "186.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税市圳深买票请到12306 发货请到95306发票号码:25959165876000012546PuningG37432025年03月08日电子发票（铁路电子客票）15:03开06车08C号票价:￥186.50二等座3207051981****2012徐明扬电子客票号:6587676086030898924692025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Guangzhounan广州南站普宁站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税市圳深买票请到12306 发货请到95306发票号码:25959165876000012546PuningG37432025年03月08日电子发票（铁路电子客票）15:03开06车08C号票价:￥186.50二等座3207051981****2012徐明扬电子客票号:6587676086030898924692025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Guangzhounan广州南站普宁站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439165666000013950.pdf",
+      "raw_text_length": 267,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "86.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "86.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25439165666000013950",
+            "17522025",
+            "3207051981",
+            "2012",
+            "6566676086022192684132025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 9
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "86.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "86.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000013950LoudinanG17522025年02月20日电子发票（铁路电子客票）15:29开08车10A号票价:￥86.50特等座3207051981****2012徐明扬电子客票号:6566676086022192684132025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Xiangtanbei湘潭北站娄底南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000013950LoudinanG17522025年02月20日电子发票（铁路电子客票）15:29开08车10A号票价:￥86.50特等座3207051981****2012徐明扬电子客票号:6566676086022192684132025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Xiangtanbei湘潭北站娄底南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165818000355594_1.pdf",
+      "raw_text_length": 271,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165818000355594",
+            "8832025",
+            "377.00",
+            "3207051981",
+            "2012",
+            "6581876086022190319642025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000355594ChangshananG8832025年02月20日电子发票（铁路电子客票）16:32开04车02A号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6581876086022190319642025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000355594ChangshananG8832025年02月20日电子发票（铁路电子客票）16:32开04车02A号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6581876086022190319642025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439165666000013950_1.pdf",
+      "raw_text_length": 267,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "86.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "86.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25439165666000013950",
+            "17522025",
+            "3207051981",
+            "2012",
+            "6566676086022192684132025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 9
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "86.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "86.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000013950LoudinanG17522025年02月20日电子发票（铁路电子客票）15:29开08车10A号票价:￥86.50特等座3207051981****2012徐明扬电子客票号:6566676086022192684132025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Xiangtanbei湘潭北站娄底南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省南湖买票请到12306 发货请到95306发票号码:25439165666000013950LoudinanG17522025年02月20日电子发票（铁路电子客票）15:29开08车10A号票价:￥86.50特等座3207051981****2012徐明扬电子客票号:6566676086022192684132025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Xiangtanbei湘潭北站娄底南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439165666000015358.pdf",
+      "raw_text_length": 318,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "379.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "379.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25439165666000015358",
+            "2025",
+            "2142",
+            "2025",
+            "379.50",
+            "3207051981",
+            "2012",
+            "6566676086030792733862025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 11
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "379.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "379.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25439165666000015358\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月06日\n\n娄底南站\nLoudinan\n\nG2142\n\n南昌西站\nNanchangxi\n\n2025年03月06日 11:02开\n\n01车06F号\n\n一等座\n\n票价:\n\n￥379.50\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566676086030792733862025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25439165666000015358\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月06日\n\n娄底南站\nLoudinan\n\nG2142\n\n南昌西站\nNanchangxi\n\n2025年03月06日 11:02开\n\n01车06F号\n\n一等座\n\n票价:\n\n￥379.50\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566676086030792733862025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165848000790553.pdf",
+      "raw_text_length": 322,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25429165848000790553",
+            "2025",
+            "814",
+            "2025",
+            "377.00",
+            "3207051981",
+            "2012",
+            "6584876086031199881412025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 11
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25429165848000790553\n\n国 家 税 务 总 局\n局务税省北湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n广州南站\nGuangzhounan\n\nG814\n\n长沙南站\nChangshanan\n\n2025年03月11日 09:50开\n\n11车13D号\n\n二等座\n\n票价:\n\n￥377.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6584876086031199881412025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25429165848000790553\n\n国 家 税 务 总 局\n局务税省北湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n广州南站\nGuangzhounan\n\nG814\n\n长沙南站\nChangshanan\n\n2025年03月11日 09:50开\n\n11车13D号\n\n二等座\n\n票价:\n\n￥377.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6584876086031199881412025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165818000508973.pdf",
+      "raw_text_length": 267,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "57.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "57.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165818000508973",
+            "14212025",
+            "3207051981",
+            "2012",
+            "6581876086031191274802025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 9
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "57.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "57.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000508973ChangshananG14212025年03月11日电子发票（铁路电子客票）12:06开08车06C号票价:￥57.50二等座3207051981****2012徐明扬电子客票号:6581876086031191274802025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Loudinan娄底南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000508973ChangshananG14212025年03月11日电子发票（铁路电子客票）12:06开08车06C号票价:￥57.50二等座3207051981****2012徐明扬电子客票号:6581876086031191274802025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Loudinan娄底南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165818000508972.pdf",
+      "raw_text_length": 271,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "556.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "556.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165818000508972",
+            "8412025",
+            "556.00",
+            "3207051981",
+            "2012",
+            "6581876086031491408832025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "556.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "556.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000508972ChangshananG8412025年03月13日电子发票（铁路电子客票）18:06开01车06D号票价:￥556.00一等座3207051981****2012徐明扬电子客票号:6581876086031491408832025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000508972ChangshananG8412025年03月13日电子发票（铁路电子客票）18:06开01车06D号票价:￥556.00一等座3207051981****2012徐明扬电子客票号:6581876086031491408832025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月19日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25359134169000052039.pdf",
+      "raw_text_length": 311,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "35.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "35.50"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25359134169000052039",
+            "2025",
+            "6291",
+            "2025",
+            "3207051981",
+            "2012",
+            "3416964086030892626482025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "35.50"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "35.50"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25359134169000052039\n\n国 家 税 务 总 局\n局务税省建福\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n泉州站\nQuanzhou\n\nD6291\n\n厦门站\nXiamen\n\n2025年03月08日 12:27开\n\n03车18F号\n\n二等座\n\n票价:\n\n￥35.50\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:3416964086030892626482025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25359134169000052039\n\n国 家 税 务 总 局\n局务税省建福\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月19日\n\n泉州站\nQuanzhou\n\nD6291\n\n厦门站\nXiamen\n\n2025年03月08日 12:27开\n\n03车18F号\n\n二等座\n\n票价:\n\n￥35.50\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:3416964086030892626482025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25429165818000355594.pdf",
+      "raw_text_length": 271,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "377.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "12306",
+            "95306",
+            "25429165818000355594",
+            "8832025",
+            "377.00",
+            "3207051981",
+            "2012",
+            "6581876086022190319642025",
+            "91330108",
+            "2025"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "377.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000355594ChangshananG8832025年02月20日电子发票（铁路电子客票）16:32开04车02A号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6581876086022190319642025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "国家税务总局全国统一发票监制章局务税省北湖买票请到12306 发货请到95306发票号码:25429165818000355594ChangshananG8832025年02月20日电子发票（铁路电子客票）16:32开04车02A号票价:￥377.00二等座3207051981****2012徐明扬电子客票号:6581876086022190319642025杭州趣链科技有限公司统一社会信用代码:91330108MA27Y5XH5G开票日期:2025年03月03日Guangzhounan广州南站长沙南站中国铁路祝您旅途愉快购买方名称:\f",
+        "i2d_text_full": ""
+      }
+    },
+    {
+      "file_name": "25439165660000008536.pdf",
+      "raw_text_length": 321,
+      "i2d_text_length": 0,
+      "amount_patterns": [
+        {
+          "text_type": "raw",
+          "pattern_name": "currency_amounts",
+          "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+          "matches": [
+            "12.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "decimal_numbers",
+          "pattern": "([\\d,]+\\.\\d{2})",
+          "matches": [
+            "12.00"
+          ],
+          "match_count": 1
+        },
+        {
+          "text_type": "raw",
+          "pattern_name": "integer_amounts",
+          "pattern": "(?<![\\d.])([\\d,]{3,}\\.?\\d*)(?![\\d.])",
+          "matches": [
+            "25439165660000008536",
+            "2025",
+            "1752",
+            "2025",
+            "3207051981",
+            "2012",
+            "6566076086022196138362025",
+            "91330108",
+            "12306",
+            "95306"
+          ],
+          "match_count": 10
+        }
+      ],
+      "potential_amounts": [],
+      "chinese_amounts": [],
+      "decimal_amounts": [
+        {
+          "text_type": "raw",
+          "amount": "12.00"
+        }
+      ],
+      "currency_symbols": [
+        {
+          "text_type": "raw",
+          "amount": "12.00"
+        }
+      ],
+      "text_samples": {
+        "raw_text_preview": "发票号码:25439165660000008536\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月03日\n\n湘潭北站\nXiangtanbei\n\nG1752\n\n长沙南站\nChangshanan\n\n2025年02月20日 15:57开\n\n01车08F号\n\n二等座\n\n票价:\n\n￥12.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566076086022196138362025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_preview": "",
+        "raw_text_full": "发票号码:25439165660000008536\n\n国 家 税 务 总 局\n局务税省南湖\n\n电子发票（铁路电子客票）\n国统一 发 票监制\n全\n章\n\n开票日期:2025年03月03日\n\n湘潭北站\nXiangtanbei\n\nG1752\n\n长沙南站\nChangshanan\n\n2025年02月20日 15:57开\n\n01车08F号\n\n二等座\n\n票价:\n\n￥12.00\n\n3207051981****2012\n\n徐明扬\n\n电子客票号:6566076086022196138362025\n\n购买方名称:杭州趣链科技有限公司\n\n统一社会信用代码:91330108MA27Y5XH5G\n\n买票请到12306 发货请到95306\n中国铁路祝您旅途愉快\n\n\f",
+        "i2d_text_full": ""
+      }
+    }
+  ],
+  "optimized_patterns": [
+    {
+      "field": "amount",
+      "pattern": "[¥￥]([\\d,]+\\.?\\d*)",
+      "description": "货币符号后金额",
+      "matches_found": 19,
+      "sample_matches": [
+        "186.50",
+        "96.50",
+        "377.00",
+        "556.00",
+        "123.00"
+      ]
+    },
+    {
+      "field": "amount",
+      "pattern": "([\\d,]+\\.\\d{2})",
+      "description": "宽松的十进制金额匹配",
+      "matches_found": 13,
+      "sample_matches": [
+        "186.50",
+        "96.50",
+        "377.00",
+        "556.00",
+        "123.00"
+      ]
+    }
+  ],
+  "recommendations": [
+    "使用多模式匹配来提高金额字段的提取成功率",
+    "考虑宽松匹配策略来处理不同格式的发票",
+    "增加货币符号后的金额匹配模式",
+    "优化中文大写金额的提取规则"
+  ]
+}

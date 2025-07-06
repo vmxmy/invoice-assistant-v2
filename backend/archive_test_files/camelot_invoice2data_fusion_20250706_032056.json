@@ -1,0 +1,42 @@
+{
+  "statistics": {
+    "total": 28,
+    "success": 25,
+    "camelot_extracted": 25,
+    "invoice2data_matched": 23,
+    "field_counts": {
+      "invoice_number": 25,
+      "invoice_date": 2,
+      "total_amount": 2,
+      "buyer_name": 8,
+      "seller_name": 2,
+      "project_name": 4
+    }
+  },
+  "results": [
+    {
+      "file": "25432000000031789815.pdf",
+      "method": "camelot_invoice2data_fusion",
+      "success": true,
+      "data": {
+        "invoice_number": "25432000000031789815",
+        "invoice_date": "2025年03月12日",
+        "total_amount": "80.00",
+        "buyer_name": "杭州趣链科技有限公司",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店"
+      },
+      "debug_info": {
+        "camelot_tables": 1,
+        "invoice2data_matched": false,
+        "fusion_text": "电 子 发 票 （ 普 通 发 票 ） 25432000000031789815\n发 票 号 码 ：\n开 票 日 期 ：\n2025年03月12日\n名称：\n杭州趣链科技有限公司 名称：\n湖南曾小厨餐饮管理有限公司贤童店\n购 买 方 信 息：销 售 方 信 息\n统一社会信用代码 /纳税人识别号 ：\n91330108MA27Y5XH5G 统一社会信用代码 /纳税人识别号 ：\n91431302MA4PRFYA3N\n项目名称\n规格型号\n单  位\n数  量：单  价\n金  额\n税率/征收率\n税  额\n*餐饮服务*餐饮费：79.21\n1%\n0.79\n合\n计：¥79.21\n¥0.79\n捌拾圆整\n备 注：价税合计（ 大写）：（ 小写）\n¥80.00\n开 票 人：\n彭丽芳\n\n---展平文本---\n  电 子 发 票 （ 普 通 发 票 ） 25432000000031789815\n发 票 号 码 ：    开 票 日 期 ：\n2025年03月12日  名称：\n杭州趣链科技有限公司  名称：\n湖南曾小厨餐饮管理有限公司贤童店 购 买 方 信 息  销 售 方 信 息   统一社会信用代码 /纳税人识别号 ：\n91330108MA27Y5XH5G  统一社会信用代码 /纳税人识别号 ：\n91431302MA4PRFYA3N  项目名称\n规格型号\n单  位\n数  量  单  价\n金  额\n税率/征收率\n税  额 *餐饮服务*餐饮费   79.21\n1%\n0.79  合\n计  ¥79.21\n¥0.79  捌拾圆整   备 注 价税合计（ 大写）  （ 小写）\n¥80.00  开 票 人：\n彭丽芳  ",
+        "table_texts": []
+      }
+    },
+    {
+      "file": "25439165666000019624.pdf",
+      "method": "camelot_invoice2data_fusion",
+      "success": true,
+      "data": {
+        "issuer": "中国铁路电子客票",
+        "invoice_number": "25439165666000019624",
+        "date": 
