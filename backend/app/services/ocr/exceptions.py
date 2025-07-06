@@ -150,4 +150,23 @@ class OCRValidationError(OCRError):
         if validation_rule:
             context['validation_rule'] = validation_rule
         kwargs['context'] = context
+        super().__init__(message, **kwargs)
+
+
+class OCRProcessError(OCRError):
+    """OCR处理错误"""
+    
+    def __init__(
+        self, 
+        message: str, 
+        file_path: Optional[str] = None,
+        process_stage: Optional[str] = None,
+        **kwargs
+    ):
+        context = kwargs.get('context', {})
+        if file_path:
+            context['file_path'] = file_path
+        if process_stage:
+            context['process_stage'] = process_stage
+        kwargs['context'] = context
         super().__init__(message, **kwargs) 

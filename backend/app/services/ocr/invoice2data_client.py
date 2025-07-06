@@ -96,7 +96,8 @@ class Invoice2DataClient(BaseOCRClient):
         
         template_file = self.templates_dir / 'china_electronic_invoice.yml'
         with open(template_file, 'w', encoding='utf-8') as f:
-            yaml.dump(template, f, default_flow_style=False, allow_unicode=True)
+            # Use safe_dump to prevent code execution
+            yaml.safe_dump(template, f, default_flow_style=False, allow_unicode=True)
         
         logger.info(f"默认模板已创建: {template_file}")
     
@@ -331,7 +332,8 @@ class Invoice2DataClient(BaseOCRClient):
         template_file = self.templates_dir / f"{template_name}.yml"
         
         with open(template_file, 'w', encoding='utf-8') as f:
-            yaml.dump(template_config, f, default_flow_style=False, allow_unicode=True)
+            # Use safe_dump to prevent code execution
+            yaml.safe_dump(template_config, f, default_flow_style=False, allow_unicode=True)
         
         # 重新加载模板
         self._load_templates()

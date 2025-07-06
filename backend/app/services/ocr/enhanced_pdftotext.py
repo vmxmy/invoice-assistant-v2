@@ -38,6 +38,20 @@ def to_text(path: str, area_details: Dict = None) -> str:
 
 def _original_pdftotext(path: str, area_details: Dict = None) -> str:
     """原生pdftotext功能（从invoice2data复制）"""
+    import os
+    
+    # Validate file path for security
+    if not isinstance(path, str) or not path:
+        raise ValueError("Invalid file path provided")
+    
+    # Check if path exists and is a file
+    if not os.path.exists(path) or not os.path.isfile(path):
+        raise FileNotFoundError(f"File not found: {path}")
+        
+    # Validate file extension
+    if not path.lower().endswith('.pdf'):
+        raise ValueError("Only PDF files are supported")
+    
     if shutil.which('pdftotext'):
         cmd = ["pdftotext", "-layout", "-enc", "UTF-8"]
         if area_details is not None:
