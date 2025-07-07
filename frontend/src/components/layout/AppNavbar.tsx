@@ -37,7 +37,7 @@ const AppNavbar: React.FC = () => {
     <div className="navbar bg-base-100 border-b border-base-200 sticky top-0 z-50 shadow-sm">
       {/* Logo区域 */}
       <div className="navbar-start">
-        <Link to="/dashboard" className="btn btn-ghost text-xl font-bold text-primary">
+        <Link to="/dashboard" className="btn btn-ghost text-xl font-bold text-primary font-serif">
           📄 发票助手
         </Link>
       </div>

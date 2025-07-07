@@ -26,9 +26,24 @@ export const useInvoices = (params?: {
       const response = await api.invoices.list(params)
       return response.data
     },
-    staleTime: 2 * 60 * 1000, // 2分钟内不重新获取
+    staleTime: 1 * 60 * 1000, // 1分钟内不重新获取（减少缓存时间）
     placeholderData: { items: [], total: 0 }, // 提供占位数据
+    refetchOnWindowFocus: true, // 窗口获得焦点时刷新
+    refetchOnMount: true, // 组件挂载时刷新
   })
+}
+
+// 手动刷新发票列表
+export const useRefreshInvoices = () => {
+  const queryClient = useQueryClient()
+  
+  return () => {
+    // 清除所有发票相关缓存
+    queryClient.removeQueries({ queryKey: INVOICE_KEYS.all })
+    // 重新获取数据
+    queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.all })
+    logger.log('🔄 手动刷新发票数据')
+  }
 }
 
 // 获取单个发票详情
@@ -72,7 +87,19 @@ export const useCreateInvoice = () => {
       logger.log('✅ 发票创建成功:', data.id)
     },
     onError: (error: any) => {
-      logger.error('❌ 发票创建失败:', error.message)
+      let errorMessage = '发票创建失败'
+      
+      if (error.status === 400) {
+        errorMessage = '文件格式不正确或数据无效'
+      } else if (error.status === 413) {
+        errorMessage = '文件太大，请选择较小的文件'
+      } else if (error.status >= 500) {
+        errorMessage = '服务器错误，请稍后重试'
+      } else {
+        errorMessage = error.message || '发票创建失败'
+      }
+      
+      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
     },
   })
 }
@@ -94,7 +121,21 @@ export const useUpdateInvoice = () => {
       logger.log('✅ 发票更新成功:', data.id)
     },
     onError: (error: any) => {
-      logger.error('❌ 发票更新失败:', error.message)
+      let errorMessage = '发票更新失败'
+      
+      if (error.status === 404) {
+        errorMessage = '发票不存在或已被删除'
+      } else if (error.status === 403) {
+        errorMessage = '没有权限修改此发票'
+      } else if (error.status === 400) {
+        errorMessage = '数据格式不正确'
+      } else if (error.status >= 500) {
+        errorMessage = '服务器错误，请稍后重试'
+      } else {
+        errorMessage = error.message || '发票更新失败'
+      }
+      
+      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
     },
   })
 }
@@ -111,13 +152,57 @@ export const useDeleteInvoice = () => {
     onSuccess: (_, id) => {
       // 移除特定发票的缓存
       queryClient.removeQueries({ queryKey: INVOICE_KEYS.detail(id) })
-      // 使列表查询失效
+      
+      // 立即更新列表缓存，移除已删除的发票
+      queryClient.setQueriesData(
+        { queryKey: INVOICE_KEYS.lists() },
+        (oldData: any) => {
+          if (!oldData) return oldData
+          
+          return {
+            ...oldData,
+            items: oldData.items?.filter((item: any) => item.id !== id) || [],
+            total: Math.max(0, (oldData.total || 1) - 1)
+          }
+        }
+      )
+      
+      // 使列表查询失效，确保下次获取最新数据
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
+      
       logger.log('✅ 发票删除成功:', id)
     },
-    onError: (error: any) => {
-      logger.error('❌ 发票删除失败:', error.message)
+    onError: (error: any, id) => {
+      let errorMessage = '发票删除失败'
+      
+      if (error.status === 404) {
+        errorMessage = '发票不存在或已被删除'
+        
+        // 如果发票不存在，也从缓存中移除
+        queryClient.removeQueries({ queryKey: INVOICE_KEYS.detail(id) })
+        queryClient.setQueriesData(
+          { queryKey: INVOICE_KEYS.lists() },
+          (oldData: any) => {
+            if (!oldData) return oldData
+            return {
+              ...oldData,
+              items: oldData.items?.filter((item: any) => item.id !== id) || [],
+              total: Math.max(0, (oldData.total || 1) - 1)
+            }
+          }
+        )
+        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
+        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
+      } else if (error.status === 403) {
+        errorMessage = '没有权限删除此发票'
+      } else if (error.status >= 500) {
+        errorMessage = '服务器错误，请稍后重试'
+      } else {
+        errorMessage = error.message || '发票删除失败'
+      }
+      
+      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
     },
   })
 }
