@@ -4,11 +4,12 @@ import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
 import { useSession, useProfile } from '../hooks/useAuth'
 import { logger } from '../utils/logger'
+import type { User, Profile } from '../types'
 
 // 简化的认证上下文类型
 interface AuthContextType {
-  user: any | null
-  profile: any | null
+  user: User | null
+  profile: Profile | null
   loading: boolean
   isAuthenticated: boolean
   hasProfile: boolean

@@ -17,33 +17,7 @@ import InvoiceChart from './InvoiceChart';
 import { useSession } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
-
-interface DashboardStats {
-  totalInvoices: number;
-  pendingInvoices: number;
-  completedInvoices: number;
-  totalAmount: number;
-  monthlyGrowth: number;
-  recentActivity: any[];
-  monthlyData: Array<{
-    month: string;
-    invoices: number;
-    amount: number;
-  }>;
-  categoryData: Array<{
-    name: string;
-    value: number;
-    color: string;
-  }>;
-}
-
-interface DashboardMainProps {
-  onUploadInvoice?: () => void;
-  onCreateInvoice?: () => void;
-  onSearchInvoices?: () => void;
-  onExportData?: () => void;
-  onSettings?: () => void;
-}
+import type { DashboardStats, DashboardMainProps } from '../../types';
 
 export const DashboardMain: React.FC<DashboardMainProps> = ({
   onUploadInvoice,

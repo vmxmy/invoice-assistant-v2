@@ -2,21 +2,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
-import type { UserProfile } from '../services/supabase'
 import { logger } from '../utils/logger'
-
-// 简化的类型定义
-type User = any // Supabase User 类型
-type AuthError = any // Supabase AuthError 类型
+import type { User, Profile, AuthError, AuthResponse } from '../types'
 
 interface AuthContextType {
   user: User | null
-  profile: UserProfile | null
+  profile: Profile | null
   loading: boolean
-  signUp: (email: string, password: string, metadata?: any) => Promise<{ data: any; error: AuthError | null }>
-  signIn: (email: string, password: string) => Promise<{ data: any; error: AuthError | null }>
+  signUp: (email: string, password: string, metadata?: any) => Promise<AuthResponse>
+  signIn: (email: string, password: string) => Promise<AuthResponse>
   signOut: () => Promise<{ error: AuthError | null }>
-  createProfile: (profileData: Partial<UserProfile>) => Promise<UserProfile>
+  createProfile: (profileData: Partial<Profile>) => Promise<Profile>
   loadUserProfile: () => Promise<void>
 }
 
@@ -36,7 +32,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -151,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error }
   }
 
-  const createProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
+  const createProfile = async (profileData: Partial<Profile>): Promise<Profile> => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) throw new Error('未登录')
 

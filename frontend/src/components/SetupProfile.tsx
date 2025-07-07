@@ -1,21 +1,22 @@
-// Profile 设置组件
+// Profile 设置组件 - 使用React Query优化
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useCreateProfile } from '../hooks/useAuth'
+import type { ProfileFormData } from '../types'
 
-interface ProfileData {
-  display_name: string
-  bio: string
-}
+interface ProfileData extends ProfileFormData {}
 
 const SetupProfile: React.FC = () => {
-  const { user, createProfile } = useAuth()
+  const { user } = useAuth()
   const [formData, setFormData] = useState<ProfileData>({
     display_name: user?.user_metadata?.display_name || '',
     bio: ''
   })
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  
+  // React Query hook for better state management
+  const createProfileMutation = useCreateProfile()
   
   const navigate = useNavigate()
 
@@ -35,19 +36,17 @@ const SetupProfile: React.FC = () => {
       return
     }
 
-    setLoading(true)
     setMessage('')
 
     try {
-      await createProfile(formData)
+      await createProfileMutation.mutateAsync(formData)
       setMessage('资料设置成功！')
+      
       setTimeout(() => {
         navigate('/dashboard')
       }, 1500)
     } catch (error: any) {
       setMessage(`设置失败: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -94,10 +93,10 @@ const SetupProfile: React.FC = () => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={createProfileMutation.isPending}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? '保存中...' : '保存并继续'}
+              {createProfileMutation.isPending ? '保存中...' : '保存并继续'}
             </button>
           </form>
 
