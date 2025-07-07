@@ -4,14 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// 调试环境变量
-console.log('🔍 Supabase 环境变量检查:')
-console.log('URL:', supabaseUrl ? '✅ 已设置' : '❌ 未设置', supabaseUrl)
-console.log('Key:', supabaseAnonKey ? '✅ 已设置' : '❌ 未设置', supabaseAnonKey?.substring(0, 20) + '...')
-
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ 缺少Supabase环境变量')
-  console.log('所有环境变量:', import.meta.env)
   throw new Error('缺少Supabase环境变量')
 }
 
