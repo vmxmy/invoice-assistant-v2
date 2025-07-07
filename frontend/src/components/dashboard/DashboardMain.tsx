@@ -17,7 +17,6 @@ import InvoiceChart from './InvoiceChart';
 import { useSession } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
-import Layout from '../layout/Layout';
 
 interface DashboardStats {
   totalInvoices: number;
@@ -151,8 +150,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
   };
 
   return (
-    <Layout>
-      <div className="p-4 md:p-6">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -277,8 +275,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
           </div>
         </div>
       </div>
-      </div>
-    </Layout>
+    </div>
   );
 };
 
