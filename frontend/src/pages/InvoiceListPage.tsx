@@ -10,10 +10,26 @@ import {
   Eye,
   Edit,
   Trash2,
-  Download
+  Download,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { api } from '../services/apiClient';
 import Layout from '../components/layout/Layout';
+import InvoiceDetailModal from '../components/invoice/modals/InvoiceDetailModal';
+import InvoiceEditModal from '../components/invoice/modals/InvoiceEditModal';
+import DeleteConfirmModal from '../components/invoice/modals/DeleteConfirmModal';
+import { AdvancedSearchDrawer } from '../components/invoice/search/AdvancedSearchDrawer';
+import type { SearchFilters } from '../components/invoice/search/AdvancedSearchDrawer';
+import FilterPanel from '../components/invoice/search/FilterPanel';
+import { getInvoiceTypeName, getInvoiceTypeIcon } from '../components/invoice/details/InvoiceTypeDetails';
+import { InvoiceListSkeleton } from '../components/ui/SkeletonLoader';
+import ErrorBoundary from '../components/ui/ErrorBoundary';
+import { notify } from '../utils/notifications';
+import { useDebounce } from '../hooks/useDebounce';
+import InvoiceListView from '../components/invoice/cards/InvoiceListView';
+import { useExport } from '../hooks/useExport';
+import DownloadProgressModal from '../components/ui/DownloadProgressModal';
 
 interface Invoice {
   id: string;
@@ -25,6 +41,7 @@ interface Invoice {
   status: string;
   processing_status: string;
   source: string;
+  invoice_type?: string;
   created_at: string;
   tags: string[];
 }
@@ -40,19 +57,101 @@ interface InvoiceListResponse {
 
 const InvoiceListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms 防抖
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+  
+  // 高级搜索状态
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  
+  // 发票详情模态框状态
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  // 发票编辑模态框状态
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // 删除确认模态框状态
+  const [deleteInvoiceIds, setDeleteInvoiceIds] = useState<string[]>([]);
+  const [deleteInvoiceNumbers, setDeleteInvoiceNumbers] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  // 导出功能
+  const {
+    downloadBatch,
+    isExporting,
+    isProgressModalOpen,
+    downloads,
+    totalProgress,
+    closeProgressModal,
+    cancelDownload
+  } = useExport();
+  
+  // 调试日志
+  console.log('[InvoiceListPage] export state:', { 
+    isExporting, 
+    isProgressModalOpen, 
+    totalProgress,
+    downloadsCount: downloads.length 
+  });
 
   // 获取发票列表
-  const { data: invoicesData, isLoading, refetch } = useQuery({
-    queryKey: ['invoices', currentPage, pageSize, searchQuery],
+  const { data: invoicesData, isLoading, error, refetch, isError, isFetching } = useQuery({
+    queryKey: ['invoices', currentPage, pageSize, debouncedSearchQuery, searchFilters],
     queryFn: async (): Promise<InvoiceListResponse> => {
-      const response = await api.invoices.list({
+      // 处理参数格式
+      const params: any = {
         page: currentPage,
-        page_size: pageSize,
-        ...(searchQuery && { invoice_number: searchQuery })
-      });
+        page_size: pageSize
+      };
+      
+      // 处理基础搜索查询
+      if (debouncedSearchQuery) {
+        params.query = debouncedSearchQuery;
+      }
+      
+      // 处理高级搜索参数
+      if (searchFilters.invoiceNumber) {
+        params.invoice_number = searchFilters.invoiceNumber;
+      }
+      if (searchFilters.sellerName) {
+        params.seller_name = searchFilters.sellerName;
+      }
+      if (searchFilters.buyerName) {
+        // 后端不支持buyer_name参数，需要将买方名称也加入到query参数中
+        // 如果已经有query参数，拼接起来；否则直接使用buyerName
+        if (params.query) {
+          params.query = `${params.query} ${searchFilters.buyerName}`;
+        } else {
+          params.query = searchFilters.buyerName;
+        }
+      }
+      if (searchFilters.amountMin !== undefined) {
+        params.amount_min = searchFilters.amountMin;
+      }
+      if (searchFilters.amountMax !== undefined) {
+        params.amount_max = searchFilters.amountMax;
+      }
+      if (searchFilters.dateFrom) {
+        params.date_from = searchFilters.dateFrom;
+      }
+      if (searchFilters.dateTo) {
+        params.date_to = searchFilters.dateTo;
+      }
+      if (searchFilters.status && searchFilters.status.length > 0) {
+        // 后端只支持单个状态，取第一个
+        params.status = searchFilters.status[0];
+      }
+      if (searchFilters.source && searchFilters.source.length > 0) {
+        // 后端只支持单个来源，取第一个
+        params.source = searchFilters.source[0];
+      }
+      
+      console.log('API调用参数:', params);
+      const response = await api.invoices.list(params);
       
       // 数据去重保护
       const uniqueInvoices = Array.from(
@@ -66,6 +165,16 @@ const InvoiceListPage: React.FC = () => {
     },
     staleTime: 5 * 60 * 1000, // 5分钟缓存
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // 对于网络错误重试3次，其他错误不重试
+      if (failureCount < 3 && error instanceof Error && error.message.includes('网络')) {
+        return true;
+      }
+      return false;
+    },
+    onError: (error: any) => {
+      notify.error(error.message || '获取发票列表失败，请重试');
+    }
   });
 
   const handleSelectInvoice = (invoiceId: string) => {
@@ -105,54 +214,205 @@ const InvoiceListPage: React.FC = () => {
     return new Date(dateString).toLocaleDateString('zh-CN');
   };
 
+  // 查看发票详情
+  const handleViewInvoice = (invoiceId: string) => {
+    setSelectedInvoiceId(invoiceId);
+    setIsDetailModalOpen(true);
+  };
+
+  // 关闭详情模态框
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedInvoiceId(null);
+  };
+
+  // 编辑发票
+  const handleEditInvoice = (invoice: Invoice) => {
+    setEditingInvoice(invoice);
+    setIsEditModalOpen(true);
+  };
+
+  // 关闭编辑模态框
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingInvoice(null);
+  };
+
+  // 编辑成功回调
+  const handleEditSuccess = () => {
+    refetch(); // 刷新发票列表
+  };
+
+  // 删除单个发票
+  const handleDeleteInvoice = (invoice: Invoice) => {
+    setDeleteInvoiceIds([invoice.id]);
+    setDeleteInvoiceNumbers([invoice.invoice_number]);
+    setIsDeleteModalOpen(true);
+  };
+
+  // 批量删除发票
+  const handleBatchDelete = () => {
+    if (selectedInvoices.length === 0) {
+      notify.warning('请先选择要删除的发票');
+      return;
+    }
+    
+    // 防止重复点击
+    if (isDeleteModalOpen) return;
+    
+    const selectedInvoiceData = invoicesData?.items.filter(inv => 
+      selectedInvoices.includes(inv.id)
+    ) || [];
+    
+    setDeleteInvoiceIds(selectedInvoices);
+    setDeleteInvoiceNumbers(selectedInvoiceData.map(inv => inv.invoice_number));
+    setIsDeleteModalOpen(true);
+  };
+
+  // 关闭删除模态框
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteInvoiceIds([]);
+    setDeleteInvoiceNumbers([]);
+  };
+
+  // 删除成功回调
+  const handleDeleteSuccess = () => {
+    setSelectedInvoices([]); // 清空选中项
+    refetch(); // 刷新发票列表
+  };
+
+  // 高级搜索处理
+  const handleAdvancedSearch = (filters: SearchFilters) => {
+    setSearchFilters(filters);
+    setCurrentPage(1); // 重置到第一页
+  };
+
+  // 计算活跃的筛选数量
+  const activeFilterCount = Object.values(searchFilters).filter(value => 
+    value !== undefined && value !== '' && 
+    !(Array.isArray(value) && value.length === 0)
+  ).length;
+
+  // 移除单个筛选条件
+  const handleRemoveFilter = (filterKey: keyof SearchFilters) => {
+    const newFilters = { ...searchFilters };
+    
+    // 对于数组类型的筛选，特殊处理
+    if (filterKey === 'status' || filterKey === 'source') {
+      delete newFilters[filterKey];
+    } else {
+      delete newFilters[filterKey];
+    }
+    
+    setSearchFilters(newFilters);
+    setCurrentPage(1);
+  };
+
+  // 清除所有筛选条件
+  const handleClearAllFilters = () => {
+    setSearchFilters({});
+    setCurrentPage(1);
+  };
+
+  // 批量导出发票
+  const handleBatchExport = async () => {
+    if (selectedInvoices.length === 0) {
+      notify.warning('请先选择要导出的发票');
+      return;
+    }
+    
+    const selectedInvoiceData = invoicesData?.items.filter(inv => 
+      selectedInvoices.includes(inv.id)
+    ) || [];
+    
+    await downloadBatch(selectedInvoiceData);
+    
+    // 导出成功后清空选中项
+    setSelectedInvoices([]);
+  };
+
   return (
-    <Layout>
+    <ErrorBoundary>
+      <Layout>
       <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题和操作 */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-base-content">发票管理</h1>
-            <p className="text-base-content/60 mt-1">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-base-content truncate">
+              发票管理
+            </h1>
+            <p className="text-base-content/60 mt-1 text-sm sm:text-base">
               共 {invoicesData?.total || 0} 张发票
+              {selectedInvoices.length > 0 && (
+                <span className="ml-2 text-primary">
+                  (已选择 {selectedInvoices.length} 张)
+                </span>
+              )}
             </p>
           </div>
-          <div className="mt-4 md:mt-0 flex gap-2">
-            <button className="btn btn-primary">
+          <div className="flex gap-2 flex-shrink-0">
+            <button className="btn btn-primary btn-sm sm:btn-md">
               <Plus className="w-4 h-4" />
-              新建发票
+              <span className="hidden sm:inline">新建发票</span>
             </button>
           </div>
         </div>
 
         {/* 搜索和筛选 */}
         <div className="card bg-base-100 shadow-sm">
-          <div className="card-body p-4">
-            <div className="flex flex-col md:flex-row gap-4">
+          <div className="card-body p-3 sm:p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <div className="flex-1">
                 <div className="join w-full">
-                  <input
-                    type="text"
-                    placeholder="搜索发票号、销售方..."
-                    className="input input-bordered join-item flex-1"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="搜索发票号、销售方..."
+                      className="input input-bordered input-sm sm:input-md join-item w-full pr-10"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {isFetching && searchQuery && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="loading loading-spinner loading-xs"></span>
+                      </div>
+                    )}
+                  </div>
                   <button 
-                    className="btn btn-primary join-item"
+                    className="btn btn-primary btn-sm sm:btn-md join-item"
                     onClick={() => refetch()}
+                    disabled={isLoading}
                   >
-                    <Search className="w-4 h-4" />
+                    {isLoading ? (
+                      <span className="loading loading-spinner loading-sm"></span>
+                    ) : (
+                      <Search className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
-              <button className="btn btn-outline">
+              <button 
+                className="btn btn-outline btn-sm sm:btn-md flex-shrink-0"
+                onClick={() => setIsAdvancedSearchOpen(true)}
+              >
                 <Filter className="w-4 h-4" />
-                筛选
+                <span className="hidden sm:inline">筛选</span>
+                {activeFilterCount > 0 && (
+                  <span className="badge badge-sm badge-primary">{activeFilterCount}</span>
+                )}
               </button>
             </div>
           </div>
         </div>
+
+        {/* 筛选条件展示 */}
+        <FilterPanel
+          filters={searchFilters}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
+        />
 
         {/* 发票列表 */}
         <div className="card bg-base-100 shadow-sm">
@@ -174,11 +434,18 @@ const InvoiceListPage: React.FC = () => {
                 
                 {selectedInvoices.length > 0 && (
                   <div className="flex gap-2">
-                    <button className="btn btn-sm btn-outline">
+                    <button 
+                      className="btn btn-sm btn-outline"
+                      onClick={handleBatchExport}
+                      disabled={isExporting}
+                    >
                       <Download className="w-3 h-3" />
                       导出
                     </button>
-                    <button className="btn btn-sm btn-error btn-outline">
+                    <button 
+                      className="btn btn-sm btn-error btn-outline"
+                      onClick={handleBatchDelete}
+                    >
                       <Trash2 className="w-3 h-3" />
                       删除
                     </button>
@@ -189,142 +456,132 @@ const InvoiceListPage: React.FC = () => {
 
             {/* 发票列表 */}
             {isLoading ? (
+              <InvoiceListSkeleton />
+            ) : isError ? (
               <div className="p-8 text-center">
-                <span className="loading loading-spinner loading-lg"></span>
-                <p className="mt-2 text-base-content/60">加载中...</p>
+                <div className="flex flex-col items-center gap-4">
+                  <AlertCircle className="w-12 h-12 text-error" />
+                  <div>
+                    <h3 className="text-lg font-medium text-base-content/60 mb-2">
+                      加载失败
+                    </h3>
+                    <p className="text-base-content/40 mb-4">
+                      {error?.message || '获取发票列表时出现错误'}
+                    </p>
+                    <button 
+                      className="btn btn-primary btn-sm"
+                      onClick={() => refetch()}
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      重试
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="divide-y divide-base-300">
-                {invoicesData?.items.map((invoice, index) => (
-                  <div key={`${invoice.id}-${index}`} className="p-4 hover:bg-base-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <input 
-                        type="checkbox" 
-                        className="checkbox checkbox-sm"
-                        checked={selectedInvoices.includes(invoice.id)}
-                        onChange={() => handleSelectInvoice(invoice.id)}
-                      />
-                      
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-                        {/* 发票信息 */}
-                        <div className="md:col-span-2">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-primary" />
-                            <div>
-                              <p className="font-medium">{invoice.invoice_number}</p>
-                              <p className="text-sm text-base-content/60">{invoice.seller_name}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 日期 */}
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-base-content/60" />
-                          <span className="text-sm">{formatDate(invoice.invoice_date)}</span>
-                        </div>
-
-                        {/* 金额 */}
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-success" />
-                          <span className="font-medium text-success">
-                            {formatCurrency(invoice.total_amount)}
-                          </span>
-                        </div>
-
-                        {/* 状态 */}
-                        <div>
-                          <div className={`badge ${getStatusBadge(invoice.status)} badge-sm`}>
-                            {invoice.status}
-                          </div>
-                        </div>
-
-                        {/* 操作 */}
-                        <div className="flex gap-1">
-                          <button className="btn btn-ghost btn-sm">
-                            <Eye className="w-3 h-3" />
-                          </button>
-                          <button className="btn btn-ghost btn-sm">
-                            <Edit className="w-3 h-3" />
-                          </button>
-                          <button className="btn btn-ghost btn-sm text-error">
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <InvoiceListView
+                invoices={invoicesData?.items || []}
+                selectedInvoices={selectedInvoices}
+                onSelectInvoice={handleSelectInvoice}
+                onViewInvoice={handleViewInvoice}
+                onEditInvoice={handleEditInvoice}
+                onDeleteInvoice={handleDeleteInvoice}
+                isLoading={isLoading}
+              />
             )}
 
             {/* 分页 */}
             {invoicesData && invoicesData.total > pageSize && (
-              <div className="p-4 border-t border-base-300">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="p-3 sm:p-4 border-t border-base-300">
+                <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
                   {/* 页码信息 */}
-                  <p className="text-sm text-base-content/60">
+                  <p className="text-xs sm:text-sm text-base-content/60 text-center sm:text-left">
                     共 {invoicesData.total} 条记录，第 {currentPage} 页，共 {Math.ceil(invoicesData.total / pageSize)} 页
                   </p>
                   
                   {/* 分页控件 */}
-                  <div className="flex items-center gap-2">
-                    <button 
-                      className="btn btn-sm btn-outline"
-                      disabled={!invoicesData.has_prev}
-                      onClick={() => setCurrentPage(1)}
-                    >
-                      首页
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline"
-                      disabled={!invoicesData.has_prev}
-                      onClick={() => setCurrentPage(prev => prev - 1)}
-                    >
-                      上一页
-                    </button>
-                    
-                    {/* 页码选择 */}
-                    <div className="join">
-                      {Array.from({ length: Math.min(5, Math.ceil(invoicesData.total / pageSize)) }, (_, i) => {
-                        const totalPages = Math.ceil(invoicesData.total / pageSize);
-                        let pageNum;
-                        
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                          <button
-                            key={pageNum}
-                            className={`join-item btn btn-sm ${pageNum === currentPage ? 'btn-active' : ''}`}
-                            onClick={() => setCurrentPage(pageNum)}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      })}
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    {/* 桌面端完整分页 */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_prev}
+                        onClick={() => setCurrentPage(1)}
+                      >
+                        首页
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_prev}
+                        onClick={() => setCurrentPage(prev => prev - 1)}
+                      >
+                        上一页
+                      </button>
+                      
+                      {/* 页码选择 */}
+                      <div className="join">
+                        {Array.from({ length: Math.min(5, Math.ceil(invoicesData.total / pageSize)) }, (_, i) => {
+                          const totalPages = Math.ceil(invoicesData.total / pageSize);
+                          let pageNum;
+                          
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              className={`join-item btn btn-sm ${pageNum === currentPage ? 'btn-active' : ''}`}
+                              onClick={() => setCurrentPage(pageNum)}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_next}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                      >
+                        下一页
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_next}
+                        onClick={() => setCurrentPage(Math.ceil(invoicesData.total / pageSize))}
+                      >
+                        末页
+                      </button>
                     </div>
-                    
-                    <button 
-                      className="btn btn-sm btn-outline"
-                      disabled={!invoicesData.has_next}
-                      onClick={() => setCurrentPage(prev => prev + 1)}
-                    >
-                      下一页
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline"
-                      disabled={!invoicesData.has_next}
-                      onClick={() => setCurrentPage(Math.ceil(invoicesData.total / pageSize))}
-                    >
-                      末页
-                    </button>
+
+                    {/* 移动端简化分页 */}
+                    <div className="flex sm:hidden items-center gap-2">
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_prev}
+                        onClick={() => setCurrentPage(prev => prev - 1)}
+                      >
+                        上一页
+                      </button>
+                      <span className="text-sm px-2">
+                        {currentPage} / {Math.ceil(invoicesData.total / pageSize)}
+                      </span>
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        disabled={!invoicesData.has_next}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                      >
+                        下一页
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -332,13 +589,15 @@ const InvoiceListPage: React.FC = () => {
 
             {/* 空状态 */}
             {!isLoading && (!invoicesData?.items || invoicesData.items.length === 0) && (
-              <div className="p-8 text-center">
-                <FileText className="w-12 h-12 text-base-content/20 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-base-content/60 mb-2">暂无发票</h3>
-                <p className="text-base-content/40 mb-4">
-                  {searchQuery ? '未找到匹配的发票' : '开始上传您的第一张发票吧'}
+              <div className="p-6 sm:p-8 text-center">
+                <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-base-content/20 mx-auto mb-4" />
+                <h3 className="text-base sm:text-lg font-medium text-base-content/60 mb-2">
+                  暂无发票
+                </h3>
+                <p className="text-sm sm:text-base text-base-content/40 mb-4 max-w-md mx-auto">
+                  {searchQuery ? '未找到匹配的发票，请尝试其他搜索条件' : '开始上传您的第一张发票吧'}
                 </p>
-                <button className="btn btn-primary">
+                <button className="btn btn-primary btn-sm sm:btn-md">
                   <Plus className="w-4 h-4" />
                   新建发票
                 </button>
@@ -348,7 +607,56 @@ const InvoiceListPage: React.FC = () => {
         </div>
       </div>
       </div>
+      
+      {/* 发票详情模态框 */}
+      <InvoiceDetailModal
+        invoiceId={selectedInvoiceId}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+      />
+      
+      {/* 发票编辑模态框 */}
+      <InvoiceEditModal
+        invoice={editingInvoice}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleEditSuccess}
+      />
+      
+      {/* 删除确认模态框 */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onSuccess={handleDeleteSuccess}
+        invoiceIds={deleteInvoiceIds}
+        invoiceNumbers={deleteInvoiceNumbers}
+      />
+      
+      {/* 高级搜索抽屉 */}
+      <AdvancedSearchDrawer
+        isOpen={isAdvancedSearchOpen}
+        onClose={() => setIsAdvancedSearchOpen(false)}
+        onSearch={handleAdvancedSearch}
+        currentFilters={searchFilters}
+      />
+      
+      {/* 下载进度模态框 */}
+      <DownloadProgressModal
+        isOpen={isProgressModalOpen}
+        onClose={closeProgressModal}
+        onCancel={cancelDownload}
+        downloads={downloads}
+        totalProgress={totalProgress}
+        canCancel={isExporting}
+        title="批量导出发票"
+      />
+      
+      {/* 调试：强制显示模态框状态 */}
+      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white p-2 text-xs">
+        Modal State: {isProgressModalOpen ? 'OPEN' : 'CLOSED'}, Progress: {totalProgress}%
+      </div>
     </Layout>
+    </ErrorBoundary>
   );
 };
 
