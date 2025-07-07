@@ -6,7 +6,8 @@ python-dotenv
 sqlalchemy[asyncio]
 asyncpg
 psycopg2-binary
-psycopg[asyncio]
+psycopg
+psycopg-binary
 python-jose[cryptography]
 supabase
 httpx
