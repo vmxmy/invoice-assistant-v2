@@ -91,8 +91,8 @@ if settings.is_production:
             "127.0.0.1", 
             "*.supabase.co",
             "*.vercel.app",
-            # 添加您的域名
-            # "*.yourdomain.com"
+            "*.onrender.com",
+            "invoice-assistant-v2.onrender.com"
         ]
     )
 
