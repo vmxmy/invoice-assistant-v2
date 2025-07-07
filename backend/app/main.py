@@ -17,6 +17,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import init_db, get_db_session
 from app.core.exceptions import AppException
+from app.middleware.query_monitoring_middleware import QueryMonitoringMiddleware, setup_sqlalchemy_monitoring
 
 
 # 配置日志
@@ -36,6 +37,12 @@ async def lifespan(app: FastAPI):
     try:
         await init_db()
         logger.info("✅ 数据库连接已初始化")
+        
+        # 设置查询监控
+        if settings.enable_query_monitoring:
+            setup_sqlalchemy_monitoring()
+            logger.info("✅ 查询监控已启用")
+            
     except Exception as e:
         logger.warning(f"⚠️  数据库连接失败，将以只读模式运行: {e}")
         # 继续运行，但某些功能可能不可用
@@ -94,6 +101,13 @@ if settings.is_production:
             "*.onrender.com",
             "invoice-assistant-v2.onrender.com"
         ]
+    )
+
+# 查询监控中间件
+if settings.enable_query_monitoring:
+    app.add_middleware(
+        QueryMonitoringMiddleware,
+        enable_monitoring=settings.enable_query_monitoring
     )
 
 
