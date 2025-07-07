@@ -1,0 +1,571 @@
+{
+  "test_time": "2025-07-07T04:20:17.618118",
+  "total_invoices": 7,
+  "field_statistics": {
+    "invoice_number": 7,
+    "date": 7,
+    "amount": 7,
+    "amount_pretax": 7,
+    "tax_amount": 0,
+    "buyer_name": 7,
+    "seller_name": 7
+  },
+  "results": [
+    {
+      "name": "广州寿司郎",
+      "invoice_id": "c0920a0b-10b1-45cb-b7c7-95fdb1481021",
+      "success": true,
+      "data": {
+        "id": "c0920a0b-10b1-45cb-b7c7-95fdb1481021",
+        "invoice_number": "25442000000101203423",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-02-24",
+        "seller_name": "广州寿司郎餐饮有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 336.0,
+        "tax_amount": 0.0,
+        "total_amount": 336.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/9272d1b0_20250706_201729_101b4685.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/9272d1b0_20250706_201729_101b4685.pdf",
+        "file_size": 72977,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-02-24T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 336.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "336.0",
+            "tax_amount": "0",
+            "total_amount": "336.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-02-24",
+            "invoice_type": "电子发票",
+            "invoice_number": "25442000000101203423"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 19.02,
+          "seller_info": {
+            "name": "广州寿司郎餐饮有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "广州寿司郎餐饮有限公司",
+          "project_name": "餐饮服务次",
+          "service_type": "餐饮服务",
+          "amount_pretax": 316.98,
+          "issuer_person": "蓝晓燕\n\f",
+          "chinese_amount": "叁佰叁拾陆圆整",
+          "invoice_number": "25442000000101203423",
+          "project_amount": 981132075472317.0
+        },
+        "source_metadata": {
+          "original_filename": "2025-02-24-广州寿司郎餐饮有限公司-336.00-25442000000101203423.pdf"
+        },
+        "created_at": "2025-07-06T20:17:29.462107Z",
+        "updated_at": "2025-07-06T20:17:29.462108Z"
+      }
+    },
+    {
+      "name": "湖南清泉华美达",
+      "invoice_id": "5631b594-3926-4bbd-8d41-5ff8afd62ed7",
+      "success": true,
+      "data": {
+        "id": "5631b594-3926-4bbd-8d41-5ff8afd62ed7",
+        "invoice_number": "25432000000027470610",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-03",
+        "seller_name": "湖南清泉华美达国际酒店有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 900.0,
+        "tax_amount": 0.0,
+        "total_amount": 900.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/20529144_20250706_201732_497d0319.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/20529144_20250706_201732_497d0319.pdf",
+        "file_size": 66782,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-03T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 900.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "900.0",
+            "tax_amount": "0",
+            "total_amount": "900.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-03",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000027470610"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 50.94,
+          "seller_info": {
+            "name": "湖南清泉华美达国际酒店有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "湖南清泉华美达国际酒店有限公司",
+          "project_name": "住宿",
+          "service_type": "住宿服务",
+          "amount_pretax": 849.06,
+          "issuer_person": "李瑶\n\f",
+          "chinese_amount": "玖佰圆整",
+          "invoice_number": "25432000000027470610",
+          "project_amount": 849.06
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-03-湖南清泉华美达国际酒店有限公司-900.00-25432000000027470610.pdf"
+        },
+        "created_at": "2025-07-06T20:17:32.924144Z",
+        "updated_at": "2025-07-06T20:17:32.924146Z"
+      }
+    },
+    {
+      "name": "娄底萝卜餐饮",
+      "invoice_id": "2cdaa012-8ed0-4a82-ad44-a15f350cc21e",
+      "success": true,
+      "data": {
+        "id": "2cdaa012-8ed0-4a82-ad44-a15f350cc21e",
+        "invoice_number": "25432000000029373425",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-06",
+        "seller_name": "娄底市娄星区萝卜餐饮店",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 1018.0,
+        "tax_amount": 0.0,
+        "total_amount": 1018.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/683b75e6_20250706_201736_01bf6a20.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/683b75e6_20250706_201736_01bf6a20.pdf",
+        "file_size": 60327,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-06T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 1018.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "1018.0",
+            "tax_amount": "0",
+            "total_amount": "1018.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-06",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000029373425"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 10.08,
+          "seller_info": {
+            "name": "娄底市娄星区萝卜餐饮店",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "娄底市娄星区萝卜餐饮店",
+          "project_name": "餐饮费",
+          "service_type": "餐饮服务",
+          "amount_pretax": 1007.92,
+          "issuer_person": "胡起贵\n\f",
+          "chinese_amount": "壹仟零壹拾捌圆整",
+          "invoice_number": "25432000000029373425",
+          "project_amount": 1007.92
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-06-娄底市娄星区萝卜餐饮店-1018.00-25432000000029373425.pdf"
+        },
+        "created_at": "2025-07-06T20:17:36.364204Z",
+        "updated_at": "2025-07-06T20:17:36.364209Z"
+      }
+    },
+    {
+      "name": "娄底星奕酒店",
+      "invoice_id": "2da1a19a-301b-4cbd-8f57-8b0e156af293",
+      "success": true,
+      "data": {
+        "id": "2da1a19a-301b-4cbd-8f57-8b0e156af293",
+        "invoice_number": "25432000000029033553",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-06",
+        "seller_name": "娄底星奕酒店管理有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链物联科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 507.0,
+        "tax_amount": 0.0,
+        "total_amount": 507.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/0eb5ff3b_20250706_201739_28588f4f.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/0eb5ff3b_20250706_201739_28588f4f.pdf",
+        "file_size": 62566,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-06T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 507.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "507.0",
+            "tax_amount": "0",
+            "total_amount": "507.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-06",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000029033553"
+          },
+          "buyer_info": {
+            "name": "杭州趣链物联科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链物联科技有限公司",
+          "tax_amount": 5.02,
+          "seller_info": {
+            "name": "娄底星奕酒店管理有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "娄底星奕酒店管理有限公司",
+          "project_name": "住宿服务间",
+          "service_type": "住宿服务",
+          "amount_pretax": 501.98,
+          "issuer_person": "冯乐\n\f",
+          "chinese_amount": "伍佰零柒圆整",
+          "invoice_number": "25432000000029033553",
+          "project_amount": 980198019802502.0
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-06-娄底星奕酒店管理有限公司-507.00-25432000000029033553.pdf"
+        },
+        "created_at": "2025-07-06T20:17:39.628466Z",
+        "updated_at": "2025-07-06T20:17:39.628472Z"
+      }
+    },
+    {
+      "name": "娄底金盾印章",
+      "invoice_id": "010af9b7-1f4f-49eb-ba6b-4cffe23f15af",
+      "success": true,
+      "data": {
+        "id": "010af9b7-1f4f-49eb-ba6b-4cffe23f15af",
+        "invoice_number": "25432000000031411143",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-11",
+        "seller_name": "娄底市金盾印章有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 655.0,
+        "tax_amount": 0.0,
+        "total_amount": 655.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/bf50712d_20250706_201742_9b3ddb82.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/bf50712d_20250706_201742_9b3ddb82.pdf",
+        "file_size": 159639,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-11T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 655.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "655.0",
+            "tax_amount": "0",
+            "total_amount": "655.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-11",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000031411143"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 6.49,
+          "seller_info": {
+            "name": "娄底市金盾印章有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "娄底市金盾印章有限公司",
+          "project_name": "印章枚",
+          "service_type": "文具",
+          "amount_pretax": 648.51,
+          "issuer_person": "彭光峰\n\f",
+          "chinese_amount": "陆佰伍拾伍圆整",
+          "invoice_number": "25432000000031411143",
+          "project_amount": [
+            168316831683549.5,
+            990099009999.01
+          ]
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-11-娄底市金盾印章有限公司-655.00-25432000000031411143.pdf"
+        },
+        "created_at": "2025-07-06T20:17:42.469273Z",
+        "updated_at": "2025-07-06T20:17:42.469276Z"
+      }
+    },
+    {
+      "name": "湖南曾小厨",
+      "invoice_id": "c32842d1-b8b7-48c3-93c1-e7771ce56dc8",
+      "success": true,
+      "data": {
+        "id": "c32842d1-b8b7-48c3-93c1-e7771ce56dc8",
+        "invoice_number": "25432000000031789815",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-12",
+        "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 80.0,
+        "tax_amount": 0.0,
+        "total_amount": 80.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/c64acba5_20250706_201745_7f371549.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/c64acba5_20250706_201745_7f371549.pdf",
+        "file_size": 150298,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-12T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 80.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "80.0",
+            "tax_amount": "0",
+            "total_amount": "80.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-12",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000031789815"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 0.79,
+          "seller_info": {
+            "name": "湖南曾小厨餐饮管理有限公司贤童店",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "湖南曾小厨餐饮管理有限公司贤童店",
+          "project_name": "餐饮费",
+          "service_type": "餐饮服务",
+          "amount_pretax": 79.21,
+          "issuer_person": "彭丽芳\n\f",
+          "chinese_amount": "捌拾圆整",
+          "invoice_number": "25432000000031789815",
+          "project_amount": 79.21
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-12-湖南曾小厨餐饮管理有限公司贤童店-80.00-25432000000031789815.pdf"
+        },
+        "created_at": "2025-07-06T20:17:45.525853Z",
+        "updated_at": "2025-07-06T20:17:45.525859Z"
+      }
+    },
+    {
+      "name": "娄底中税通",
+      "invoice_id": "f5ed2881-4113-497d-b7bf-4c4c83617a39",
+      "success": true,
+      "data": {
+        "id": "f5ed2881-4113-497d-b7bf-4c4c83617a39",
+        "invoice_number": "25432000000032177192",
+        "invoice_code": null,
+        "invoice_type": "电子发票",
+        "invoice_date": "2025-03-13",
+        "seller_name": "娄底市中税通财税咨询有限公司",
+        "seller_tax_id": null,
+        "buyer_name": "杭州趣链科技有限公司",
+        "buyer_tax_id": null,
+        "amount": 500.0,
+        "tax_amount": 0.0,
+        "total_amount": 500.0,
+        "currency": "CNY",
+        "status": "completed",
+        "processing_status": "OCR_COMPLETED",
+        "source": "upload",
+        "file_path": "user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/d25f6e96_20250706_201749_7ca8fcfa.pdf",
+        "file_url": "/api/v1/files/download/user_bd9a6722-a781-4f0b-8856-c6c5e261cbd0/d25f6e96_20250706_201749_7ca8fcfa.pdf",
+        "file_size": 148709,
+        "is_verified": false,
+        "verified_at": null,
+        "tags": [],
+        "category": null,
+        "extracted_data": {
+          "date": "2025-03-13T00:00:00",
+          "desc": "Invoice from 中国增值税电子发票V2",
+          "items": [],
+          "amount": 500.0,
+          "issuer": "中国增值税电子发票V2",
+          "summary": {
+            "amount": "500.0",
+            "tax_amount": "0",
+            "total_amount": "500.0",
+            "amount_in_words": null
+          },
+          "currency": "CNY",
+          "main_info": {
+            "invoice_code": null,
+            "invoice_date": "2025-03-13",
+            "invoice_type": "电子发票",
+            "invoice_number": "25432000000032177192"
+          },
+          "buyer_info": {
+            "name": "杭州趣链科技有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "buyer_name": "杭州趣链科技有限公司",
+          "tax_amount": 4.95,
+          "seller_info": {
+            "name": "娄底市中税通财税咨询有限公司",
+            "phone": null,
+            "tax_id": null,
+            "address": null,
+            "bank_account": null
+          },
+          "seller_name": "娄底市中税通财税咨询有限公司",
+          "project_name": "代办费",
+          "service_type": "经纪代理服务",
+          "amount_pretax": 495.05,
+          "issuer_person": "黄红玲\n\f",
+          "chinese_amount": "伍佰圆整",
+          "invoice_number": "25432000000032177192",
+          "project_amount": 495.05
+        },
+        "source_metadata": {
+          "original_filename": "2025-03-13-娄底市中税通财税咨询有限公司-500.00-25432000000032177192.pdf"
+        },
+        "created_at": "2025-07-06T20:17:49.194801Z",
+        "updated_at": "2025-07-06T20:17:49.194805Z"
+      }
+    }
+  ]
+}
