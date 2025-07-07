@@ -12,6 +12,7 @@ import SetupProfile from './components/SetupProfile'
 import InvoiceListPage from './pages/InvoiceListPage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import FontDemo from './components/FontDemo'
+import ThemeDemo from './components/ui/ThemeDemo'
 import './App.css'
 
 // 创建 QueryClient 实例
@@ -75,8 +76,9 @@ function App() {
               } 
             />
             
-            {/* 字体演示页面 */}
+            {/* 演示页面 */}
             <Route path="/font-demo" element={<FontDemo />} />
+            <Route path="/theme-demo" element={<ThemeDemo />} />
             
             {/* 默认重定向 */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

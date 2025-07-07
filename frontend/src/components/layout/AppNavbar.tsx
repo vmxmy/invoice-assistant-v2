@@ -9,6 +9,7 @@ import {
   User
 } from 'lucide-react';
 import { useSession, useProfile, useSignOut } from '../../hooks/useAuth';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const AppNavbar: React.FC = () => {
   const location = useLocation();
@@ -101,6 +102,12 @@ const AppNavbar: React.FC = () => {
             })}
             <div className="divider my-1"></div>
             <li>
+              <div className="flex items-center justify-between px-4 py-2">
+                <span className="text-sm">主题切换</span>
+                <ThemeToggle showLabel={false} className="scale-90" />
+              </div>
+            </li>
+            <li>
               <Link to="/settings" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 设置
@@ -116,6 +123,11 @@ const AppNavbar: React.FC = () => {
               </button>
             </li>
           </ul>
+        </div>
+        
+        {/* 主题切换 - 桌面端 */}
+        <div className="hidden lg:flex mr-4">
+          <ThemeToggle showLabel={false} />
         </div>
         
         {/* 用户信息 - 仅桌面端显示 */}

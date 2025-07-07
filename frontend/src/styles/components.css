@@ -1,0 +1,314 @@
+/* ===========================================
+   组件样式系统
+   模块化的组件专用样式定义
+   ========================================= */
+
+/* ===========================================
+   按钮组件样式
+   ========================================= */
+
+/* 按钮基础样式增强 */
+.btn {
+  @apply font-medium tracking-wide transition-all duration-200;
+}
+
+/* 按钮尺寸变体 */
+.btn-xs {
+  @apply text-xs h-7 min-h-7 px-2;
+}
+
+.btn-sm {
+  @apply text-sm h-9 min-h-9 px-3;
+}
+
+.btn-lg {
+  @apply text-lg h-12 min-h-12 px-6;
+}
+
+/* 按钮状态增强 */
+.btn:active:not(:disabled) {
+  @apply scale-95;
+}
+
+/* 图标按钮 */
+.btn-icon {
+  @apply w-10 h-10 p-0 inline-flex items-center justify-center;
+}
+
+.btn-icon-sm {
+  @apply w-8 h-8;
+}
+
+.btn-icon-lg {
+  @apply w-12 h-12;
+}
+
+/* ===========================================
+   表单组件样式
+   ========================================= */
+
+/* 输入框组增强 */
+.input-group {
+  @apply relative;
+}
+
+.input-group > .input {
+  @apply pr-10;
+}
+
+.input-group-icon {
+  @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/50;
+}
+
+/* 表单标签样式 */
+.form-label {
+  @apply block text-sm font-medium text-base-content/70 mb-1.5;
+}
+
+.form-label-required::after {
+  content: " *";
+  @apply text-error;
+}
+
+/* 表单帮助文本 */
+.form-help {
+  @apply text-xs text-base-content/60 mt-1;
+}
+
+.form-error {
+  @apply text-xs text-error mt-1;
+}
+
+/* 输入框状态 */
+.input:focus {
+  @apply ring-2 ring-primary/20;
+}
+
+.input-error:focus {
+  @apply ring-2 ring-error/20;
+}
+
+/* ===========================================
+   卡片组件样式
+   ========================================= */
+
+/* 卡片悬浮效果 */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+}
+
+/* 卡片头部样式 */
+.card-header {
+  @apply border-b border-base-200 px-6 py-4;
+}
+
+.card-title-section {
+  @apply flex items-center justify-between;
+}
+
+/* 卡片内容区域 */
+.card-content {
+  @apply p-6;
+}
+
+.card-footer {
+  @apply border-t border-base-200 px-6 py-4 bg-base-200/30;
+}
+
+/* ===========================================
+   表格组件样式
+   ========================================= */
+
+/* 表格容器 */
+.table-container {
+  @apply overflow-x-auto rounded-lg border border-base-200;
+}
+
+/* 表格行悬浮效果 */
+.table tr:hover {
+  @apply bg-base-200/30;
+}
+
+/* 固定表头 */
+.table-fixed-header {
+  @apply sticky top-0 bg-base-100 shadow-sm z-10;
+}
+
+/* 表格单元格对齐 */
+.table-cell-right {
+  @apply text-right;
+}
+
+.table-cell-center {
+  @apply text-center;
+}
+
+.table-cell-currency {
+  @apply text-right font-mono font-medium;
+}
+
+/* ===========================================
+   徽章组件样式
+   ========================================= */
+
+/* 状态徽章 */
+.badge-status {
+  @apply font-semibold uppercase tracking-wider text-xs;
+}
+
+.badge-draft {
+  @apply bg-gray-200 text-gray-600 border-gray-300;
+}
+
+.badge-pending {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-300;
+}
+
+.badge-processing {
+  @apply bg-blue-100 text-blue-800 border-blue-300;
+}
+
+.badge-completed {
+  @apply bg-green-100 text-green-800 border-green-300;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800 border-red-300;
+}
+
+/* ===========================================
+   模态框组件样式
+   ========================================= */
+
+/* 模态框内容增强 */
+.modal-box {
+  @apply max-h-[calc(100vh-5rem)] overflow-y-auto;
+}
+
+.modal-header {
+  @apply mb-4 pb-4 border-b border-base-200;
+}
+
+.modal-footer {
+  @apply mt-6 pt-4 border-t border-base-200 flex justify-end gap-2;
+}
+
+/* ===========================================
+   标签页组件样式
+   ========================================= */
+
+/* 标签页增强 */
+.tab {
+  @apply relative font-medium transition-all duration-200;
+}
+
+.tab:hover:not(.tab-active) {
+  @apply text-base-content/70;
+}
+
+.tab-active::after {
+  content: "";
+  @apply absolute bottom-0 left-0 right-0 h-0.5 bg-primary;
+}
+
+/* ===========================================
+   下拉菜单组件样式
+   ========================================= */
+
+/* 下拉内容增强 */
+.dropdown-content {
+  @apply shadow-lg border border-base-200;
+}
+
+.dropdown-item {
+  @apply px-4 py-2 text-sm hover:bg-base-200 transition-colors cursor-pointer;
+}
+
+.dropdown-divider {
+  @apply my-1 h-px bg-base-200;
+}
+
+/* ===========================================
+   加载组件样式
+   ========================================= */
+
+/* 骨架屏 */
+.skeleton {
+  @apply animate-pulse bg-base-200;
+}
+
+.skeleton-text {
+  @apply h-4 rounded;
+}
+
+.skeleton-title {
+  @apply h-6 rounded;
+}
+
+.skeleton-button {
+  @apply h-10 rounded-lg;
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+  @apply fixed inset-0 bg-base-100/80 backdrop-blur-sm flex items-center justify-center z-50;
+}
+
+/* ===========================================
+   工具提示组件样式
+   ========================================= */
+
+/* 工具提示增强 */
+.tooltip {
+  @apply relative inline-block;
+}
+
+.tooltip-content {
+  @apply absolute z-50 px-3 py-1.5 text-xs rounded-lg bg-base-content text-base-100 whitespace-nowrap opacity-0 invisible transition-all duration-200;
+}
+
+.tooltip:hover .tooltip-content {
+  @apply opacity-100 visible;
+}
+
+/* ===========================================
+   分页组件样式
+   ========================================= */
+
+/* 分页按钮 */
+.pagination {
+  @apply flex items-center gap-1;
+}
+
+.pagination-item {
+  @apply btn btn-sm btn-ghost;
+}
+
+.pagination-item-active {
+  @apply btn-primary;
+}
+
+.pagination-ellipsis {
+  @apply px-2 text-base-content/50;
+}
+
+/* ===========================================
+   通知组件样式
+   ========================================= */
+
+/* 通知样式 */
+.alert {
+  @apply rounded-lg p-4 flex items-start gap-3;
+}
+
+.alert-icon {
+  @apply flex-shrink-0 w-5 h-5;
+}
+
+.alert-content {
+  @apply flex-1;
+}
+
+.alert-close {
+  @apply flex-shrink-0 btn btn-ghost btn-sm btn-circle;
+}

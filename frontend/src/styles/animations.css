@@ -1,0 +1,415 @@
+/* ===========================================
+   动画系统配置
+   统一的过渡和动画效果管理
+   ========================================= */
+
+/* ===========================================
+   全局过渡配置
+   ========================================= */
+
+:root {
+  /* 过渡时长 */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  --transition-slow: 500ms;
+  
+  /* 缓动函数 */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ===========================================
+   基础过渡类
+   ========================================= */
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-normal);
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-normal);
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-normal);
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: var(--ease-out);
+  transition-duration: var(--transition-normal);
+}
+
+/* ===========================================
+   页面过渡动画
+   ========================================= */
+
+/* 淡入淡出 */
+.page-enter {
+  animation: pageEnter var(--transition-normal) var(--ease-out) forwards;
+}
+
+.page-exit {
+  animation: pageExit var(--transition-normal) var(--ease-in) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* ===========================================
+   模态框动画
+   ========================================= */
+
+/* 模态框背景 */
+.modal-backdrop-enter {
+  animation: backdropEnter var(--transition-normal) var(--ease-out) forwards;
+}
+
+.modal-backdrop-exit {
+  animation: backdropExit var(--transition-normal) var(--ease-in) forwards;
+}
+
+@keyframes backdropEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes backdropExit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 模态框内容 */
+.modal-content-enter {
+  animation: modalEnter var(--transition-normal) var(--ease-elastic) forwards;
+}
+
+.modal-content-exit {
+  animation: modalExit var(--transition-fast) var(--ease-in) forwards;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+/* ===========================================
+   下拉菜单动画
+   ========================================= */
+
+.dropdown-enter {
+  animation: dropdownEnter var(--transition-fast) var(--ease-out) forwards;
+}
+
+.dropdown-exit {
+  animation: dropdownExit var(--transition-fast) var(--ease-in) forwards;
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* ===========================================
+   侧边栏动画
+   ========================================= */
+
+.sidebar-enter {
+  animation: sidebarEnter var(--transition-normal) var(--ease-out) forwards;
+}
+
+.sidebar-exit {
+  animation: sidebarExit var(--transition-normal) var(--ease-in) forwards;
+}
+
+@keyframes sidebarEnter {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebarExit {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ===========================================
+   列表项动画
+   ========================================= */
+
+.list-item-enter {
+  animation: listItemEnter var(--transition-normal) var(--ease-out) forwards;
+}
+
+@keyframes listItemEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 交错动画 */
+.stagger-enter > * {
+  opacity: 0;
+  animation: staggerEnter var(--transition-normal) var(--ease-out) forwards;
+}
+
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-enter > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-enter > *:nth-child(8) { animation-delay: 350ms; }
+
+@keyframes staggerEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* ===========================================
+   加载动画
+   ========================================= */
+
+/* 脉冲动画 */
+.pulse-loading {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 旋转加载 */
+.spin-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 弹跳加载 */
+.bounce-loading {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.bounce-loading > * {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.bounce-loading > *:nth-child(1) { animation-delay: -0.32s; }
+.bounce-loading > *:nth-child(2) { animation-delay: -0.16s; }
+.bounce-loading > *:nth-child(3) { animation-delay: 0; }
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* ===========================================
+   通知动画
+   ========================================= */
+
+.notification-enter {
+  animation: notificationEnter var(--transition-normal) var(--ease-elastic) forwards;
+}
+
+.notification-exit {
+  animation: notificationExit var(--transition-fast) var(--ease-in) forwards;
+}
+
+@keyframes notificationEnter {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes notificationExit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* ===========================================
+   悬浮效果
+   ========================================= */
+
+.hover-lift {
+  transition: transform var(--transition-fast) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast) var(--ease-out);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left var(--transition-slow) var(--ease-in-out);
+}
+
+.hover-shine:hover::after {
+  left: 100%;
+}
+
+/* ===========================================
+   点击反馈
+   ========================================= */
+
+.click-scale {
+  transition: transform var(--transition-fast) var(--ease-out);
+}
+
+.click-scale:active {
+  transform: scale(0.95);
+}
+
+/* ===========================================
+   无障碍性 - 减少动画
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
