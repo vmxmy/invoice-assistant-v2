@@ -152,6 +152,132 @@ export interface InvoiceChartProps {
   loading?: boolean
 }
 
+// 发票类型枚举
+export enum InvoiceType {
+  GENERAL = 'general',              // 通用发票
+  VAT = 'vat',                     // 增值税发票
+  TRAIN = 'train',                 // 火车票
+  FLIGHT = 'flight',               // 机票
+  TAXI = 'taxi',                   // 出租车票
+  HOTEL = 'hotel',                 // 酒店发票
+  RESTAURANT = 'restaurant',       // 餐饮发票
+  TOLL = 'toll',                   // 过路费发票
+  PARKING = 'parking',             // 停车费发票
+}
+
+// 火车票专有信息
+export interface TrainInvoiceDetails {
+  departure_time: string           // 发车时间
+  arrival_time: string             // 到达时间
+  train_number: string             // 车次
+  seat_class: string               // 座位级别（二等座、一等座、商务座等）
+  seat_number: string              // 座位号
+  departure_station: string        // 出发站
+  arrival_station: string          // 到达站
+  distance?: number                // 里程
+}
+
+// 机票专有信息
+export interface FlightInvoiceDetails {
+  flight_number: string            // 航班号
+  departure_time: string           // 起飞时间
+  arrival_time: string             // 降落时间
+  seat_number: string              // 座位号
+  cabin_class: string              // 舱位等级
+  departure_airport: string        // 出发机场
+  arrival_airport: string          // 到达机场
+  airline: string                  // 航空公司
+}
+
+// 出租车票专有信息
+export interface TaxiInvoiceDetails {
+  pickup_time: string              // 上车时间
+  dropoff_time: string             // 下车时间
+  distance: number                 // 里程（公里）
+  unit_price: number               // 单价（元/公里）
+  waiting_fee?: number             // 等待费
+  license_plate?: string           // 车牌号
+}
+
+// 酒店发票专有信息
+export interface HotelInvoiceDetails {
+  checkin_date: string             // 入住日期
+  checkout_date: string            // 离店日期
+  room_type: string                // 房型
+  room_number?: string             // 房间号
+  nights: number                   // 住宿晚数
+  daily_rate?: number              // 日均房价
+}
+
+// 餐饮发票专有信息
+export interface RestaurantInvoiceDetails {
+  meal_type?: string               // 餐型（早餐、午餐、晚餐）
+  customer_count?: number          // 就餐人数
+  table_number?: string            // 桌号
+}
+
+// 增值税发票专有信息
+export interface VATInvoiceDetails {
+  tax_rate: number                 // 税率（%）
+  tax_amount: number               // 税额
+  amount_without_tax: number       // 不含税金额
+  items?: VATInvoiceItem[]         // 商品明细
+}
+
+export interface VATInvoiceItem {
+  name: string                     // 商品名称
+  specification?: string           // 规格型号
+  unit?: string                    // 单位
+  quantity: number                 // 数量
+  unit_price: number               // 单价
+  amount: number                   // 金额
+  tax_rate: number                 // 税率
+  tax_amount: number               // 税额
+}
+
+// 发票相关类型
+export interface Invoice {
+  id: string
+  invoice_number: string
+  invoice_date: string
+  seller_name: string
+  buyer_name: string
+  total_amount: number
+  status: 'draft' | 'pending' | 'completed' | 'failed'
+  processing_status?: string
+  source: 'upload' | 'email' | 'api'
+  invoice_type?: InvoiceType       // 发票类型
+  tags: string[]
+  notes?: string
+  file_url?: string
+  created_at: string
+  updated_at: string
+  user_id: string
+  // 不同类型发票的专有信息
+  train_details?: TrainInvoiceDetails
+  flight_details?: FlightInvoiceDetails
+  taxi_details?: TaxiInvoiceDetails
+  hotel_details?: HotelInvoiceDetails
+  restaurant_details?: RestaurantInvoiceDetails
+  vat_details?: VATInvoiceDetails
+}
+
+export interface InvoiceFilters {
+  search: string
+  status: string[]
+  source: string[]
+  dateFrom: string | null
+  dateTo: string | null
+  amountMin: number | null
+  amountMax: number | null
+}
+
+export interface PaginationState {
+  page: number
+  pageSize: number
+  total: number
+}
+
 // 工具函数类型
 export type Logger = {
   log: (...args: any[]) => void

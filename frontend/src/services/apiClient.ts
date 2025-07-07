@@ -110,14 +110,21 @@ export const api = {
       page?: number; 
       page_size?: number; 
       seller_name?: string; 
-      invoice_number?: string 
+      buyer_name?: string;
+      invoice_number?: string;
+      amountMin?: number;
+      amountMax?: number;
+      dateFrom?: string;
+      dateTo?: string;
+      status?: string[];
+      source?: string[];
     }) => apiClient.get('/api/v1/invoices/', { params }),
     
     // 获取单个发票
     get: (id: string) => apiClient.get(`/api/v1/invoices/${id}`),
     
-    // 创建发票（文件上传）
-    create: (data: FormData) => apiClient.post('/api/v1/files/upload-invoice', data, {
+    // 创建发票（文件上传）- 使用增强文件端点以支持云存储
+    create: (data: FormData) => apiClient.post('/api/v1/enhanced-files/upload-invoice', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
     
@@ -129,6 +136,16 @@ export const api = {
     
     // 获取发票统计
     stats: () => apiClient.get('/api/v1/invoices/statistics'),
+    
+    // 导出相关接口
+    getDownloadUrl: (id: string, signal?: AbortSignal) => 
+      apiClient.get(`/api/v1/invoices/${id}/download`, { signal }),
+    
+    getBatchDownloadUrls: (data: { invoice_ids: string[] }, signal?: AbortSignal) => 
+      apiClient.post('/api/v1/invoices/batch-download', data, { 
+        signal,
+        timeout: 60000  // 批量操作使用60秒超时
+      }),
   },
   
   // Task 相关接口

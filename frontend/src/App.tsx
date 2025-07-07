@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import SignUp from './components/auth/SignUp'
@@ -10,6 +11,7 @@ import Dashboard from './components/Dashboard'
 import SetupProfile from './components/SetupProfile'
 import InvoiceListPage from './pages/InvoiceListPage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
+import FontDemo from './components/FontDemo'
 import './App.css'
 
 // 创建 QueryClient 实例
@@ -73,6 +75,9 @@ function App() {
               } 
             />
             
+            {/* 字体演示页面 */}
+            <Route path="/font-demo" element={<FontDemo />} />
+            
             {/* 默认重定向 */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -80,6 +85,7 @@ function App() {
         </div>
         </Router>
       </AuthProvider>
+      <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
