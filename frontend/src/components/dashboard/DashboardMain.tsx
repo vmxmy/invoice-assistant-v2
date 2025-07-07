@@ -59,7 +59,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
     queryKey: ['dashboard-stats'],
     queryFn: async (): Promise<DashboardStats> => {
       const [invoiceStats, profileResponse] = await Promise.all([
-        apiClient.get('/api/v1/invoices/stats/overview'),
+        apiClient.get('/api/v1/invoices/statistics'),
         apiClient.get('/api/v1/profiles/me')
       ]);
 

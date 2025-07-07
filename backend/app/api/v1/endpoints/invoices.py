@@ -87,7 +87,7 @@ class InvoiceListResponse(BaseModel):
 
 
 class InvoiceStatisticsResponse(BaseModel):
-    """发票统计响应"""
+    """发票统计响应（详细版）"""
     total_count: int
     amount_stats: Dict[str, float]
     status_distribution: Dict[str, int]
@@ -153,48 +153,6 @@ async def list_invoices(
         logger.error(f"获取发票列表失败: {e}")
         raise HTTPException(status_code=500, detail="获取发票列表失败")
 
-
-@router.get("/stats/overview", response_model=InvoiceStatisticsResponse)
-async def get_invoice_overview(
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
-):
-    """
-    获取发票概览统计信息
-    包括总数、金额统计、状态分布等
-    """
-    try:
-        file_service = FileService()
-        invoice_service = InvoiceService(db, file_service)
-        
-        stats = await invoice_service.get_invoice_statistics(current_user.id)
-        
-        # 添加最近活动信息
-        recent_invoices, _ = await invoice_service.search_invoices(
-            user_id=current_user.id,
-            limit=5,
-            offset=0
-        )
-        
-        stats["recent_activity"] = {
-            "recent_count": len(recent_invoices),
-            "recent_invoices": [
-                {
-                    "id": str(inv.id),
-                    "invoice_number": inv.invoice_number,
-                    "amount": float(inv.total_amount or 0),
-                    "date": inv.invoice_date.isoformat() if inv.invoice_date else None,
-                    "created_at": inv.created_at.isoformat()
-                }
-                for inv in recent_invoices
-            ]
-        }
-        
-        return InvoiceStatisticsResponse(**stats)
-        
-    except Exception as e:
-        logger.error(f"获取发票概览失败: {e}")
-        raise HTTPException(status_code=500, detail="获取发票概览失败")
 
 
 @router.get("/statistics", response_model=InvoiceStatisticsResponse)
