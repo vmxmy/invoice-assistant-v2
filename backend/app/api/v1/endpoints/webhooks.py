@@ -19,7 +19,7 @@ from app.core.database import get_async_db
 from app.core.dependencies import get_current_user_optional
 from app.utils.logger import get_logger
 from app.services.email_processor import EmailProcessor
-from app.tasks.dramatiq_tasks import TaskDispatcher
+from app.services.postgresql_task_processor import task_queue
 
 logger = get_logger(__name__)
 router = APIRouter()
@@ -197,9 +197,13 @@ async def handle_email_received_webhook(
             f"主题: {email_data['subject']}, 附件数: {len(email_data['attachments'])}"
         )
         
-        # 使用Dramatiq推送到任务队列
-        task_id = TaskDispatcher.send_email_task(email_data)
-        logger.info(f"邮件任务已推送到Dramatiq队列 - 用户: {user_id}, 任务ID: {task_id}")
+        # 使用PostgreSQL任务队列
+        task_id = await task_queue.enqueue(
+            task_type="email_processing",
+            payload=email_data,
+            user_id=user_id
+        )
+        logger.info(f"邮件任务已推送到PostgreSQL队列 - 用户: {user_id}, 任务ID: {task_id}")
         
         return {
             "status": "accepted",
