@@ -40,12 +40,8 @@ if settings.is_development:
     # 开发环境使用 NullPool，每次都创建新连接
     engine_config["poolclass"] = NullPool
 else:
-    # 生产环境使用 QueuePool
-    engine_config.update({
-        "poolclass": NullPool,  # 使用 NullPool 避免异步引擎兼容性问题
-        "pool_size": settings.database_pool_size,
-        "max_overflow": settings.database_max_overflow,
-    })
+    # 生产环境使用 NullPool
+    engine_config["poolclass"] = NullPool  # 使用 NullPool 避免异步引擎兼容性问题
 
 # 创建异步数据库引擎
 # Supabase 使用 pgbouncer，需要特殊配置
@@ -72,11 +68,8 @@ if is_supabase:
     
     # 生产环境使用小型连接池，开发环境使用 NullPool
     if settings.is_production:
-        engine_config.update({
-            "poolclass": NullPool,  # 使用 NullPool 避免异步引擎兼容性问题
-            "pool_timeout": 30,
-            "pool_recycle": 1800,  # 30分钟回收连接
-        })
+        engine_config["poolclass"] = NullPool  # 使用 NullPool 避免异步引擎兼容性问题
+        # NullPool 不需要 pool_timeout 和 pool_recycle 参数
         logger.info("Using NullPool for Supabase production")
     else:
         engine_config["poolclass"] = NullPool
