@@ -32,8 +32,13 @@ async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     # 启动时初始化
     logger.info("🚀 启动 FastAPI 应用")
-    await init_db()
-    logger.info("✅ 数据库连接已初始化")
+    
+    try:
+        await init_db()
+        logger.info("✅ 数据库连接已初始化")
+    except Exception as e:
+        logger.warning(f"⚠️  数据库连接失败，将以只读模式运行: {e}")
+        # 继续运行，但某些功能可能不可用
     
     yield
     
