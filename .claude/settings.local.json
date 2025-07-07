@@ -71,7 +71,15 @@
       "Bash(git reset:*)",
       "mcp__zen__refactor",
       "Bash(node:*)",
-      "Bash(npm:*)"
+      "Bash(npm:*)",
+      "mcp__zen__analyze",
+      "mcp__zen__debug",
+      "mcp__zen__thinkdeep",
+      "mcp__zen__chat",
+      "mcp__zen__chat",
+      "mcp__zen__debug",
+      "mcp__zen__consensus",
+      "mcp__supabase__list_tables"
     ]
   },
   "enableAllProjectMcpServers": true,
