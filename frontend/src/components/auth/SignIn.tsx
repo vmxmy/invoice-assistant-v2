@@ -1,11 +1,11 @@
-// React + TypeScript 用户登录组件
+// React + TypeScript 用户登录组件 - 使用React Query优化
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useSignIn } from '../../hooks/useAuth'
+import type { SignInFormData } from '../../types'
 
-interface FormData {
-  email: string
-  password: string
+interface FormData extends SignInFormData {
+  rememberMe?: boolean
 }
 
 const SignIn: React.FC = () => {
@@ -13,11 +13,16 @@ const SignIn: React.FC = () => {
     email: '',
     password: ''
   })
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
-  const { signIn } = useAuth()
+  // React Query hook for better state management
+  const signInMutation = useSignIn()
+  
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // 获取重定向路径
+  const from = location.state?.from?.pathname || '/dashboard'
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -29,25 +34,23 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    setLoading(true)
     setMessage('')
 
     try {
-      const { data, error } = await signIn(formData.email, formData.password)
-
-      if (error) {
-        throw error
-      }
-
-      if (data.user) {
-        setMessage('登录成功！')
-        navigate('/dashboard')
-      }
+      await signInMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password
+      })
+      
+      setMessage('登录成功！')
+      
+      // 延迟跳转，让用户看到成功消息
+      setTimeout(() => {
+        navigate(from, { replace: true })
+      }, 1000)
+      
     } catch (error: any) {
       setMessage(`登录失败: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -90,10 +93,10 @@ const SignIn: React.FC = () => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={signInMutation.isPending}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? '登录中...' : '登录'}
+              {signInMutation.isPending ? '登录中...' : '登录'}
             </button>
           </form>
 

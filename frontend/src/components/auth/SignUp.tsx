@@ -1,16 +1,12 @@
-// React + TypeScript 用户注册组件
+// React + TypeScript 用户注册组件 - 使用React Query优化
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../services/supabase'
+import { useSignUp, useCreateProfile, useResendConfirmation } from '../../hooks/useAuth'
 import { logger } from '../../utils/logger'
+import type { SignUpFormData } from '../../types'
 
-interface FormData {
-  email: string
-  password: string
-  confirmPassword: string
-  displayName: string
-}
+interface FormData extends SignUpFormData {}
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -19,11 +15,20 @@ const SignUp: React.FC = () => {
     confirmPassword: '',
     displayName: ''
   })
-  const [loading, setLoading] = useState(false)
+  // 计算loading状态从React Query
+  const loading = signUpMutation.isPending || 
+                 createProfileMutation.isPending || 
+                 resendMutation.isPending
   const [message, setMessage] = useState('')
   const [step, setStep] = useState(1) // 1: 注册, 2: 邮箱验证, 3: 完成
   
-  const { signUp, user, createProfile } = useAuth()
+  // React Query hooks for better state management
+  const signUpMutation = useSignUp()
+  const createProfileMutation = useCreateProfile() 
+  const resendMutation = useResendConfirmation()
+  
+  // 认证状态
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   // 监听认证状态变化
@@ -54,34 +59,25 @@ const SignUp: React.FC = () => {
       return
     }
 
-    setLoading(true)
     setMessage('')
 
     try {
-      const { data, error } = await signUp(
-        formData.email,
-        formData.password,
-        { display_name: formData.displayName }
-      )
-
-      if (error) {
-        throw error
-      }
-
-      if (data.user) {
-        setMessage('注册成功！请检查邮箱并点击确认链接。')
-        setStep(2)
-      }
+      await signUpMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password,
+        metadata: { display_name: formData.displayName }
+      })
+      
+      setMessage('注册成功！请检查邮箱并点击确认链接。')
+      setStep(2)
     } catch (error: any) {
       setMessage(`注册失败: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
   }
 
   const handleCreateProfile = async () => {
     try {
-      await createProfile({
+      await createProfileMutation.mutateAsync({
         display_name: formData.displayName || user?.user_metadata?.display_name || '',
         bio: '新用户'
       })
@@ -95,20 +91,12 @@ const SignUp: React.FC = () => {
     }
   }
 
-  const resendConfirmation = async () => {
-    setLoading(true)
+  const handleResendConfirmation = async () => {
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: formData.email
-      })
-
-      if (error) throw error
+      await resendMutation.mutateAsync(formData.email)
       setMessage('确认邮件已重新发送！')
     } catch (error: any) {
       setMessage(`发送失败: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -206,7 +194,7 @@ const SignUp: React.FC = () => {
               </div>
               
               <button
-                onClick={resendConfirmation}
+                onClick={handleResendConfirmation}
                 disabled={loading}
                 className="text-blue-600 hover:text-blue-800 text-sm underline disabled:text-gray-400"
               >
