@@ -131,11 +131,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     try {
+      console.log('🔐 开始登录，邮箱:', email)
+      console.log('🔧 Supabase客户端检查:', !!supabase)
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
+      
+      console.log('📤 登录响应:', { data: !!data, error: error?.message })
       return { data, error }
+    } catch (err: any) {
+      console.error('❌ 用户登录失败:', err)
+      return { data: null, error: { message: err.message || '登录请求失败' } }
     } finally {
       setLoading(false)
     }
