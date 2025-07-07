@@ -117,6 +117,24 @@ class Settings(BaseSettings):
     redoc_url: Optional[str] = Field(default="/redoc", description="ReDoc URL")
     enable_docs: bool = Field(default=True, description="是否启用文档")
     
+    # 查询监控配置
+    enable_query_monitoring: bool = Field(
+        default=True, 
+        description="是否启用查询性能监控"
+    )
+    query_monitoring_threshold_ms: float = Field(
+        default=100.0,
+        description="慢查询阈值（毫秒）"
+    )
+    query_monitoring_regression_threshold: float = Field(
+        default=2.0,
+        description="性能回归检测阈值（倍数）"
+    )
+    query_monitoring_max_history_days: int = Field(
+        default=30,
+        description="查询历史保留天数"
+    )
+    
     @validator("cors_origins", pre=True)
     def validate_cors_origins(cls, v) -> str:
         """解析 CORS 源列表"""

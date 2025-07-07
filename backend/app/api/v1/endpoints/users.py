@@ -81,8 +81,8 @@ async def list_users(
             Profile.display_name.ilike(search_pattern)
         )
     
-    # 获取总数
-    count_query = select(func.count()).select_from(query.subquery())
+    # 获取总数 - 避免subquery防止笛卡尔积
+    count_query = select(func.count(Profile.id)).select_from(query.alias())
     total_result = await db.execute(count_query)
     total = total_result.scalar()
     

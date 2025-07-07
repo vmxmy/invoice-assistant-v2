@@ -7,6 +7,7 @@ API v1 路由聚合
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import users
+from app.api.v1.endpoints import enhanced_files
 from app.utils.responses import success_response, error_response
 from app.core.exceptions import NotFoundError, ValidationError
 
@@ -14,6 +15,7 @@ api_router = APIRouter()
 
 # 注册各个模块的路由
 api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(enhanced_files.router, prefix="/files", tags=["enhanced-files"])
 
 # 健康检查端点
 @api_router.get("/health")

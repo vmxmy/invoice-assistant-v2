@@ -62,7 +62,9 @@ if is_supabase:
     # pgbouncer 兼容配置 (psycopg 格式)
     connect_args = {
         "connect_timeout": 10,
-        "options": "-c jit=off -c statement_timeout=300000 -c application_name=invoice_assist_v2"
+        "options": "-c jit=off -c statement_timeout=300000 -c application_name=invoice_assist_v2",
+        # 禁用 prepared statements 以避免在 pgbouncer 环境中的冲突
+        "prepare_threshold": None
     }
     
     # 生产环境使用小型连接池，开发环境使用 NullPool
