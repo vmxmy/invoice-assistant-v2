@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../services/supabase'
+import { logger } from '../../utils/logger'
 
 interface FormData {
   email: string
@@ -88,7 +89,7 @@ const SignUp: React.FC = () => {
       setMessage('账户设置完成！欢迎使用发票助手。')
       setStep(3)
     } catch (error: any) {
-      console.error('Profile创建失败:', error)
+      logger.error('Profile创建失败:', error)
       setMessage('账户创建成功，但Profile设置失败，请稍后重试。')
       setStep(3) // 仍然显示完成页面
     }

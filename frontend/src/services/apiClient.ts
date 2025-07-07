@@ -1,6 +1,7 @@
 // API 客户端 - 使用 Axios 和请求拦截器
 import axios from 'axios'
 import { supabase } from './supabase'
+import { logger } from '../utils/logger'
 
 // 创建 Axios 实例
 const apiClient = axios.create({
@@ -22,15 +23,15 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${session.access_token}`
       }
       
-      console.log('🚀 API Request:', config.method?.toUpperCase(), config.url)
+      logger.log('🚀 API Request:', config.method?.toUpperCase(), config.url)
       return config
     } catch (error) {
-      console.error('❌ 获取认证token失败:', error)
+      logger.error('❌ 获取认证token失败:', error)
       return config
     }
   },
   (error) => {
-    console.error('❌ 请求拦截器错误:', error)
+    logger.error('❌ 请求拦截器错误:', error)
     return Promise.reject(error)
   }
 )
@@ -38,13 +39,13 @@ apiClient.interceptors.request.use(
 // 响应拦截器 - 统一错误处理
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', response.config.method?.toUpperCase(), response.config.url, response.status)
+    logger.log('✅ API Response:', response.config.method?.toUpperCase(), response.config.url, response.status)
     return response
   },
   async (error) => {
     const originalRequest = error.config
     
-    console.error('❌ API Error:', error.response?.status, error.response?.data)
+    logger.error('❌ API Error:', error.response?.status, error.response?.data)
     
     // 处理 401 未授权错误
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -63,7 +64,7 @@ apiClient.interceptors.response.use(
           }
         }
       } catch (refreshError) {
-        console.error('❌ Token刷新失败:', refreshError)
+        logger.error('❌ Token刷新失败:', refreshError)
       }
       
       // Token 刷新失败，重定向到登录页

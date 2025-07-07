@@ -65,52 +65,12 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         apiClient.get('/api/v1/profiles/me')
       ]);
 
-      // 模拟月度数据（实际应该从API获取）
-      const monthlyData = [
-        { month: '2024-01', invoices: 12, amount: 45000 },
-        { month: '2024-02', invoices: 18, amount: 67000 },
-        { month: '2024-03', invoices: 15, amount: 52000 },
-        { month: '2024-04', invoices: 22, amount: 78000 },
-        { month: '2024-05', invoices: 19, amount: 69000 },
-        { month: '2024-06', invoices: 25, amount: 89000 },
-      ];
+      // 从API获取真实的图表数据
+      const monthlyData = invoiceStats.data.monthly_data || [];
+      const categoryData = invoiceStats.data.category_data || [];
 
-      // 模拟分类数据
-      const categoryData = [
-        { name: '服务费', value: 150000, color: '#10B981' },
-        { name: '产品采购', value: 120000, color: '#3B82F6' },
-        { name: '办公用品', value: 80000, color: '#F59E0B' },
-        { name: '差旅费', value: 45000, color: '#EF4444' },
-        { name: '其他', value: 25000, color: '#8B5CF6' },
-      ];
-
-      // 模拟活动数据
-      const recentActivity = [
-        {
-          id: '1',
-          type: 'invoice_created' as const,
-          title: '创建新发票',
-          description: '发票号: INV-2024-001',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          metadata: { invoiceNumber: 'INV-2024-001', amount: 5000 }
-        },
-        {
-          id: '2',
-          type: 'file_uploaded' as const,
-          title: '上传发票文件',
-          description: '文件: invoice_scan.pdf',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          metadata: { fileName: 'invoice_scan.pdf' }
-        },
-        {
-          id: '3',
-          type: 'invoice_verified' as const,
-          title: '发票验证完成',
-          description: '发票号: INV-2024-002',
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          metadata: { invoiceNumber: 'INV-2024-002' }
-        },
-      ];
+      // 从API获取真实的活动数据，如果没有则使用空数组
+      const defaultActivity: any[] = [];
 
       // 映射后端返回的统计数据
       const statsData = invoiceStats.data;
@@ -121,7 +81,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         completedInvoices: statsData.status_distribution?.completed || 0,
         totalAmount: statsData.amount_stats?.total || 0,
         monthlyGrowth: 12.5, // 暂时固定值，后续从后端获取
-        recentActivity: statsData.recent_activity?.recent_invoices || recentActivity,
+        recentActivity: statsData.recent_activity?.recent_invoices || defaultActivity,
         monthlyData,
         categoryData,
       };

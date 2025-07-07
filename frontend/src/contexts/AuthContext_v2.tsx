@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
 import { useSession, useProfile } from '../hooks/useAuth'
+import { logger } from '../utils/logger'
 
 // 简化的认证上下文类型
 interface AuthContextType {
@@ -36,14 +37,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 认证状态变化:', event, session?.user?.email)
+        logger.log('🔄 认证状态变化:', event, session?.user?.email)
         
         // React Query 会自动处理状态更新
         // 这里只需要处理一些特殊情况
         if (event === 'SIGNED_OUT') {
-          console.log('🚪 用户已登出')
+          logger.log('🚪 用户已登出')
         } else if (event === 'SIGNED_IN') {
-          console.log('🔑 用户已登录')
+          logger.log('🔑 用户已登录')
         }
       }
     )
