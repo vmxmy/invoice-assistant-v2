@@ -8,11 +8,15 @@ import {
   LogOut,
   User
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useSession, useProfile, useSignOut } from '../../hooks/useAuth';
 
-const Navbar: React.FC = () => {
+const AppNavbar: React.FC = () => {
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { data: session } = useSession();
+  const { data: profile } = useProfile();
+  const signOutMutation = useSignOut();
+  
+  const user = session?.user;
 
   const navigation = [
     { name: '仪表盘', href: '/dashboard', icon: LayoutDashboard },
@@ -26,14 +30,22 @@ const Navbar: React.FC = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    signOutMutation.mutate();
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm border-b border-base-300">
-      <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+    <header className="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+      <div className="flex-1">
+        <Link to="/dashboard" className="btn btn-ghost text-xl">
+          📄 发票助手
+        </Link>
+      </div>
+      
+      {/* 导航菜单 */}
+      <div className="flex-none gap-2">
+        {/* 移动端菜单 */}
+        <div className="dropdown lg:hidden">
+          <div tabIndex={0} role="button" className="btn btn-ghost">
             <svg
               className="w-5 h-5"
               aria-hidden="true"
@@ -60,7 +72,7 @@ const Navbar: React.FC = () => {
                 <li key={item.name}>
                   <Link
                     to={item.href}
-                    className={isActive(item.href) ? 'active' : ''}
+                    className={`flex items-center gap-2 ${isActive(item.href) ? 'active' : ''}`}
                   >
                     <Icon className="w-4 h-4" />
                     {item.name}
@@ -70,40 +82,46 @@ const Navbar: React.FC = () => {
             })}
           </ul>
         </div>
-        <Link to="/dashboard" className="btn btn-ghost text-xl">
-          📄 发票助手
-        </Link>
-      </div>
-      
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={`flex items-center gap-2 ${isActive(item.href) ? 'active' : ''}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.name}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      
-      <div className="navbar-end">
+        
+        {/* 桌面端菜单 */}
+        <div className="hidden lg:flex">
+          <ul className="menu menu-horizontal px-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.name}>
+                  <Link
+                    to={item.href}
+                    className={`flex items-center gap-2 ${isActive(item.href) ? 'active' : ''}`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        
+        <div className="text-right">
+          <p className="font-bold">
+            {profile?.display_name || user?.email}
+          </p>
+          <p className="text-xs text-base-content/70">{user?.email}</p>
+        </div>
+        
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-            <div className="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <User className="w-4 h-4" />
+            <div className="w-10 rounded-full">
+              <img
+                alt="User Avatar"
+                src={profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email}`}
+              />
             </div>
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
           >
             <li className="menu-title">
               <span>{user?.email}</span>
@@ -126,8 +144,8 @@ const Navbar: React.FC = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
-export default Navbar;
+export default AppNavbar;
