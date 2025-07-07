@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   FileText, 
@@ -13,7 +13,7 @@ import {
 import StatCard from './StatCard';
 import ActivityFeed from './ActivityFeed';
 import QuickActions from './QuickActions';
-import InvoiceChart from './InvoiceChart';
+import LazyInvoiceChart from './LazyInvoiceChart';
 import { useSession } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
@@ -63,7 +63,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
     enabled: !!user,
   });
 
-  const handleQuickAction = (action: string) => {
+  const handleQuickAction = useCallback((action: string) => {
     switch (action) {
       case 'upload':
         navigate('/invoices/upload');
@@ -81,7 +81,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         onSettings?.();
         break;
     }
-  };
+  }, [navigate, onExportData, onSettings]);
 
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6">
@@ -99,11 +99,11 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
           <div className="mt-4 md:mt-0">
             <div className="text-sm text-base-content/60">
               <Calendar className="w-4 h-4 inline mr-1" />
-              {new Date().toLocaleDateString('zh-CN', {
+              {useMemo(() => new Date().toLocaleDateString('zh-CN', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
-              })}
+              }), [])}
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 图表区域 */}
           <div className="lg:col-span-2 space-y-6">
-            <InvoiceChart
+            <LazyInvoiceChart
               type="area"
               data={stats?.monthlyData || []}
               title="发票趋势"
@@ -164,7 +164,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
             />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InvoiceChart
+              <LazyInvoiceChart
                 type="bar"
                 data={stats?.monthlyData || []}
                 title="月度对比"
@@ -172,7 +172,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
                 loading={statsLoading}
               />
               
-              <InvoiceChart
+              <LazyInvoiceChart
                 type="pie"
                 data={stats?.categoryData || []}
                 title="类别分布"
@@ -185,11 +185,11 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
           {/* 侧边栏 */}
           <div className="space-y-6">
             <QuickActions
-              onUploadInvoice={() => handleQuickAction('upload')}
-              onCreateInvoice={() => handleQuickAction('create')}
-              onSearchInvoices={() => handleQuickAction('search')}
-              onExportData={() => handleQuickAction('export')}
-              onSettings={() => handleQuickAction('settings')}
+              onUploadInvoice={useCallback(() => handleQuickAction('upload'), [handleQuickAction])}
+              onCreateInvoice={useCallback(() => handleQuickAction('create'), [handleQuickAction])}
+              onSearchInvoices={useCallback(() => handleQuickAction('search'), [handleQuickAction])}
+              onExportData={useCallback(() => handleQuickAction('export'), [handleQuickAction])}
+              onSettings={useCallback(() => handleQuickAction('settings'), [handleQuickAction])}
               loading={statsLoading}
             />
             
@@ -205,7 +205,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         <div className="text-center text-sm text-base-content/50 py-4">
           <div className="flex items-center justify-center gap-2">
             <TrendingUp className="w-4 h-4" />
-            数据实时更新，最后刷新时间: {new Date().toLocaleTimeString('zh-CN')}
+            数据实时更新，最后刷新时间: {useMemo(() => new Date().toLocaleTimeString('zh-CN'), [])}
           </div>
         </div>
       </div>

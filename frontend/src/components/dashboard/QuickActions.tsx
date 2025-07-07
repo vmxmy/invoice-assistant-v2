@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Plus, Upload, FileText, Search, Settings, Download } from 'lucide-react';
 
 interface QuickAction {
@@ -22,7 +22,7 @@ interface QuickActionsProps {
   loading?: boolean;
 }
 
-export const QuickActions: React.FC<QuickActionsProps> = ({
+export const QuickActions: React.FC<QuickActionsProps> = memo(({
   actions,
   onUploadInvoice,
   onCreateInvoice,
@@ -157,7 +157,9 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
       </div>
     </div>
   );
-};
+});
+
+QuickActions.displayName = 'QuickActions';
 
 export default QuickActions;
 export type { QuickActionsProps };
