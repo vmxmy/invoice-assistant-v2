@@ -1,0 +1,11 @@
+# Serverless 环境的精简依赖
+fastapi
+pydantic
+pydantic-settings
+python-dotenv
+python-jose[cryptography]
+supabase
+httpx
+aiofiles
+python-multipart
+email-validator
