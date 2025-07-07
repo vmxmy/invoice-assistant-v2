@@ -21,3 +21,4 @@ lxml
 PyYAML
 invoice2data
 PyMuPDF
+gunicorn
