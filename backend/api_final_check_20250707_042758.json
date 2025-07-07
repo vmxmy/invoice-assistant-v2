@@ -1,0 +1,106 @@
+{
+  "test_time": "2025-07-07T04:27:58.037755",
+  "total_cases": 7,
+  "success_count": 3,
+  "all_success": false,
+  "results": [
+    {
+      "name": "广州寿司郎",
+      "success": true,
+      "actual": {
+        "total": 336.0,
+        "pretax": 316.98,
+        "tax": 19.02
+      },
+      "expected": {
+        "total": 336.0,
+        "pretax": 316.98,
+        "tax": 19.02
+      }
+    },
+    {
+      "name": "湖南清泉华美达",
+      "success": true,
+      "actual": {
+        "total": 900.0,
+        "pretax": 849.06,
+        "tax": 50.94
+      },
+      "expected": {
+        "total": 900.0,
+        "pretax": 849.06,
+        "tax": 50.94
+      }
+    },
+    {
+      "name": "娄底萝卜餐饮",
+      "success": false,
+      "actual": {
+        "total": 1018.0,
+        "pretax": 1007.92,
+        "tax": 10.08
+      },
+      "expected": {
+        "total": 1018.0,
+        "pretax": 960.38,
+        "tax": 57.62
+      }
+    },
+    {
+      "name": "娄底星奕酒店",
+      "success": false,
+      "actual": {
+        "total": 507.0,
+        "pretax": 501.98,
+        "tax": 5.02
+      },
+      "expected": {
+        "total": 507.0,
+        "pretax": 478.3,
+        "tax": 28.7
+      }
+    },
+    {
+      "name": "娄底金盾印章",
+      "success": false,
+      "actual": {
+        "total": 655.0,
+        "pretax": 648.51,
+        "tax": 6.49
+      },
+      "expected": {
+        "total": 655.0,
+        "pretax": 618.11,
+        "tax": 36.89
+      }
+    },
+    {
+      "name": "湖南曾小厨",
+      "success": true,
+      "actual": {
+        "total": 80.0,
+        "pretax": 79.21,
+        "tax": 0.79
+      },
+      "expected": {
+        "total": 80.0,
+        "pretax": 79.21,
+        "tax": 0.79
+      }
+    },
+    {
+      "name": "娄底中税通",
+      "success": false,
+      "actual": {
+        "total": 500.0,
+        "pretax": 495.05,
+        "tax": 4.95
+      },
+      "expected": {
+        "total": 500.0,
+        "pretax": 471.7,
+        "tax": 28.3
+      }
+    }
+  ]
+}

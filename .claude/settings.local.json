@@ -67,7 +67,11 @@
       "Bash(./venv/bin/python -m flake8:*)",
       "Bash(./venv/bin/python:*)",
       "WebFetch(domain:mineru.net)",
-      "Bash(unset HTTP_PROXY)"
+      "Bash(unset HTTP_PROXY)",
+      "Bash(git reset:*)",
+      "mcp__zen__refactor",
+      "Bash(node:*)",
+      "Bash(npm:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

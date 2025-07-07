@@ -32,7 +32,6 @@ engine_config = {
     "echo": settings.debug,  # 开发环境下打印 SQL
     "echo_pool": settings.debug,
     "pool_pre_ping": True,  # 连接前检查连接是否有效
-    "pool_recycle": 3600,  # 1小时后回收连接
 }
 
 # 根据环境选择连接池策略
@@ -162,7 +161,7 @@ async def init_db() -> None:
         if settings.is_development:
             logger.debug("Using NullPool for development")
         else:
-            logger.info(f"Using QueuePool with size={settings.database_pool_size}")
+            logger.info("Using NullPool for production")
             
     except Exception as e:
         logger.error(f"Failed to connect to database: {str(e)}")
