@@ -18,6 +18,8 @@ from app.models.profile import Profile
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.services.invoice_service import InvoiceService
 from app.services.file_service import FileService
+from app.services.storage_service import StorageService
+from app.services.storage_service import get_storage_service
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -301,6 +303,65 @@ async def verify_invoice(
         raise HTTPException(status_code=500, detail="验证发票失败")
 
 
+class InvoiceUpdateRequest(BaseModel):
+    """发票更新请求"""
+    invoice_number: Optional[str] = None
+    invoice_code: Optional[str] = None
+    invoice_type: Optional[str] = None
+    invoice_date: Optional[date] = None
+    seller_name: Optional[str] = None
+    seller_tax_id: Optional[str] = None
+    buyer_name: Optional[str] = None
+    buyer_tax_id: Optional[str] = None
+    amount: Optional[float] = None
+    tax_amount: Optional[float] = None
+    total_amount: Optional[float] = None
+    currency: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+
+@router.put("/{invoice_id}", response_model=InvoiceDetail)
+async def update_invoice(
+    invoice_id: UUID = Path(..., description="发票ID"),
+    invoice_update: InvoiceUpdateRequest = ...,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    更新发票信息
+    支持部分更新，只更新提供的字段
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        invoice = await invoice_service.get_invoice_by_id(
+            invoice_id=invoice_id,
+            user_id=current_user.id
+        )
+        
+        if not invoice:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        # 更新提供的字段
+        update_data = invoice_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            if hasattr(invoice, field):
+                setattr(invoice, field, value)
+        
+        await db.commit()
+        await db.refresh(invoice)
+        
+        return InvoiceDetail.from_orm(invoice)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新发票失败: {e}")
+        raise HTTPException(status_code=500, detail="更新发票失败")
+
+
 @router.put("/{invoice_id}/tags")
 async def update_invoice_tags(
     invoice_id: UUID = Path(..., description="发票ID"),
@@ -338,3 +399,180 @@ async def update_invoice_tags(
     except Exception as e:
         logger.error(f"更新发票标签失败: {e}")
         raise HTTPException(status_code=500, detail="更新发票标签失败")
+
+
+# ===== 导出相关端点 =====
+
+class DownloadUrlResponse(BaseModel):
+    """下载URL响应"""
+    download_url: str
+    expires_at: str
+    invoice_id: str
+
+
+class BatchDownloadRequest(BaseModel):
+    """批量下载请求"""
+    invoice_ids: List[str] = Field(..., description="发票ID列表", min_items=1, max_items=50)
+
+
+class BatchDownloadUrlResponse(BaseModel):
+    """批量下载URL响应"""
+    urls: List[DownloadUrlResponse]
+    batch_id: str
+
+
+@router.get("/{invoice_id}/download", response_model=DownloadUrlResponse)
+async def get_invoice_download_url(
+    invoice_id: UUID = Path(..., description="发票ID"),
+    expires_in: int = Query(3600, ge=300, le=86400, description="URL过期时间（秒）"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db),
+    storage_service: StorageService = Depends(get_storage_service)
+):
+    """
+    获取单个发票的下载URL
+    
+    生成带有过期时间的签名URL，用于安全下载发票文件。
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        # 验证发票存在且属于当前用户
+        invoice = await invoice_service.get_invoice_by_id(
+            invoice_id=invoice_id,
+            user_id=current_user.id
+        )
+        
+        if not invoice:
+            raise HTTPException(status_code=404, detail="发票不存在")
+        
+        if not invoice.file_path:
+            raise HTTPException(status_code=404, detail="发票文件不存在")
+        
+        # 检查文件是否存在（使用增强的存储服务）
+        file_exists = await storage_service.check_file_exists(
+            current_user.id, 
+            invoice.file_path
+        )
+        
+        if not file_exists:
+            raise HTTPException(status_code=404, detail="发票文件不存在于云存储中")
+        
+        # 生成下载URL（使用增强的存储服务）
+        url_info = await storage_service.generate_download_url(
+            user_id=current_user.id,
+            file_path=invoice.file_path,
+            expires_in=expires_in
+        )
+        
+        # 记录下载日志
+        logger.info(
+            f"用户 {current_user.id} 获取发票 {invoice_id} 下载链接, "
+            f"过期时间: {url_info['expires_at']}"
+        )
+        
+        return DownloadUrlResponse(
+            download_url=url_info['download_url'],
+            expires_at=url_info['expires_at'],
+            invoice_id=str(invoice_id)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取下载URL失败: {e}")
+        raise HTTPException(status_code=500, detail="获取下载URL失败")
+
+
+@router.post("/batch-download", response_model=BatchDownloadUrlResponse)
+async def get_batch_download_urls(
+    request: BatchDownloadRequest,
+    expires_in: int = Query(3600, ge=300, le=86400, description="URL过期时间（秒）"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db),
+    storage_service: StorageService = Depends(get_storage_service)
+):
+    """
+    获取批量发票的下载URL
+    
+    为多个发票生成下载URL，支持并发处理。
+    """
+    try:
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        # 转换字符串ID为UUID
+        invoice_uuids = []
+        for invoice_id_str in request.invoice_ids:
+            try:
+                invoice_uuids.append(UUID(invoice_id_str))
+            except ValueError:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"无效的发票ID格式: {invoice_id_str}"
+                )
+        
+        # 批量获取所有发票信息
+        from sqlalchemy import and_, or_
+        invoice_query = select(Invoice).where(
+            and_(
+                Invoice.id.in_(invoice_uuids),
+                Invoice.user_id == current_user.id,
+                Invoice.deleted_at.is_(None)
+            )
+        )
+        result = await db.execute(invoice_query)
+        invoices = result.scalars().all()
+        
+        # 过滤出有文件路径的发票
+        invoices = [invoice for invoice in invoices if invoice.file_path]
+        
+        if not invoices:
+            raise HTTPException(status_code=404, detail="没有找到有效的发票文件")
+        
+        # 准备批量下载请求
+        file_requests = []
+        for invoice in invoices:
+            file_requests.append({
+                'user_id': str(current_user.id),
+                'file_path': invoice.file_path,
+                'invoice_id': str(invoice.id)
+            })
+        
+        # 批量生成下载URL（使用增强的存储服务）
+        urls = await storage_service.batch_generate_download_urls(
+            file_requests, 
+            expires_in
+        )
+        
+        if not urls:
+            raise HTTPException(status_code=500, detail="无法生成任何下载链接")
+        
+        # 生成批次ID
+        import uuid
+        batch_id = str(uuid.uuid4())
+        
+        # 记录批量下载日志
+        logger.info(
+            f"用户 {current_user.id} 批量获取 {len(urls)} 个发票下载链接, "
+            f"批次ID: {batch_id}"
+        )
+        
+        return BatchDownloadUrlResponse(
+            urls=[
+                DownloadUrlResponse(
+                    download_url=url['download_url'],
+                    expires_at=url['expires_at'],
+                    invoice_id=url['invoice_id']
+                )
+                for url in urls
+            ],
+            batch_id=batch_id
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"批量获取下载URL失败: {e}")
+        raise HTTPException(status_code=500, detail="批量获取下载URL失败")

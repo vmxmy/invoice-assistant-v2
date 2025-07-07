@@ -251,7 +251,7 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         primaryjoin="foreign(Invoice.user_id) == Profile.auth_user_id",
         back_populates="invoices",
         uselist=False,
-        lazy="joined"
+        lazy="select"  # 改为select避免自动JOIN导致重复记录
     )
     email_task = relationship("EmailProcessingTask", back_populates="invoices")
     
