@@ -26,6 +26,7 @@ from app.utils.dict_utils import deep_merge
 from app.utils.query_optimizer import QueryOptimizer
 from app.core.config import settings
 from app.utils.json_serializer import serialize_for_json
+from app.utils.query_monitor import monitor_query_performance
 
 logger = logging.getLogger(__name__)
 
@@ -493,6 +494,7 @@ class InvoiceService:
         
         return invoice
     
+    @monitor_query_performance("invoice_search", params={"limit": 20, "search_type": "complex"})
     async def search_invoices(
         self,
         user_id: UUID,
@@ -528,8 +530,9 @@ class InvoiceService:
                 or_(
                     Invoice.seller_name.ilike(search_pattern),
                     Invoice.invoice_number.ilike(search_pattern),
-                    Invoice.project_name.ilike(search_pattern),
-                    Invoice.original_filename.ilike(search_pattern)
+                    Invoice.buyer_name.ilike(search_pattern),
+                    Invoice.file_path.ilike(search_pattern),
+                    Invoice.source_metadata['original_filename'].astext.ilike(search_pattern)
                 )
             )
         
@@ -569,6 +572,7 @@ class InvoiceService:
         
         return invoices, total
     
+    @monitor_query_performance("invoice_by_id", params={"query_type": "single_record"})
     async def get_invoice_by_id(self, invoice_id: UUID, user_id: Optional[UUID] = None) -> Optional[Invoice]:
         """获取发票详情"""
         query = select(Invoice).where(
@@ -582,6 +586,7 @@ class InvoiceService:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
     
+    @monitor_query_performance("invoice_by_file_path", params={"query_type": "file_lookup"})
     async def get_invoice_by_file_path(self, file_path: str, user_id: UUID) -> Optional[Invoice]:
         """根据文件路径获取发票"""
         query = select(Invoice).where(
@@ -613,6 +618,7 @@ class InvoiceService:
         
         return True
     
+    @monitor_query_performance("invoice_statistics", params={"query_type": "aggregation"})
     async def get_invoice_statistics(self, user_id: UUID) -> Dict[str, Any]:
         """获取发票统计信息"""
         
