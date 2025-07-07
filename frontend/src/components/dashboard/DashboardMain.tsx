@@ -15,7 +15,9 @@ import ActivityFeed from './ActivityFeed';
 import QuickActions from './QuickActions';
 import InvoiceChart from './InvoiceChart';
 import { useSession } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
+import Layout from '../layout/Layout';
 
 interface DashboardStats {
   totalInvoices: number;
@@ -53,6 +55,7 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
 }) => {
   const { data: session } = useSession();
   const user = session?.user;
+  const navigate = useNavigate();
 
   // 获取仪表盘统计数据
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -110,13 +113,16 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
         },
       ];
 
+      // 映射后端返回的统计数据
+      const statsData = invoiceStats.data;
+      
       return {
-        totalInvoices: invoiceStats.data.total || 0,
-        pendingInvoices: invoiceStats.data.pending || 0,
-        completedInvoices: invoiceStats.data.completed || 0,
-        totalAmount: invoiceStats.data.total_amount || 0,
-        monthlyGrowth: 12.5,
-        recentActivity,
+        totalInvoices: statsData.total_count || 0,
+        pendingInvoices: statsData.status_distribution?.pending || 0,
+        completedInvoices: statsData.status_distribution?.completed || 0,
+        totalAmount: statsData.amount_stats?.total || 0,
+        monthlyGrowth: 12.5, // 暂时固定值，后续从后端获取
+        recentActivity: statsData.recent_activity?.recent_invoices || recentActivity,
         monthlyData,
         categoryData,
       };
@@ -127,13 +133,13 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'upload':
-        onUploadInvoice?.();
+        navigate('/invoices/upload');
         break;
       case 'create':
-        onCreateInvoice?.();
+        navigate('/invoices/upload');
         break;
       case 'search':
-        onSearchInvoices?.();
+        navigate('/invoices');
         break;
       case 'export':
         onExportData?.();
@@ -145,7 +151,8 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6">
+    <Layout>
+      <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -246,11 +253,11 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
           {/* 侧边栏 */}
           <div className="space-y-6">
             <QuickActions
-              onUploadInvoice={onUploadInvoice}
-              onCreateInvoice={onCreateInvoice}
-              onSearchInvoices={onSearchInvoices}
-              onExportData={onExportData}
-              onSettings={onSettings}
+              onUploadInvoice={() => handleQuickAction('upload')}
+              onCreateInvoice={() => handleQuickAction('create')}
+              onSearchInvoices={() => handleQuickAction('search')}
+              onExportData={() => handleQuickAction('export')}
+              onSettings={() => handleQuickAction('settings')}
               loading={statsLoading}
             />
             
@@ -270,7 +277,8 @@ export const DashboardMain: React.FC<DashboardMainProps> = ({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

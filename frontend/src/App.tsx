@@ -6,6 +6,8 @@ import SignUp from './components/auth/SignUp'
 import SignIn from './components/auth/SignIn'
 import Dashboard from './components/Dashboard'
 import SetupProfile from './components/SetupProfile'
+import InvoiceListPage from './pages/InvoiceListPage'
+import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import './App.css'
 
 function App() {
@@ -32,6 +34,22 @@ function App() {
               element={
                 <ProtectedRoute requireProfile={true}>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <InvoiceListPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices/upload" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <InvoiceUploadPage />
                 </ProtectedRoute>
               } 
             />
