@@ -161,7 +161,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = memo(({
           <div className="space-y-3">
             {displayActivities.map((activity, index) => (
               <div 
-                key={activity.id} 
+                key={`${activity.id}-${index}`} 
                 className={`flex items-start gap-3 p-3 rounded-lg border ${getActivityColor(activity.type)} transition-colors duration-200 hover:bg-opacity-80`}
               >
                 <div className="flex-shrink-0 w-8 h-8 bg-base-100 rounded-full flex items-center justify-center border border-base-300">

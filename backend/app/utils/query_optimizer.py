@@ -44,23 +44,17 @@ class QueryOptimizer:
         if order_by is None:
             order_by = model_class.created_at.desc()
         
-        # 使用窗口函数获取总数
-        windowed_query = select(
-            model_class,
-            func.count().over().label('total_count')
-        ).select_from(
-            base_query.subquery()
-        ).order_by(order_by).offset(offset).limit(limit)
+        # 使用窗口函数获取总数 - 避免subquery防止笛卡尔积
+        # 方法1：重构为两个独立查询避免复杂JOIN
+        # 先获取总数
+        count_query = select(func.count()).select_from(base_query.alias())
+        count_result = await session.execute(count_query)
+        total_count = count_result.scalar()
         
-        result = await session.execute(windowed_query)
-        rows = result.all()
-        
-        if not rows:
-            return [], 0
-        
-        # 提取数据和总数
-        items = [row[0] for row in rows]
-        total_count = rows[0].total_count if rows else 0
+        # 再获取分页数据
+        data_query = base_query.order_by(order_by).offset(offset).limit(limit)
+        data_result = await session.execute(data_query)
+        items = data_result.scalars().all()
         
         return items, total_count
     
@@ -107,8 +101,8 @@ class QueryOptimizer:
                     estimate = estimate_result.scalar()
                     
                     if estimate and estimate < estimate_threshold:
-                        # 小表直接精确计数
-                        count_query = select(func.count()).select_from(base_query.subquery())
+                        # 小表直接精确计数 - 避免subquery
+                        count_query = select(func.count()).select_from(base_query.alias())
                         count_result = await session.execute(count_query)
                         return count_result.scalar()
                     elif estimate:
@@ -119,8 +113,8 @@ class QueryOptimizer:
                 # 估算失败，回退到精确计数
                 pass
         
-        # 精确计数
-        count_query = select(func.count()).select_from(base_query.subquery())
+        # 精确计数 - 避免subquery防止笛卡尔积
+        count_query = select(func.count()).select_from(base_query.alias())
         count_result = await session.execute(count_query)
         return count_result.scalar()
     

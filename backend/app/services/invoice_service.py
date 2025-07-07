@@ -616,14 +616,14 @@ class InvoiceService:
     async def get_invoice_statistics(self, user_id: UUID) -> Dict[str, Any]:
         """获取发票统计信息"""
         
-        # 基础统计查询
-        base_query = select(Invoice).where(
+        # 基础条件（避免使用subquery防止笛卡尔积）
+        base_conditions = and_(
             Invoice.user_id == user_id,
             Invoice.deleted_at.is_(None)
         )
         
         # 总数统计
-        total_count_query = select(func.count()).select_from(base_query.subquery())
+        total_count_query = select(func.count(Invoice.id)).where(base_conditions)
         total_result = await self.db.execute(total_count_query)
         total_count = total_result.scalar()
         
@@ -633,7 +633,7 @@ class InvoiceService:
             func.avg(Invoice.total_amount),
             func.max(Invoice.total_amount),
             func.min(Invoice.total_amount)
-        ).select_from(base_query.subquery())
+        ).where(base_conditions)
         amount_result = await self.db.execute(amount_query)
         amount_stats = amount_result.first()
         
@@ -641,7 +641,7 @@ class InvoiceService:
         status_query = select(
             Invoice.status,
             func.count(Invoice.id)
-        ).select_from(base_query.subquery()).group_by(Invoice.status)
+        ).where(base_conditions).group_by(Invoice.status)
         status_result = await self.db.execute(status_query)
         status_stats = {status: count for status, count in status_result.all()}
         
@@ -649,7 +649,7 @@ class InvoiceService:
         source_query = select(
             Invoice.source,
             func.count(Invoice.id)
-        ).select_from(base_query.subquery()).group_by(Invoice.source)
+        ).where(base_conditions).group_by(Invoice.source)
         source_result = await self.db.execute(source_query)
         source_stats = {source: count for source, count in source_result.all()}
         
@@ -723,12 +723,10 @@ class InvoiceService:
     
     async def _update_user_invoice_stats(self, user_id: UUID) -> None:
         """更新用户发票统计"""
-        # 统计用户发票数量
-        count_query = select(func.count()).select_from(
-            select(Invoice).where(
-                Invoice.user_id == user_id,
-                Invoice.deleted_at.is_(None)
-            ).subquery()
+        # 统计用户发票数量 - 避免subquery
+        count_query = select(func.count(Invoice.id)).where(
+            Invoice.user_id == user_id,
+            Invoice.deleted_at.is_(None)
         )
         count_result = await self.db.execute(count_query)
         total_invoices = count_result.scalar()
