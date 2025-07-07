@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { Clock, FileText, Upload, CheckCircle, AlertCircle, User } from 'lucide-react';
 
 interface Activity {
@@ -21,7 +21,7 @@ interface ActivityFeedProps {
   showTimestamp?: boolean;
 }
 
-export const ActivityFeed: React.FC<ActivityFeedProps> = ({
+export const ActivityFeed: React.FC<ActivityFeedProps> = memo(({
   activities,
   loading = false,
   maxItems = 10,
@@ -137,7 +137,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
     );
   }
 
-  const displayActivities = activities.slice(0, maxItems);
+  const displayActivities = useMemo(() => {
+    return activities.slice(0, maxItems);
+  }, [activities, maxItems]);
 
   return (
     <div className="card bg-base-100 shadow-lg border border-base-300">
@@ -207,7 +209,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ActivityFeed.displayName = 'ActivityFeed';
 
 export default ActivityFeed;
 export type { ActivityFeedProps };

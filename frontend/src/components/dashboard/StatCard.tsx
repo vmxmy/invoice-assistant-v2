@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {
@@ -15,7 +15,7 @@ interface StatCardProps {
   loading?: boolean;
 }
 
-export const StatCard: React.FC<StatCardProps> = ({
+export const StatCard: React.FC<StatCardProps> = memo(({
   title,
   value,
   subValue,
@@ -127,6 +127,8 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+StatCard.displayName = 'StatCard';
 
 export default StatCard;

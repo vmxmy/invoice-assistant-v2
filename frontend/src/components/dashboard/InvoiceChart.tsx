@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -45,7 +45,7 @@ const TROPICAL_COLORS = [
   'oklch(75% 0.2 70)',   // mango yellow
 ];
 
-export const InvoiceChart: React.FC<InvoiceChartProps> = ({
+export const InvoiceChart: React.FC<InvoiceChartProps> = memo(({
   type,
   data,
   title,
@@ -71,7 +71,7 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
     return value;
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = useCallback(({ active, payload, label }: any) => {
     if (!active || !payload || !payload.length) return null;
 
     return (
@@ -87,7 +87,7 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
         ))}
       </div>
     );
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -234,7 +234,9 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
       </div>
     </div>
   );
-};
+});
+
+InvoiceChart.displayName = 'InvoiceChart';
 
 export default InvoiceChart;
 export type { InvoiceChartProps };
