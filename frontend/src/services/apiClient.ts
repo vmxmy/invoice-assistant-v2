@@ -127,7 +127,7 @@ export const api = {
     delete: (id: string) => apiClient.delete(`/api/v1/invoices/${id}`),
     
     // 获取发票统计
-    stats: () => apiClient.get('/api/v1/invoices/stats/overview'),
+    stats: () => apiClient.get('/api/v1/invoices/statistics'),
   },
   
   // Task 相关接口
