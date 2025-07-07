@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine
 )
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.pool import NullPool, QueuePool
+from sqlalchemy.pool import NullPool, QueuePool, AsyncAdaptedQueuePool
 from sqlalchemy import text
 
 from app.core.config import settings
@@ -42,7 +42,7 @@ if settings.is_development:
 else:
     # 生产环境使用 QueuePool
     engine_config.update({
-        "poolclass": QueuePool,
+        "poolclass": NullPool,  # 使用 NullPool 避免异步引擎兼容性问题
         "pool_size": settings.database_pool_size,
         "max_overflow": settings.database_max_overflow,
     })
@@ -73,13 +73,11 @@ if is_supabase:
     # 生产环境使用小型连接池，开发环境使用 NullPool
     if settings.is_production:
         engine_config.update({
-            "poolclass": QueuePool,
-            "pool_size": 5,  # Supabase pgbouncer 建议小型连接池
-            "max_overflow": 2,
+            "poolclass": NullPool,  # 使用 NullPool 避免异步引擎兼容性问题
             "pool_timeout": 30,
             "pool_recycle": 1800,  # 30分钟回收连接
         })
-        logger.info("Using QueuePool with size=5 for Supabase production")
+        logger.info("Using NullPool for Supabase production")
     else:
         engine_config["poolclass"] = NullPool
         logger.info("Using NullPool for Supabase development")
