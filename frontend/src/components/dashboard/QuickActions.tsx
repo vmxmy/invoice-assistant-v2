@@ -160,3 +160,4 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
 };
 
 export default QuickActions;
+export type { QuickActionsProps };

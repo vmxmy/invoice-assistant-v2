@@ -1,6 +1,8 @@
 // React 认证上下文
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase, UserProfile } from '../services/supabase'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import { supabase } from '../services/supabase'
+import type { UserProfile } from '../services/supabase'
 
 // 简化的类型定义
 type User = any // Supabase User 类型

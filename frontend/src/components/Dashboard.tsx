@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useSession, useProfile, useSignOut } from '../hooks/useAuth'
 import { LogOut } from 'lucide-react'
-import { DashboardMain } from './dashboard'
+import { DashboardMain } from './dashboard/DashboardMain'
 
 const Dashboard: React.FC = () => {
   const { data: session } = useSession()
