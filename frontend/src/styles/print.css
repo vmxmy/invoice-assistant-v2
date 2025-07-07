@@ -1,0 +1,386 @@
+/* ===========================================
+   打印样式优化
+   专为发票打印场景优化的样式
+   ========================================= */
+
+@media print {
+  /* ===========================================
+     全局打印设置
+     ========================================= */
+  
+  @page {
+    size: A4;
+    margin: 15mm 20mm;
+    
+    /* 页眉页脚 */
+    @top-center {
+      content: "发票管理系统";
+      font-size: 10pt;
+      color: #666;
+    }
+    
+    @bottom-center {
+      content: "第 " counter(page) " 页，共 " counter(pages) " 页";
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+
+  /* 强制分页 */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* ===========================================
+     基础样式重置
+     ========================================= */
+  
+  * {
+    /* 移除所有过渡和动画 */
+    transition: none !important;
+    animation: none !important;
+  }
+
+  body {
+    /* 使用打印友好的字体 */
+    font-family: "Times New Roman", "SimSun", serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #000;
+    background: #fff;
+  }
+
+  /* 链接样式 */
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* ===========================================
+     隐藏非打印元素
+     ========================================= */
+  
+  /* 导航和控制元素 */
+  .no-print,
+  .navbar,
+  .sidebar,
+  .toolbar,
+  .pagination,
+  .btn-group,
+  .dropdown,
+  .modal,
+  .toast,
+  .tooltip,
+  .theme-toggle,
+  .search-box,
+  .filter-panel {
+    display: none !important;
+  }
+
+  /* 交互元素 */
+  button,
+  .btn,
+  input[type="submit"],
+  input[type="button"] {
+    display: none !important;
+  }
+
+  /* 背景和装饰 */
+  .bg-gradient,
+  .bg-pattern,
+  .decoration {
+    display: none !important;
+  }
+
+  /* ===========================================
+     发票专用打印样式
+     ========================================= */
+  
+  /* 发票容器 */
+  .invoice-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #000;
+  }
+
+  /* 发票头部 */
+  .invoice-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 10pt;
+    margin-bottom: 15pt;
+  }
+
+  .invoice-title {
+    font-size: 18pt;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10pt;
+  }
+
+  .invoice-number {
+    font-size: 12pt;
+    text-align: right;
+  }
+
+  /* 发票信息网格 */
+  .invoice-info {
+    display: table;
+    width: 100%;
+    margin-bottom: 15pt;
+  }
+
+  .invoice-info-item {
+    display: table-row;
+  }
+
+  .invoice-info-label {
+    display: table-cell;
+    width: 30%;
+    font-weight: bold;
+    padding: 3pt 0;
+  }
+
+  .invoice-info-value {
+    display: table-cell;
+    width: 70%;
+    padding: 3pt 0;
+  }
+
+  /* ===========================================
+     表格打印优化
+     ========================================= */
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10pt 0;
+    font-size: 10pt;
+  }
+
+  table, th, td {
+    border: 1px solid #000;
+  }
+
+  th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold;
+    text-align: left;
+    padding: 5pt;
+  }
+
+  td {
+    padding: 5pt;
+  }
+
+  /* 避免表格行跨页 */
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* 重复表头 */
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* 数字右对齐 */
+  .text-right,
+  .amount,
+  .currency {
+    text-align: right;
+  }
+
+  /* ===========================================
+     表单打印样式
+     ========================================= */
+  
+  /* 输入框显示为文本 */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  textarea,
+  select {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-weight: normal;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* 复选框和单选框 */
+  input[type="checkbox"],
+  input[type="radio"] {
+    display: inline-block;
+    width: 10pt;
+    height: 10pt;
+    border: 1px solid #000;
+    background: #fff;
+    margin-right: 5pt;
+    vertical-align: middle;
+  }
+
+  input[type="checkbox"]:checked::after,
+  input[type="radio"]:checked::after {
+    content: "✓";
+    display: block;
+    text-align: center;
+    line-height: 10pt;
+  }
+
+  /* ===========================================
+     颜色和背景优化
+     ========================================= */
+  
+  /* 移除背景色，使用边框区分 */
+  .card,
+  .panel,
+  .box {
+    background: #fff !important;
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+
+  /* 状态颜色转为文字标识 */
+  .badge::before {
+    content: "[";
+  }
+
+  .badge::after {
+    content: "]";
+  }
+
+  .badge {
+    background: transparent !important;
+    color: #000 !important;
+    border: none !important;
+    font-weight: bold;
+    padding: 0 !important;
+  }
+
+  /* ===========================================
+     图表和图像处理
+     ========================================= */
+  
+  /* 图表转为表格提示 */
+  .chart-container {
+    display: none;
+  }
+
+  .chart-container::after {
+    content: "[图表数据请参见附表]";
+    display: block;
+    padding: 10pt;
+    border: 1px dashed #000;
+    text-align: center;
+  }
+
+  /* 图像优化 */
+  img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+
+  /* 二维码和条形码 */
+  .qr-code,
+  .barcode {
+    width: 150pt !important;
+    height: auto !important;
+    margin: 10pt auto;
+    display: block;
+  }
+
+  /* ===========================================
+     发票汇总信息
+     ========================================= */
+  
+  .invoice-summary {
+    margin-top: 20pt;
+    padding-top: 10pt;
+    border-top: 2px solid #000;
+  }
+
+  .invoice-total {
+    font-size: 14pt;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 10pt;
+  }
+
+  /* 签名区域 */
+  .signature-area {
+    margin-top: 30pt;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .signature-box {
+    width: 45%;
+  }
+
+  .signature-line {
+    border-bottom: 1px solid #000;
+    margin-top: 40pt;
+    margin-bottom: 5pt;
+  }
+
+  .signature-label {
+    text-align: center;
+    font-size: 10pt;
+  }
+
+  /* ===========================================
+     批量打印优化
+     ========================================= */
+  
+  /* 每张发票独立一页 */
+  .invoice-item {
+    page-break-after: always;
+  }
+
+  .invoice-item:last-child {
+    page-break-after: auto;
+  }
+
+  /* 打印预览提示 */
+  @media screen {
+    .print-preview-hint {
+      display: block;
+      background: #fffbf0;
+      border: 1px solid #f0ad4e;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .print-preview-hint::before {
+      content: "💡 ";
+    }
+
+    .print-preview-hint::after {
+      content: " 此区域仅在打印时显示。";
+    }
+  }
+}

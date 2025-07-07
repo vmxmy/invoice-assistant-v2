@@ -1,0 +1,227 @@
+/* ===========================================
+   主题系统配置
+   支持亮色和暗色主题切换
+   ========================================= */
+
+/* 暗色主题定义 */
+@plugin "daisyui/theme" {
+  name: "invoice-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  /* 优化的字体配置（与亮色主题保持一致） */
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Charter", "Georgia", "Times New Roman", serif;
+  --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
+
+  /* 深邃夜晚色调 - 专为发票系统优化 */
+  --color-base-100: oklch(18% 0.02 250);        /* 深邃蓝黑 */
+  --color-base-200: oklch(20% 0.025 250);       /* 稍亮的深蓝 */
+  --color-base-300: oklch(23% 0.03 250);        /* 更亮的深蓝 */
+  --color-base-content: oklch(95% 0.01 250);    /* 柔和白色文字 */
+  
+  --color-primary: oklch(70% 0.2 180);          /* 明亮青色 */
+  --color-primary-content: oklch(15% 0.02 180);
+  
+  --color-secondary: oklch(65% 0.18 320);       /* 柔和紫色 */
+  --color-secondary-content: oklch(95% 0.01 320);
+  
+  --color-accent: oklch(72% 0.2 130);           /* 翡翠绿 */
+  --color-accent-content: oklch(15% 0.02 130);
+  
+  --color-neutral: oklch(35% 0.02 250);         /* 中性深蓝 */
+  --color-neutral-content: oklch(95% 0.01 250);
+  
+  --color-info: oklch(65% 0.18 220);            /* 信息蓝 */
+  --color-info-content: oklch(95% 0.01 220);
+  
+  --color-success: oklch(65% 0.18 150);         /* 成功绿 */
+  --color-success-content: oklch(15% 0.02 150);
+  
+  --color-warning: oklch(75% 0.18 65);          /* 警告橙 */
+  --color-warning-content: oklch(15% 0.02 65);
+  
+  --color-error: oklch(65% 0.25 25);            /* 错误红 */
+  --color-error-content: oklch(95% 0.01 25);
+
+  /* 圆角和尺寸（与亮色主题保持一致） */
+  --radius-selector: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* 边框 */
+  --border: 1px;
+
+  /* 深度效果 */
+  --depth: 2;
+  --noise: 0.01;
+}
+
+/* ===========================================
+   主题切换过渡动画
+   ========================================= */
+
+:root {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===========================================
+   暗色主题特定调整
+   ========================================= */
+
+[data-theme="invoice-dark"] {
+  /* 调整组件对比度 */
+  .card {
+    @apply bg-base-200/50 backdrop-blur-sm;
+  }
+
+  .modal-box {
+    @apply bg-base-200 backdrop-blur-md;
+  }
+
+  .dropdown-content {
+    @apply bg-base-200 backdrop-blur-md;
+  }
+
+  /* 输入框在暗色主题下的样式 */
+  .input {
+    @apply bg-base-100 border-base-300;
+  }
+
+  .input:focus {
+    @apply bg-base-100 border-primary;
+  }
+
+  /* 表格在暗色主题下的样式 */
+  .table {
+    @apply bg-base-100/50;
+  }
+
+  .table tr:hover {
+    @apply bg-base-200/50;
+  }
+
+  /* 代码和数字的对比度调整 */
+  .amount,
+  .currency,
+  .invoice-number,
+  code {
+    @apply text-primary-content;
+  }
+
+  /* 阴影效果调整 */
+  .shadow-lg {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.3), 
+                0 10px 20px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 骨架屏在暗色主题下的颜色 */
+  .skeleton {
+    @apply bg-base-300;
+  }
+
+  /* 滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-base-200;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-base-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-base-content/20;
+  }
+}
+
+/* ===========================================
+   主题感知的状态颜色
+   ========================================= */
+
+[data-theme="invoice-dark"] {
+  /* 发票状态颜色在暗色主题下的调整 */
+  .badge-draft {
+    @apply bg-gray-700/50 text-gray-300 border-gray-600;
+  }
+
+  .badge-pending {
+    @apply bg-yellow-900/50 text-yellow-300 border-yellow-700;
+  }
+
+  .badge-processing {
+    @apply bg-blue-900/50 text-blue-300 border-blue-700;
+  }
+
+  .badge-completed {
+    @apply bg-green-900/50 text-green-300 border-green-700;
+  }
+
+  .badge-error {
+    @apply bg-red-900/50 text-red-300 border-red-700;
+  }
+}
+
+/* ===========================================
+   系统主题偏好自动检测
+   ========================================= */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* 如果用户没有手动选择主题，则跟随系统偏好 */
+    @apply [data-theme="invoice-dark"];
+  }
+}
+
+/* ===========================================
+   主题切换按钮样式
+   ========================================= */
+
+.theme-toggle {
+  @apply btn btn-ghost btn-circle;
+}
+
+.theme-toggle svg {
+  @apply w-5 h-5 transition-transform duration-300;
+}
+
+.theme-toggle:hover svg {
+  @apply rotate-180;
+}
+
+/* 太阳图标（亮色主题） */
+[data-theme="invoice-modern"] .theme-icon-dark {
+  @apply hidden;
+}
+
+/* 月亮图标（暗色主题） */
+[data-theme="invoice-dark"] .theme-icon-light {
+  @apply hidden;
+}
+
+/* ===========================================
+   高对比度模式支持
+   ========================================= */
+
+@media (prefers-contrast: high) {
+  [data-theme="invoice-dark"] {
+    --color-base-100: oklch(10% 0 0);
+    --color-base-content: oklch(100% 0 0);
+    
+    .input, .btn {
+      @apply border-2;
+    }
+  }
+}
