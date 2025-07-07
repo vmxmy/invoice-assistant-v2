@@ -1,6 +1,7 @@
 // React Query hooks for invoice management
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../services/apiClient'
+import { logger } from '../utils/logger'
 
 // 查询键常量
 export const INVOICE_KEYS = {
@@ -68,10 +69,10 @@ export const useCreateInvoice = () => {
       // 使相关查询失效，触发重新获取
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-      console.log('✅ 发票创建成功:', data.id)
+      logger.log('✅ 发票创建成功:', data.id)
     },
     onError: (error: any) => {
-      console.error('❌ 发票创建失败:', error.message)
+      logger.error('❌ 发票创建失败:', error.message)
     },
   })
 }
@@ -90,10 +91,10 @@ export const useUpdateInvoice = () => {
       queryClient.setQueryData(INVOICE_KEYS.detail(data.id), data)
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-      console.log('✅ 发票更新成功:', data.id)
+      logger.log('✅ 发票更新成功:', data.id)
     },
     onError: (error: any) => {
-      console.error('❌ 发票更新失败:', error.message)
+      logger.error('❌ 发票更新失败:', error.message)
     },
   })
 }
@@ -113,10 +114,10 @@ export const useDeleteInvoice = () => {
       // 使列表查询失效
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-      console.log('✅ 发票删除成功:', id)
+      logger.log('✅ 发票删除成功:', id)
     },
     onError: (error: any) => {
-      console.error('❌ 发票删除失败:', error.message)
+      logger.error('❌ 发票删除失败:', error.message)
     },
   })
 }

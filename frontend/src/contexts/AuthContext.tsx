@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
 import type { UserProfile } from '../services/supabase'
+import { logger } from '../utils/logger'
 
 // 简化的类型定义
 type User = any // Supabase User 类型
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await loadUserProfile(session.access_token)
         }
       } catch (error) {
-        console.error('获取会话失败:', error)
+        logger.error('获取会话失败:', error)
       } finally {
         setLoading(false)
       }
@@ -59,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('认证状态变化:', event, session?.user?.email)
+        logger.log('认证状态变化:', event, session?.user?.email)
         
         if (session?.user) {
           setUser(session.user)
@@ -85,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (!accessToken) {
-        console.log('无访问令牌，跳过Profile加载')
+        logger.log('无访问令牌，跳过Profile加载')
         return
       }
 
@@ -100,15 +101,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.ok) {
         const profileData = await response.json()
         setProfile(profileData)
-        console.log('Profile加载成功:', profileData)
+        logger.log('Profile加载成功:', profileData)
       } else if (response.status === 404) {
-        console.log('Profile不存在，需要创建')
+        logger.log('Profile不存在，需要创建')
         setProfile(null)
       } else {
-        console.error('加载Profile失败:', response.status, await response.text())
+        logger.error('加载Profile失败:', response.status, await response.text())
       }
     } catch (error) {
-      console.error('加载用户资料失败:', error)
+      logger.error('加载用户资料失败:', error)
     }
   }
 

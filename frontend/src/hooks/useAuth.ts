@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../services/supabase'
 import { api } from '../services/apiClient'
+import { logger } from '../utils/logger'
 
 // 查询键常量
 export const AUTH_KEYS = {
@@ -56,10 +57,10 @@ export const useCreateProfile = () => {
     onSuccess: (data) => {
       // 更新Profile缓存
       queryClient.setQueryData(AUTH_KEYS.profile, data)
-      console.log('✅ Profile创建成功:', data)
+      logger.log('✅ Profile创建成功:', data)
     },
     onError: (error: any) => {
-      console.error('❌ Profile创建失败:', error.message)
+      logger.error('❌ Profile创建失败:', error.message)
     },
   })
 }
@@ -76,10 +77,10 @@ export const useUpdateProfile = () => {
     onSuccess: (data) => {
       // 更新Profile缓存
       queryClient.setQueryData(AUTH_KEYS.profile, data)
-      console.log('✅ Profile更新成功:', data)
+      logger.log('✅ Profile更新成功:', data)
     },
     onError: (error: any) => {
-      console.error('❌ Profile更新失败:', error.message)
+      logger.error('❌ Profile更新失败:', error.message)
     },
   })
 }
@@ -106,10 +107,10 @@ export const useSignUp = () => {
       return data
     },
     onSuccess: (data) => {
-      console.log('✅ 用户注册成功:', data.user?.email)
+      logger.log('✅ 用户注册成功:', data.user?.email)
     },
     onError: (error: any) => {
-      console.error('❌ 用户注册失败:', error.message)
+      logger.error('❌ 用户注册失败:', error.message)
     },
   })
 }
@@ -132,10 +133,10 @@ export const useSignIn = () => {
       // 清除旧的缓存数据
       queryClient.invalidateQueries({ queryKey: AUTH_KEYS.session })
       queryClient.invalidateQueries({ queryKey: AUTH_KEYS.profile })
-      console.log('✅ 用户登录成功:', data.user?.email)
+      logger.log('✅ 用户登录成功:', data.user?.email)
     },
     onError: (error: any) => {
-      console.error('❌ 用户登录失败:', error.message)
+      logger.error('❌ 用户登录失败:', error.message)
     },
   })
 }
@@ -152,10 +153,10 @@ export const useSignOut = () => {
     onSuccess: () => {
       // 清除所有缓存
       queryClient.clear()
-      console.log('✅ 用户已登出')
+      logger.log('✅ 用户已登出')
     },
     onError: (error: any) => {
-      console.error('❌ 登出失败:', error.message)
+      logger.error('❌ 登出失败:', error.message)
     },
   })
 }
@@ -172,10 +173,10 @@ export const useResendConfirmation = () => {
       if (error) throw error
     },
     onSuccess: () => {
-      console.log('✅ 确认邮件已重新发送')
+      logger.log('✅ 确认邮件已重新发送')
     },
     onError: (error: any) => {
-      console.error('❌ 发送确认邮件失败:', error.message)
+      logger.error('❌ 发送确认邮件失败:', error.message)
     },
   })
 }
