@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     
     # CORS 配置
     cors_origins: str = Field(
-        default="http://localhost:3000,http://localhost:5173",
+        default="http://localhost:3000,http://localhost:5173,https://invoice-assistant-v2-frontend.vercel.app",
         description="允许的跨域源(逗号分隔)"
     )
     cors_allow_credentials: bool = Field(
