@@ -1,0 +1,82 @@
+{
+  "benchmark_date": "2025-07-07T17:44:50.656929",
+  "total_rounds": 5,
+  "query_benchmarks": {
+    "user_profile_query": {
+      "query_name": "user_profile_query",
+      "sample_count": 5,
+      "error_count": 0,
+      "avg_time_ms": 421.30794525146484,
+      "min_time_ms": 313.5378360748291,
+      "max_time_ms": 582.8640460968018,
+      "p50_time_ms": 315.74511528015137,
+      "p90_time_ms": 582.8640460968018,
+      "p95_time_ms": 582.8640460968018,
+      "p99_time_ms": 582.8640460968018,
+      "execution_times": [
+        313.5378360748291,
+        314.22901153564453,
+        315.74511528015137,
+        580.1637172698975,
+        582.8640460968018
+      ]
+    },
+    "invoice_list_query": {
+      "query_name": "invoice_list_query",
+      "sample_count": 5,
+      "error_count": 0,
+      "avg_time_ms": 1635.2092266082764,
+      "min_time_ms": 536.4339351654053,
+      "max_time_ms": 6013.258934020996,
+      "p50_time_ms": 541.2862300872803,
+      "p90_time_ms": 6013.258934020996,
+      "p95_time_ms": 6013.258934020996,
+      "p99_time_ms": 6013.258934020996,
+      "execution_times": [
+        536.4339351654053,
+        539.9811267852783,
+        541.2862300872803,
+        545.0859069824219,
+        6013.258934020996
+      ]
+    },
+    "invoice_count_query": {
+      "query_name": "invoice_count_query",
+      "sample_count": 5,
+      "error_count": 0,
+      "avg_time_ms": 314.363956451416,
+      "min_time_ms": 311.0628128051758,
+      "max_time_ms": 317.54183769226074,
+      "p50_time_ms": 313.6579990386963,
+      "p90_time_ms": 317.54183769226074,
+      "p95_time_ms": 317.54183769226074,
+      "p99_time_ms": 317.54183769226074,
+      "execution_times": [
+        311.0628128051758,
+        312.5269412994385,
+        313.6579990386963,
+        317.0301914215088,
+        317.54183769226074
+      ]
+    },
+    "invoice_search_query": {
+      "query_name": "invoice_search_query",
+      "sample_count": 5,
+      "error_count": 0,
+      "avg_time_ms": 312.8544330596924,
+      "min_time_ms": 311.5801811218262,
+      "max_time_ms": 314.50605392456055,
+      "p50_time_ms": 312.7450942993164,
+      "p90_time_ms": 314.50605392456055,
+      "p95_time_ms": 314.50605392456055,
+      "p99_time_ms": 314.50605392456055,
+      "execution_times": [
+        311.5801811218262,
+        311.9800090789795,
+        312.7450942993164,
+        313.4608268737793,
+        314.50605392456055
+      ]
+    }
+  }
+}

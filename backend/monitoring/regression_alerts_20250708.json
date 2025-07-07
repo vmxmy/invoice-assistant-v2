@@ -1,0 +1,56 @@
+[
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 10054.464101791382,
+    "baseline_p95_ms": 4619.78006362915,
+    "regression_ratio": 2.1763945389843773,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T00:49:54.505871"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 16.58487319946289,
+    "baseline_p95_ms": 5.956888198852539,
+    "regression_ratio": 2.7841504902941767,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T01:09:22.881611"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 13.346672058105469,
+    "baseline_p95_ms": 4.812955856323242,
+    "regression_ratio": 2.773071778867588,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T01:20:38.496553"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 11.044025421142578,
+    "baseline_p95_ms": 4.812955856323242,
+    "regression_ratio": 2.2946450686085105,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T02:22:04.495731"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 19.556045532226562,
+    "baseline_p95_ms": 4.812955856323242,
+    "regression_ratio": 4.063208995888443,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T02:22:28.716322"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+    "current_time_ms": 9.412288665771484,
+    "baseline_p95_ms": 2.276897430419922,
+    "regression_ratio": 4.133821989528796,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-08T03:09:01.013925"
+  }
+]
