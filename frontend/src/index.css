@@ -1,10 +1,19 @@
+/* 引入现代字体配置 */
+@import "./styles/typography.css";
+
 @import "tailwindcss";
 @plugin "daisyui";
+
 @plugin "daisyui/theme" {
-  name: "tropical";
+  name: "invoice-modern";
   default: true;
   prefersdark: false;
   color-scheme: light;
+
+  /* 优化的字体配置 */
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Charter", "Georgia", "Times New Roman", serif;
+  --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
 
   /* Tropical color palette with warm, vibrant tones */
   --color-base-100: oklch(98% 0.015 85);        /* Warm pearl white */
@@ -52,3 +61,5 @@
   --depth: 1;
   --noise: 0;
 }
+
+/* 字体配置已统一在 typography.css 中管理 */
