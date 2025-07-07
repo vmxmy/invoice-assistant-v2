@@ -651,10 +651,6 @@ const InvoiceListPage: React.FC = () => {
         title="批量导出发票"
       />
       
-      {/* 调试：强制显示模态框状态 */}
-      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white p-2 text-xs">
-        Modal State: {isProgressModalOpen ? 'OPEN' : 'CLOSED'}, Progress: {totalProgress}%
-      </div>
     </Layout>
     </ErrorBoundary>
   );
