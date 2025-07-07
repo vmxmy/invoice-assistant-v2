@@ -196,7 +196,7 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
             >
               {(data as CategoryData[]).map((entry, index) => (
                 <Cell 
@@ -210,7 +210,7 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
         );
 
       default:
-        return null;
+        return <div>不支持的图表类型</div>;
     }
   };
 
@@ -237,3 +237,4 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = ({
 };
 
 export default InvoiceChart;
+export type { InvoiceChartProps };

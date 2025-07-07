@@ -1,5 +1,6 @@
 // 优化后的认证上下文 - 使用 React Query
-import React, { createContext, useContext, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
 import { useSession, useProfile } from '../hooks/useAuth'
 

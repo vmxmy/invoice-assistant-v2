@@ -6,24 +6,38 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
-    open: true,
-    // 配置SPA路由支持
-    fallback: '/index.html'
+    open: true
   },
   build: {
+    // 生产环境优化
+    minify: 'terser',
+    sourcemap: false,
     rollupOptions: {
       output: {
+        // 优化代码分割
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
           query: ['@tanstack/react-query'],
           supabase: ['@supabase/supabase-js'],
-        }
+          ui: ['clsx', 'lucide-react'],
+          charts: ['recharts'],
+        },
+        // 文件命名规范
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
       }
-    }
+    },
+    // 构建性能优化
+    target: 'esnext',
+    chunkSizeWarningLimit: 1000
   },
   preview: {
-    port: 5174,
-    fallback: '/index.html'
+    port: 5174
+  },
+  // 环境变量类型提示
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
   }
 })

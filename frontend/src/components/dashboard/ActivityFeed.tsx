@@ -210,3 +210,4 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 };
 
 export default ActivityFeed;
+export type { ActivityFeedProps };
