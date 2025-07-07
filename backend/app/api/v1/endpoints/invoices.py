@@ -9,6 +9,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from pydantic import BaseModel, Field
 
 from app.core.database import get_async_db
@@ -170,12 +171,13 @@ async def get_invoice_statistics(
         
         stats = await invoice_service.get_invoice_statistics(current_user.id)
         
-        # 添加最近活动信息
-        recent_invoices, _ = await invoice_service.search_invoices(
-            user_id=current_user.id,
-            limit=5,
-            offset=0
-        )
+        # 添加最近活动信息 - 使用简单查询避免重复
+        recent_query = select(Invoice).where(
+            Invoice.user_id == current_user.id,
+            Invoice.deleted_at.is_(None)
+        ).order_by(Invoice.created_at.desc()).limit(5)
+        recent_result = await db.execute(recent_query)
+        recent_invoices = recent_result.scalars().all()
         
         stats["recent_activity"] = {
             "recent_count": len(recent_invoices),

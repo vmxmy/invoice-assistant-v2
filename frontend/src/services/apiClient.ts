@@ -107,8 +107,8 @@ export const api = {
   invoices: {
     // 获取发票列表
     list: (params?: { 
-      skip?: number; 
-      limit?: number; 
+      page?: number; 
+      page_size?: number; 
       seller_name?: string; 
       invoice_number?: string 
     }) => apiClient.get('/api/v1/invoices/', { params }),
@@ -116,8 +116,8 @@ export const api = {
     // 获取单个发票
     get: (id: string) => apiClient.get(`/api/v1/invoices/${id}`),
     
-    // 创建发票
-    create: (data: FormData) => apiClient.post('/api/v1/invoices/', data, {
+    // 创建发票（文件上传）
+    create: (data: FormData) => apiClient.post('/api/v1/files/upload-invoice', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
     

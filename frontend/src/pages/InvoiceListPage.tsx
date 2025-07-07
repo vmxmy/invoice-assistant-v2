@@ -49,12 +49,23 @@ const InvoiceListPage: React.FC = () => {
     queryKey: ['invoices', currentPage, pageSize, searchQuery],
     queryFn: async (): Promise<InvoiceListResponse> => {
       const response = await api.invoices.list({
-        skip: (currentPage - 1) * pageSize,
-        limit: pageSize,
+        page: currentPage,
+        page_size: pageSize,
         ...(searchQuery && { invoice_number: searchQuery })
       });
-      return response.data;
+      
+      // 数据去重保护
+      const uniqueInvoices = Array.from(
+        new Map(response.data.items.map(item => [item.id, item])).values()
+      );
+      
+      return {
+        ...response.data,
+        items: uniqueInvoices
+      };
     },
+    staleTime: 5 * 60 * 1000, // 5分钟缓存
+    refetchOnWindowFocus: false,
   });
 
   const handleSelectInvoice = (invoiceId: string) => {
@@ -184,8 +195,8 @@ const InvoiceListPage: React.FC = () => {
               </div>
             ) : (
               <div className="divide-y divide-base-300">
-                {invoicesData?.items.map((invoice) => (
-                  <div key={invoice.id} className="p-4 hover:bg-base-50 transition-colors">
+                {invoicesData?.items.map((invoice, index) => (
+                  <div key={`${invoice.id}-${index}`} className="p-4 hover:bg-base-50 transition-colors">
                     <div className="flex items-center gap-4">
                       <input 
                         type="checkbox" 
@@ -249,30 +260,73 @@ const InvoiceListPage: React.FC = () => {
             {/* 分页 */}
             {invoicesData && invoicesData.total > pageSize && (
               <div className="p-4 border-t border-base-300">
-                <div className="flex justify-center">
-                  <div className="join">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  {/* 页码信息 */}
+                  <p className="text-sm text-base-content/60">
+                    共 {invoicesData.total} 条记录，第 {currentPage} 页，共 {Math.ceil(invoicesData.total / pageSize)} 页
+                  </p>
+                  
+                  {/* 分页控件 */}
+                  <div className="flex items-center gap-2">
                     <button 
-                      className="join-item btn btn-sm"
+                      className="btn btn-sm btn-outline"
+                      disabled={!invoicesData.has_prev}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      首页
+                    </button>
+                    <button 
+                      className="btn btn-sm btn-outline"
                       disabled={!invoicesData.has_prev}
                       onClick={() => setCurrentPage(prev => prev - 1)}
                     >
                       上一页
                     </button>
-                    <button className="join-item btn btn-sm btn-active">
-                      {currentPage}
-                    </button>
+                    
+                    {/* 页码选择 */}
+                    <div className="join">
+                      {Array.from({ length: Math.min(5, Math.ceil(invoicesData.total / pageSize)) }, (_, i) => {
+                        const totalPages = Math.ceil(invoicesData.total / pageSize);
+                        let pageNum;
+                        
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            className={`join-item btn btn-sm ${pageNum === currentPage ? 'btn-active' : ''}`}
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    
                     <button 
-                      className="join-item btn btn-sm"
+                      className="btn btn-sm btn-outline"
                       disabled={!invoicesData.has_next}
                       onClick={() => setCurrentPage(prev => prev + 1)}
                     >
                       下一页
                     </button>
+                    <button 
+                      className="btn btn-sm btn-outline"
+                      disabled={!invoicesData.has_next}
+                      onClick={() => setCurrentPage(Math.ceil(invoicesData.total / pageSize))}
+                    >
+                      末页
+                    </button>
                   </div>
                 </div>
-                <p className="text-center text-sm text-base-content/60 mt-2">
-                  第 {currentPage} 页，共 {Math.ceil(invoicesData.total / pageSize)} 页
-                </p>
               </div>
             )}
 

@@ -19,6 +19,8 @@ const queryClient = new QueryClient({
       retry: 2,
       staleTime: 5 * 60 * 1000, // 5分钟
       refetchOnWindowFocus: false,
+      refetchOnMount: false, // 防止重复请求
+      refetchOnReconnect: false,
     },
     mutations: {
       retry: 1,
