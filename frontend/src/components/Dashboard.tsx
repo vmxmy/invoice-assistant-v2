@@ -1,48 +1,20 @@
 // Dashboard 组件 - 主页面
-import React, { useState } from 'react'
+import React from 'react'
 import { useSession, useProfile, useSignOut } from '../hooks/useAuth'
-import { LogOut } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { LogOut, FileText, Upload, LayoutDashboard } from 'lucide-react'
 import { DashboardMain } from './dashboard/DashboardMain'
 
 const Dashboard: React.FC = () => {
   const { data: session } = useSession()
   const { data: profile } = useProfile()
   const signOutMutation = useSignOut()
+  const navigate = useNavigate()
   
   const user = session?.user
-  const [activeView, setActiveView] = useState<'dashboard' | 'invoices' | 'upload' | 'settings'>('dashboard')
 
   const handleSignOut = async () => {
     signOutMutation.mutate()
-  }
-
-  const handleUploadInvoice = () => {
-    setActiveView('upload')
-    // TODO: 实现文件上传功能
-    console.log('上传发票功能待实现')
-  }
-
-  const handleCreateInvoice = () => {
-    setActiveView('invoices')
-    // TODO: 实现创建发票功能
-    console.log('创建发票功能待实现')
-  }
-
-  const handleSearchInvoices = () => {
-    setActiveView('invoices')
-    // TODO: 实现搜索发票功能
-    console.log('搜索发票功能待实现')
-  }
-
-  const handleExportData = () => {
-    // TODO: 实现数据导出功能
-    console.log('数据导出功能待实现')
-  }
-
-  const handleSettings = () => {
-    setActiveView('settings')
-    // TODO: 实现设置功能
-    console.log('设置功能待实现')
   }
 
   return (
@@ -50,41 +22,77 @@ const Dashboard: React.FC = () => {
       {/* 使用 daisyUI 的 navbar 组件 */}
       <header className="navbar bg-base-100 shadow-lg sticky top-0 z-50">
         <div className="flex-1">
-          <a 
-            className="btn btn-ghost text-xl" 
-            onClick={() => setActiveView('dashboard')}
-          >
-            发票助手
-          </a>
+          <Link to="/dashboard" className="btn btn-ghost text-xl">
+            📄 发票助手
+          </Link>
         </div>
         
         {/* 导航菜单 */}
         <div className="flex-none gap-2">
+          {/* 移动端菜单 */}
+          <div className="dropdown lg:hidden">
+            <div tabIndex={0} role="button" className="btn btn-ghost">
+              <svg
+                className="w-5 h-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
+            </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <Link to="/dashboard" className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  仪表盘
+                </Link>
+              </li>
+              <li>
+                <Link to="/invoices" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  发票管理
+                </Link>
+              </li>
+              <li>
+                <Link to="/invoices/upload" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  文件上传
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          {/* 桌面端菜单 */}
           <div className="hidden lg:flex">
             <ul className="menu menu-horizontal px-1">
               <li>
-                <a 
-                  className={activeView === 'dashboard' ? 'active' : ''}
-                  onClick={() => setActiveView('dashboard')}
-                >
+                <Link to="/dashboard" className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
                   仪表盘
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  className={activeView === 'invoices' ? 'active' : ''}
-                  onClick={() => setActiveView('invoices')}
-                >
+                <Link to="/invoices" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
                   发票管理
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  className={activeView === 'upload' ? 'active' : ''}
-                  onClick={() => setActiveView('upload')}
-                >
+                <Link to="/invoices/upload" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
                   文件上传
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -110,14 +118,14 @@ const Dashboard: React.FC = () => {
               className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
             >
               <li>
-                <a onClick={() => setActiveView('settings')}>
+                <Link to="/settings">
                   个人资料
-                </a>
+                </Link>
               </li>
               <li>
-                <a onClick={() => setActiveView('settings')}>
+                <Link to="/settings">
                   设置
-                </a>
+                </Link>
               </li>
               <li>
                 <a onClick={handleSignOut}>
@@ -132,78 +140,7 @@ const Dashboard: React.FC = () => {
 
       {/* 主内容区域 */}
       <main>
-        {activeView === 'dashboard' && (
-          <DashboardMain
-            onUploadInvoice={handleUploadInvoice}
-            onCreateInvoice={handleCreateInvoice}
-            onSearchInvoices={handleSearchInvoices}
-            onExportData={handleExportData}
-            onSettings={handleSettings}
-          />
-        )}
-        
-        {activeView === 'invoices' && (
-          <div className="min-h-screen bg-base-200 p-6">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center py-20">
-                <h2 className="text-3xl font-bold text-base-content mb-4">
-                  发票管理页面
-                </h2>
-                <p className="text-base-content/60 mb-8">
-                  此功能正在开发中，敬请期待...
-                </p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => setActiveView('dashboard')}
-                >
-                  返回仪表盘
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {activeView === 'upload' && (
-          <div className="min-h-screen bg-base-200 p-6">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center py-20">
-                <h2 className="text-3xl font-bold text-base-content mb-4">
-                  文件上传页面
-                </h2>
-                <p className="text-base-content/60 mb-8">
-                  此功能正在开发中，敬请期待...
-                </p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => setActiveView('dashboard')}
-                >
-                  返回仪表盘
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {activeView === 'settings' && (
-          <div className="min-h-screen bg-base-200 p-6">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center py-20">
-                <h2 className="text-3xl font-bold text-base-content mb-4">
-                  设置页面
-                </h2>
-                <p className="text-base-content/60 mb-8">
-                  此功能正在开发中，敬请期待...
-                </p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => setActiveView('dashboard')}
-                >
-                  返回仪表盘
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DashboardMain />
       </main>
     </div>
   )
