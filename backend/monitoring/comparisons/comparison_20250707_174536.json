@@ -1,0 +1,38 @@
+{
+  "comparison_date": "2025-07-07T17:45:36.062108",
+  "baseline_date": "2025-07-07T17:44:50.656929",
+  "comparisons": [
+    {
+      "query_name": "invoice_list_query",
+      "current_time_ms": 6191.317796707153,
+      "baseline_p95_ms": 6013.258934020996,
+      "ratio": 1.029611041972392,
+      "status": "normal",
+      "baseline_date": "2025-07-07T17:44:50.656929"
+    },
+    {
+      "query_name": "invoice_search_query",
+      "current_time_ms": 313.8608932495117,
+      "baseline_p95_ms": 314.50605392456055,
+      "ratio": 0.9979486541928265,
+      "status": "normal",
+      "baseline_date": "2025-07-07T17:44:50.656929"
+    },
+    {
+      "query_name": "invoice_count_query",
+      "current_time_ms": 315.06800651550293,
+      "baseline_p95_ms": 317.54183769226074,
+      "ratio": 0.9922094323231975,
+      "status": "normal",
+      "baseline_date": "2025-07-07T17:44:50.656929"
+    },
+    {
+      "query_name": "user_profile_query",
+      "current_time_ms": 315.49715995788574,
+      "baseline_p95_ms": 582.8640460968018,
+      "ratio": 0.5412877360863808,
+      "status": "normal",
+      "baseline_date": "2025-07-07T17:44:50.656929"
+    }
+  ]
+}

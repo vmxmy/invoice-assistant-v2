@@ -1,0 +1,83 @@
+[
+  {
+    "query_name": "test_regression_query",
+    "current_time_ms": 69.471,
+    "baseline_p95_ms": 23.157,
+    "regression_ratio": 3.0,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-07T17:44:12.262506"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
+    "current_time_ms": 21.72994613647461,
+    "baseline_p95_ms": 9.593963623046875,
+    "regression_ratio": 2.2649602385685883,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:38:30.503654"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
+    "current_time_ms": 29.135942459106445,
+    "baseline_p95_ms": 9.593963623046875,
+    "regression_ratio": 3.036903578528827,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-07T23:38:41.522370"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
+    "current_time_ms": 31.12006187438965,
+    "baseline_p95_ms": 9.593963623046875,
+    "regression_ratio": 3.2437127236580516,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-07T23:38:41.524792"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+    "current_time_ms": 4.832029342651367,
+    "baseline_p95_ms": 2.276897430419922,
+    "regression_ratio": 2.122198952879581,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:49:54.716907"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_enhanced-files_upload-invoice",
+    "current_time_ms": 145.7369327545166,
+    "baseline_p95_ms": 10.957956314086914,
+    "regression_ratio": 13.299645351493657,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:51:06.918643"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_enhanced-files_upload-invoice",
+    "current_time_ms": 147.0010280609131,
+    "baseline_p95_ms": 10.957956314086914,
+    "regression_ratio": 13.41500402515176,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:51:06.920676"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_enhanced-files_upload-invoice",
+    "current_time_ms": 156.1260223388672,
+    "baseline_p95_ms": 10.957956314086914,
+    "regression_ratio": 14.247731772589804,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:51:07.084574"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_enhanced-files_upload-invoice",
+    "current_time_ms": 157.95087814331055,
+    "baseline_p95_ms": 10.957956314086914,
+    "regression_ratio": 14.414264267531168,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-07T23:51:07.243909"
+  }
+]

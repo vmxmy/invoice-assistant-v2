@@ -1,0 +1,92 @@
+[
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "avg_time_ms": 2617.515312830607,
+    "p95_time_ms": 4359.595060348511,
+    "p99_time_ms": 6272.982120513916,
+    "max_time_ms": 10054.464101791382,
+    "sample_count": 300,
+    "created_at": "2025-07-08T02:21:18.077365"
+  },
+  {
+    "query_name": "invoice_search",
+    "avg_time_ms": 3032.132887840271,
+    "p95_time_ms": 3846.729040145874,
+    "p99_time_ms": 4253.296136856079,
+    "max_time_ms": 4253.296136856079,
+    "sample_count": 50,
+    "created_at": "2025-07-07T20:09:33.000188"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_invoices_",
+    "avg_time_ms": 3312.116503715515,
+    "p95_time_ms": 4155.636787414551,
+    "p99_time_ms": 4572.636842727661,
+    "max_time_ms": 4572.636842727661,
+    "sample_count": 50,
+    "created_at": "2025-07-07T20:09:33.010867"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "avg_time_ms": 2.03843355178833,
+    "p95_time_ms": 7.143974304199219,
+    "p99_time_ms": 24.985790252685547,
+    "max_time_ms": 196.57611846923828,
+    "sample_count": 300,
+    "created_at": "2025-07-08T03:13:58.659287"
+  },
+  {
+    "query_name": "invoice_by_id",
+    "avg_time_ms": 1603.7389731407166,
+    "p95_time_ms": 4316.086053848267,
+    "p99_time_ms": 6307.110071182251,
+    "max_time_ms": 7268.131971359253,
+    "sample_count": 200,
+    "created_at": "2025-07-08T00:01:21.936234"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+    "avg_time_ms": 0.6387615203857422,
+    "p95_time_ms": 2.276897430419922,
+    "p99_time_ms": 4.29987907409668,
+    "max_time_ms": 4.29987907409668,
+    "sample_count": 50,
+    "created_at": "2025-07-07T22:02:39.643572"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
+    "avg_time_ms": 2.364473342895508,
+    "p95_time_ms": 9.593963623046875,
+    "p99_time_ms": 13.911008834838867,
+    "max_time_ms": 13.911008834838867,
+    "sample_count": 50,
+    "created_at": "2025-07-07T22:15:47.569688"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_files_upload-invoice",
+    "avg_time_ms": 6926.6430377960205,
+    "p95_time_ms": 14555.519819259644,
+    "p99_time_ms": 18244.620084762573,
+    "max_time_ms": 18244.620084762573,
+    "sample_count": 50,
+    "created_at": "2025-07-07T23:38:47.975624"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_enhanced-files_upload-invoice",
+    "avg_time_ms": 4.208505153656006,
+    "p95_time_ms": 10.957956314086914,
+    "p99_time_ms": 225.06308555603027,
+    "max_time_ms": 225.06308555603027,
+    "sample_count": 100,
+    "created_at": "2025-07-07T23:51:06.751028"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_enhanced-files_upload-invoice",
+    "avg_time_ms": 5635.27862071991,
+    "p95_time_ms": 14295.105934143066,
+    "p99_time_ms": 15157.596826553345,
+    "max_time_ms": 15157.596826553345,
+    "sample_count": 100,
+    "created_at": "2025-07-07T23:51:30.482755"
+  }
+]
