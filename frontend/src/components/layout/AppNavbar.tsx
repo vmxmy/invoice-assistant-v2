@@ -6,7 +6,8 @@ import {
   Upload, 
   Settings, 
   LogOut,
-  User
+  User,
+  Mail
 } from 'lucide-react';
 import { useSession, useProfile, useSignOut } from '../../hooks/useAuth';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -23,11 +24,13 @@ const AppNavbar: React.FC = () => {
     { name: '仪表盘', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
+    { name: '邮箱配置', href: '/settings/email-accounts', icon: Mail },
   ];
 
   const isActive = (href: string) => {
     return location.pathname === href || 
-           (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload');
+           (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload') ||
+           (href === '/settings/email-accounts' && location.pathname.startsWith('/settings/email-accounts'));
   };
 
   const handleSignOut = async () => {

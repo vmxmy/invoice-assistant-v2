@@ -1,0 +1,29 @@
+[
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 19.62900161743164,
+    "baseline_p95_ms": 7.143974304199219,
+    "regression_ratio": 2.7476304899212387,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-09T13:49:15.538141"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 33875.4608631134,
+    "baseline_p95_ms": 4737.776756286621,
+    "regression_ratio": 7.150075363547594,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-09T14:31:48.603425"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 28341.60304069519,
+    "baseline_p95_ms": 4737.776756286621,
+    "regression_ratio": 5.982046959702846,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-09T15:49:18.073466"
+  }
+]

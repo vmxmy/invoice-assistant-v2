@@ -620,52 +620,71 @@ class InvoiceService:
     
     @monitor_query_performance("invoice_statistics", params={"query_type": "aggregation"})
     async def get_invoice_statistics(self, user_id: UUID) -> Dict[str, Any]:
-        """获取发票统计信息"""
+        """获取发票统计信息 - 优化版本，合并查询减少数据库往返"""
         
-        # 基础条件（避免使用subquery防止笛卡尔积）
+        # 基础条件
         base_conditions = and_(
             Invoice.user_id == user_id,
             Invoice.deleted_at.is_(None)
         )
         
-        # 总数统计
-        total_count_query = select(func.count(Invoice.id)).where(base_conditions)
-        total_result = await self.db.execute(total_count_query)
-        total_count = total_result.scalar()
-        
-        # 金额统计
-        amount_query = select(
-            func.sum(Invoice.total_amount),
-            func.avg(Invoice.total_amount),
-            func.max(Invoice.total_amount),
-            func.min(Invoice.total_amount)
+        # 使用单个查询获取所有统计信息
+        # 这避免了多次数据库往返
+        combined_query = select(
+            func.count(Invoice.id).label('total_count'),
+            func.coalesce(func.sum(Invoice.total_amount), 0).label('total_amount'),
+            func.coalesce(func.avg(Invoice.total_amount), 0).label('avg_amount'),
+            func.coalesce(func.max(Invoice.total_amount), 0).label('max_amount'),
+            func.coalesce(func.min(Invoice.total_amount), 0).label('min_amount')
         ).where(base_conditions)
-        amount_result = await self.db.execute(amount_query)
-        amount_stats = amount_result.first()
         
-        # 状态统计
-        status_query = select(
+        combined_result = await self.db.execute(combined_query)
+        stats = combined_result.first()
+        
+        # 如果没有发票，直接返回空统计
+        if not stats or stats.total_count == 0:
+            return {
+                "total_count": 0,
+                "amount_stats": {
+                    "total": 0.0,
+                    "average": 0.0,
+                    "max": 0.0,
+                    "min": 0.0
+                },
+                "status_distribution": {},
+                "source_distribution": {}
+            }
+        
+        # 状态和来源统计 - 使用单个查询
+        distribution_query = select(
             Invoice.status,
-            func.count(Invoice.id)
-        ).where(base_conditions).group_by(Invoice.status)
-        status_result = await self.db.execute(status_query)
-        status_stats = {status: count for status, count in status_result.all()}
-        
-        # 来源统计
-        source_query = select(
             Invoice.source,
-            func.count(Invoice.id)
-        ).where(base_conditions).group_by(Invoice.source)
-        source_result = await self.db.execute(source_query)
-        source_stats = {source: count for source, count in source_result.all()}
+            func.count(Invoice.id).label('count')
+        ).where(base_conditions).group_by(
+            Invoice.status,
+            Invoice.source
+        )
+        
+        distribution_result = await self.db.execute(distribution_query)
+        distributions = distribution_result.all()
+        
+        # 处理分布数据
+        status_stats = {}
+        source_stats = {}
+        
+        for row in distributions:
+            if row.status:
+                status_stats[row.status] = status_stats.get(row.status, 0) + row.count
+            if row.source:
+                source_stats[row.source] = source_stats.get(row.source, 0) + row.count
         
         return {
-            "total_count": total_count,
+            "total_count": stats.total_count,
             "amount_stats": {
-                "total": float(amount_stats[0] or 0),
-                "average": float(amount_stats[1] or 0),
-                "max": float(amount_stats[2] or 0),
-                "min": float(amount_stats[3] or 0)
+                "total": float(stats.total_amount),
+                "average": float(stats.avg_amount),
+                "max": float(stats.max_amount),
+                "min": float(stats.min_amount) if stats.total_count > 0 else 0.0
             },
             "status_distribution": status_stats,
             "source_distribution": source_stats

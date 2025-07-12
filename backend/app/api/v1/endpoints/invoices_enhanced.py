@@ -11,6 +11,7 @@ import json
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.core.database import get_db_session
@@ -56,6 +57,34 @@ async def create_invoice_with_file(
         raise HTTPException(status_code=400, detail="文件大小不能超过10MB")
     
     try:
+        # 检查重复发票（预检查）
+        from sqlalchemy import select
+        existing_query = select(Invoice).where(
+            Invoice.user_id == current_user.id,
+            Invoice.invoice_number == invoice_create.invoice_number,
+            Invoice.deleted_at.is_(None)
+        )
+        existing_result = await session.execute(existing_query)
+        existing_invoice = existing_result.scalar_one_or_none()
+        
+        if existing_invoice:
+            raise HTTPException(
+                status_code=409,  # Conflict
+                detail={
+                    "error": "duplicate_invoice",
+                    "message": f"发票号码 {invoice_create.invoice_number} 已存在",
+                    "existing_invoice_id": str(existing_invoice.id),
+                    "existing_data": {
+                        "invoice_number": existing_invoice.invoice_number,
+                        "seller_name": existing_invoice.seller_name,
+                        "total_amount": float(existing_invoice.total_amount or 0),
+                        "invoice_date": existing_invoice.invoice_date.isoformat() if existing_invoice.invoice_date else None,
+                        "created_at": existing_invoice.created_at.isoformat()
+                    },
+                    "options": ["update_existing", "create_new_version", "cancel"]
+                }
+            )
+        
         # 生成文件路径
         file_ext = file.filename.split('.')[-1]
         file_name = f"{uuid4()}.{file_ext}"
@@ -111,11 +140,39 @@ async def create_invoice_with_file(
             }
         }
         
+    except HTTPException:
+        # 重新抛出HTTP异常（如重复发票的409错误）
+        raise
     except Exception as e:
         await session.rollback()
+        
+        # 检查是否是数据库约束违规（作为最后的防线）
+        if isinstance(e, IntegrityError) and "uk_invoice_number_user" in str(e):
+            # 查找已存在的发票
+            existing_query = select(Invoice).where(
+                Invoice.user_id == current_user.id,
+                Invoice.invoice_number == invoice_create.invoice_number,
+                Invoice.deleted_at.is_(None)
+            )
+            existing_result = await session.execute(existing_query)
+            existing_invoice = existing_result.scalar_one_or_none()
+            
+            if existing_invoice:
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "error": "duplicate_invoice_constraint",
+                        "message": f"发票号码 {invoice_create.invoice_number} 已存在（数据库约束检测）",
+                        "existing_invoice_id": str(existing_invoice.id),
+                        "note": "这可能是由并发上传导致的，请重试或检查已有发票"
+                    }
+                )
+        
         # 如果数据库操作失败，尝试删除已上传的文件
         try:
-            await storage_service.delete_file("invoice-files", file_path)
+            # 只有在file_path和storage_service已定义时才尝试删除
+            if 'file_path' in locals() and 'storage_service' in locals():
+                await storage_service.delete_file("invoice-files", file_path)
         except:
             pass
         

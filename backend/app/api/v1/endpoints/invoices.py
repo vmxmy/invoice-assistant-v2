@@ -52,29 +52,34 @@ class InvoiceDetail(BaseModel):
     """发票详情"""
     id: UUID
     invoice_number: str
-    invoice_code: Optional[str]
-    invoice_type: Optional[str]
+    invoice_code: Optional[str] = None
+    invoice_type: Optional[str] = None
     invoice_date: date
-    seller_name: Optional[str]
-    seller_tax_number: Optional[str]
-    buyer_name: Optional[str]
-    buyer_tax_number: Optional[str]
+    seller_name: Optional[str] = None
+    seller_tax_number: Optional[str] = None
+    buyer_name: Optional[str] = None
+    buyer_tax_number: Optional[str] = None
     amount: float  # This is amount_without_tax from DB
-    tax_amount: Optional[float]
-    total_amount: Optional[float]
+    amount_without_tax: Optional[float] = None
+    tax_amount: Optional[float] = None
+    total_amount: Optional[float] = None
     currency: str
     status: str
-    processing_status: Optional[str]
+    processing_status: Optional[str] = None
     source: str
-    file_path: Optional[str]
-    file_url: Optional[str]
-    file_size: Optional[int]
+    file_name: Optional[str] = None
+    file_path: Optional[str] = None
+    file_url: Optional[str] = None
+    file_size: Optional[int] = None
+    ocr_confidence_score: Optional[float] = None
     is_verified: bool
-    verified_at: Optional[datetime]
+    verified_at: Optional[datetime] = None
     tags: List[str] = []
-    category: Optional[str]
+    category: Optional[str] = None
+    notes: Optional[str] = None
+    remarks: Optional[str] = None
     extracted_data: Dict[str, Any] = {}
-    source_metadata: Optional[Dict[str, Any]] = {}
+    source_metadata: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -233,13 +238,118 @@ async def get_invoice_detail(
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
 
-        # Sanitize extracted_data to prevent XSS
-        sanitized_extracted_data = {
-            k: escape(v) for k,
-            v in invoice.extracted_data.items()}
-        invoice.extracted_data = sanitized_extracted_data
+        # 处理extracted_data，确保JSON格式正确并进行安全处理
+        if invoice.extracted_data:
+            import json
+            import ast
+            import re
+            
+            def safe_parse_dict_string(dict_str: str):
+                """安全解析字符串格式的Python字典"""
+                if not dict_str or not isinstance(dict_str, str):
+                    return None
+                
+                try:
+                    # 清理HTML转义字符
+                    cleaned = dict_str.replace("&amp;", "&").replace("&#39;", "'").replace("&#34;", '"')
+                    # 清理多层转义
+                    cleaned = re.sub(r'&amp;amp;amp;amp;#39;', "'", cleaned)
+                    cleaned = re.sub(r'&amp;amp;amp;amp;#34;', '"', cleaned)
+                    
+                    # 尝试使用ast.literal_eval安全解析
+                    result = ast.literal_eval(cleaned)
+                    return result if isinstance(result, dict) else None
+                except (ValueError, SyntaxError):
+                    try:
+                        # 尝试JSON解析作为备选
+                        return json.loads(cleaned)
+                    except (json.JSONDecodeError, ValueError):
+                        return None
+            
+            def parse_and_sanitize_value(v):
+                if v is None:
+                    return None
+                elif isinstance(v, str):
+                    # 检查是否是字符串格式的字典
+                    if v.startswith('{') and v.endswith('}'):
+                        parsed_dict = safe_parse_dict_string(v)
+                        if parsed_dict:
+                            return parse_and_sanitize_value(parsed_dict)
+                    
+                    # 尝试解析JSON字符串
+                    try:
+                        parsed = json.loads(v)
+                        return parse_and_sanitize_value(parsed)
+                    except (json.JSONDecodeError, TypeError):
+                        # 不是JSON字符串，直接转义
+                        return str(escape(str(v)))
+                elif isinstance(v, (list, dict)):
+                    # 递归处理嵌套结构
+                    if isinstance(v, list):
+                        return [parse_and_sanitize_value(item) for item in v]
+                    else:
+                        return {k: parse_and_sanitize_value(val) for k, val in v.items()}
+                else:
+                    # 其他类型直接转换为字符串并转义
+                    return str(escape(str(v)))
+            
+            # 处理extracted_data
+            raw_extracted_data = invoice.extracted_data.copy()
+            
+            # 特殊处理structured_data字段
+            structured_data = raw_extracted_data.get('structured_data')
+            if isinstance(structured_data, str):
+                parsed_structured = safe_parse_dict_string(structured_data)
+                if parsed_structured:
+                    # 将解析后的数据合并到根级别
+                    raw_extracted_data.update(parsed_structured)
+                    # 设置新的structured_data
+                    raw_extracted_data['structured_data'] = parsed_structured
+            
+            sanitized_extracted_data = {
+                k: parse_and_sanitize_value(v)
+                for k, v in raw_extracted_data.items()
+            }
+        else:
+            sanitized_extracted_data = {}
+            
+        # 构建响应数据，正确映射 amount_without_tax 到 amount
+        invoice_data = {
+            "id": invoice.id,
+            "invoice_number": invoice.invoice_number,
+            "invoice_code": invoice.invoice_code,
+            "invoice_type": invoice.invoice_type,
+            "invoice_date": invoice.invoice_date,
+            "seller_name": invoice.seller_name,
+            "seller_tax_number": invoice.seller_tax_number,
+            "buyer_name": invoice.buyer_name,
+            "buyer_tax_number": invoice.buyer_tax_number,
+            "amount": invoice.amount_without_tax or 0,  # 映射 amount_without_tax 到 amount
+            "amount_without_tax": invoice.amount_without_tax,
+            "tax_amount": invoice.tax_amount,
+            "total_amount": invoice.total_amount,
+            "currency": invoice.currency,
+            "status": invoice.status.value if hasattr(invoice.status, 'value') else invoice.status,
+            "processing_status": invoice.processing_status.value if invoice.processing_status and hasattr(invoice.processing_status, 'value') else invoice.processing_status,
+            "source": invoice.source.value if hasattr(invoice.source, 'value') else invoice.source,
+            "file_name": invoice.file_name,
+            "file_path": invoice.file_path,
+            "file_url": invoice.file_url,
+            "file_size": invoice.file_size,
+            "ocr_confidence_score": invoice.ocr_confidence_score,
+            "is_verified": invoice.is_verified,
+            "verified_at": invoice.verified_at,
+            "tags": invoice.tags or [],
+            "category": invoice.category,
+            "notes": getattr(invoice, 'notes', None),
+            "remarks": invoice.remarks,
+            "extracted_data": sanitized_extracted_data,
+            "source_metadata": invoice.source_metadata or {},
+            "created_at": invoice.created_at,
+            "updated_at": invoice.updated_at
+        }
 
-        return InvoiceDetail.from_orm(invoice)
+        return InvoiceDetail(**invoice_data)
 
     except HTTPException:
         raise
@@ -329,11 +439,14 @@ class InvoiceUpdateRequest(BaseModel):
     buyer_name: Optional[str] = None
     buyer_tax_number: Optional[str] = None
     amount: Optional[float] = None
+    amount_without_tax: Optional[float] = None
     tax_amount: Optional[float] = None
     total_amount: Optional[float] = None
     currency: Optional[str] = None
     category: Optional[str] = None
     tags: Optional[List[str]] = None
+    notes: Optional[str] = None
+    remarks: Optional[str] = None
 
 
 @router.put("/{invoice_id}", response_model=InvoiceDetail)

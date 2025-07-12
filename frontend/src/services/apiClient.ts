@@ -128,6 +128,11 @@ export const api = {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
     
+    // 创建发票（含文件和OCR数据）
+    createWithFile: (data: FormData) => apiClient.post('/api/v1/invoices/create-with-file', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    
     // 更新发票
     update: (id: string, data: any) => apiClient.put(`/api/v1/invoices/${id}`, data),
     
@@ -175,6 +180,24 @@ export const api = {
     
     // 获取当前用户信息
     me: () => apiClient.get('/api/v1/auth/me'),
+  },
+  
+  // OCR相关接口
+  ocr: {
+    // 智能识别（自动判断类型）
+    recognize: (data: FormData) => apiClient.post('/api/v1/ocr/recognize', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    
+    // 识别增值税发票
+    recognizeInvoice: (data: FormData) => apiClient.post('/api/v1/ocr/recognize/invoice', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    
+    // 识别火车票
+    recognizeTrainTicket: (data: FormData) => apiClient.post('/api/v1/ocr/recognize/train-ticket', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
   }
 }
 

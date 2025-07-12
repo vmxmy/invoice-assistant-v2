@@ -239,20 +239,37 @@ export interface VATInvoiceItem {
 export interface Invoice {
   id: string
   invoice_number: string
+  invoice_code?: string            // 发票代码
   invoice_date: string
-  seller_name: string
-  buyer_name: string
-  total_amount: number
-  status: 'draft' | 'pending' | 'completed' | 'failed'
+  invoice_type?: string            // 发票类型
+  seller_name?: string
+  seller_tax_number?: string       // 销售方纳税人识别号
+  buyer_name?: string
+  buyer_tax_number?: string        // 购买方纳税人识别号
+  amount?: number                  // 金额（兼容API）
+  total_amount?: number
+  amount_without_tax?: number      // 不含税金额
+  tax_amount?: number              // 税额
+  status: string
   processing_status?: string
-  source: 'upload' | 'email' | 'api'
-  invoice_type?: InvoiceType       // 发票类型
-  tags: string[]
+  source?: string
+  tags?: string[]
   notes?: string
+  remarks?: string                 // 发票备注（来自OCR）
   file_url?: string
+  file_name?: string               // 文件名
+  file_path?: string               // 文件路径
+  file_size?: number               // 文件大小
+  ocr_confidence_score?: number    // OCR置信度分数
+  is_verified?: boolean            // 是否已验证
+  verified_at?: string             // 验证时间
+  category?: string                // 分类
+  currency?: string                // 币种
+  source_metadata?: Record<string, any>  // 来源元数据
+  extracted_data?: Record<string, any>   // OCR提取的完整数据
   created_at: string
   updated_at: string
-  user_id: string
+  user_id?: string
   // 不同类型发票的专有信息
   train_details?: TrainInvoiceDetails
   flight_details?: FlightInvoiceDetails

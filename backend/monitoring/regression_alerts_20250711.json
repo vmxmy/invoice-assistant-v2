@@ -1,0 +1,11 @@
+[
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 30.27200698852539,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 5.433033804022251,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-11T14:31:55.974426"
+  }
+]

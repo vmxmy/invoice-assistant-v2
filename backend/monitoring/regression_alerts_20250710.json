@@ -1,0 +1,29 @@
+[
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 198701.15900039673,
+    "baseline_p95_ms": 4619.78006362915,
+    "regression_ratio": 43.01095642295653,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-10T09:37:06.699197"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 269780.3342342377,
+    "baseline_p95_ms": 4619.78006362915,
+    "regression_ratio": 58.396791734346536,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-10T09:44:50.883726"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 39161.64493560791,
+    "baseline_p95_ms": 4619.78006362915,
+    "regression_ratio": 8.47695007039876,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-10T10:03:00.000008"
+  }
+]

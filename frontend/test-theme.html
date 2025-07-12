@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题测试</title>
+    <style>
+        /* 模拟我们的主题配置 */
+        [data-theme="light"] {
+            --color-base-100: #fefefe;
+            --color-base-200: #f5f5f5;
+            --color-base-300: #ededed;
+            --color-base-content: #404040;
+            --color-primary: #4adedb;
+            --color-secondary: #f472b6;
+            --color-accent: #a3e635;
+        }
+        
+        [data-theme="dark"] {
+            --color-base-100: #2e2e3a;
+            --color-base-200: #383847;
+            --color-base-300: #424254;
+            --color-base-content: #e0e0e0;
+            --color-primary: #67e8f9;
+            --color-secondary: #fb7185;
+            --color-accent: #bef264;
+        }
+        
+        body {
+            background-color: var(--color-base-100);
+            color: var(--color-base-content);
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .card {
+            background-color: var(--color-base-200);
+            border: 1px solid var(--color-base-300);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+        
+        .btn-accent {
+            background-color: var(--color-accent);
+            color: black;
+        }
+        
+        .theme-toggle {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .color-demo {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid var(--color-base-300);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <h1>Tailwind CSS v4 + DaisyUI 5 主题测试</h1>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">
+        切换主题
+    </button>
+    
+    <div class="card">
+        <h2>颜色演示</h2>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-base-100)"></div>
+            <span>base-100 (背景)</span>
+        </div>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-base-200)"></div>
+            <span>base-200 (卡片背景)</span>
+        </div>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-base-300)"></div>
+            <span>base-300 (边框)</span>
+        </div>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-base-content)"></div>
+            <span>base-content (文字)</span>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>主题颜色</h2>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-primary)"></div>
+            <span>primary (主色)</span>
+        </div>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-secondary)"></div>
+            <span>secondary (次色)</span>
+        </div>
+        <div class="color-demo">
+            <div class="color-box" style="background-color: var(--color-accent)"></div>
+            <span>accent (强调色)</span>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>按钮组件</h2>
+        <button class="btn btn-primary">Primary 按钮</button>
+        <button class="btn btn-secondary">Secondary 按钮</button>
+        <button class="btn btn-accent">Accent 按钮</button>
+    </div>
+    
+    <div class="card">
+        <h2>当前主题状态</h2>
+        <p id="theme-status">当前主题: light</p>
+        <p>主题会保存在 localStorage 中，刷新页面后保持不变。</p>
+    </div>
+
+    <script>
+        // 主题切换逻辑
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            document.getElementById('theme-status').textContent = `当前主题: ${newTheme}`;
+            
+            console.log(`主题已切换到: ${newTheme}`);
+        }
+        
+        // 初始化主题
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+            
+            document.documentElement.setAttribute('data-theme', initialTheme);
+            document.getElementById('theme-status').textContent = `当前主题: ${initialTheme}`;
+            
+            console.log(`初始主题: ${initialTheme}`);
+        }
+        
+        // 监听系统主题变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                document.getElementById('theme-status').textContent = `当前主题: ${newTheme} (系统)`;
+                console.log(`系统主题变化: ${newTheme}`);
+            }
+        });
+        
+        // 页面加载时初始化
+        initTheme();
+    </script>
+</body>
+</html>

@@ -99,6 +99,11 @@ class Settings(BaseSettings):
         description="Mineru API 基础 URL"
     )
     
+    # 阿里云 OCR 配置
+    alicloud_access_key_id: str = Field(default="", description="阿里云 AccessKey ID")
+    alicloud_access_key_secret: str = Field(default="", description="阿里云 AccessKey Secret")
+    alicloud_ocr_region: str = Field(default="cn-hangzhou", description="阿里云 OCR 服务区域")
+    
     # 日志配置
     log_level: str = Field(default="INFO", description="日志级别")
     log_format: str = Field(

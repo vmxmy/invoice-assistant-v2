@@ -14,7 +14,6 @@ from pathlib import Path
 
 import asyncpg
 from app.core.config import settings
-from app.services.email_processor import EmailProcessor
 from app.services.ocr import OCRService
 from app.services.notification_service import NotificationService, NotificationRequest
 from app.utils.logger import get_logger
@@ -40,7 +39,6 @@ class PostgreSQLTaskProcessor:
         self.task_handlers: Dict[str, Callable] = {}
         
         # 服务组件
-        self.email_processor = EmailProcessor(self.database_url)
         self.ocr_service = OCRService()
         self.notification_service = NotificationService(settings)
         
@@ -53,7 +51,6 @@ class PostgreSQLTaskProcessor:
     def _register_task_handlers(self):
         """注册任务处理函数"""
         self.task_handlers = {
-            'process_email': self.handle_process_email,
             'ocr_extract': self.handle_ocr_extract,
             'send_notification': self.handle_send_notification,
             'cleanup_files': self.handle_cleanup_files,
@@ -290,23 +287,9 @@ class PostgreSQLTaskProcessor:
     
     # 任务处理器实现
     
-    async def handle_process_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """处理邮件任务"""
-        try:
-            logger.info(f"开始处理邮件: {payload.get('sender', 'unknown')}")
-            
-            # 使用现有的邮件处理器
-            result = await self.email_processor.process_email(payload)
-            
-            return {
-                "status": "success",
-                "result": result,
-                "processed_at": datetime.now(timezone.utc).isoformat()
-            }
-            
-        except Exception as e:
-            logger.error(f"邮件处理失败: {e}")
-            raise
+    # 邮件处理功能已移除
+    # async def handle_process_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    #     pass
     
     async def handle_ocr_extract(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """处理OCR提取任务"""
@@ -563,15 +546,9 @@ class TaskQueue:
 task_queue = TaskQueue()
 
 
-async def enqueue_email_processing(email_data: Dict[str, Any]) -> str:
-    """便捷函数：将邮件处理任务加入队列"""
-    return await task_queue.enqueue(
-        task_type="process_email",
-        payload=email_data,
-        user_id=email_data.get('user_id'),
-        priority=5,  # 中等优先级
-        correlation_id=email_data.get('message_id')
-    )
+# 邮件处理功能已移除
+# async def enqueue_email_processing(email_data: Dict[str, Any]) -> str:
+#     pass
 
 
 if __name__ == "__main__":

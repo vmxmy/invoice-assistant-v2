@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, AuthorizationError
 from app.core.auth import supabase_auth
+from supabase import Client, create_client
 
 logger = logging.getLogger(__name__)
 
@@ -314,6 +315,33 @@ def require_rate_limit(max_requests: int = 100, window_seconds: int = 3600):
     return Depends(check_rate_limit)
 
 
+# ===== Supabase 客户端依赖 =====
+
+# 创建单例 Supabase 客户端
+_supabase_client: Optional[Client] = None
+
+def get_supabase_client() -> Client:
+    """
+    获取 Supabase 客户端
+    
+    Returns:
+        Client: Supabase 客户端实例
+    """
+    global _supabase_client
+    
+    if _supabase_client is None:
+        if not settings.supabase_url or not settings.supabase_anon_key:
+            raise ValueError("Supabase URL and anon key must be configured")
+            
+        _supabase_client = create_client(
+            settings.supabase_url,
+            settings.supabase_anon_key
+        )
+        logger.info("Supabase client initialized")
+    
+    return _supabase_client
+
+
 # ===== 导出 =====
 
 __all__ = [
@@ -330,4 +358,5 @@ __all__ = [
     "get_settings",
     "require_feature",
     "require_rate_limit",
+    "get_supabase_client",
 ]

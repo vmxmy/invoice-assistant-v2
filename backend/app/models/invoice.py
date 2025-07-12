@@ -251,6 +251,13 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="备注信息"
     )
     
+    # 用户备注
+    notes = Column(
+        Text,
+        nullable=True,
+        comment="用户备注"
+    )
+    
     # 标签和分类
     tags = Column(
         ARRAY(String),
@@ -277,10 +284,11 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
     
     # 约束和索引
     __table_args__ = (
-        UniqueConstraint('invoice_number', 'user_id', name='uk_invoice_number_user'),
         CheckConstraint('amount >= 0', name='chk_amount_positive'),
         CheckConstraint('tax_amount >= 0', name='chk_tax_amount_positive'),
         CheckConstraint('total_amount >= 0', name='chk_total_amount_positive'),
+        Index('uk_invoice_number_user_active', 'invoice_number', 'user_id',
+              unique=True, postgresql_where='deleted_at IS NULL'),
         Index('idx_invoices_user_status', 'user_id', 'status',
               postgresql_where='deleted_at IS NULL'),
         Index('idx_invoices_user_date', 'user_id', 'invoice_date',
@@ -320,12 +328,68 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         return structured.get("items", [])
     
     # 业务方法
+    def _ensure_json_format(self, ocr_result: Dict[str, Any]) -> Dict[str, Any]:
+        """确保OCR结果中的数据为正确的JSON格式"""
+        import json
+        import ast
+        import re
+        
+        def safe_parse_dict_string(dict_str: str) -> Optional[Dict[str, Any]]:
+            """安全解析字符串格式的Python字典"""
+            if not dict_str or not isinstance(dict_str, str):
+                return None
+            
+            try:
+                # 清理HTML转义字符
+                cleaned = dict_str.replace("&amp;", "&").replace("&#39;", "'").replace("&#34;", '"')
+                # 清理多层转义
+                cleaned = re.sub(r'&amp;amp;amp;amp;#39;', "'", cleaned)
+                cleaned = re.sub(r'&amp;amp;amp;amp;#34;', '"', cleaned)
+                
+                # 尝试使用ast.literal_eval安全解析
+                result = ast.literal_eval(cleaned)
+                return result if isinstance(result, dict) else None
+            except (ValueError, SyntaxError):
+                try:
+                    # 尝试JSON解析作为备选
+                    return json.loads(cleaned)
+                except (json.JSONDecodeError, ValueError):
+                    return None
+        
+        result = ocr_result.copy()
+        
+        # 处理structured_data字段
+        structured_data = result.get('structured_data')
+        if isinstance(structured_data, str):
+            parsed_structured = safe_parse_dict_string(structured_data)
+            if parsed_structured:
+                # 将解析后的数据合并到根级别
+                result.update(parsed_structured)
+                # 保留原始数据作为备份
+                result['structured_data_original'] = structured_data
+                # 设置新的structured_data为解析后的数据
+                result['structured_data'] = parsed_structured
+        
+        # 递归处理嵌套的字符串字典
+        for key, value in result.items():
+            if isinstance(value, str) and key.endswith('_data') and value.startswith('{'):
+                parsed_value = safe_parse_dict_string(value)
+                if parsed_value:
+                    result[key] = parsed_value
+        
+        return result
+    
     def update_from_ocr(self, ocr_result: Dict[str, Any]) -> None:
         """从 OCR 结果更新发票信息"""
-        self.extracted_data = ocr_result
+        import json
+        import ast
+        
+        # 确保extracted_data格式正确
+        processed_ocr_result = self._ensure_json_format(ocr_result)
+        self.extracted_data = processed_ocr_result
         
         # 提取结构化数据
-        structured = ocr_result.get("structured_data", {})
+        structured = processed_ocr_result.get("structured_data", {})
         main_info = structured.get("main_info", {})
         buyer_info = structured.get("buyer_info", {})
         seller_info = structured.get("seller_info", {})

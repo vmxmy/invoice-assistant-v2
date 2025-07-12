@@ -52,5 +52,23 @@
     "threshold": 2.0,
     "severity": "critical",
     "timestamp": "2025-07-08T03:09:01.013925"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 34.71016883850098,
+    "baseline_p95_ms": 7.143974304199219,
+    "regression_ratio": 4.858663729809105,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T06:18:25.108552"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 21.66295051574707,
+    "baseline_p95_ms": 7.143974304199219,
+    "regression_ratio": 3.0323388065678816,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-08T06:25:04.627861"
   }
 ]
