@@ -3,7 +3,10 @@
 提供发票的查询、详情、统计等功能
 """
 
-from datetime import date, datetime
+from markupsafe import escape
+from sqlalchemy import select
+
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 
@@ -14,7 +17,7 @@ from pydantic import BaseModel, Field
 
 from app.core.database import get_async_db
 from app.core.dependencies import get_current_user, CurrentUser
-from app.models.profile import Profile
+
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource
 from app.services.invoice_service import InvoiceService
 from app.services.file_service import FileService
@@ -40,7 +43,7 @@ class InvoiceListItem(BaseModel):
     source: str
     created_at: datetime
     tags: List[str] = []
-    
+
     class Config:
         from_attributes = True
 
@@ -53,10 +56,10 @@ class InvoiceDetail(BaseModel):
     invoice_type: Optional[str]
     invoice_date: date
     seller_name: Optional[str]
-    seller_tax_id: Optional[str]
+    seller_tax_number: Optional[str]
     buyer_name: Optional[str]
-    buyer_tax_id: Optional[str]
-    amount: float
+    buyer_tax_number: Optional[str]
+    amount: float  # This is amount_without_tax from DB
     tax_amount: Optional[float]
     total_amount: Optional[float]
     currency: str
@@ -74,7 +77,7 @@ class InvoiceDetail(BaseModel):
     source_metadata: Optional[Dict[str, Any]] = {}
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -99,6 +102,10 @@ class InvoiceStatisticsResponse(BaseModel):
 
 
 # API端点
+
+# ... (rest of the file)
+
+
 @router.get("/", response_model=InvoiceListResponse)
 async def list_invoices(
     query: Optional[str] = Query(None, description="搜索关键词"),
@@ -122,11 +129,11 @@ async def list_invoices(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         # 计算偏移量
         offset = (page - 1) * page_size
-        
-        # 搜索发票
+
+        # 使用参数化查询
         invoices, total = await invoice_service.search_invoices(
             user_id=current_user.id,
             query=query,
@@ -141,7 +148,7 @@ async def list_invoices(
             limit=page_size,
             offset=offset
         )
-        
+
         # 构造响应
         return InvoiceListResponse(
             items=[InvoiceListItem.from_orm(invoice) for invoice in invoices],
@@ -151,11 +158,10 @@ async def list_invoices(
             has_next=offset + page_size < total,
             has_prev=page > 1
         )
-        
+
     except Exception as e:
         logger.error(f"获取发票列表失败: {e}")
         raise HTTPException(status_code=500, detail="获取发票列表失败")
-
 
 
 @router.get("/statistics", response_model=InvoiceStatisticsResponse)
@@ -170,9 +176,9 @@ async def get_invoice_statistics(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         stats = await invoice_service.get_invoice_statistics(current_user.id)
-        
+
         # 添加最近活动信息 - 使用简单查询避免重复
         recent_query = select(Invoice).where(
             Invoice.user_id == current_user.id,
@@ -180,7 +186,7 @@ async def get_invoice_statistics(
         ).order_by(Invoice.created_at.desc()).limit(5)
         recent_result = await db.execute(recent_query)
         recent_invoices = recent_result.scalars().all()
-        
+
         stats["recent_activity"] = {
             "recent_count": len(recent_invoices),
             "recent_invoices": [
@@ -194,12 +200,15 @@ async def get_invoice_statistics(
                 for inv in recent_invoices
             ]
         }
-        
+
         return InvoiceStatisticsResponse(**stats)
-        
+
     except Exception as e:
         logger.error(f"获取发票统计失败: {e}")
         raise HTTPException(status_code=500, detail="获取发票统计失败")
+
+
+# ... (rest of the file)
 
 
 @router.get("/{invoice_id}", response_model=InvoiceDetail)
@@ -215,17 +224,23 @@ async def get_invoice_detail(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
-        
+
+        # Sanitize extracted_data to prevent XSS
+        sanitized_extracted_data = {
+            k: escape(v) for k,
+            v in invoice.extracted_data.items()}
+        invoice.extracted_data = sanitized_extracted_data
+
         return InvoiceDetail.from_orm(invoice)
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -246,17 +261,17 @@ async def delete_invoice(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         success = await invoice_service.delete_invoice(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not success:
             raise HTTPException(status_code=404, detail="发票不存在")
-        
+
         return {"message": "发票删除成功", "invoice_id": str(invoice_id)}
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -277,25 +292,25 @@ async def verify_invoice(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
-        
+
         # 标记为已验证
         invoice.mark_as_verified(current_user.id, notes)
         await db.commit()
-        
+
         return {
             "message": "发票验证成功",
             "invoice_id": str(invoice_id),
             "verified_at": invoice.verified_at.isoformat()
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -310,9 +325,9 @@ class InvoiceUpdateRequest(BaseModel):
     invoice_type: Optional[str] = None
     invoice_date: Optional[date] = None
     seller_name: Optional[str] = None
-    seller_tax_id: Optional[str] = None
+    seller_tax_number: Optional[str] = None
     buyer_name: Optional[str] = None
-    buyer_tax_id: Optional[str] = None
+    buyer_tax_number: Optional[str] = None
     amount: Optional[float] = None
     tax_amount: Optional[float] = None
     total_amount: Optional[float] = None
@@ -335,26 +350,26 @@ async def update_invoice(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
-        
+
         # 更新提供的字段
         update_data = invoice_update.dict(exclude_unset=True)
         for field, value in update_data.items():
             if hasattr(invoice, field):
                 setattr(invoice, field, value)
-        
+
         await db.commit()
         await db.refresh(invoice)
-        
+
         return InvoiceDetail.from_orm(invoice)
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -375,25 +390,25 @@ async def update_invoice_tags(
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
-        
+
         # 更新标签
         invoice.tags = tags
         await db.commit()
-        
+
         return {
             "message": "标签更新成功",
             "invoice_id": str(invoice_id),
             "tags": invoice.tags
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -412,7 +427,10 @@ class DownloadUrlResponse(BaseModel):
 
 class BatchDownloadRequest(BaseModel):
     """批量下载请求"""
-    invoice_ids: List[str] = Field(..., description="发票ID列表", min_items=1, max_items=50)
+    invoice_ids: List[str] = Field(...,
+                                   description="发票ID列表",
+                                   min_items=1,
+                                   max_items=50)
 
 
 class BatchDownloadUrlResponse(BaseModel):
@@ -431,53 +449,64 @@ async def get_invoice_download_url(
 ):
     """
     获取单个发票的下载URL
-    
+
     生成带有过期时间的签名URL，用于安全下载发票文件。
     """
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         # 验证发票存在且属于当前用户
         invoice = await invoice_service.get_invoice_by_id(
             invoice_id=invoice_id,
             user_id=current_user.id
         )
-        
+
         if not invoice:
             raise HTTPException(status_code=404, detail="发票不存在")
+
+        # 如果有file_url且是Supabase URL，直接返回
+        if invoice.file_url and invoice.file_url.startswith('https://'):
+            logger.info(f"返回现有的Supabase URL: {invoice.file_url[:100]}...")
+            expires_at = (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat()
+            return DownloadUrlResponse(
+                download_url=invoice.file_url,
+                expires_at=expires_at,
+                invoice_id=str(invoice_id)
+            )
         
+        # 旧逻辑：处理本地文件
         if not invoice.file_path:
             raise HTTPException(status_code=404, detail="发票文件不存在")
-        
+
         # 检查文件是否存在（使用增强的存储服务）
         file_exists = await storage_service.check_file_exists(
-            current_user.id, 
+            current_user.id,
             invoice.file_path
         )
-        
+
         if not file_exists:
             raise HTTPException(status_code=404, detail="发票文件不存在于云存储中")
-        
+
         # 生成下载URL（使用增强的存储服务）
         url_info = await storage_service.generate_download_url(
             user_id=current_user.id,
             file_path=invoice.file_path,
             expires_in=expires_in
         )
-        
+
         # 记录下载日志
         logger.info(
             f"用户 {current_user.id} 获取发票 {invoice_id} 下载链接, "
             f"过期时间: {url_info['expires_at']}"
         )
-        
+
         return DownloadUrlResponse(
             download_url=url_info['download_url'],
             expires_at=url_info['expires_at'],
             invoice_id=str(invoice_id)
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -495,13 +524,13 @@ async def get_batch_download_urls(
 ):
     """
     获取批量发票的下载URL
-    
+
     为多个发票生成下载URL，支持并发处理。
     """
     try:
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
-        
+
         # 转换字符串ID为UUID
         invoice_uuids = []
         for invoice_id_str in request.invoice_ids:
@@ -509,12 +538,12 @@ async def get_batch_download_urls(
                 invoice_uuids.append(UUID(invoice_id_str))
             except ValueError:
                 raise HTTPException(
-                    status_code=400, 
+                    status_code=400,
                     detail=f"无效的发票ID格式: {invoice_id_str}"
                 )
-        
+
         # 批量获取所有发票信息
-        from sqlalchemy import and_, or_
+        
         invoice_query = select(Invoice).where(
             and_(
                 Invoice.id.in_(invoice_uuids),
@@ -524,13 +553,13 @@ async def get_batch_download_urls(
         )
         result = await db.execute(invoice_query)
         invoices = result.scalars().all()
-        
+
         # 过滤出有文件路径的发票
         invoices = [invoice for invoice in invoices if invoice.file_path]
-        
+
         if not invoices:
             raise HTTPException(status_code=404, detail="没有找到有效的发票文件")
-        
+
         # 准备批量下载请求
         file_requests = []
         for invoice in invoices:
@@ -539,26 +568,26 @@ async def get_batch_download_urls(
                 'file_path': invoice.file_path,
                 'invoice_id': str(invoice.id)
             })
-        
+
         # 批量生成下载URL（使用增强的存储服务）
         urls = await storage_service.batch_generate_download_urls(
-            file_requests, 
+            file_requests,
             expires_in
         )
-        
+
         if not urls:
             raise HTTPException(status_code=500, detail="无法生成任何下载链接")
-        
+
         # 生成批次ID
         import uuid
         batch_id = str(uuid.uuid4())
-        
+
         # 记录批量下载日志
         logger.info(
             f"用户 {current_user.id} 批量获取 {len(urls)} 个发票下载链接, "
             f"批次ID: {batch_id}"
         )
-        
+
         return BatchDownloadUrlResponse(
             urls=[
                 DownloadUrlResponse(
@@ -570,7 +599,7 @@ async def get_batch_download_urls(
             ],
             batch_id=batch_id
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
