@@ -22,6 +22,7 @@ from app.models.base import Base, BaseModel, UserOwnedMixin, TimestampMixin, Aud
 
 class InvoiceStatus(str, Enum):
     """发票状态"""
+    ACTIVE = "active"
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -95,7 +96,7 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
     )
     
     # 金额信息
-    amount = Column(
+    amount_without_tax = Column(
         Numeric(12, 2),
         nullable=False,
         server_default=text("0"),
@@ -139,7 +140,7 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="销售方名称"
     )
     
-    seller_tax_id = Column(
+    seller_tax_number = Column(
         String(50),
         nullable=True,
         comment="销售方纳税人识别号"
@@ -151,7 +152,7 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="购买方名称"
     )
     
-    buyer_tax_id = Column(
+    buyer_tax_number = Column(
         String(50),
         nullable=True,
         comment="购买方纳税人识别号"
@@ -173,7 +174,7 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
     )
     
     file_url = Column(
-        String(500),
+        String(1000),
         nullable=True,
         comment="文件访问 URL"
     )
@@ -184,10 +185,22 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="文件大小（字节）"
     )
     
+    file_name = Column(
+        String(255),
+        nullable=True,
+        comment="原始文件名"
+    )
+    
     file_hash = Column(
         String(64),
         nullable=True,
         comment="文件哈希值"
+    )
+    
+    ocr_confidence_score = Column(
+        Numeric(4, 3),
+        nullable=True,
+        comment="OCR识别置信度（0-1）"
     )
     
     # 来源信息
@@ -231,6 +244,13 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="验证备注"
     )
     
+    # 备注信息
+    remarks = Column(
+        Text,
+        nullable=True,
+        comment="备注信息"
+    )
+    
     # 标签和分类
     tags = Column(
         ARRAY(String),
@@ -272,6 +292,11 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
     )
     
     # 属性方法
+    @property
+    def amount(self) -> float:
+        """金额（为了API兼容性）"""
+        return float(self.amount_without_tax or 0)
+    
     @property
     def is_processed(self) -> bool:
         """是否已处理"""
