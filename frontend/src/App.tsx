@@ -11,6 +11,7 @@ import Dashboard from './components/Dashboard'
 import SetupProfile from './components/SetupProfile'
 import InvoiceListPage from './pages/InvoiceListPage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
+import EmailAccountsPage from './pages/EmailAccountsPage'
 import FontDemo from './components/FontDemo'
 import ThemeDemo from './components/ui/ThemeDemo'
 import './App.css'
@@ -72,6 +73,14 @@ function App() {
               element={
                 <ProtectedRoute requireProfile={true}>
                   <InvoiceUploadPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings/email-accounts" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <EmailAccountsPage />
                 </ProtectedRoute>
               } 
             />

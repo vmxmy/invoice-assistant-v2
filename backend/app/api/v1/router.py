@@ -6,7 +6,9 @@ API v1 路由器
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, users, profiles, invoices, files, tasks, webhooks, email_addresses, monitoring
+from app.api.v1.endpoints import (
+    auth, users, profiles, invoices, files, tasks, monitoring, ocr, invoices_enhanced
+)
 
 # 创建 v1 API 路由器
 api_router = APIRouter()
@@ -16,11 +18,11 @@ api_router.include_router(auth.router, prefix="/auth", tags=["认证"])
 api_router.include_router(users.router, prefix="/users", tags=["用户"])
 api_router.include_router(profiles.router, prefix="/profiles", tags=["档案"])
 api_router.include_router(invoices.router, prefix="/invoices", tags=["发票"])
+api_router.include_router(invoices_enhanced.router, prefix="/invoices", tags=["发票"])
 api_router.include_router(files.router, prefix="/files", tags=["文件管理"])
-api_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhook"])
 api_router.include_router(tasks.router, prefix="/tasks", tags=["任务管理"])
-api_router.include_router(email_addresses.router, prefix="/email-addresses", tags=["邮件地址管理"])
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["性能监控"])
+api_router.include_router(ocr.router, prefix="/ocr", tags=["OCR识别"])
 
 # 可选：添加版本信息端点
 @api_router.get("/version", tags=["系统"])
@@ -35,9 +37,8 @@ async def get_api_version():
             "profiles": "/profiles",
             "invoices": "/invoices",
             "files": "/files",
-            "webhooks": "/webhooks",
             "tasks": "/tasks",
-            "email_addresses": "/email-addresses",
-            "monitoring": "/monitoring"
+            "monitoring": "/monitoring",
+            "ocr": "/ocr"
         }
     }

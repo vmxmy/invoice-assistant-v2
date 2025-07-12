@@ -16,7 +16,7 @@ from app.core.dependencies import get_current_user
 from app.utils.query_monitor import query_monitoring, QueryPerformanceTester
 from app.utils.responses import success_response
 
-router = APIRouter(prefix="/monitoring", tags=["monitoring"])
+router = APIRouter(tags=["性能监控"])
 
 
 @router.get("/performance-report")

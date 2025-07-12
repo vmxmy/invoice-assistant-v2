@@ -6,20 +6,20 @@
 
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime, timezone
+from datetime import datetime, date, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
-from pydantic import BaseModel, Field
+from sqlalchemy import select
+from pydantic import BaseModel
 
 from app.core.dependencies import CurrentUser, get_current_user, get_db_session
 from app.core.exceptions import ValidationError, BusinessLogicError
 from app.services.file_service import FileService, get_file_service, validate_pdf_file
 from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
 from app.core.config import settings
-from app.utils.path_validator import validate_file_path, validate_filename
+from app.utils.path_validator import validate_file_path
 
 router = APIRouter()
 
@@ -28,10 +28,10 @@ router = APIRouter()
 
 def parse_date(date_str) -> 'date':
     """解析日期字符串"""
-    from datetime import datetime, date
+    from datetime import datetime, date, timezonetime, date
     if not date_str:
         return date.today()
-    
+
     try:
         # 尝试解析 YYYY-MM-DD 格式
         return datetime.strptime(str(date_str).strip(), '%Y-%m-%d').date()
@@ -42,6 +42,7 @@ def parse_date(date_str) -> 'date':
         except ValueError:
             # 使用今天日期作为最后的fallback
             return date.today()
+
 
 def parse_amount(amount) -> float:
     """解析金额"""
@@ -100,39 +101,52 @@ async def upload_invoice_file(
 ):
     """
     上传发票PDF文件
-    
+
     自动执行OCR处理并提取发票信息。
     """
-    
+
+    # 验证文件类型和大小
+    if file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="仅支持上传PDF文件"
+        )
+
+    if file.size > settings.max_file_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"文件大小不能超过 {settings.max_file_size // 1024 // 1024}MB"
+        )
+
     try:
         # 验证文件
         await validate_pdf_file(file)
-        
+
         # 简化的同步OCR处理流程
         # 1. 保存文件
         temp_file_path, file_hash, file_size, original_filename = await file_service.save_uploaded_file(
             file, current_user.id
         )
-        
+
         # 2. 使用OCR服务（自动使用Invoice2Data）
         from app.services.ocr import OCRService, OCRConfig
         from app.core.config import settings
         from pathlib import Path
-        
+
         # 构造完整文件路径
         full_file_path = Path(settings.upload_dir) / temp_file_path
-        
+
         # 创建OCR配置和服务实例
         ocr_config = OCRConfig()
         ocr_service = OCRService(ocr_config)
-        
+
         # 调用OCR提取
         ocr_result = await ocr_service.extract_invoice_data(str(full_file_path))
-        
+
         # 3. 直接创建完整的发票记录（无需复杂状态流转）
-        from datetime import datetime, timezone
+        from datetime import datetime, date, timezonetime, timezone
         import json
-        
+
         def serialize_for_json(obj):
             """安全的JSON序列化函数"""
             if isinstance(obj, datetime):
@@ -140,28 +154,35 @@ async def upload_invoice_file(
             elif hasattr(obj, '__dict__'):
                 return obj.__dict__
             elif isinstance(obj, dict):
-                return {k: serialize_for_json(v) for k, v in obj.items() if not k.startswith('_')}
+                return {
+                    k: serialize_for_json(v) for k,
+                    v in obj.items() if not k.startswith('_')}
             elif isinstance(obj, list):
                 return [serialize_for_json(item) for item in obj]
             else:
                 return obj
-        
+
         # 从增强规则提取器的结果中提取数据
         # ocr_result是包含structured_data和raw_data的字典
         structured_data = ocr_result.get('structured_data')
         raw_data = ocr_result.get('raw_data', {})
-        
+
         if structured_data:
             # 使用结构化数据
             invoice = Invoice(
                 user_id=current_user.id,
-                invoice_number=structured_data.main_info.invoice_number if structured_data.main_info.invoice_number else f"UPLOAD_{file_hash[:8]}",
+                invoice_number=structured_data.main_info.invoice_number if structured_data.main_info.invoice_number else f"UPLOAD_{
+                    file_hash[
+                        :8]}",
                 invoice_code=structured_data.main_info.invoice_code,
                 invoice_type=structured_data.main_info.invoice_type or '增值税普通发票',
                 invoice_date=structured_data.main_info.invoice_date,
-                amount=float(structured_data.summary.amount) if structured_data.summary.amount else 0,
-                tax_amount=float(structured_data.summary.tax_amount) if structured_data.summary.tax_amount else 0,
-                total_amount=float(structured_data.summary.total_amount) if structured_data.summary.total_amount else 0,
+                amount=float(
+                    structured_data.summary.amount) if structured_data.summary.amount else 0,
+                tax_amount=float(
+                    structured_data.summary.tax_amount) if structured_data.summary.tax_amount else 0,
+                total_amount=float(
+                    structured_data.summary.total_amount) if structured_data.summary.total_amount else 0,
                 currency='CNY',
                 seller_name=structured_data.seller_info.name,
                 seller_tax_id=structured_data.seller_info.tax_id,
@@ -186,7 +207,8 @@ async def upload_invoice_file(
             # 使用原始数据作为备用
             invoice = Invoice(
                 user_id=current_user.id,
-                invoice_number=raw_data.get('invoice_number', f"UPLOAD_{file_hash[:8]}"),
+                invoice_number=raw_data.get(
+                    'invoice_number', f"UPLOAD_{file_hash[:8]}"),
                 invoice_code=raw_data.get('invoice_code'),
                 invoice_type=raw_data.get('invoice_type', '增值税普通发票'),
                 invoice_date=parse_date(raw_data.get('invoice_date')),
@@ -210,7 +232,7 @@ async def upload_invoice_file(
                 created_at=datetime.now(timezone.utc),
                 updated_at=datetime.now(timezone.utc)
             )
-        
+
         # 4. 保存到数据库（处理重复发票）
         try:
             db.add(invoice)
@@ -218,22 +240,23 @@ async def upload_invoice_file(
             await db.refresh(invoice)
         except Exception as e:
             await db.rollback()
-            
+
             # 检查是否是重复发票错误
-            if "duplicate key value violates unique constraint" in str(e) and "uk_invoice_number_user" in str(e):
+            if "duplicate key value violates unique constraint" in str(
+                    e) and "uk_invoice_number_user" in str(e):
                 # 查找已存在的发票
                 from sqlalchemy import select
-                
+
                 stmt = select(Invoice).where(
                     Invoice.invoice_number == (
-                        structured_data.main_info.invoice_number if structured_data 
+                        structured_data.main_info.invoice_number if structured_data
                         else raw_data.get('invoice_number', f"UPLOAD_{file_hash[:8]}")
                     ),
                     Invoice.user_id == current_user.id
                 )
                 existing_invoice = await db.execute(stmt)
                 existing_invoice = existing_invoice.scalar_one_or_none()
-                
+
                 if existing_invoice:
                     # 更新已存在的发票记录
                     existing_invoice.invoice_code = invoice.invoice_code
@@ -253,11 +276,11 @@ async def upload_invoice_file(
                     existing_invoice.extracted_data = invoice.extracted_data
                     existing_invoice.processing_status = ProcessingStatus.OCR_COMPLETED
                     existing_invoice.updated_at = datetime.now(timezone.utc)
-                    
+
                     # 提交更新
                     await db.commit()
                     await db.refresh(existing_invoice)
-                    
+
                     # 返回更新后的发票信息
                     return FileUploadResponse(
                         file_id=existing_invoice.id,
@@ -270,13 +293,13 @@ async def upload_invoice_file(
                         invoice_id=existing_invoice.id,
                         uploaded_at=existing_invoice.updated_at.isoformat()
                     )
-            
+
             # 其他数据库错误
             raise HTTPException(
                 status_code=500,
                 detail=f"数据库保存失败: {str(e)}"
             )
-        
+
         return FileUploadResponse(
             file_id=invoice.id,
             filename=original_filename,
@@ -288,7 +311,7 @@ async def upload_invoice_file(
             invoice_id=invoice.id,
             uploaded_at=invoice.created_at.isoformat()
         )
-        
+
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -301,8 +324,6 @@ async def upload_invoice_file(
         )
 
 
-
-
 @router.get("/download/{file_path:path}")
 async def download_file(
     file_path: str,
@@ -312,19 +333,20 @@ async def download_file(
 ):
     """
     下载文件
-    
+
     需要验证用户是否有权限访问该文件。
     """
-    
+
     # 验证文件路径安全性
     try:
-        safe_file_path = validate_file_path(file_path, str(file_service.upload_dir))
+        safe_file_path = validate_file_path(
+            file_path, str(file_service.upload_dir))
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"无效的文件路径: {str(e)}"
         )
-    
+
     # 验证文件是否属于当前用户
     stmt = select(Invoice).where(
         Invoice.user_id == current_user.id,
@@ -333,13 +355,13 @@ async def download_file(
     )
     result = await db.execute(stmt)
     invoice = result.scalar_one_or_none()
-    
+
     if not invoice:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="文件不存在或无权访问"
         )
-    
+
     # 获取文件信息
     file_info = await file_service.get_file_info(safe_file_path)
     if not file_info:
@@ -347,10 +369,17 @@ async def download_file(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="文件不存在"
         )
-    
+
     # 构建完整文件路径
     full_path = file_service.upload_dir / safe_file_path
-    
+
+    # 防止目录遍历
+    if not full_path.is_relative_to(file_service.upload_dir):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="无效的文件路径"
+        )
+
     return FileResponse(
         path=str(full_path),
         filename=invoice.invoice_number + ".pdf",
@@ -367,17 +396,17 @@ async def list_user_files(
     """
     获取当前用户的文件列表
     """
-    
+
     # 查询用户的所有发票文件
     stmt = select(Invoice).where(
         Invoice.user_id == current_user.id,
         Invoice.file_path.is_not(None),
         Invoice.deleted_at.is_(None)
     ).order_by(Invoice.created_at.desc())
-    
+
     result = await db.execute(stmt)
     invoices = result.scalars().all()
-    
+
     files = []
     for invoice in invoices:
         file_info = await file_service.get_file_info(invoice.file_path)
@@ -391,7 +420,7 @@ async def list_user_files(
                 created_at=str(invoice.created_at),
                 invoice_id=invoice.id
             ))
-    
+
     return FilesListResponse(
         files=files,
         total=len(files)
@@ -407,10 +436,10 @@ async def delete_file(
 ):
     """
     删除文件
-    
+
     会同时删除关联的发票记录。
     """
-    
+
     # 验证文件是否属于当前用户
     stmt = select(Invoice).where(
         Invoice.user_id == current_user.id,
@@ -419,21 +448,21 @@ async def delete_file(
     )
     result = await db.execute(stmt)
     invoice = result.scalar_one_or_none()
-    
+
     if not invoice:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="文件不存在或无权访问"
         )
-    
+
     # 删除物理文件
     success = await file_service.delete_file(file_path)
-    
+
     if success:
         # 软删除发票记录
         invoice.soft_delete()
         await db.commit()
-        
+
         return {"message": "文件删除成功"}
     else:
         raise HTTPException(
@@ -452,7 +481,7 @@ async def get_file_info(
     """
     获取文件信息
     """
-    
+
     # 验证文件是否属于当前用户
     stmt = select(Invoice).where(
         Invoice.user_id == current_user.id,
@@ -461,13 +490,13 @@ async def get_file_info(
     )
     result = await db.execute(stmt)
     invoice = result.scalar_one_or_none()
-    
+
     if not invoice:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="文件不存在或无权访问"
         )
-    
+
     # 获取文件信息
     file_info = await file_service.get_file_info(file_path)
     if not file_info:
@@ -475,7 +504,7 @@ async def get_file_info(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="文件不存在"
         )
-    
+
     return {
         "file_path": file_path,
         "file_size": file_info["size"],

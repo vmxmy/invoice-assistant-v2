@@ -16,13 +16,12 @@ import {
 } from 'lucide-react';
 import { api } from '../services/apiClient';
 import Layout from '../components/layout/Layout';
-import InvoiceDetailModal from '../components/invoice/modals/InvoiceDetailModal';
-import InvoiceEditModal from '../components/invoice/modals/InvoiceEditModal';
+import UnifiedInvoiceModal, { type ModalMode } from '../components/invoice/modals/UnifiedInvoiceModal';
 import DeleteConfirmModal from '../components/invoice/modals/DeleteConfirmModal';
 import { AdvancedSearchDrawer } from '../components/invoice/search/AdvancedSearchDrawer';
 import type { SearchFilters } from '../components/invoice/search/AdvancedSearchDrawer';
 import FilterPanel from '../components/invoice/search/FilterPanel';
-import { getInvoiceTypeName, getInvoiceTypeIcon } from '../components/invoice/details/InvoiceTypeDetails';
+import { getInvoiceTypeName, getInvoiceTypeIcon } from '../config/invoiceFieldsConfig';
 import { InvoiceListSkeleton } from '../components/ui/SkeletonLoader';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { notify } from '../utils/notifications';
@@ -66,13 +65,10 @@ const InvoiceListPage: React.FC = () => {
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
   
-  // 发票详情模态框状态
+  // 统一模态框状态
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  
-  // 发票编辑模态框状态
-  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<ModalMode>('view');
   
   // 删除确认模态框状态
   const [deleteInvoiceIds, setDeleteInvoiceIds] = useState<string[]>([]);
@@ -217,30 +213,32 @@ const InvoiceListPage: React.FC = () => {
   // 查看发票详情
   const handleViewInvoice = (invoiceId: string) => {
     setSelectedInvoiceId(invoiceId);
-    setIsDetailModalOpen(true);
-  };
-
-  // 关闭详情模态框
-  const handleCloseDetailModal = () => {
-    setIsDetailModalOpen(false);
-    setSelectedInvoiceId(null);
+    setModalMode('view');
+    setIsModalOpen(true);
   };
 
   // 编辑发票
   const handleEditInvoice = (invoice: Invoice) => {
-    setEditingInvoice(invoice);
-    setIsEditModalOpen(true);
+    setSelectedInvoiceId(invoice.id);
+    setModalMode('edit');
+    setIsModalOpen(true);
   };
 
-  // 关闭编辑模态框
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setEditingInvoice(null);
+  // 关闭模态框
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedInvoiceId(null);
+    setModalMode('view');
   };
 
-  // 编辑成功回调
-  const handleEditSuccess = () => {
+  // 模态框操作成功回调
+  const handleModalSuccess = () => {
     refetch(); // 刷新发票列表
+  };
+
+  // 模态框模式变化回调
+  const handleModeChange = (mode: ModalMode) => {
+    setModalMode(mode);
   };
 
   // 删除单个发票
@@ -608,19 +606,14 @@ const InvoiceListPage: React.FC = () => {
       </div>
       </div>
       
-      {/* 发票详情模态框 */}
-      <InvoiceDetailModal
+      {/* 统一发票模态框 */}
+      <UnifiedInvoiceModal
         invoiceId={selectedInvoiceId}
-        isOpen={isDetailModalOpen}
-        onClose={handleCloseDetailModal}
-      />
-      
-      {/* 发票编辑模态框 */}
-      <InvoiceEditModal
-        invoice={editingInvoice}
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        onSuccess={handleEditSuccess}
+        isOpen={isModalOpen}
+        mode={modalMode}
+        onClose={handleCloseModal}
+        onSuccess={handleModalSuccess}
+        onModeChange={handleModeChange}
       />
       
       {/* 删除确认模态框 */}

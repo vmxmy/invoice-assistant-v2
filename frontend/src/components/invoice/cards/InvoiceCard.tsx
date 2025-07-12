@@ -10,7 +10,7 @@ import {
   Building2,
   User
 } from 'lucide-react';
-import { getInvoiceTypeName, getInvoiceTypeIcon } from '../details/InvoiceTypeDetails';
+import { getInvoiceTypeName, getInvoiceTypeIcon } from '../../../config/invoiceFieldsConfig';
 
 interface Invoice {
   id: string;
