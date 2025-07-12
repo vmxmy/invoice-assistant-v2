@@ -12,29 +12,38 @@ import {
   Camera,
   FolderOpen,
   Edit2,
-  Save
+  Save,
+  Eye,
+  Clock
 } from 'lucide-react';
 import { api } from '../services/apiClient';
 import Layout from '../components/layout/Layout';
+import AdaptiveInvoiceFields from '../components/invoice/fields/AdaptiveInvoiceFields';
+import type { Invoice } from '../types';
 
 interface UploadFile {
   file: File;
   id: string;
   preview?: string;
-  status: 'pending' | 'recognizing' | 'recognized' | 'uploading' | 'success' | 'error';
+  status: 'pending' | 'recognizing' | 'recognized' | 'uploading' | 'success' | 'error' | 'duplicate';
   progress: number;
   error?: string;
   ocrData?: any; // OCR识别的数据
   ocrRawResult?: any; // OCR原始响应数据
+  duplicateInfo?: {
+    existingInvoiceId: string;
+    existingData: any;
+    options: string[];
+    note?: string;
+  };
 }
 
 const InvoiceUploadPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
-  const [editingData, setEditingData] = useState<any>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [filesToRecognize, setFilesToRecognize] = useState<UploadFile[]>([]);
+  
 
   // OCR识别变异
   const ocrMutation = useMutation({
@@ -174,6 +183,7 @@ const InvoiceUploadPage: React.FC = () => {
     onError: (error: any) => {
       console.error('❌ [uploadMutation] 上传失败:', error);
       console.error('❌ [uploadMutation] 错误详情:', error.response?.data || error.data || error);
+      // 不在这里处理错误状态，让错误传播到调用方的 catch 块
     }
   });
 
@@ -351,48 +361,388 @@ const InvoiceUploadPage: React.FC = () => {
     return new Date().toISOString().split('T')[0];
   };
 
-  // 编辑OCR数据
+  // OCR 编辑状态
+  const [editingOcrData, setEditingOcrData] = useState<any>(null);
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [isOcrEditModalOpen, setIsOcrEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<Record<string, any>>({});
+  const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>({});
+
+  // 将OCR数据转换为发票对象供AdaptiveInvoiceFields使用
+  const createInvoiceFromOcrData = (ocrData: any): Invoice => {
+    return {
+      id: `temp-${editingFileId}`,
+      invoice_type: ocrData.invoice_type || ocrData.invoiceType || '增值税发票',
+      invoice_number: ocrData.invoiceNumber || ocrData.invoice_number || ocrData.ticketNumber || ocrData.ticket_number || '',
+      invoice_code: ocrData.invoiceCode || ocrData.invoice_code || ocrData.electronicTicketNumber || '',
+      invoice_date: convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date),
+      seller_name: ocrData.sellerName || ocrData.seller_name || (ocrData.invoice_type === '火车票' ? '中国铁路' : ''),
+      seller_tax_number: ocrData.sellerTaxNumber || ocrData.seller_tax_number || '',
+      buyer_name: ocrData.purchaserName || ocrData.buyer_name || ocrData.buyerName || ocrData.passengerName || ocrData.passenger_name || '',
+      buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number || ocrData.buyerCreditCode || '',
+      total_amount: parseFloat(ocrData.totalAmount || ocrData.total_amount || ocrData.fare || ocrData.ticket_price || '0'),
+      tax_amount: parseFloat(ocrData.invoiceTax || ocrData.tax_amount || '0'),
+      amount_without_tax: parseFloat(ocrData.invoiceAmountPreTax || ocrData.amount_without_tax || '0'),
+      remarks: ocrData.remarks || ocrData.notes || '',
+      status: 'draft',
+      processing_status: 'temp_editing',
+      source: 'upload_temp',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      tags: [],
+      ocr_confidence: ocrData.confidence || 0,
+      
+      // 保存完整的OCR数据供配置系统使用
+      extracted_data: {
+        title: ocrData.title || ocrData.invoice_type || ocrData.invoiceType || '',
+        structured_data: ocrData,
+        raw_text: '',
+        confidence: ocrData.confidence || 0,
+        // 发票类型识别
+        invoiceType: ocrData.invoice_type || ocrData.invoiceType,
+        
+        // 火车票特殊字段映射
+        trainNumber: ocrData.trainNumber || ocrData.train_number,
+        train_number: ocrData.trainNumber || ocrData.train_number,
+        departureStation: ocrData.departureStation || ocrData.departure_station,
+        departure_station: ocrData.departureStation || ocrData.departure_station,
+        arrivalStation: ocrData.arrivalStation || ocrData.arrival_station,
+        arrival_station: ocrData.arrivalStation || ocrData.arrival_station,
+        departureTime: ocrData.departureTime || ocrData.departure_time,
+        departure_time: ocrData.departureTime || ocrData.departure_time,
+        seatType: ocrData.seatType || ocrData.seat_type,
+        seat_type: ocrData.seatType || ocrData.seat_type,
+        seatNumber: ocrData.seatNumber || ocrData.seat_number,
+        seat_number: ocrData.seatNumber || ocrData.seat_number,
+        passengerName: ocrData.passengerName || ocrData.passenger_name,
+        passenger_name: ocrData.passengerName || ocrData.passenger_name,
+        passengerInfo: ocrData.passengerInfo || ocrData.id_number,
+        id_number: ocrData.passengerInfo || ocrData.id_number,
+        ticketNumber: ocrData.ticketNumber || ocrData.ticket_number,
+        ticket_number: ocrData.ticketNumber || ocrData.ticket_number,
+        electronicTicketNumber: ocrData.electronicTicketNumber,
+        // 火车票购买方信息
+        buyerName: ocrData.buyerName || ocrData.buyer_name || ocrData.passengerName || ocrData.passenger_name,
+        buyerCreditCode: ocrData.buyerCreditCode,
+        fare: ocrData.fare || ocrData.ticket_price,
+        ticket_price: ocrData.fare || ocrData.ticket_price,
+        isCopy: ocrData.isCopy,
+        
+        // 增值税发票字段
+        invoiceNumber: ocrData.invoiceNumber || ocrData.invoice_number,
+        invoice_number: ocrData.invoiceNumber || ocrData.invoice_number,
+        invoiceCode: ocrData.invoiceCode || ocrData.invoice_code,
+        invoice_code: ocrData.invoiceCode || ocrData.invoice_code,
+        invoiceDate: ocrData.invoiceDate || ocrData.invoice_date,
+        invoice_date: ocrData.invoiceDate || ocrData.invoice_date,
+        sellerName: ocrData.sellerName || ocrData.seller_name,
+        seller_name: ocrData.sellerName || ocrData.seller_name,
+        sellerTaxNumber: ocrData.sellerTaxNumber || ocrData.seller_tax_number,
+        seller_tax_number: ocrData.sellerTaxNumber || ocrData.seller_tax_number,
+        // 增值税发票购买方信息（统一用 buyer_name，避免与火车票字段重复）
+        purchaserName: ocrData.purchaserName || ocrData.buyer_name || ocrData.buyerName,
+        purchaserTaxNumber: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number,
+        buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number,
+        totalAmount: ocrData.totalAmount || ocrData.total_amount,
+        total_amount: ocrData.totalAmount || ocrData.total_amount,
+        invoiceTax: ocrData.invoiceTax || ocrData.tax_amount,
+        tax_amount: ocrData.invoiceTax || ocrData.tax_amount,
+        invoiceAmountPreTax: ocrData.invoiceAmountPreTax || ocrData.amount_without_tax,
+        amount_without_tax: ocrData.invoiceAmountPreTax || ocrData.amount_without_tax,
+        remarks: ocrData.remarks || ocrData.notes
+      }
+    };
+  };
+
+  // 编辑OCR数据 - 使用自适应字段组件
   const editOcrData = (fileId: string) => {
     const fileItem = uploadFiles.find(f => f.id === fileId);
     if (!fileItem || !fileItem.ocrData) return;
     
-    // 根据类型转换日期格式
-    let ocrDataWithFormattedDate = { ...fileItem.ocrData };
+    console.log('🔧 [editOcrData] 开始编辑OCR数据:', fileItem.ocrData);
     
-    if (fileItem.ocrData.invoice_type === '火车票' || fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) {
-      // 火车票：转换日期格式
-      ocrDataWithFormattedDate.invoiceDate = convertChineseDateToISO(fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date);
-      
-      // 解析出发时间中的日期部分
-      if (fileItem.ocrData.departureTime) {
-        const match = fileItem.ocrData.departureTime.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-        if (match) {
-          ocrDataWithFormattedDate.departureDate = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-        }
-      }
+    // 设置编辑状态
+    setEditingOcrData({ ...fileItem.ocrData });
+    setEditingFileId(fileId);
+    
+    // 预填充表单数据，从 OCR 数据映射到字段键名
+    const tempInvoice = createInvoiceFromOcrData(fileItem.ocrData);
+    const initialFormData: Record<string, any> = {};
+    
+    console.log('🔧 [editOcrData] 创建的临时发票对象:', tempInvoice);
+    console.log('🔧 [editOcrData] OCR数据的发票类型:', fileItem.ocrData.invoice_type, fileItem.ocrData.invoiceType);
+    
+    // 根据发票类型预填充对应字段
+    if (fileItem.ocrData.invoice_type === '火车票' || fileItem.ocrData.invoiceType === '火车票' || fileItem.ocrData.title?.includes('铁路')) {
+      // 火车票字段映射
+      initialFormData.train_number = fileItem.ocrData.trainNumber || fileItem.ocrData.train_number || '';
+      initialFormData.departure_station = fileItem.ocrData.departureStation || fileItem.ocrData.departure_station || '';
+      initialFormData.arrival_station = fileItem.ocrData.arrivalStation || fileItem.ocrData.arrival_station || '';
+      initialFormData.departure_time = fileItem.ocrData.departureTime || fileItem.ocrData.departure_time || '';
+      initialFormData.seat_type = fileItem.ocrData.seatType || fileItem.ocrData.seat_type || '';
+      initialFormData.seat_number = fileItem.ocrData.seatNumber || fileItem.ocrData.seat_number || '';
+      initialFormData.passenger_name = fileItem.ocrData.passengerName || fileItem.ocrData.passenger_name || '';
+      initialFormData.passenger_info = fileItem.ocrData.passengerInfo || fileItem.ocrData.id_number || '';
+      initialFormData.ticket_number = fileItem.ocrData.ticketNumber || fileItem.ocrData.ticket_number || '';
+      initialFormData.electronic_ticket_number = fileItem.ocrData.electronicTicketNumber || '';
+      initialFormData.invoice_date = convertChineseDateToISO(fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date);
+      initialFormData.fare = fileItem.ocrData.fare || fileItem.ocrData.ticket_price || '0';
+      initialFormData.buyer_name = fileItem.ocrData.buyerName || fileItem.ocrData.buyer_name || fileItem.ocrData.passengerName || fileItem.ocrData.passenger_name || '';
+      initialFormData.buyer_credit_code = fileItem.ocrData.buyerCreditCode || '';
+      initialFormData.remarks = fileItem.ocrData.remarks || fileItem.ocrData.notes || '';
     } else {
-      // 增值税发票：转换开票日期 - 支持新旧字段名
-      const invoiceDate = fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date;
-      ocrDataWithFormattedDate.invoice_date = convertChineseDateToISO(invoiceDate);
-      ocrDataWithFormattedDate.invoiceDate = ocrDataWithFormattedDate.invoice_date; // 兼容新字段名
+      // 增值税发票字段映射
+      initialFormData.invoice_type = fileItem.ocrData.invoiceType || fileItem.ocrData.invoice_type || '增值税发票';
+      initialFormData.invoice_number = fileItem.ocrData.invoiceNumber || fileItem.ocrData.invoice_number || '';
+      initialFormData.invoice_code = fileItem.ocrData.invoiceCode || fileItem.ocrData.invoice_code || '';
+      initialFormData.invoice_date = convertChineseDateToISO(fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date);
+      initialFormData.seller_name = fileItem.ocrData.sellerName || fileItem.ocrData.seller_name || '';
+      initialFormData.seller_tax_number = fileItem.ocrData.sellerTaxNumber || fileItem.ocrData.seller_tax_number || '';
+      initialFormData.buyer_name = fileItem.ocrData.purchaserName || fileItem.ocrData.buyer_name || fileItem.ocrData.buyerName || '';
+      initialFormData.buyer_tax_number = fileItem.ocrData.purchaserTaxNumber || fileItem.ocrData.buyer_tax_number || '';
+      initialFormData.total_amount = fileItem.ocrData.totalAmount || fileItem.ocrData.total_amount || '0';
+      initialFormData.tax_amount = fileItem.ocrData.invoiceTax || fileItem.ocrData.tax_amount || '0';
+      initialFormData.amount_without_tax = fileItem.ocrData.invoiceAmountPreTax || fileItem.ocrData.amount_without_tax || '0';
+      
+      // 发票明细字段映射
+      initialFormData.invoice_details = fileItem.ocrData.invoiceDetails || fileItem.ocrData.invoice_details || [];
+      
+      // 其他增值税发票特定字段
+      initialFormData.check_code = fileItem.ocrData.checkCode || '';
+      initialFormData.printed_invoice_code = fileItem.ocrData.printedInvoiceCode || '';
+      initialFormData.printed_invoice_number = fileItem.ocrData.printedInvoiceNumber || '';
+      initialFormData.machine_code = fileItem.ocrData.machineCode || '';
+      initialFormData.form_type = fileItem.ocrData.formType || '';
+      initialFormData.drawer = fileItem.ocrData.drawer || '';
+      initialFormData.reviewer = fileItem.ocrData.reviewer || '';
+      initialFormData.recipient = fileItem.ocrData.recipient || '';
+      
+      initialFormData.remarks = fileItem.ocrData.remarks || fileItem.ocrData.notes || '';
     }
     
-    setEditingData({ fileId, ...ocrDataWithFormattedDate });
-    setShowEditModal(true);
+    console.log('🔧 [editOcrData] 初始表单数据:', initialFormData);
+    
+    setEditFormData(initialFormData);
+    setEditFormErrors({});
+    setIsOcrEditModalOpen(true);
   };
 
-  // 保存编辑的数据
-  const saveEditedData = () => {
-    if (!editingData) return;
+  // 处理字段变化
+  const handleFieldChange = (key: string, value: any) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [key]: value
+    }));
     
-    const { fileId, ...ocrData } = editingData;
+    // 清除该字段的错误
+    if (editFormErrors[key]) {
+      setEditFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[key];
+        return newErrors;
+      });
+    }
+  };
+
+  // 保存OCR编辑结果
+  const saveOcrEdit = () => {
+    if (!editingFileId || !editingOcrData) return;
+    
+    console.log('💾 [saveOcrEdit] 表单数据:', editFormData);
+    
+    // 将表单数据合并回OCR数据
+    const updatedOcrData = { ...editingOcrData };
+    
+    // 映射表单字段回OCR数据结构
+    Object.keys(editFormData).forEach(key => {
+      const value = editFormData[key];
+      
+      switch (key) {
+        // 基本发票字段
+        case 'invoice_number':
+          if (updatedOcrData.invoice_type === '火车票') {
+            updatedOcrData.ticketNumber = value;
+            updatedOcrData.ticket_number = value;
+          } else {
+            updatedOcrData.invoiceNumber = value;
+            updatedOcrData.invoice_number = value;
+          }
+          break;
+        case 'invoice_code':
+          updatedOcrData.invoiceCode = value;
+          updatedOcrData.invoice_code = value;
+          if (updatedOcrData.invoice_type === '火车票') {
+            updatedOcrData.electronicTicketNumber = value;
+          }
+          break;
+        case 'invoice_date':
+          updatedOcrData.invoiceDate = value;
+          updatedOcrData.invoice_date = value;
+          break;
+        case 'seller_name':
+          updatedOcrData.sellerName = value;
+          updatedOcrData.seller_name = value;
+          break;
+        case 'seller_tax_number':
+          updatedOcrData.sellerTaxNumber = value;
+          updatedOcrData.seller_tax_number = value;
+          break;
+        case 'buyer_name':
+          if (updatedOcrData.invoice_type === '火车票') {
+            updatedOcrData.passengerName = value;
+            updatedOcrData.passenger_name = value;
+          } else {
+            updatedOcrData.purchaserName = value;
+            updatedOcrData.buyer_name = value;
+            updatedOcrData.buyerName = value;
+          }
+          break;
+        case 'buyer_tax_number':
+          if (updatedOcrData.invoice_type === '火车票') {
+            updatedOcrData.buyerCreditCode = value;
+          } else {
+            updatedOcrData.purchaserTaxNumber = value;
+            updatedOcrData.buyer_tax_number = value;
+          }
+          break;
+        case 'total_amount':
+          if (updatedOcrData.invoice_type === '火车票') {
+            updatedOcrData.fare = value;
+            updatedOcrData.ticket_price = value;
+          } else {
+            updatedOcrData.totalAmount = value;
+            updatedOcrData.total_amount = value;
+          }
+          break;
+        case 'tax_amount':
+          updatedOcrData.invoiceTax = value;
+          updatedOcrData.tax_amount = value;
+          break;
+        case 'amount_without_tax':
+          updatedOcrData.invoiceAmountPreTax = value;
+          updatedOcrData.amount_without_tax = value;
+          break;
+        case 'remarks':
+          updatedOcrData.remarks = value;
+          updatedOcrData.notes = value;
+          break;
+        
+        // 火车票特殊字段
+        case 'train_number':
+          updatedOcrData.trainNumber = value;
+          updatedOcrData.train_number = value;
+          break;
+        case 'departure_station':
+          updatedOcrData.departureStation = value;
+          updatedOcrData.departure_station = value;
+          break;
+        case 'arrival_station':
+          updatedOcrData.arrivalStation = value;
+          updatedOcrData.arrival_station = value;
+          break;
+        case 'departure_time':
+          updatedOcrData.departureTime = value;
+          updatedOcrData.departure_time = value;
+          break;
+        case 'seat_type':
+          updatedOcrData.seatType = value;
+          updatedOcrData.seat_type = value;
+          break;
+        case 'seat_number':
+          updatedOcrData.seatNumber = value;
+          updatedOcrData.seat_number = value;
+          break;
+        case 'passenger_name':
+          updatedOcrData.passengerName = value;
+          updatedOcrData.passenger_name = value;
+          break;
+        case 'passenger_info':
+          updatedOcrData.passengerInfo = value;
+          updatedOcrData.id_number = value;
+          break;
+        case 'ticket_number':
+          updatedOcrData.ticketNumber = value;
+          updatedOcrData.ticket_number = value;
+          break;
+        case 'electronic_ticket_number':
+          updatedOcrData.electronicTicketNumber = value;
+          break;
+        case 'fare':
+          updatedOcrData.fare = value;
+          updatedOcrData.ticket_price = value;
+          break;
+        case 'buyer_credit_code':
+          updatedOcrData.buyerCreditCode = value;
+          break;
+        
+        // 增值税发票特殊字段
+        case 'invoice_type':
+          updatedOcrData.invoiceType = value;
+          updatedOcrData.invoice_type = value;
+          break;
+        case 'invoice_details':
+          updatedOcrData.invoiceDetails = value;
+          updatedOcrData.invoice_details = value;
+          break;
+        case 'check_code':
+          updatedOcrData.checkCode = value;
+          break;
+        case 'printed_invoice_code':
+          updatedOcrData.printedInvoiceCode = value;
+          break;
+        case 'printed_invoice_number':
+          updatedOcrData.printedInvoiceNumber = value;
+          break;
+        case 'machine_code':
+          updatedOcrData.machineCode = value;
+          break;
+        case 'form_type':
+          updatedOcrData.formType = value;
+          break;
+        case 'drawer':
+          updatedOcrData.drawer = value;
+          break;
+        case 'reviewer':
+          updatedOcrData.reviewer = value;
+          break;
+        case 'recipient':
+          updatedOcrData.recipient = value;
+          break;
+        
+        default:
+          // 其他字段直接设置
+          updatedOcrData[key] = value;
+          break;
+      }
+    });
+    
+    console.log('💾 [saveOcrEdit] 更新后的OCR数据:', updatedOcrData);
+    
+    // 更新文件的OCR数据
     setUploadFiles(prev => prev.map(f => 
-      f.id === fileId ? { ...f, ocrData } : f
+      f.id === editingFileId ? { ...f, ocrData: updatedOcrData } : f
     ));
     
-    setShowEditModal(false);
-    setEditingData(null);
+    // 关闭编辑模态框
+    setIsOcrEditModalOpen(false);
+    setEditingOcrData(null);
+    setEditingFileId(null);
+    setEditFormData({});
+    setEditFormErrors({});
+    
+    // 显示成功提示
+    notify.success('OCR数据已更新');
   };
+
+  // 取消OCR编辑
+  const cancelOcrEdit = () => {
+    setIsOcrEditModalOpen(false);
+    setEditingOcrData(null);
+    setEditingFileId(null);
+    setEditFormData({});
+    setEditFormErrors({});
+  };
+
 
   // 上传文件（包含OCR数据）
   const uploadFile = async (fileId: string) => {
@@ -435,8 +785,75 @@ const InvoiceUploadPage: React.FC = () => {
       console.error('❌ [uploadFile] 上传失败:', error);
       console.error('❌ [uploadFile] 错误详情:', error.response?.data || error.data || error);
       
-      const errorMessage = error.response?.data?.detail || 
+      // 检查是否是重复发票错误（409状态码）
+      console.log('🔍 [uploadFile] 检查错误状态码 - error.status:', error.status, 'error.response?.status:', error.response?.status);
+      console.log('🔍 [uploadFile] 完整错误对象:', error);
+      
+      if (error.status === 409 || error.response?.status === 409) {
+        // 尝试从多个可能的位置获取错误详情
+        // 由于apiClient拦截器包装了错误，需要从error.data获取
+        const responseData = error.data || error.response?.data;
+        console.log('🔄 [uploadFile] 检测到409错误，原始数据:', responseData);
+        
+        // 检查是否是包装的错误格式
+        let errorDetail;
+        console.log('🔍 [uploadFile] 分析错误响应结构:', JSON.stringify(responseData, null, 2));
+        
+        // 根据实际观察到的结构，错误可能被包装在不同层级
+        if (responseData?.error?.message) {
+          // 如果是 {error: {type: 'http_error', message: {...}}} 格式
+          errorDetail = responseData.error.message;
+          console.log('🔄 [uploadFile] 从error.message解析详情:', errorDetail);
+        } else if (responseData?.detail) {
+          // 如果是直接的 {detail: {...}} 格式
+          errorDetail = responseData.detail;
+          console.log('🔄 [uploadFile] 从detail解析详情:', errorDetail);
+        } else if (responseData?.message) {
+          // 如果错误信息在message字段
+          errorDetail = responseData.message;
+          console.log('🔄 [uploadFile] 从message解析详情:', errorDetail);
+        } else {
+          // 其他格式，使用原始数据
+          errorDetail = responseData;
+          console.log('🔄 [uploadFile] 使用原始数据作为详情:', errorDetail);
+        }
+        
+        console.log('🔍 [uploadFile] 最终解析的errorDetail:', errorDetail);
+        console.log('🔍 [uploadFile] errorDetail类型:', typeof errorDetail);
+        console.log('🔍 [uploadFile] errorDetail.error值:', errorDetail?.error);
+        
+        if (errorDetail?.error === 'duplicate_invoice' || errorDetail?.error === 'duplicate_invoice_constraint') {
+          console.log('✅ [uploadFile] 确认为重复发票，设置状态');
+          setUploadFiles(prev => {
+            const updated = prev.map(f => 
+              f.id === fileId ? { 
+                ...f, 
+                status: 'duplicate', 
+                error: errorDetail.message || '发票重复',
+                progress: 100,
+                duplicateInfo: {
+                  existingInvoiceId: errorDetail.existing_invoice_id,
+                  existingData: errorDetail.existing_data,
+                  options: errorDetail.options || ['cancel'],
+                  note: errorDetail.note
+                }
+              } : f
+            );
+            console.log('📊 [uploadFile] 更新后的文件状态:', updated.find(f => f.id === fileId));
+            return updated;
+          });
+          return; // 不继续执行通用错误处理
+        } else {
+          console.log('❌ [uploadFile] 409错误但不是重复发票类型:', errorDetail?.error);
+        }
+      } else {
+        console.log('❌ [uploadFile] 非409错误，状态码:', error.status || error.response?.status);
+      }
+      
+      const errorMessage = error.data?.detail?.message || 
                           error.data?.detail || 
+                          error.response?.data?.detail?.message || 
+                          error.response?.data?.detail || 
                           error.message || 
                           '上传失败';
       
@@ -478,6 +895,8 @@ const InvoiceUploadPage: React.FC = () => {
         return <CheckCircle className="w-4 h-4 text-info" />;
       case 'success':
         return <CheckCircle className="w-4 h-4 text-success" />;
+      case 'duplicate':
+        return <AlertCircle className="w-4 h-4 text-warning" />;
       case 'error':
         return <AlertCircle className="w-4 h-4 text-error" />;
       default:
@@ -497,6 +916,8 @@ const InvoiceUploadPage: React.FC = () => {
         return '上传中...';
       case 'success':
         return '上传成功';
+      case 'duplicate':
+        return '发票重复';
       case 'error':
         return fileItem.error || '处理失败';
       default:
@@ -599,6 +1020,49 @@ const InvoiceUploadPage: React.FC = () => {
                           </div>
                         )}
                         
+                        {/* 重复发票信息 */}
+                        {(() => {
+                          console.log(`🔍 [UI渲染] 文件 ${fileItem.id} 状态:`, fileItem.status, '是否有duplicateInfo:', !!fileItem.duplicateInfo);
+                          return null;
+                        })()}
+                        {fileItem.status === 'duplicate' && fileItem.duplicateInfo && (
+                          <div className="mt-3 p-3 bg-warning/10 border border-warning/20 rounded-lg text-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertCircle className="w-4 h-4 text-warning" />
+                              <span className="font-medium text-warning">发票重复</span>
+                            </div>
+                            <p className="mb-3 text-base-content/80">{fileItem.error}</p>
+                            
+                            {fileItem.duplicateInfo.existingData && (
+                              <div className="mb-3 p-2 bg-base-200 rounded">
+                                <p className="font-medium mb-1">已存在的发票信息：</p>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div>
+                                    <span className="text-base-content/60">发票号：</span>
+                                    <span>{fileItem.duplicateInfo.existingData.invoice_number}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-base-content/60">金额：</span>
+                                    <span>¥{fileItem.duplicateInfo.existingData.total_amount}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-base-content/60">销售方：</span>
+                                    <span>{fileItem.duplicateInfo.existingData.seller_name || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-base-content/60">开票日期：</span>
+                                    <span>{fileItem.duplicateInfo.existingData.invoice_date || '-'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {fileItem.duplicateInfo.note && (
+                              <p className="text-xs text-base-content/60 italic">{fileItem.duplicateInfo.note}</p>
+                            )}
+                          </div>
+                        )}
+
                         {/* OCR识别结果预览 */}
                         {fileItem.status === 'recognized' && fileItem.ocrData && (
                           <div className="mt-3 p-3 bg-base-200 rounded-lg text-sm">
@@ -695,6 +1159,32 @@ const InvoiceUploadPage: React.FC = () => {
                           </>
                         )}
                         
+                        {fileItem.status === 'duplicate' && (
+                          <>
+                            <button 
+                              className="btn btn-sm btn-outline"
+                              onClick={() => {
+                                // 查看已存在的发票
+                                if (fileItem.duplicateInfo?.existingInvoiceId) {
+                                  navigate(`/invoices/detail/${fileItem.duplicateInfo.existingInvoiceId}`);
+                                }
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                              查看原发票
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-warning"
+                              onClick={() => {
+                                // TODO: 实现强制覆盖功能
+                                console.log('强制覆盖发票', fileItem.duplicateInfo);
+                              }}
+                            >
+                              强制覆盖
+                            </button>
+                          </>
+                        )}
+
                         {fileItem.status === 'error' && (
                           <button 
                             className="btn btn-sm btn-primary"
@@ -737,366 +1227,75 @@ const InvoiceUploadPage: React.FC = () => {
       </div>
       </div>
 
-      {/* 编辑模态框 */}
-      {showEditModal && editingData && (
-        <div className="modal modal-open">
-          <div className="modal-box max-w-2xl">
-            <h3 className="font-bold text-lg mb-4">
-              编辑{editingData.invoice_type === '火车票' ? '火车票' : '发票'}信息
+      {/* OCR 编辑模态框 - 使用自适应字段组件 */}
+      {isOcrEditModalOpen && editingOcrData && (
+        <dialog className="modal modal-bottom sm:modal-middle modal-open">
+          <div className="modal-box w-full max-w-4xl mx-4 sm:mx-auto h-[90vh] sm:h-auto">
+            {/* 关闭按钮 */}
+            <form method="dialog">
+              <button 
+                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                onClick={cancelOcrEdit}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* 标题 */}
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <Edit2 className="w-5 h-5 text-primary" />
+              编辑发票信息
             </h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {/* 发票类型 */}
-              <div className="form-control col-span-2">
-                <label className="label">
-                  <span className="label-text">类型</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered bg-base-200"
-                  value={editingData.invoice_type || ''}
-                  readOnly
+
+            {/* 内容区域 */}
+            <div className="py-4 overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(80vh-180px)]">
+              <div className="space-y-4">
+                {/* 状态标签 */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="badge badge-warning gap-2">
+                    <Clock className="w-3 h-3" />
+                    OCR识别
+                  </div>
+                  <div className="badge badge-info gap-2">
+                    <FileText className="w-3 h-3" />
+                    编辑中
+                  </div>
+                </div>
+                
+                {/* 使用自适应字段组件显示发票信息 */}
+                <AdaptiveInvoiceFields
+                  invoice={createInvoiceFromOcrData(editingOcrData)}
+                  mode="edit"
+                  editData={editFormData}
+                  onFieldChange={handleFieldChange}
+                  errors={editFormErrors}
                 />
               </div>
-
-              {/* 增值税发票字段 */}
-              {editingData.invoice_type !== '火车票' && (
-                <>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">发票号码</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.invoiceNumber || editingData.invoice_number || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceNumber: e.target.value, invoice_number: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">发票代码</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.invoiceCode || editingData.invoice_code || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceCode: e.target.value, invoice_code: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">开票日期</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="input input-bordered"
-                      value={editingData.invoiceDate || editingData.invoice_date || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceDate: e.target.value, invoice_date: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">金额</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      value={editingData.totalAmount || editingData.total_amount || ''}
-                      onChange={(e) => setEditingData({...editingData, totalAmount: e.target.value, total_amount: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control col-span-2">
-                    <label className="label">
-                      <span className="label-text">销售方名称</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.sellerName || editingData.seller_name || ''}
-                      onChange={(e) => setEditingData({...editingData, sellerName: e.target.value, seller_name: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control col-span-2">
-                    <label className="label">
-                      <span className="label-text">购买方名称</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.purchaserName || editingData.buyer_name || ''}
-                      onChange={(e) => setEditingData({...editingData, purchaserName: e.target.value, buyer_name: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">税额</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      value={editingData.invoiceTax || editingData.tax_amount || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceTax: e.target.value, tax_amount: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">不含税金额</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      value={editingData.invoiceAmountPreTax || editingData.amount_without_tax || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceAmountPreTax: e.target.value, amount_without_tax: e.target.value})}
-                    />
-                  </div>
-                  
-                  {editingData.invoiceDetails && editingData.invoiceDetails.length > 0 && (
-                    <div className="form-control col-span-2">
-                      <label className="label">
-                        <span className="label-text">发票明细项目</span>
-                      </label>
-                      <div className="bg-base-200 p-3 rounded-lg">
-                        {editingData.invoiceDetails.map((detail: any, index: number) => (
-                          <div key={index} className="mb-2 last:mb-0">
-                            <div className="text-sm font-medium">{detail.itemName}</div>
-                            <div className="text-xs text-base-content/60">
-                              数量: {detail.quantity} {detail.unit} | 
-                              单价: ¥{detail.unitPrice} | 
-                              金额: ¥{detail.amount} | 
-                              税率: {detail.taxRate}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="form-control col-span-2">
-                    <label className="label">
-                      <span className="label-text">备注</span>
-                    </label>
-                    <textarea
-                      className="textarea textarea-bordered"
-                      rows={3}
-                      value={editingData.remarks || ''}
-                      onChange={(e) => setEditingData({...editingData, remarks: e.target.value})}
-                      placeholder="备注内容"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* 火车票字段 */}
-              {(editingData.invoice_type === '火车票' || editingData.title?.includes('电子发票(铁路电子客票)')) && (
-                <>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">车票号</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.ticketNumber || editingData.ticket_number || ''}
-                      onChange={(e) => setEditingData({...editingData, ticketNumber: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">电子客票号</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.electronicTicketNumber || ''}
-                      onChange={(e) => setEditingData({...editingData, electronicTicketNumber: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">开票日期</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="input input-bordered"
-                      value={editingData.invoiceDate || ''}
-                      onChange={(e) => setEditingData({...editingData, invoiceDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">车次</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.trainNumber || editingData.train_number || ''}
-                      onChange={(e) => setEditingData({...editingData, trainNumber: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">乘车人</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.passengerName || editingData.passenger_name || ''}
-                      onChange={(e) => setEditingData({...editingData, passengerName: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">乘客信息</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.passengerInfo || editingData.id_number || ''}
-                      onChange={(e) => setEditingData({...editingData, passengerInfo: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">购买方名称</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.buyerName || ''}
-                      onChange={(e) => setEditingData({...editingData, buyerName: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">购买方税号</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.buyerCreditCode || ''}
-                      onChange={(e) => setEditingData({...editingData, buyerCreditCode: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">出发时间</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.departureTime || editingData.departure_time || ''}
-                      onChange={(e) => setEditingData({...editingData, departureTime: e.target.value})}
-                      placeholder="例：2025年03月24日08:45开"
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">出发站</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.departureStation || editingData.departure_station || ''}
-                      onChange={(e) => setEditingData({...editingData, departureStation: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">到达站</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.arrivalStation || editingData.arrival_station || ''}
-                      onChange={(e) => setEditingData({...editingData, arrivalStation: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">座位号</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.seatNumber || editingData.seat_number || ''}
-                      onChange={(e) => setEditingData({...editingData, seatNumber: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">座位类型</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.seatType || editingData.seat_type || ''}
-                      onChange={(e) => setEditingData({...editingData, seatType: e.target.value})}
-                      placeholder="商务座/一等座/二等座等"
-                    />
-                  </div>
-                  
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">票价</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      value={editingData.fare || editingData.ticket_price || ''}
-                      onChange={(e) => setEditingData({...editingData, fare: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="form-control col-span-2">
-                    <label className="label">
-                      <span className="label-text">备注</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={editingData.remarks || ''}
-                      onChange={(e) => setEditingData({...editingData, remarks: e.target.value})}
-                      placeholder="如：始发改签"
-                    />
-                  </div>
-                </>
-              )}
             </div>
-            
+
+            {/* 操作按钮 */}
             <div className="modal-action">
-              <button className="btn" onClick={() => setShowEditModal(false)}>
+              <button
+                className="btn"
+                onClick={cancelOcrEdit}
+              >
                 取消
               </button>
-              <button className="btn btn-primary" onClick={saveEditedData}>
-                确定
+              <button
+                className="btn btn-primary"
+                onClick={saveOcrEdit}
+              >
+                <Save className="w-4 h-4" />
+                保存修改
               </button>
             </div>
           </div>
-        </div>
+
+          {/* 背景遮罩 */}
+          <form method="dialog" className="modal-backdrop">
+            <button onClick={cancelOcrEdit}>close</button>
+          </form>
+        </dialog>
       )}
     </Layout>
   );
