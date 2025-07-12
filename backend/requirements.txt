@@ -4,11 +4,13 @@ pydantic
 pydantic-settings
 python-dotenv
 sqlalchemy[asyncio]
+sqlmodel
 asyncpg
 psycopg2-binary
 psycopg
 psycopg-binary
 python-jose[cryptography]
+passlib[bcrypt]
 supabase
 httpx
 pytest
@@ -24,3 +26,9 @@ setuptools
 invoice2data
 PyMuPDF
 gunicorn
+cryptography
+alibabacloud-ocr-api20210707
+alibabacloud-tea-openapi
+alibabacloud-tea-util
+Pillow
+markupsafe
