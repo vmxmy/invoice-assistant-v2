@@ -171,9 +171,7 @@ async def upload_invoice_file(
             # 使用结构化数据
             invoice = Invoice(
                 user_id=current_user.id,
-                invoice_number=structured_data.main_info.invoice_number if structured_data.main_info.invoice_number else f"UPLOAD_{
-                    file_hash[
-                        :8]}",
+                invoice_number=structured_data.main_info.invoice_number if structured_data.main_info.invoice_number else f"UPLOAD_{file_hash[:8]}",
                 invoice_code=structured_data.main_info.invoice_code,
                 invoice_type=structured_data.main_info.invoice_type or '增值税普通发票',
                 invoice_date=structured_data.main_info.invoice_date,
