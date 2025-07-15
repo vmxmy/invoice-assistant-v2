@@ -15,6 +15,7 @@ class InvoiceBase(BaseModel):
     invoice_number: str = Field(..., description="发票号码")
     invoice_code: Optional[str] = Field(None, description="发票代码")
     invoice_date: date = Field(..., description="开票日期")
+    consumption_date: Optional[date] = Field(None, description="消费日期（实际消费/服务发生的日期）")
     seller_name: str = Field(..., description="销售方名称")
     seller_tax_number: Optional[str] = Field(None, description="销售方税号")
     buyer_name: str = Field(..., description="购买方名称")

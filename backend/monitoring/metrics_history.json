@@ -8435,6 +8435,896 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.6460418701171875,
+      "timestamp": "2025-07-12T22:29:30.636137",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.3210773468017578,
+      "timestamp": "2025-07-12T23:01:32.965751",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.45680999755859375,
+      "timestamp": "2025-07-12T23:26:56.421199",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2880096435546875,
+      "timestamp": "2025-07-12T23:26:57.774704",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2079010009765625,
+      "timestamp": "2025-07-13T10:22:48.571548",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.1272430419921875,
+      "timestamp": "2025-07-13T10:23:24.251214",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.40602684020996094,
+      "timestamp": "2025-07-13T10:23:55.203067",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.806020736694336,
+      "timestamp": "2025-07-13T10:24:27.574593",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.9186267852783203,
+      "timestamp": "2025-07-13T10:25:20.605218",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.8370876312255859,
+      "timestamp": "2025-07-13T10:30:37.071301",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5519390106201172,
+      "timestamp": "2025-07-13T10:30:40.519517",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.28204917907714844,
+      "timestamp": "2025-07-13T10:30:41.998030",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 2.51007080078125,
+      "timestamp": "2025-07-13T10:30:42.028667",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 8.332967758178711,
+      "timestamp": "2025-07-13T10:30:42.036875",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.19669532775878906,
+      "timestamp": "2025-07-13T10:32:12.605880",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.4432201385498047,
+      "timestamp": "2025-07-13T10:32:14.158535",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.19788742065429688,
+      "timestamp": "2025-07-13T10:32:14.171902",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 4.305362701416016,
+      "timestamp": "2025-07-13T10:33:45.869904",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5497932434082031,
+      "timestamp": "2025-07-13T10:36:08.266997",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.953125,
+      "timestamp": "2025-07-13T10:37:17.768410",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.4572868347167969,
+      "timestamp": "2025-07-13T10:38:23.771047",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.23794174194335938,
+      "timestamp": "2025-07-13T10:38:25.311000",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 48.638105392456055,
+      "timestamp": "2025-07-13T10:38:25.370069",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.3209114074707031,
+      "timestamp": "2025-07-13T10:38:32.059434",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5419254302978516,
+      "timestamp": "2025-07-13T10:42:57.735825",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.26297569274902344,
+      "timestamp": "2025-07-13T10:42:59.283610",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.7641315460205078,
+      "timestamp": "2025-07-13T10:42:59.300431",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.0960102081298828,
+      "timestamp": "2025-07-13T10:49:14.679202",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5359649658203125,
+      "timestamp": "2025-07-13T10:53:31.955600",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5211830139160156,
+      "timestamp": "2025-07-13T10:57:38.038575",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5059242248535156,
+      "timestamp": "2025-07-13T10:57:39.783579",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.225067138671875,
+      "timestamp": "2025-07-13T10:57:41.342696",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.1728534698486328,
+      "timestamp": "2025-07-13T10:57:41.350238",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.3731250762939453,
+      "timestamp": "2025-07-13T10:58:14.085166",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.9338855743408203,
+      "timestamp": "2025-07-13T10:58:51.665717",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.9949207305908203,
+      "timestamp": "2025-07-13T10:58:53.296861",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.27179718017578125,
+      "timestamp": "2025-07-13T10:58:53.312523",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.7299652099609375,
+      "timestamp": "2025-07-13T11:03:13.094306",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.8208751678466797,
+      "timestamp": "2025-07-13T11:03:35.757330",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 3.041982650756836,
+      "timestamp": "2025-07-13T11:05:21.651580",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.1819133758544922,
+      "timestamp": "2025-07-13T11:05:23.194014",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.17714500427246094,
+      "timestamp": "2025-07-13T11:05:24.647653",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.15211105346679688,
+      "timestamp": "2025-07-13T11:05:24.678210",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 2.3779869079589844,
+      "timestamp": "2025-07-13T11:06:38.026551",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 3.268003463745117,
+      "timestamp": "2025-07-13T11:07:07.276141",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.23293495178222656,
+      "timestamp": "2025-07-13T11:07:15.254074",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.18906593322753906,
+      "timestamp": "2025-07-13T11:07:19.121754",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.43010711669921875,
+      "timestamp": "2025-07-13T11:07:20.741474",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.17404556274414062,
+      "timestamp": "2025-07-13T11:07:20.751019",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.6020069122314453,
+      "timestamp": "2025-07-13T11:10:17.101817",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.30684471130371094,
+      "timestamp": "2025-07-13T11:10:33.064530",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.447916030883789,
+      "timestamp": "2025-07-13T11:10:34.549581",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2200603485107422,
+      "timestamp": "2025-07-13T11:10:34.562438",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.7560253143310547,
+      "timestamp": "2025-07-13T11:12:25.978463",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5848407745361328,
+      "timestamp": "2025-07-13T11:12:29.507203",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2288818359375,
+      "timestamp": "2025-07-13T11:12:31.343639",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.6520748138427734,
+      "timestamp": "2025-07-13T11:12:31.360340",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5829334259033203,
+      "timestamp": "2025-07-13T11:13:48.290587",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.7540454864501953,
+      "timestamp": "2025-07-13T11:14:04.297770",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.7810592651367188,
+      "timestamp": "2025-07-13T11:14:05.930112",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.286102294921875,
+      "timestamp": "2025-07-13T11:14:07.380978",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.20503997802734375,
+      "timestamp": "2025-07-13T11:14:07.395909",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 2.283811569213867,
+      "timestamp": "2025-07-13T11:15:06.044101",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.47779083251953125,
+      "timestamp": "2025-07-13T11:15:17.219121",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5469322204589844,
+      "timestamp": "2025-07-13T11:18:39.496480",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.33402442932128906,
+      "timestamp": "2025-07-13T11:18:46.848261",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2338886260986328,
+      "timestamp": "2025-07-13T11:18:48.496768",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 41.51606559753418,
+      "timestamp": "2025-07-13T11:18:48.551669",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.2712478637695312,
+      "timestamp": "2025-07-13T11:20:02.183926",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.3581047058105469,
+      "timestamp": "2025-07-13T11:25:19.851906",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2999305725097656,
+      "timestamp": "2025-07-13T11:25:53.342183",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.3237724304199219,
+      "timestamp": "2025-07-13T11:25:54.888062",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.28204917907714844,
+      "timestamp": "2025-07-13T11:25:54.909027",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.6630420684814453,
+      "timestamp": "2025-07-13T11:27:26.447006",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2810955047607422,
+      "timestamp": "2025-07-13T11:27:28.103983",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.2090930938720703,
+      "timestamp": "2025-07-13T11:27:28.115366",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5350112915039062,
+      "timestamp": "2025-07-15T10:18:43.754671",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.1678466796875,
+      "timestamp": "2025-07-15T10:18:45.043662",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.74005126953125,
+      "timestamp": "2025-07-15T10:18:54.723576",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.0340213775634766,
+      "timestamp": "2025-07-15T10:18:56.937517",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.1179447174072266,
+      "timestamp": "2025-07-15T10:19:18.161620",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.5891323089599609,
+      "timestamp": "2025-07-15T10:25:34.474050",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.20313262939453125,
+      "timestamp": "2025-07-15T10:25:54.809738",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 1.9369125366210938,
+      "timestamp": "2025-07-15T10:26:40.375153",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.28896331787109375,
+      "timestamp": "2025-07-15T10:26:59.918549",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.213623046875,
+      "timestamp": "2025-07-15T10:27:37.272265",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.48804283142089844,
+      "timestamp": "2025-07-15T10:28:27.896331",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.3209114074707031,
+      "timestamp": "2025-07-15T10:28:50.241416",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+      "execution_time_ms": 0.6797313690185547,
+      "timestamp": "2025-07-15T10:32:06.289161",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_profiles_me": [
@@ -16517,6 +17407,926 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1617.311954498291,
+      "timestamp": "2025-07-12T22:29:32.258963",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 3076.0657787323,
+      "timestamp": "2025-07-12T23:01:36.045614",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1328.8209438323975,
+      "timestamp": "2025-07-12T23:26:57.753728",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1564.4652843475342,
+      "timestamp": "2025-07-13T10:22:41.928653",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1542.219638824463,
+      "timestamp": "2025-07-13T10:22:43.551821",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1556.8633079528809,
+      "timestamp": "2025-07-13T10:22:45.114379",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1575.8490562438965,
+      "timestamp": "2025-07-13T10:22:46.696472",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1522.036075592041,
+      "timestamp": "2025-07-13T10:22:48.222304",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1486.490249633789,
+      "timestamp": "2025-07-13T10:22:50.062985",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1523.5588550567627,
+      "timestamp": "2025-07-13T10:23:25.783277",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1560.4758262634277,
+      "timestamp": "2025-07-13T10:23:56.765713",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1616.5239810943604,
+      "timestamp": "2025-07-13T10:24:29.202025",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1606.760025024414,
+      "timestamp": "2025-07-13T10:25:22.223894",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1487.8449440002441,
+      "timestamp": "2025-07-13T10:30:38.562753",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1406.5179824829102,
+      "timestamp": "2025-07-13T10:30:41.927941",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1366.9369220733643,
+      "timestamp": "2025-07-13T10:30:43.369103",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1393.9108848571777,
+      "timestamp": "2025-07-13T10:30:43.466382",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1447.0579624176025,
+      "timestamp": "2025-07-13T10:30:43.521236",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1489.3920421600342,
+      "timestamp": "2025-07-13T10:32:14.100469",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1377.6357173919678,
+      "timestamp": "2025-07-13T10:32:15.543758",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1451.2357711791992,
+      "timestamp": "2025-07-13T10:32:15.624421",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1529.3831825256348,
+      "timestamp": "2025-07-13T10:33:47.405928",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1524.0051746368408,
+      "timestamp": "2025-07-13T10:36:09.795024",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1505.0439834594727,
+      "timestamp": "2025-07-13T10:37:19.281181",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1493.3140277862549,
+      "timestamp": "2025-07-13T10:38:25.270016",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1411.897897720337,
+      "timestamp": "2025-07-13T10:38:26.724311",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1405.2722454071045,
+      "timestamp": "2025-07-13T10:38:26.777864",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1448.9250183105469,
+      "timestamp": "2025-07-13T10:38:33.550414",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1462.9147052764893,
+      "timestamp": "2025-07-13T10:42:59.202463",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1441.2758350372314,
+      "timestamp": "2025-07-13T10:43:00.727994",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1708.6548805236816,
+      "timestamp": "2025-07-13T10:43:01.010478",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1506.7861080169678,
+      "timestamp": "2025-07-13T10:49:16.192590",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1875.1332759857178,
+      "timestamp": "2025-07-13T10:53:33.834774",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1553.5829067230225,
+      "timestamp": "2025-07-13T10:57:39.595299",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1490.7190799713135,
+      "timestamp": "2025-07-13T10:57:41.276509",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1507.1649551391602,
+      "timestamp": "2025-07-13T10:57:42.859125",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1555.0510883331299,
+      "timestamp": "2025-07-13T10:57:42.899309",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1929.2218685150146,
+      "timestamp": "2025-07-13T10:58:16.074747",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1542.3479080200195,
+      "timestamp": "2025-07-13T10:58:53.217044",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1386.584997177124,
+      "timestamp": "2025-07-13T10:58:54.686390",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1468.0829048156738,
+      "timestamp": "2025-07-13T10:58:54.783440",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1990.6229972839355,
+      "timestamp": "2025-07-13T11:03:15.091934",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1370.6140518188477,
+      "timestamp": "2025-07-13T11:03:37.132328",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1512.481927871704,
+      "timestamp": "2025-07-13T11:05:23.175255",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1388.8270854949951,
+      "timestamp": "2025-07-13T11:05:24.589999",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1409.8129272460938,
+      "timestamp": "2025-07-13T11:05:26.091333",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1506.1299800872803,
+      "timestamp": "2025-07-13T11:05:26.155110",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1501.3461112976074,
+      "timestamp": "2025-07-13T11:06:39.576844",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1692.7368640899658,
+      "timestamp": "2025-07-13T11:07:08.974912",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1425.2650737762451,
+      "timestamp": "2025-07-13T11:07:16.681832",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1532.0510864257812,
+      "timestamp": "2025-07-13T11:07:20.667084",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1592.716932296753,
+      "timestamp": "2025-07-13T11:07:22.344585",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1800.5518913269043,
+      "timestamp": "2025-07-13T11:07:22.543560",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1470.8948135375977,
+      "timestamp": "2025-07-13T11:10:18.585570",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1406.548023223877,
+      "timestamp": "2025-07-13T11:10:34.475942",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1500.497817993164,
+      "timestamp": "2025-07-13T11:10:36.065091",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1524.0180492401123,
+      "timestamp": "2025-07-13T11:10:36.078652",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1890.7089233398438,
+      "timestamp": "2025-07-13T11:12:27.925141",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1758.0029964447021,
+      "timestamp": "2025-07-13T11:12:31.271939",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1795.2640056610107,
+      "timestamp": "2025-07-13T11:12:33.163921",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1817.7318572998047,
+      "timestamp": "2025-07-13T11:12:33.164370",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1784.4338417053223,
+      "timestamp": "2025-07-13T11:13:50.080061",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1499.1917610168457,
+      "timestamp": "2025-07-13T11:14:05.808981",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1378.019094467163,
+      "timestamp": "2025-07-13T11:14:07.310168",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1484.518051147461,
+      "timestamp": "2025-07-13T11:14:08.868190",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1546.8180179595947,
+      "timestamp": "2025-07-13T11:14:08.943702",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1559.3609809875488,
+      "timestamp": "2025-07-13T11:15:07.606934",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1603.8463115692139,
+      "timestamp": "2025-07-13T11:18:41.103519",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1570.2500343322754,
+      "timestamp": "2025-07-13T11:18:48.426115",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1539.1788482666016,
+      "timestamp": "2025-07-13T11:18:50.038436",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1485.307216644287,
+      "timestamp": "2025-07-13T11:18:50.039064",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1664.491891860962,
+      "timestamp": "2025-07-13T11:20:03.855132",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1567.8560733795166,
+      "timestamp": "2025-07-13T11:25:21.422334",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1462.3970985412598,
+      "timestamp": "2025-07-13T11:25:54.810875",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1495.0590133666992,
+      "timestamp": "2025-07-13T11:25:56.384743",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1473.9959239959717,
+      "timestamp": "2025-07-13T11:25:56.385191",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1573.659896850586,
+      "timestamp": "2025-07-13T11:27:28.056817",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1810.4000091552734,
+      "timestamp": "2025-07-13T11:27:29.915878",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1814.5883083343506,
+      "timestamp": "2025-07-13T11:27:29.931035",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1278.4309387207031,
+      "timestamp": "2025-07-15T10:18:45.037553",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1398.2889652252197,
+      "timestamp": "2025-07-15T10:18:46.444278",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1029.2339324951172,
+      "timestamp": "2025-07-15T10:18:55.757116",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 998.7890720367432,
+      "timestamp": "2025-07-15T10:18:57.944026",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 992.4311637878418,
+      "timestamp": "2025-07-15T10:19:19.168442",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1045.3429222106934,
+      "timestamp": "2025-07-15T10:25:35.522522",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 986.4540100097656,
+      "timestamp": "2025-07-15T10:25:55.802205",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1013.9110088348389,
+      "timestamp": "2025-07-15T10:26:41.494608",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 946.281909942627,
+      "timestamp": "2025-07-15T10:27:00.867813",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1473.9513397216797,
+      "timestamp": "2025-07-15T10:27:38.749153",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 1023.6520767211914,
+      "timestamp": "2025-07-15T10:28:28.927436",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 956.0589790344238,
+      "timestamp": "2025-07-15T10:28:51.199829",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_profiles_me",
+      "execution_time_ms": 997.7741241455078,
+      "timestamp": "2025-07-15T10:32:07.290975",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "invoice_search": [
@@ -17984,6 +19794,236 @@
       "query_name": "invoice_search",
       "execution_time_ms": 2434.967041015625,
       "timestamp": "2025-07-12T22:22:33.386532",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1552.1800518035889,
+      "timestamp": "2025-07-13T10:30:49.053132",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1600.4908084869385,
+      "timestamp": "2025-07-13T10:32:15.783713",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1472.8131294250488,
+      "timestamp": "2025-07-13T10:37:47.236185",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1413.2843017578125,
+      "timestamp": "2025-07-13T10:38:26.787430",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1459.9120616912842,
+      "timestamp": "2025-07-13T10:43:00.765212",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1531.4109325408936,
+      "timestamp": "2025-07-13T10:57:42.885804",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1477.1571159362793,
+      "timestamp": "2025-07-13T10:58:06.475881",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1509.8750591278076,
+      "timestamp": "2025-07-13T10:58:54.841300",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1492.2900199890137,
+      "timestamp": "2025-07-13T11:05:26.167843",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 2373.8203048706055,
+      "timestamp": "2025-07-13T11:07:23.129637",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1529.8070907592773,
+      "timestamp": "2025-07-13T11:10:36.098414",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1875.65016746521,
+      "timestamp": "2025-07-13T11:12:33.242967",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1492.624282836914,
+      "timestamp": "2025-07-13T11:14:08.890872",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1677.5269508361816,
+      "timestamp": "2025-07-13T11:18:50.232510",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1502.1891593933105,
+      "timestamp": "2025-07-13T11:19:28.263494",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1639.4479274749756,
+      "timestamp": "2025-07-13T11:25:56.552351",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1840.2130603790283,
+      "timestamp": "2025-07-13T11:27:29.957994",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1031.5070152282715,
+      "timestamp": "2025-07-15T10:18:57.974426",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1102.5619506835938,
+      "timestamp": "2025-07-15T10:19:39.861770",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1073.6641883850098,
+      "timestamp": "2025-07-15T10:20:07.260325",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 1404.7751426696777,
+      "timestamp": "2025-07-15T10:21:33.807178",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 957.7627182006836,
+      "timestamp": "2025-07-15T10:21:42.611167",
+      "query_hash": "4bcd8ea9",
+      "params_hash": "7206b5ea",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_search",
+      "execution_time_ms": 946.0978507995605,
+      "timestamp": "2025-07-15T10:27:20.032720",
       "query_hash": "4bcd8ea9",
       "params_hash": "7206b5ea",
       "result_count": null,
@@ -19471,6 +21511,236 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1682.4512481689453,
+      "timestamp": "2025-07-13T10:30:49.181118",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1748.9581108093262,
+      "timestamp": "2025-07-13T10:32:15.923363",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1662.5301837921143,
+      "timestamp": "2025-07-13T10:37:47.424071",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1532.371997833252,
+      "timestamp": "2025-07-13T10:38:26.905750",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1590.3708934783936,
+      "timestamp": "2025-07-13T10:43:00.893893",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1675.9259700775146,
+      "timestamp": "2025-07-13T10:57:43.028991",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1615.591049194336,
+      "timestamp": "2025-07-13T10:58:06.612863",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1650.264024734497,
+      "timestamp": "2025-07-13T10:58:54.977445",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1630.8588981628418,
+      "timestamp": "2025-07-13T11:05:26.302275",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 2521.01993560791,
+      "timestamp": "2025-07-13T11:07:23.274349",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1665.9090518951416,
+      "timestamp": "2025-07-13T11:10:36.231596",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 2019.5791721343994,
+      "timestamp": "2025-07-13T11:12:33.385029",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1671.8790531158447,
+      "timestamp": "2025-07-13T11:14:09.069317",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1818.964958190918,
+      "timestamp": "2025-07-13T11:18:50.373379",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1643.7621116638184,
+      "timestamp": "2025-07-13T11:19:28.403878",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1776.4389514923096,
+      "timestamp": "2025-07-13T11:25:56.688390",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1978.2850742340088,
+      "timestamp": "2025-07-13T11:27:30.095407",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1124.086856842041,
+      "timestamp": "2025-07-15T10:18:58.063096",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1192.638874053955,
+      "timestamp": "2025-07-15T10:19:39.950229",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1177.5801181793213,
+      "timestamp": "2025-07-15T10:20:07.359605",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1511.075735092163,
+      "timestamp": "2025-07-15T10:21:33.891802",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1062.2000694274902,
+      "timestamp": "2025-07-15T10:21:42.713848",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_",
+      "execution_time_ms": 1109.145164489746,
+      "timestamp": "2025-07-15T10:27:20.178077",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "invoice_statistics": [
@@ -19743,6 +22013,46 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_statistics",
+      "execution_time_ms": 1447.9780197143555,
+      "timestamp": "2025-07-13T10:22:43.470629",
+      "query_hash": "d35a4d6c",
+      "params_hash": "485ad865",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_statistics",
+      "execution_time_ms": 1517.4012184143066,
+      "timestamp": "2025-07-13T10:22:46.291055",
+      "query_hash": "d35a4d6c",
+      "params_hash": "485ad865",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_statistics",
+      "execution_time_ms": 1500.4348754882812,
+      "timestamp": "2025-07-13T10:22:50.075472",
+      "query_hash": "d35a4d6c",
+      "params_hash": "485ad865",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_statistics",
+      "execution_time_ms": 1464.7729396820068,
+      "timestamp": "2025-07-13T10:30:43.540300",
+      "query_hash": "d35a4d6c",
+      "params_hash": "485ad865",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_statistics": [
@@ -20010,6 +22320,46 @@
       "query_name": "endpoint_GET _api_v1_invoices_statistics",
       "execution_time_ms": 1918.1020259857178,
       "timestamp": "2025-07-12T21:17:33.973980",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_statistics",
+      "execution_time_ms": 1739.828109741211,
+      "timestamp": "2025-07-13T10:22:43.759724",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_statistics",
+      "execution_time_ms": 1789.6621227264404,
+      "timestamp": "2025-07-13T10:22:46.562222",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_statistics",
+      "execution_time_ms": 1838.4640216827393,
+      "timestamp": "2025-07-13T10:22:50.412812",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_statistics",
+      "execution_time_ms": 1838.6881351470947,
+      "timestamp": "2025-07-13T10:30:43.913336",
       "query_hash": "",
       "params_hash": "",
       "result_count": null,
@@ -22759,6 +25109,366 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1627.70676612854,
+      "timestamp": "2025-07-12T22:22:50.441889",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1328.8187980651855,
+      "timestamp": "2025-07-13T10:30:51.950704",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1349.524974822998,
+      "timestamp": "2025-07-13T10:32:19.229806",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1606.8189144134521,
+      "timestamp": "2025-07-13T10:36:43.067664",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1368.2799339294434,
+      "timestamp": "2025-07-13T10:37:22.510598",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1178.4298419952393,
+      "timestamp": "2025-07-13T10:37:38.311374",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1232.536792755127,
+      "timestamp": "2025-07-13T10:37:38.361152",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1238.5280132293701,
+      "timestamp": "2025-07-13T10:37:38.372212",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1284.7371101379395,
+      "timestamp": "2025-07-13T10:37:38.423489",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1306.2388896942139,
+      "timestamp": "2025-07-13T10:37:38.444058",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1371.6368675231934,
+      "timestamp": "2025-07-13T10:37:38.507642",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1316.1332607269287,
+      "timestamp": "2025-07-13T10:37:41.806213",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1466.641902923584,
+      "timestamp": "2025-07-13T10:37:42.065914",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1226.4578342437744,
+      "timestamp": "2025-07-13T10:38:34.805198",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1306.6997528076172,
+      "timestamp": "2025-07-13T10:38:43.139114",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1368.34716796875,
+      "timestamp": "2025-07-13T10:57:45.631581",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1405.4899215698242,
+      "timestamp": "2025-07-13T10:58:00.148470",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1420.1769828796387,
+      "timestamp": "2025-07-13T10:58:00.166359",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1424.072265625,
+      "timestamp": "2025-07-13T10:58:00.169007",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1431.1678409576416,
+      "timestamp": "2025-07-13T10:58:00.171479",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1479.875087738037,
+      "timestamp": "2025-07-13T10:58:57.781757",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1459.8028659820557,
+      "timestamp": "2025-07-13T10:59:04.313309",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1513.2312774658203,
+      "timestamp": "2025-07-13T11:07:26.333830",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1306.7681789398193,
+      "timestamp": "2025-07-13T11:10:38.725016",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1622.0848560333252,
+      "timestamp": "2025-07-13T11:12:37.025495",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1449.8200416564941,
+      "timestamp": "2025-07-13T11:15:09.066996",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1599.7529029846191,
+      "timestamp": "2025-07-13T11:18:53.013347",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1401.379108428955,
+      "timestamp": "2025-07-13T11:19:13.574845",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1389.9378776550293,
+      "timestamp": "2025-07-13T11:19:22.629282",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1393.8229084014893,
+      "timestamp": "2025-07-13T11:19:22.637758",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1454.8249244689941,
+      "timestamp": "2025-07-13T11:19:22.697001",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1579.8289775848389,
+      "timestamp": "2025-07-13T11:25:59.994249",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1395.8637714385986,
+      "timestamp": "2025-07-13T11:26:19.766185",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 1607.490062713623,
+      "timestamp": "2025-07-15T10:19:02.462471",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 875.535249710083,
+      "timestamp": "2025-07-15T10:19:06.533798",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "invoice_by_id",
+      "execution_time_ms": 833.331823348999,
+      "timestamp": "2025-07-15T10:29:00.624062",
+      "query_hash": "5b6839e3",
+      "params_hash": "7aa8c02d",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_1c49ae74-b95e-49d2-a7f5-c1a2585d56d7": [
@@ -24199,6 +26909,236 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.3178119659423828,
+      "timestamp": "2025-07-13T10:30:47.495599",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.3790855407714844,
+      "timestamp": "2025-07-13T10:32:14.171825",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.14472007751464844,
+      "timestamp": "2025-07-13T10:37:45.753938",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.42891502380371094,
+      "timestamp": "2025-07-13T10:38:25.321505",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.931905746459961,
+      "timestamp": "2025-07-13T10:42:59.298560",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.3211498260498047,
+      "timestamp": "2025-07-13T10:57:41.350158",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.19288063049316406,
+      "timestamp": "2025-07-13T10:58:04.995543",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.0256767272949219,
+      "timestamp": "2025-07-13T10:58:53.312383",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.3058910369873047,
+      "timestamp": "2025-07-13T11:05:24.665930",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.17905235290527344,
+      "timestamp": "2025-07-13T11:07:20.749872",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.5791187286376953,
+      "timestamp": "2025-07-13T11:10:34.562331",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.580953598022461,
+      "timestamp": "2025-07-13T11:12:31.360013",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.4799365997314453,
+      "timestamp": "2025-07-13T11:14:07.395645",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.38313865661621094,
+      "timestamp": "2025-07-13T11:18:48.510245",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.21028518676757812,
+      "timestamp": "2025-07-13T11:19:26.757979",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.6859302520751953,
+      "timestamp": "2025-07-13T11:25:54.908791",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.30684471130371094,
+      "timestamp": "2025-07-13T11:27:28.115188",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.6008148193359375,
+      "timestamp": "2025-07-15T10:18:56.936593",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.6770362854003906,
+      "timestamp": "2025-07-15T10:19:38.753200",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.5049705505371094,
+      "timestamp": "2025-07-15T10:20:06.177649",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.2679100036621094,
+      "timestamp": "2025-07-15T10:21:32.372544",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 0.18095970153808594,
+      "timestamp": "2025-07-15T10:21:41.648043",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+      "execution_time_ms": 1.4660358428955078,
+      "timestamp": "2025-07-15T10:27:19.063084",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_DELETE _api_v1_invoices_1c49ae74-b95e-49d2-a7f5-c1a2585d56d7": [
@@ -24628,6 +27568,36 @@
       "query_name": "endpoint_OPTIONS _api_v1_invoices_statistics",
       "execution_time_ms": 1.8510818481445312,
       "timestamp": "2025-07-12T21:17:32.050967",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_statistics",
+      "execution_time_ms": 0.9019374847412109,
+      "timestamp": "2025-07-13T10:22:42.017909",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_statistics",
+      "execution_time_ms": 1.0759830474853516,
+      "timestamp": "2025-07-13T10:22:48.571461",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_statistics",
+      "execution_time_ms": 8.321046829223633,
+      "timestamp": "2025-07-13T10:30:42.036826",
       "query_hash": "",
       "params_hash": "",
       "result_count": null,
@@ -31857,6 +34827,146 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1021.3010311126709,
+      "timestamp": "2025-07-13T10:31:18.315967",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1798.933744430542,
+      "timestamp": "2025-07-13T10:31:19.091670",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 962.2519016265869,
+      "timestamp": "2025-07-13T10:33:56.327853",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 968.9648151397705,
+      "timestamp": "2025-07-13T10:37:58.231840",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1717.9510593414307,
+      "timestamp": "2025-07-13T10:37:58.982978",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 985.8932495117188,
+      "timestamp": "2025-07-13T10:53:41.215533",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1722.5160598754883,
+      "timestamp": "2025-07-13T10:53:41.953819",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1681.230068206787,
+      "timestamp": "2025-07-13T10:58:22.105530",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1679.8200607299805,
+      "timestamp": "2025-07-13T10:58:22.105653",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1743.994951248169,
+      "timestamp": "2025-07-13T11:05:40.969635",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1743.6089515686035,
+      "timestamp": "2025-07-13T11:05:40.970172",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1077.9356956481934,
+      "timestamp": "2025-07-13T11:19:32.821254",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 1837.615966796875,
+      "timestamp": "2025-07-13T11:19:33.582083",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_ocr_recognize",
+      "execution_time_ms": 930.2501678466797,
+      "timestamp": "2025-07-13T11:25:43.811456",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_POST _api_v1_ocr_recognize_train-ticket": [
@@ -33181,6 +36291,146 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 1.5399456024169922,
+      "timestamp": "2025-07-13T10:31:17.225831",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 64.14103507995605,
+      "timestamp": "2025-07-13T10:31:17.289657",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.80108642578125,
+      "timestamp": "2025-07-13T10:33:55.363067",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.8819103240966797,
+      "timestamp": "2025-07-13T10:37:57.259815",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.4773139953613281,
+      "timestamp": "2025-07-13T10:37:57.260061",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.3330707550048828,
+      "timestamp": "2025-07-13T10:53:40.227755",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.18668174743652344,
+      "timestamp": "2025-07-13T10:53:40.227837",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.7269382476806641,
+      "timestamp": "2025-07-13T10:58:20.421766",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.7100105285644531,
+      "timestamp": "2025-07-13T10:58:20.422387",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 1.1661052703857422,
+      "timestamp": "2025-07-13T11:05:39.169683",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.5300045013427734,
+      "timestamp": "2025-07-13T11:05:39.169988",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.45609474182128906,
+      "timestamp": "2025-07-13T11:19:31.741025",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.2338886260986328,
+      "timestamp": "2025-07-13T11:19:31.741141",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_ocr_recognize",
+      "execution_time_ms": 0.6761550903320312,
+      "timestamp": "2025-07-13T11:25:42.876808",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_OPTIONS _api_v1_invoices_create-with-file": [
@@ -33488,6 +36738,116 @@
       "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
       "execution_time_ms": 0.2841949462890625,
       "timestamp": "2025-07-12T22:22:16.982248",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.49424171447753906,
+      "timestamp": "2025-07-13T10:31:54.738637",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.44798851013183594,
+      "timestamp": "2025-07-13T10:32:01.474700",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.17380714416503906,
+      "timestamp": "2025-07-13T10:38:12.231754",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.5061626434326172,
+      "timestamp": "2025-07-13T10:38:13.340890",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.537872314453125,
+      "timestamp": "2025-07-13T10:53:44.284632",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.7879734039306641,
+      "timestamp": "2025-07-13T10:53:59.987817",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.23508071899414062,
+      "timestamp": "2025-07-13T10:58:24.199358",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.6279945373535156,
+      "timestamp": "2025-07-13T10:58:43.049568",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.30517578125,
+      "timestamp": "2025-07-13T11:05:44.330425",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.20694732666015625,
+      "timestamp": "2025-07-13T11:19:51.995316",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+      "execution_time_ms": 0.2589225769042969,
+      "timestamp": "2025-07-13T11:25:45.541723",
       "query_hash": "",
       "params_hash": "",
       "result_count": null,
@@ -33835,6 +37195,116 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5037.44101524353,
+      "timestamp": "2025-07-13T10:31:59.779833",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 4566.233158111572,
+      "timestamp": "2025-07-13T10:32:06.043147",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 6238.252878189087,
+      "timestamp": "2025-07-13T10:38:18.471452",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5942.384958267212,
+      "timestamp": "2025-07-13T10:38:19.292068",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5059.530973434448,
+      "timestamp": "2025-07-13T10:53:49.346337",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 4768.671989440918,
+      "timestamp": "2025-07-13T10:54:04.761978",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 4949.6400356292725,
+      "timestamp": "2025-07-13T10:58:29.151339",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5061.932802200317,
+      "timestamp": "2025-07-13T10:58:48.114937",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 4761.912107467651,
+      "timestamp": "2025-07-13T11:05:49.136783",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5298.573970794678,
+      "timestamp": "2025-07-13T11:19:57.295457",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
+      "execution_time_ms": 5214.842081069946,
+      "timestamp": "2025-07-13T11:25:50.758597",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_OPTIONS _api_v1_invoices_4c0bdf41-7614-49c7-8d1e-b36fb62eda7d": [
@@ -34078,6 +37548,16 @@
       "query_name": "endpoint_OPTIONS _api_v1_invoices_75bb0655-207c-4152-91e1-f517bc3f10d1",
       "execution_time_ms": 0.4858970642089844,
       "timestamp": "2025-07-12T13:39:48.217509",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_75bb0655-207c-4152-91e1-f517bc3f10d1",
+      "execution_time_ms": 1.6329288482666016,
+      "timestamp": "2025-07-13T10:37:37.063073",
       "query_hash": "",
       "params_hash": "",
       "result_count": null,
@@ -34381,6 +37861,16 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_f176cfc2-3d57-401d-ada0-990ac34e4617",
+      "execution_time_ms": 2.8810501098632812,
+      "timestamp": "2025-07-13T10:37:37.062832",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_f176cfc2-3d57-401d-ada0-990ac34e4617": [
@@ -34639,6 +38129,16 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_29e56fb3-28da-4508-a493-13fdf76fa3cb",
+      "execution_time_ms": 2.9718875885009766,
+      "timestamp": "2025-07-13T10:37:37.059782",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_29e56fb3-28da-4508-a493-13fdf76fa3cb": [
@@ -34755,6 +38255,16 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_b2b0e6e1-f1c1-468c-b02b-e76fd07afbc6",
+      "execution_time_ms": 2.98309326171875,
+      "timestamp": "2025-07-13T10:37:37.059717",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_b2b0e6e1-f1c1-468c-b02b-e76fd07afbc6": [
@@ -34829,6 +38339,16 @@
       "result_count": null,
       "memory_usage_mb": null,
       "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_fab9e68b-ba76-4dea-b3a5-8b6430ffb223",
+      "execution_time_ms": 2.9120445251464844,
+      "timestamp": "2025-07-13T10:37:37.059589",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
     }
   ],
   "endpoint_GET _api_v1_invoices_fab9e68b-ba76-4dea-b3a5-8b6430ffb223": [
@@ -34882,6 +38402,764 @@
       "query_name": "endpoint_OPTIONS _api_v1_invoices_7203b622-2e57-497a-84f5-cf448f2ab5cf",
       "execution_time_ms": 0.20575523376464844,
       "timestamp": "2025-07-12T22:22:38.327424",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_7203b622-2e57-497a-84f5-cf448f2ab5cf": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_7203b622-2e57-497a-84f5-cf448f2ab5cf",
+      "execution_time_ms": 1834.737777709961,
+      "timestamp": "2025-07-12T22:22:40.165315",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 0.17309188842773438,
+      "timestamp": "2025-07-12T22:22:48.809134",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 0.19407272338867188,
+      "timestamp": "2025-07-13T10:30:50.617573",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 1.992940902709961,
+      "timestamp": "2025-07-13T10:37:37.055482",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 2133.1472396850586,
+      "timestamp": "2025-07-12T22:22:50.944861",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 1478.243112564087,
+      "timestamp": "2025-07-13T10:30:52.098845",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 0.2841949462890625,
+      "timestamp": "2025-07-13T10:32:17.875056",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 0.16498565673828125,
+      "timestamp": "2025-07-13T10:37:21.134442",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 1.9886493682861328,
+      "timestamp": "2025-07-13T10:37:37.054786",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 1480.1089763641357,
+      "timestamp": "2025-07-13T10:32:19.358243",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 1500.9620189666748,
+      "timestamp": "2025-07-13T10:37:22.641043",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4",
+      "execution_time_ms": 0.823974609375,
+      "timestamp": "2025-07-13T10:36:41.444080",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4",
+      "execution_time_ms": 2.0987987518310547,
+      "timestamp": "2025-07-13T10:37:37.053200",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4",
+      "execution_time_ms": 1803.102970123291,
+      "timestamp": "2025-07-13T10:36:43.251280",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_0b9c2731-07e1-42ad-866e-8bbbe3c0d0de",
+      "execution_time_ms": 3344.5699214935303,
+      "timestamp": "2025-07-13T10:37:40.477794",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_ec4c1bb4-6ece-4bc8-8fe2-10c28a52d850",
+      "execution_time_ms": 3464.15376663208,
+      "timestamp": "2025-07-13T10:37:40.596075",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_83d3b9f6-0d64-4f0a-b114-778ad44c05f4",
+      "execution_time_ms": 3662.7798080444336,
+      "timestamp": "2025-07-13T10:37:40.725718",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_fab9e68b-ba76-4dea-b3a5-8b6430ffb223": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_fab9e68b-ba76-4dea-b3a5-8b6430ffb223",
+      "execution_time_ms": 3715.98482131958,
+      "timestamp": "2025-07-13T10:37:40.849846",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_29e56fb3-28da-4508-a493-13fdf76fa3cb": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_29e56fb3-28da-4508-a493-13fdf76fa3cb",
+      "execution_time_ms": 3843.690872192383,
+      "timestamp": "2025-07-13T10:37:40.979957",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_b2b0e6e1-f1c1-468c-b02b-e76fd07afbc6": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_b2b0e6e1-f1c1-468c-b02b-e76fd07afbc6",
+      "execution_time_ms": 3969.937801361084,
+      "timestamp": "2025-07-13T10:37:41.107914",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_f176cfc2-3d57-401d-ada0-990ac34e4617": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_f176cfc2-3d57-401d-ada0-990ac34e4617",
+      "execution_time_ms": 3531.4159393310547,
+      "timestamp": "2025-07-13T10:37:44.016403",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_75bb0655-207c-4152-91e1-f517bc3f10d1": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_75bb0655-207c-4152-91e1-f517bc3f10d1",
+      "execution_time_ms": 3570.327043533325,
+      "timestamp": "2025-07-13T10:37:44.168996",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a",
+      "execution_time_ms": 0.25916099548339844,
+      "timestamp": "2025-07-13T10:38:33.567013",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a",
+      "execution_time_ms": 0.8068084716796875,
+      "timestamp": "2025-07-13T10:57:58.736055",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a",
+      "execution_time_ms": 1365.635871887207,
+      "timestamp": "2025-07-13T10:38:34.935438",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007",
+      "execution_time_ms": 0.1919269561767578,
+      "timestamp": "2025-07-13T10:38:41.828494",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007",
+      "execution_time_ms": 0.8721351623535156,
+      "timestamp": "2025-07-13T10:57:58.736347",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007",
+      "execution_time_ms": 1438.7779235839844,
+      "timestamp": "2025-07-13T10:38:43.269696",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11",
+      "execution_time_ms": 0.40602684020996094,
+      "timestamp": "2025-07-13T10:57:44.257380",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11",
+      "execution_time_ms": 1.9829273223876953,
+      "timestamp": "2025-07-13T10:57:58.735091",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11",
+      "execution_time_ms": 1516.2277221679688,
+      "timestamp": "2025-07-13T10:57:45.777716",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_a9155790-a88c-4485-ac3e-d9dce55ad259": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_a9155790-a88c-4485-ac3e-d9dce55ad259",
+      "execution_time_ms": 1.088857650756836,
+      "timestamp": "2025-07-13T10:57:58.735765",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_b8a024a6-1aef-459b-b7a4-9d4061c18b0a",
+      "execution_time_ms": 3611.253023147583,
+      "timestamp": "2025-07-13T10:58:02.355223",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_a9155790-a88c-4485-ac3e-d9dce55ad259": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_a9155790-a88c-4485-ac3e-d9dce55ad259",
+      "execution_time_ms": 3747.7660179138184,
+      "timestamp": "2025-07-13T10:58:02.489846",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_fedfd0f3-609b-4bc9-b57a-6dd36aca8007",
+      "execution_time_ms": 3900.291919708252,
+      "timestamp": "2025-07-13T10:58:02.645805",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_5a725de8-c426-4d0f-a095-8a778997bd11",
+      "execution_time_ms": 4024.643898010254,
+      "timestamp": "2025-07-13T10:58:02.762989",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 0.21696090698242188,
+      "timestamp": "2025-07-13T10:58:56.299481",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 5.39088249206543,
+      "timestamp": "2025-07-13T11:19:12.157290",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 1.0271072387695312,
+      "timestamp": "2025-07-13T11:19:21.236800",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 1624.0441799163818,
+      "timestamp": "2025-07-13T10:58:57.925242",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 1551.5048503875732,
+      "timestamp": "2025-07-13T11:19:13.714988",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7",
+      "execution_time_ms": 0.1919269561767578,
+      "timestamp": "2025-07-13T10:59:02.848962",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7",
+      "execution_time_ms": 0.7300376892089844,
+      "timestamp": "2025-07-13T11:19:21.236960",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7",
+      "execution_time_ms": 1606.5750122070312,
+      "timestamp": "2025-07-13T10:59:04.458769",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.20885467529296875,
+      "timestamp": "2025-07-13T11:07:24.817260",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.22125244140625,
+      "timestamp": "2025-07-13T11:10:37.411217",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.1850128173828125,
+      "timestamp": "2025-07-13T11:12:35.400331",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.3769397735595703,
+      "timestamp": "2025-07-13T11:15:07.611833",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.34499168395996094,
+      "timestamp": "2025-07-13T11:18:51.397288",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 0.9851455688476562,
+      "timestamp": "2025-07-13T11:19:21.236066",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 1676.4500141143799,
+      "timestamp": "2025-07-13T11:07:26.495696",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 1457.1142196655273,
+      "timestamp": "2025-07-13T11:10:38.871366",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 1772.519826889038,
+      "timestamp": "2025-07-13T11:12:37.174939",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 1595.9298610687256,
+      "timestamp": "2025-07-13T11:15:09.211818",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 1745.4991340637207,
+      "timestamp": "2025-07-13T11:18:53.155188",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_d7432495-8c72-4877-9b69-d061a977d0f7",
+      "execution_time_ms": 3614.0780448913574,
+      "timestamp": "2025-07-13T11:19:24.854908",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_2c07880c-7867-4197-b3ad-ed01c3250195",
+      "execution_time_ms": 3764.522075653076,
+      "timestamp": "2025-07-13T11:19:25.003265",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_DELETE _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7": [
+    {
+      "query_name": "endpoint_DELETE _api_v1_invoices_fa133a41-cd16-470e-90a3-5c4c85e499b7",
+      "execution_time_ms": 3963.1569385528564,
+      "timestamp": "2025-07-13T11:19:25.206221",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590",
+      "execution_time_ms": 0.1678466796875,
+      "timestamp": "2025-07-13T11:25:58.411982",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590",
+      "execution_time_ms": 0.20194053649902344,
+      "timestamp": "2025-07-15T10:19:00.849246",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590",
+      "execution_time_ms": 1730.6909561157227,
+      "timestamp": "2025-07-13T11:26:00.144336",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_c0fa59f3-22ea-4bdb-bd2d-793f5fe59590",
+      "execution_time_ms": 1721.7001914978027,
+      "timestamp": "2025-07-15T10:19:02.573578",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_OPTIONS _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6": [
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 1.1310577392578125,
+      "timestamp": "2025-07-13T11:26:18.362298",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 0.1647472381591797,
+      "timestamp": "2025-07-15T10:19:05.655401",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_OPTIONS _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 0.21600723266601562,
+      "timestamp": "2025-07-15T10:28:59.783426",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    }
+  ],
+  "endpoint_GET _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6": [
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 1540.5666828155518,
+      "timestamp": "2025-07-13T11:26:19.906710",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 968.019962310791,
+      "timestamp": "2025-07-15T10:19:06.625682",
+      "query_hash": "",
+      "params_hash": "",
+      "result_count": null,
+      "memory_usage_mb": null,
+      "cpu_usage_percent": null
+    },
+    {
+      "query_name": "endpoint_GET _api_v1_invoices_5f7cd9b7-7774-4b7a-92ae-be054dadd4a6",
+      "execution_time_ms": 925.7557392120361,
+      "timestamp": "2025-07-15T10:29:00.712401",
       "query_hash": "",
       "params_hash": "",
       "result_count": null,

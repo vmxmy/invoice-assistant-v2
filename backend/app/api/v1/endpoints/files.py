@@ -28,7 +28,7 @@ router = APIRouter()
 
 def parse_date(date_str) -> 'date':
     """解析日期字符串"""
-    from datetime import datetime, date, timezonetime, date
+    from datetime import datetime, date
     if not date_str:
         return date.today()
 
@@ -56,6 +56,43 @@ def parse_amount(amount) -> float:
         except ValueError:
             return 0.0
     return 0.0
+
+
+def parse_consumption_date(invoice_type: str, invoice_date: date, ocr_data: dict) -> date:
+    """解析消费日期
+    
+    根据发票类型确定消费日期：
+    - 火车票：从 departureTime 中提取日期
+    - 其他发票：默认使用开票日期
+    """
+    from datetime import datetime
+    
+    if invoice_type == '火车票' and ocr_data:
+        # 尝试从多种数据层级中提取 departureTime
+        departure_time = (
+            ocr_data.get('departureTime') or 
+            ocr_data.get('departure_time') or
+            (ocr_data.get('structured_data', {}).get('departureTime') if isinstance(ocr_data.get('structured_data'), dict) else None) or
+            (ocr_data.get('structured_data', {}).get('departure_time') if isinstance(ocr_data.get('structured_data'), dict) else None) or 
+            ''
+        )
+        
+        if departure_time:
+            try:
+                # 处理格式: "2024年1月15日 14:30" 或 "2025年03月24日08:45开"
+                if '年' in departure_time and '月' in departure_time and '日' in departure_time:
+                    # 提取日期部分
+                    date_part = departure_time.split(' ')[0] if ' ' in departure_time else departure_time
+                    # 移除可能的"开"字等后缀
+                    date_part = date_part.replace('开', '').strip()
+                    # 解析中文日期
+                    parsed_date = datetime.strptime(date_part, '%Y年%m月%d日').date()
+                    return parsed_date
+            except (ValueError, AttributeError):
+                pass
+    
+    # 默认返回开票日期
+    return invoice_date
 
 
 # ===== Pydantic 模型 =====
@@ -92,234 +129,7 @@ class FilesListResponse(BaseModel):
 
 # ===== API 端点 =====
 
-@router.post("/upload-invoice", response_model=FileUploadResponse)
-async def upload_invoice_file(
-    file: UploadFile = File(..., description="发票PDF文件"),
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session),
-    file_service: FileService = Depends(get_file_service)
-):
-    """
-    上传发票PDF文件
-
-    自动执行OCR处理并提取发票信息。
-    """
-
-    # 验证文件类型和大小
-    if file.content_type != "application/pdf":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="仅支持上传PDF文件"
-        )
-
-    if file.size > settings.max_file_size:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"文件大小不能超过 {settings.max_file_size // 1024 // 1024}MB"
-        )
-
-    try:
-        # 验证文件
-        await validate_pdf_file(file)
-
-        # 简化的同步OCR处理流程
-        # 1. 保存文件
-        temp_file_path, file_hash, file_size, original_filename = await file_service.save_uploaded_file(
-            file, current_user.id
-        )
-
-        # 2. 使用OCR服务（自动使用Invoice2Data）
-        from app.services.ocr import OCRService, OCRConfig
-        from app.core.config import settings
-        from pathlib import Path
-
-        # 构造完整文件路径
-        full_file_path = Path(settings.upload_dir) / temp_file_path
-
-        # 创建OCR配置和服务实例
-        ocr_config = OCRConfig()
-        ocr_service = OCRService(ocr_config)
-
-        # 调用OCR提取
-        ocr_result = await ocr_service.extract_invoice_data(str(full_file_path))
-
-        # 3. 直接创建完整的发票记录（无需复杂状态流转）
-        from datetime import datetime, date, timezonetime, timezone
-        import json
-
-        def serialize_for_json(obj):
-            """安全的JSON序列化函数"""
-            if isinstance(obj, datetime):
-                return obj.isoformat()
-            elif hasattr(obj, '__dict__'):
-                return obj.__dict__
-            elif isinstance(obj, dict):
-                return {
-                    k: serialize_for_json(v) for k,
-                    v in obj.items() if not k.startswith('_')}
-            elif isinstance(obj, list):
-                return [serialize_for_json(item) for item in obj]
-            else:
-                return obj
-
-        # 从增强规则提取器的结果中提取数据
-        # ocr_result是包含structured_data和raw_data的字典
-        structured_data = ocr_result.get('structured_data')
-        raw_data = ocr_result.get('raw_data', {})
-
-        if structured_data:
-            # 使用结构化数据
-            invoice = Invoice(
-                user_id=current_user.id,
-                invoice_number=structured_data.main_info.invoice_number if structured_data.main_info.invoice_number else f"UPLOAD_{file_hash[:8]}",
-                invoice_code=structured_data.main_info.invoice_code,
-                invoice_type=structured_data.main_info.invoice_type or '增值税普通发票',
-                invoice_date=structured_data.main_info.invoice_date,
-                amount=float(
-                    structured_data.summary.amount) if structured_data.summary.amount else 0,
-                tax_amount=float(
-                    structured_data.summary.tax_amount) if structured_data.summary.tax_amount else 0,
-                total_amount=float(
-                    structured_data.summary.total_amount) if structured_data.summary.total_amount else 0,
-                currency='CNY',
-                seller_name=structured_data.seller_info.name,
-                seller_tax_id=structured_data.seller_info.tax_id,
-                buyer_name=structured_data.buyer_info.name,
-                buyer_tax_id=structured_data.buyer_info.tax_id,
-                file_path=temp_file_path,
-                file_url=file_service.get_file_url(temp_file_path),
-                file_size=file_size,
-                file_hash=file_hash,
-                source=InvoiceSource.UPLOAD,
-                status=InvoiceStatus.COMPLETED,  # 直接完成状态
-                processing_status=ProcessingStatus.OCR_COMPLETED,  # OCR已完成
-                extracted_data={
-                    **json.loads(structured_data.json()),  # 结构化数据
-                    **serialize_for_json(raw_data)  # 安全序列化原始数据
-                },
-                source_metadata={"original_filename": original_filename},
-                created_at=datetime.now(timezone.utc),
-                updated_at=datetime.now(timezone.utc)
-            )
-        else:
-            # 使用原始数据作为备用
-            invoice = Invoice(
-                user_id=current_user.id,
-                invoice_number=raw_data.get(
-                    'invoice_number', f"UPLOAD_{file_hash[:8]}"),
-                invoice_code=raw_data.get('invoice_code'),
-                invoice_type=raw_data.get('invoice_type', '增值税普通发票'),
-                invoice_date=parse_date(raw_data.get('invoice_date')),
-                amount=parse_amount(raw_data.get('amount', 0)),
-                tax_amount=parse_amount(raw_data.get('tax_amount', 0)),
-                total_amount=parse_amount(raw_data.get('total_amount', 0)),
-                currency='CNY',
-                seller_name=raw_data.get('seller_name'),
-                seller_tax_id=raw_data.get('seller_tax_id'),
-                buyer_name=raw_data.get('buyer_name'),
-                buyer_tax_id=raw_data.get('buyer_tax_id'),
-                file_path=temp_file_path,
-                file_url=file_service.get_file_url(temp_file_path),
-                file_size=file_size,
-                file_hash=file_hash,
-                source=InvoiceSource.UPLOAD,
-                status=InvoiceStatus.COMPLETED,
-                processing_status=ProcessingStatus.OCR_COMPLETED,
-                extracted_data=raw_data,  # 保存原始数据
-                source_metadata={"original_filename": original_filename},
-                created_at=datetime.now(timezone.utc),
-                updated_at=datetime.now(timezone.utc)
-            )
-
-        # 4. 保存到数据库（处理重复发票）
-        try:
-            db.add(invoice)
-            await db.commit()
-            await db.refresh(invoice)
-        except Exception as e:
-            await db.rollback()
-
-            # 检查是否是重复发票错误
-            if "duplicate key value violates unique constraint" in str(
-                    e) and "uk_invoice_number_user" in str(e):
-                # 查找已存在的发票
-                from sqlalchemy import select
-
-                stmt = select(Invoice).where(
-                    Invoice.invoice_number == (
-                        structured_data.main_info.invoice_number if structured_data
-                        else raw_data.get('invoice_number', f"UPLOAD_{file_hash[:8]}")
-                    ),
-                    Invoice.user_id == current_user.id
-                )
-                existing_invoice = await db.execute(stmt)
-                existing_invoice = existing_invoice.scalar_one_or_none()
-
-                if existing_invoice:
-                    # 更新已存在的发票记录
-                    existing_invoice.invoice_code = invoice.invoice_code
-                    existing_invoice.invoice_type = invoice.invoice_type
-                    existing_invoice.invoice_date = invoice.invoice_date
-                    existing_invoice.amount = invoice.amount
-                    existing_invoice.tax_amount = invoice.tax_amount
-                    existing_invoice.total_amount = invoice.total_amount
-                    existing_invoice.seller_name = invoice.seller_name
-                    existing_invoice.seller_tax_id = invoice.seller_tax_id
-                    existing_invoice.buyer_name = invoice.buyer_name
-                    existing_invoice.buyer_tax_id = invoice.buyer_tax_id
-                    existing_invoice.file_path = invoice.file_path
-                    existing_invoice.file_url = invoice.file_url
-                    existing_invoice.file_size = invoice.file_size
-                    existing_invoice.file_hash = invoice.file_hash
-                    existing_invoice.extracted_data = invoice.extracted_data
-                    existing_invoice.processing_status = ProcessingStatus.OCR_COMPLETED
-                    existing_invoice.updated_at = datetime.now(timezone.utc)
-
-                    # 提交更新
-                    await db.commit()
-                    await db.refresh(existing_invoice)
-
-                    # 返回更新后的发票信息
-                    return FileUploadResponse(
-                        file_id=existing_invoice.id,
-                        filename=original_filename,
-                        file_path=existing_invoice.file_path,
-                        file_url=existing_invoice.file_url,
-                        file_size=existing_invoice.file_size,
-                        file_hash=existing_invoice.file_hash,
-                        mime_type="application/pdf",
-                        invoice_id=existing_invoice.id,
-                        uploaded_at=existing_invoice.updated_at.isoformat()
-                    )
-
-            # 其他数据库错误
-            raise HTTPException(
-                status_code=500,
-                detail=f"数据库保存失败: {str(e)}"
-            )
-
-        return FileUploadResponse(
-            file_id=invoice.id,
-            filename=original_filename,
-            file_path=invoice.file_path,
-            file_url=invoice.file_url,
-            file_size=invoice.file_size,
-            file_hash=invoice.file_hash,
-            mime_type=file.content_type or "application/pdf",
-            invoice_id=invoice.id,
-            uploaded_at=invoice.created_at.isoformat()
-        )
-
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except BusinessLogicError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+# upload_invoice_file 端点已删除 - 使用 /api/v1/invoices/create-with-file 替代
 
 
 @router.get("/download/{file_path:path}")

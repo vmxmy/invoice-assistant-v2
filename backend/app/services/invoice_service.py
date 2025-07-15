@@ -543,10 +543,16 @@ class InvoiceService:
             base_query = base_query.where(Invoice.invoice_number.ilike(f"%{invoice_number}%"))
         
         if date_from:
-            base_query = base_query.where(Invoice.invoice_date >= date_from)
+            # 优先使用 consumption_date，如果为空则使用 invoice_date
+            base_query = base_query.where(
+                func.coalesce(Invoice.consumption_date, Invoice.invoice_date) >= date_from
+            )
         
         if date_to:
-            base_query = base_query.where(Invoice.invoice_date <= date_to)
+            # 优先使用 consumption_date，如果为空则使用 invoice_date
+            base_query = base_query.where(
+                func.coalesce(Invoice.consumption_date, Invoice.invoice_date) <= date_to
+            )
         
         if amount_min is not None:
             base_query = base_query.where(Invoice.total_amount >= amount_min)

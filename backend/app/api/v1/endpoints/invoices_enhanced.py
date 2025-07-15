@@ -99,12 +99,25 @@ async def create_invoice_with_file(
             content_type="application/pdf"
         )
         
+        # 处理消费日期：如果前端没有提供，则根据发票类型计算
+        consumption_date = getattr(invoice_create, 'consumption_date', None)
+        if not consumption_date:
+            # 引入 parse_consumption_date 函数
+            from app.api.v1.endpoints.files import parse_consumption_date
+            consumption_date = parse_consumption_date(
+                invoice_create.invoice_type or '增值税发票',
+                invoice_create.invoice_date,
+                extracted_data
+            )
+        
+        
         # 创建发票记录
         invoice = Invoice(
             user_id=current_user.id,
             invoice_number=invoice_create.invoice_number,
             invoice_code=invoice_create.invoice_code,
             invoice_date=invoice_create.invoice_date,
+            consumption_date=consumption_date,  # 设置消费日期
             seller_name=invoice_create.seller_name,
             seller_tax_number=invoice_create.seller_tax_number,
             buyer_name=invoice_create.buyer_name,

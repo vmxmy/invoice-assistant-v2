@@ -35,6 +35,7 @@ class InvoiceListItem(BaseModel):
     id: UUID
     invoice_number: str
     invoice_date: date
+    consumption_date: Optional[date]
     seller_name: Optional[str]
     buyer_name: Optional[str]
     total_amount: float
@@ -55,6 +56,7 @@ class InvoiceDetail(BaseModel):
     invoice_code: Optional[str] = None
     invoice_type: Optional[str] = None
     invoice_date: date
+    consumption_date: Optional[date] = None
     seller_name: Optional[str] = None
     seller_tax_number: Optional[str] = None
     buyer_name: Optional[str] = None
@@ -116,8 +118,8 @@ async def list_invoices(
     query: Optional[str] = Query(None, description="搜索关键词"),
     seller_name: Optional[str] = Query(None, description="销售方名称"),
     invoice_number: Optional[str] = Query(None, description="发票号码"),
-    date_from: Optional[date] = Query(None, description="开始日期"),
-    date_to: Optional[date] = Query(None, description="结束日期"),
+    date_from: Optional[date] = Query(None, description="消费开始日期"),
+    date_to: Optional[date] = Query(None, description="消费结束日期"),
     amount_min: Optional[float] = Query(None, description="最小金额"),
     amount_max: Optional[float] = Query(None, description="最大金额"),
     status: Optional[InvoiceStatus] = Query(None, description="发票状态"),
@@ -320,6 +322,7 @@ async def get_invoice_detail(
             "invoice_code": invoice.invoice_code,
             "invoice_type": invoice.invoice_type,
             "invoice_date": invoice.invoice_date,
+            "consumption_date": invoice.consumption_date,  # 添加消费日期字段
             "seller_name": invoice.seller_name,
             "seller_tax_number": invoice.seller_tax_number,
             "buyer_name": invoice.buyer_name,

@@ -1,0 +1,20 @@
+[
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 48.638105392456055,
+    "baseline_p95_ms": 5.515098571777344,
+    "regression_ratio": 8.819081791457721,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-13T10:38:25.370069"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 41.51606559753418,
+    "baseline_p95_ms": 5.344152450561523,
+    "regression_ratio": 7.768503234441223,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-13T11:18:48.551669"
+  }
+]
