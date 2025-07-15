@@ -34,6 +34,7 @@ interface Invoice {
   id: string;
   invoice_number: string;
   invoice_date: string;
+  consumption_date?: string;
   seller_name: string;
   buyer_name: string;
   total_amount: number;

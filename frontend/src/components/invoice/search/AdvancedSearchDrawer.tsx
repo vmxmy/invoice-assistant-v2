@@ -201,12 +201,12 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                 </div>
               </div>
 
-              {/* 日期范围 */}
+              {/* 消费日期范围 */}
               <div className="space-y-2">
                 <label className="label">
                   <span className="label-text flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    日期范围
+                    消费日期范围
                   </span>
                 </label>
                 <div className="flex gap-2 items-center">

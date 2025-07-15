@@ -187,6 +187,15 @@ const trainTicketConfig: InvoiceTypeConfig = {
           valuePaths: ['extracted_data.structured_data.invoiceDate', 'extracted_data.invoiceDate', 'extracted_data.invoice_date', 'invoice_date']
         },
         {
+          key: 'consumption_date',
+          label: '发车日期',
+          type: 'date',
+          icon: Calendar,
+          required: false,
+          valuePaths: ['consumption_date'],
+          description: '实际发车日期'
+        },
+        {
           key: 'fare',
           label: '票价',
           type: 'currency',
@@ -299,6 +308,15 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           icon: Calendar,
           required: true,
           valuePaths: ['extracted_data.structured_data.invoiceDate', 'extracted_data.invoiceDate', 'extracted_data.invoice_date', 'invoice_date']
+        },
+        {
+          key: 'consumption_date',
+          label: '消费日期',
+          type: 'date',
+          icon: Calendar,
+          required: false,
+          valuePaths: ['consumption_date'],
+          description: '商品或服务实际发生的日期'
         },
         {
           key: 'check_code',

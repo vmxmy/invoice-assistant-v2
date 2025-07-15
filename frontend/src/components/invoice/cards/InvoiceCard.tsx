@@ -16,6 +16,7 @@ interface Invoice {
   id: string;
   invoice_number: string;
   invoice_date: string;
+  consumption_date?: string;
   seller_name: string;
   buyer_name: string;
   total_amount: number;
@@ -138,9 +139,21 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
 
           {/* 金额和日期 */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-base-content/60" />
-              <span className="text-sm">{formatDate(invoice.invoice_date)}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-base-content/60" />
+                <span className="text-sm">
+                  {invoice.invoice_type === '火车票' ? '发车' : '消费'}：
+                  {invoice.consumption_date ? formatDate(invoice.consumption_date) : formatDate(invoice.invoice_date)}
+                </span>
+              </div>
+              {invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
+                <div className="flex items-center gap-2 ml-6">
+                  <span className="text-xs text-base-content/50">
+                    开票：{formatDate(invoice.invoice_date)}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-success" />

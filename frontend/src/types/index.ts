@@ -241,6 +241,7 @@ export interface Invoice {
   invoice_number: string
   invoice_code?: string            // 发票代码
   invoice_date: string
+  consumption_date?: string        // 消费日期（实际消费/服务发生的日期）
   invoice_type?: string            // 发票类型
   seller_name?: string
   seller_tax_number?: string       // 销售方纳税人识别号
