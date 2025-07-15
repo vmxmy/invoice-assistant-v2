@@ -85,6 +85,9 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
   // 发票数据变化时初始化编辑表单数据
   useEffect(() => {
     if (invoice && isOpen) {
+      console.log('🔍 [UnifiedInvoiceModal] 发票数据:', invoice);
+      console.log('🔍 [UnifiedInvoiceModal] consumption_date:', invoice.consumption_date);
+      
       const config = getInvoiceConfig(invoice);
       const initialData: EditFormData = {};
 
@@ -92,6 +95,16 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
       config.groups.forEach(group => {
         group.fields.forEach(field => {
           const value = getFieldValue(invoice, field);
+          
+          // 调试日志：输出字段值
+          if (field.key === 'consumption_date' || field.key === 'departure_time') {
+            console.log(`🔍 [UnifiedInvoiceModal] 字段 ${field.key}:`, {
+              field,
+              value,
+              paths: field.valuePaths,
+              invoice_type: invoice.invoice_type
+            });
+          }
           
           // 特殊处理不同字段类型的初始值
           switch (field.type) {

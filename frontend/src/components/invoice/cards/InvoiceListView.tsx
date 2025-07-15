@@ -6,6 +6,7 @@ interface Invoice {
   id: string;
   invoice_number: string;
   invoice_date: string;
+  consumption_date?: string;
   seller_name: string;
   buyer_name: string;
   total_amount: number;
@@ -158,7 +159,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
                 </th>
                 <th>发票信息</th>
                 <th>销售方</th>
-                <th>日期</th>
+                <th>消费日期</th>
                 <th>金额</th>
                 <th>状态</th>
                 <th>操作</th>
@@ -188,7 +189,16 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
                   <td>
                     <span className="truncate">{invoice.seller_name}</span>
                   </td>
-                  <td>{formatDate(invoice.invoice_date)}</td>
+                  <td>
+                    <div className="flex flex-col">
+                      <span>{formatDate(invoice.consumption_date || invoice.invoice_date)}</span>
+                      {invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
+                        <span className="text-xs text-base-content/50">
+                          开票: {formatDate(invoice.invoice_date)}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     <span className="font-semibold text-success">
                       {formatCurrency(invoice.total_amount)}

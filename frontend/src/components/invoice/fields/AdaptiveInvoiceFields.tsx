@@ -351,6 +351,17 @@ const FieldGroupRenderer: React.FC<{
               ? editData[field.key] 
               : getFieldValue(invoice, field);
 
+            // 调试日志
+            if (field.key === 'consumption_date' || field.key === 'departure_time') {
+              console.log(`🔍 [AdaptiveInvoiceFields] 字段 ${field.key}:`, {
+                mode,
+                editData: editData?.[field.key],
+                fieldValue: getFieldValue(invoice, field),
+                value,
+                invoice_type: invoice.invoice_type
+              });
+            }
+
             return (
               <div 
                 key={field.key} 

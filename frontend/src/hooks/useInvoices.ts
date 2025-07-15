@@ -71,38 +71,7 @@ export const useInvoiceStats = () => {
   })
 }
 
-// 创建发票 mutation
-export const useCreateInvoice = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (formData: FormData) => {
-      const response = await api.invoices.create(formData)
-      return response.data
-    },
-    onSuccess: (data) => {
-      // 使相关查询失效，触发重新获取
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-      logger.log('✅ 发票创建成功:', data.id)
-    },
-    onError: (error: any) => {
-      let errorMessage = '发票创建失败'
-      
-      if (error.status === 400) {
-        errorMessage = '文件格式不正确或数据无效'
-      } else if (error.status === 413) {
-        errorMessage = '文件太大，请选择较小的文件'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '发票创建失败'
-      }
-      
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
-}
+// useCreateInvoice hook 已删除 - 使用 InvoiceUploadPage 中的 uploadMutation 替代
 
 // 更新发票 mutation
 export const useUpdateInvoice = () => {

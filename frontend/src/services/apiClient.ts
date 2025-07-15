@@ -123,10 +123,7 @@ export const api = {
     // 获取单个发票
     get: (id: string) => apiClient.get(`/api/v1/invoices/${id}`),
     
-    // 创建发票（文件上传）- 使用增强文件端点以支持云存储
-    create: (data: FormData) => apiClient.post('/api/v1/enhanced-files/upload-invoice', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    // create 方法已删除 - 使用 createWithFile 替代
     
     // 创建发票（含文件和OCR数据）
     createWithFile: (data: FormData) => apiClient.post('/api/v1/invoices/create-with-file', data, {
