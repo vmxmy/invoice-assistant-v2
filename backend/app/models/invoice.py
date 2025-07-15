@@ -132,6 +132,13 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="开票日期"
     )
     
+    consumption_date = Column(
+        Date,
+        nullable=True,  # 可选字段，但会有默认值
+        index=True,
+        comment="消费日期（实际消费/服务发生的日期）"
+    )
+    
     # 交易方信息
     seller_name = Column(
         String(200),

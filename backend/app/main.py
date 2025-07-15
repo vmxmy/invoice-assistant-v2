@@ -34,6 +34,12 @@ async def lifespan(app: FastAPI):
     # 启动时初始化
     logger.info("🚀 启动 FastAPI 应用")
     
+    # 打印 CORS 配置用于调试
+    logger.info(f"🌐 CORS 配置:")
+    logger.info(f"   原始配置: {settings.cors_origins}")
+    logger.info(f"   解析后的源列表: {settings.cors_origins_list}")
+    logger.info(f"   允许凭证: {settings.cors_allow_credentials}")
+    
     try:
         await init_db()
         logger.info("✅ 数据库连接已初始化")
@@ -72,19 +78,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=settings.cors_allow_credentials,
-    allow_methods=[
-        "GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"
-    ],
-    allow_headers=[
-        "Authorization",
-        "Content-Type", 
-        "X-Requested-With",
-        "X-Request-ID",
-        "Accept",
-        "Accept-Language",
-        "Content-Language",
-        "Cache-Control"
-    ],
+    allow_methods=["*"],  # 允许所有方法
+    allow_headers=["*"],  # 允许所有头部
     expose_headers=["X-Process-Time", "X-Request-ID"],
     max_age=86400,  # 24小时预检请求缓存
 )
@@ -264,6 +259,22 @@ async def app_info():
             "file_upload": True,
             "ocr_processing": True,
             "email_processing": True,
+        }
+    }
+
+
+@app.get("/cors-debug", tags=["系统"])
+async def cors_debug():
+    """CORS 配置调试信息"""
+    import os
+    return {
+        "cors_origins_raw": settings.cors_origins,
+        "cors_origins_list": settings.cors_origins_list,
+        "cors_allow_credentials": settings.cors_allow_credentials,
+        "environment_variable": os.getenv("CORS_ORIGINS", "未设置"),
+        "all_env_vars": {
+            k: v for k, v in os.environ.items() 
+            if "CORS" in k.upper()
         }
     }
 
