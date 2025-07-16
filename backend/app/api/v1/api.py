@@ -7,15 +7,35 @@ API v1 路由聚合
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import users
-from app.api.v1.endpoints import enhanced_files
+from app.api.v1.endpoints import profiles
+from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import invoices
+from app.api.v1.endpoints import invoices_enhanced
+from app.api.v1.endpoints import files
+from app.api.v1.endpoints import email_accounts
+from app.api.v1.endpoints import email_scan
+from app.api.v1.endpoints import invoice_types_v3_supabase
+from app.api.v1.endpoints import ocr
+from app.api.v1.endpoints import monitoring
+from app.api.v1.endpoints import tasks
 from app.utils.responses import success_response, error_response
 from app.core.exceptions import NotFoundError, ValidationError
 
 api_router = APIRouter()
 
 # 注册各个模块的路由
-api_router.include_router(users.router, prefix="/users", tags=["users"])
-api_router.include_router(enhanced_files.router, prefix="/files", tags=["enhanced-files"])
+api_router.include_router(auth.router, prefix="/auth", tags=["认证"])
+api_router.include_router(users.router, prefix="/users", tags=["用户"])
+api_router.include_router(profiles.router, prefix="/profiles", tags=["档案"])
+api_router.include_router(invoices.router, prefix="/invoices", tags=["发票"])
+api_router.include_router(invoices_enhanced.router, prefix="/invoices-enhanced", tags=["增强发票"])
+api_router.include_router(files.router, prefix="/files", tags=["文件管理"])
+api_router.include_router(email_accounts.router, prefix="/email-accounts", tags=["邮箱账户"])
+api_router.include_router(email_scan.router, prefix="/email-scan", tags=["邮件扫描"])
+api_router.include_router(invoice_types_v3_supabase.router, prefix="/invoice-types", tags=["发票类型"])
+api_router.include_router(ocr.router, prefix="/ocr", tags=["OCR识别"])
+api_router.include_router(monitoring.router, prefix="/monitoring", tags=["性能监控"])
+api_router.include_router(tasks.router, prefix="/tasks", tags=["任务管理"])
 
 # 健康检查端点
 @api_router.get("/health")
