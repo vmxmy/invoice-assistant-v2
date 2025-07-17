@@ -1,0 +1,124 @@
+/**
+ * 发票数据转换工具
+ * 处理后端返回的数据格式问题
+ */
+
+import type { Invoice } from '../types';
+
+/**
+ * 转换发票数据，修复字段映射和格式问题
+ */
+export function transformInvoiceData(invoice: any): Invoice {
+  // 深拷贝原始数据
+  const transformed = { ...invoice };
+
+  // 1. 处理 invoice_details 字段
+  if (transformed.invoice_details) {
+    if (typeof transformed.invoice_details === 'string') {
+      try {
+        // 尝试解析 JSON 字符串
+        transformed.invoice_details = JSON.parse(transformed.invoice_details);
+      } catch (e) {
+        try {
+          // 尝试处理 Python 格式的字符串
+          const pythonToJson = transformed.invoice_details
+            .replace(/'/g, '"')  // 单引号替换为双引号
+            .replace(/None/g, 'null')  // Python None 替换为 null
+            .replace(/True/g, 'true')  // Python True 替换为 true
+            .replace(/False/g, 'false'); // Python False 替换为 false
+          
+          transformed.invoice_details = JSON.parse(pythonToJson);
+        } catch (e2) {
+          console.error('解析 invoice_details 失败:', e2);
+          transformed.invoice_details = [];
+        }
+      }
+    }
+  }
+
+  // 2. 确保在 extracted_data.structured_data 中也进行同样的处理
+  if (transformed.extracted_data?.structured_data?.invoice_details) {
+    const details = transformed.extracted_data.structured_data.invoice_details;
+    if (typeof details === 'string') {
+      try {
+        transformed.extracted_data.structured_data.invoice_details = JSON.parse(details);
+      } catch (e) {
+        try {
+          const pythonToJson = details
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null')
+            .replace(/True/g, 'true')
+            .replace(/False/g, 'false');
+          
+          transformed.extracted_data.structured_data.invoice_details = JSON.parse(pythonToJson);
+        } catch (e2) {
+          console.error('解析 extracted_data.structured_data.invoice_details 失败:', e2);
+          transformed.extracted_data.structured_data.invoice_details = [];
+        }
+      }
+    }
+  }
+
+  // 3. 映射 amount_without_tax 和 tax_amount 字段
+  // 从 fields 对象中获取值（如果存在）
+  if (transformed.fields) {
+    if (transformed.fields.invoice_amount_pre_tax !== undefined) {
+      transformed.amount_without_tax = parseFloat(transformed.fields.invoice_amount_pre_tax) || 0;
+    }
+    if (transformed.fields.invoice_tax !== undefined) {
+      transformed.tax_amount = parseFloat(transformed.fields.invoice_tax) || 0;
+    }
+  }
+
+  // 4. 从 extracted_data 中尝试获取值作为备选
+  if (transformed.amount_without_tax === undefined || transformed.amount_without_tax === null) {
+    const extractedAmount = 
+      transformed.extracted_data?.structured_data?.invoiceAmountPreTax ||
+      transformed.extracted_data?.structured_data?.invoice_amount_pre_tax ||
+      transformed.extracted_data?.invoiceAmountPreTax ||
+      transformed.extracted_data?.invoice_amount_pre_tax;
+    
+    if (extractedAmount !== undefined) {
+      transformed.amount_without_tax = parseFloat(extractedAmount) || 0;
+    }
+  }
+
+  if (transformed.tax_amount === undefined || transformed.tax_amount === null) {
+    const extractedTax = 
+      transformed.extracted_data?.structured_data?.invoiceTax ||
+      transformed.extracted_data?.structured_data?.invoice_tax ||
+      transformed.extracted_data?.invoiceTax ||
+      transformed.extracted_data?.invoice_tax;
+    
+    if (extractedTax !== undefined) {
+      transformed.tax_amount = parseFloat(extractedTax) || 0;
+    }
+  }
+
+  // 5. 如果仍然没有值，尝试从 total_amount 计算
+  if ((transformed.amount_without_tax === undefined || transformed.amount_without_tax === 0) && 
+      (transformed.tax_amount === undefined || transformed.tax_amount === 0) && 
+      transformed.total_amount > 0) {
+    // 假设6%的税率作为默认值
+    const defaultTaxRate = 0.06;
+    transformed.amount_without_tax = transformed.total_amount / (1 + defaultTaxRate);
+    transformed.tax_amount = transformed.total_amount - transformed.amount_without_tax;
+  }
+
+  // 6. 确保数值字段是数字类型
+  const numericFields = ['amount_without_tax', 'tax_amount', 'total_amount'];
+  numericFields.forEach(field => {
+    if (transformed[field] !== undefined) {
+      transformed[field] = parseFloat(transformed[field]) || 0;
+    }
+  });
+
+  return transformed;
+}
+
+/**
+ * 批量转换发票数据
+ */
+export function transformInvoiceList(invoices: any[]): Invoice[] {
+  return invoices.map(transformInvoiceData);
+}

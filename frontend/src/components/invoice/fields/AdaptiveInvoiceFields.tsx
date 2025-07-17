@@ -57,48 +57,75 @@ const FieldRenderer: React.FC<{
   // 查看模式
   if (mode === 'view') {
     // 特殊处理发票明细
-    if (field.key === 'invoice_details' && Array.isArray(value) && value.length > 0) {
-      return (
-        <div>
-          <div className="flex items-start gap-3 mb-3">
+    if (field.key === 'invoice_details') {
+      console.log('🔍 [AdaptiveInvoiceFields - view] invoice_details 字段调试:', {
+        fieldKey: field.key,
+        fieldLabel: field.label,
+        value,
+        valueType: typeof value,
+        isArray: Array.isArray(value),
+        valueLength: Array.isArray(value) ? value.length : 'N/A',
+        firstItem: Array.isArray(value) && value.length > 0 ? value[0] : 'N/A'
+      });
+      
+      if (Array.isArray(value) && value.length > 0) {
+        console.log('✅ [AdaptiveInvoiceFields - view] 显示发票明细表格');
+        return (
+          <div>
+            <div className="flex items-start gap-3 mb-3">
+              <IconComponent className="w-4 h-4 text-base-content/60 mt-1" />
+              <div className="flex-1">
+                <p className="text-sm text-base-content/60">{field.label}</p>
+                <p className="font-medium">{value.length}项明细</p>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table table-sm table-zebra">
+                <thead>
+                  <tr>
+                    <th>项目名称</th>
+                    <th>规格型号</th>
+                    <th>单位</th>
+                    <th>数量</th>
+                    <th>单价</th>
+                    <th>金额</th>
+                    <th>税率</th>
+                    <th>税额</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {value.map((item: any, index: number) => {
+                    console.log(`🔍 [AdaptiveInvoiceFields - view] 明细项 ${index}:`, item);
+                    return (
+                      <tr key={index}>
+                        <td>{item.itemName || item.item_name || '-'}</td>
+                        <td>{item.specification || item.spec || '-'}</td>
+                        <td>{item.unit || '-'}</td>
+                        <td>{item.quantity || '-'}</td>
+                        <td>{item.unitPrice || item.unit_price || '-'}</td>
+                        <td>¥{item.amount || '0.00'}</td>
+                        <td>{item.taxRate || item.tax_rate || '-'}</td>
+                        <td>¥{item.tax || item.tax_amount || '0.00'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      } else {
+        console.log('❌ [AdaptiveInvoiceFields - view] 发票明细数据无效，不显示表格');
+        return (
+          <div className="flex items-start gap-3">
             <IconComponent className="w-4 h-4 text-base-content/60 mt-1" />
             <div className="flex-1">
               <p className="text-sm text-base-content/60">{field.label}</p>
-              <p className="font-medium">{value.length}项明细</p>
+              <p className="font-medium text-base-content/40">无明细信息</p>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="table table-sm table-zebra">
-              <thead>
-                <tr>
-                  <th>项目名称</th>
-                  <th>规格型号</th>
-                  <th>单位</th>
-                  <th>数量</th>
-                  <th>单价</th>
-                  <th>金额</th>
-                  <th>税率</th>
-                  <th>税额</th>
-                </tr>
-              </thead>
-              <tbody>
-                {value.map((item: any, index: number) => (
-                  <tr key={index}>
-                    <td>{item.itemName || '-'}</td>
-                    <td>{item.specification || '-'}</td>
-                    <td>{item.unit || '-'}</td>
-                    <td>{item.quantity || '-'}</td>
-                    <td>{item.unitPrice || '-'}</td>
-                    <td>¥{item.amount || '0.00'}</td>
-                    <td>{item.taxRate || '-'}</td>
-                    <td>¥{item.tax || '0.00'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
+        );
+      }
     }
 
     // 普通字段查看模式
@@ -121,6 +148,96 @@ const FieldRenderer: React.FC<{
 
   // 只读字段在编辑模式下也显示为查看模式
   if (field.type === 'readonly') {
+    // 特殊处理发票明细在编辑模式下的显示
+    if (field.key === 'invoice_details') {
+      console.log('🔍 [AdaptiveInvoiceFields - edit] invoice_details 字段调试:', {
+        fieldKey: field.key,
+        fieldLabel: field.label,
+        fieldType: field.type,
+        value,
+        valueType: typeof value,
+        isArray: Array.isArray(value),
+        valueLength: Array.isArray(value) ? value.length : 'N/A',
+        firstItem: Array.isArray(value) && value.length > 0 ? value[0] : 'N/A'
+      });
+      
+      if (Array.isArray(value) && value.length > 0) {
+        console.log('✅ [AdaptiveInvoiceFields - edit] 显示发票明细表格');
+        return (
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text flex items-center gap-2">
+                <IconComponent className="w-4 h-4" />
+                {field.label}
+              </span>
+            </label>
+            <div className="bg-base-200 rounded-lg p-3">
+              <div className="text-sm text-base-content/60 mb-2">{value.length}项明细</div>
+              <div className="overflow-x-auto">
+                <table className="table table-sm table-zebra">
+                  <thead>
+                    <tr>
+                      <th>项目名称</th>
+                      <th>规格型号</th>
+                      <th>单位</th>
+                      <th>数量</th>
+                      <th>单价</th>
+                      <th>金额</th>
+                      <th>税率</th>
+                      <th>税额</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {value.map((item: any, index: number) => {
+                      console.log(`🔍 [AdaptiveInvoiceFields - edit] 明细项 ${index}:`, item);
+                      return (
+                        <tr key={index}>
+                          <td>{item.itemName || item.item_name || '-'}</td>
+                          <td>{item.specification || item.spec || '-'}</td>
+                          <td>{item.unit || '-'}</td>
+                          <td>{item.quantity || '-'}</td>
+                          <td>{item.unitPrice || item.unit_price || '-'}</td>
+                          <td>¥{item.amount || '0.00'}</td>
+                          <td>{item.taxRate || item.tax_rate || '-'}</td>
+                          <td>¥{item.tax || item.tax_amount || '0.00'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {field.description && (
+              <label className="label">
+                <span className="label-text-alt text-base-content/60">{field.description}</span>
+              </label>
+            )}
+          </div>
+        );
+      } else {
+        console.log('❌ [AdaptiveInvoiceFields - edit] 发票明细数据无效，显示占位符');
+        return (
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text flex items-center gap-2">
+                <IconComponent className="w-4 h-4" />
+                {field.label}
+              </span>
+            </label>
+            <div className="input input-bordered bg-base-200 flex items-center text-base-content/40">
+              无明细信息
+            </div>
+            {field.description && (
+              <label className="label">
+                <span className="label-text-alt text-base-content/60">{field.description}</span>
+              </label>
+            )}
+          </div>
+        );
+      }
+    }
+
+    // 普通只读字段显示
     return (
       <div className="form-control">
         <label className="label">
@@ -350,6 +467,21 @@ const FieldGroupRenderer: React.FC<{
             const value = mode === 'edit' && editData 
               ? editData[field.key] 
               : getFieldValue(invoice, field);
+            
+            // 调试发票明细字段
+            if (field.key === 'invoice_details') {
+              console.log('🔍 [FieldGroupRenderer] 发票明细字段处理:', {
+                fieldKey: field.key,
+                fieldLabel: field.label,
+                fieldType: field.type,
+                mode,
+                value,
+                valueFromEditData: editData?.[field.key],
+                valueFromGetFieldValue: getFieldValue(invoice, field),
+                invoice_type: invoice.invoice_type,
+                groupTitle: group.title
+              });
+            }
 
             // 调试日志
             if (field.key === 'consumption_date' || field.key === 'departure_time') {

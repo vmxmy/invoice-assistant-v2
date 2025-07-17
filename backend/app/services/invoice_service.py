@@ -344,6 +344,19 @@ class InvoiceService:
         }
         
         # 从OCR数据构建发票记录
+        # 处理金额字段映射：优先使用具体字段，如果不存在则尝试其他字段名
+        amount_without_tax = (
+            ocr_data.get('amount_without_tax') or 
+            ocr_data.get('invoice_amount_pre_tax') or 
+            ocr_data.get('amount') or 
+            0
+        )
+        tax_amount = (
+            ocr_data.get('tax_amount') or 
+            ocr_data.get('invoice_tax') or 
+            0
+        )
+        
         invoice_data = {
             "user_id": user_id,
             "email_task_id": email_task_id,
@@ -351,14 +364,14 @@ class InvoiceService:
             "invoice_code": ocr_data.get('invoice_code'),
             "invoice_type": ocr_data.get('invoice_type'),
             "invoice_date": self._parse_date(ocr_data['invoice_date']),
-            "amount": self._parse_amount(ocr_data.get('amount', 0)),
-            "tax_amount": self._parse_amount(ocr_data.get('tax_amount', 0)),
+            "amount_without_tax": self._parse_amount(amount_without_tax),
+            "tax_amount": self._parse_amount(tax_amount),
             "total_amount": self._parse_amount(ocr_data.get('total_amount', 0)),
             "currency": ocr_data.get('currency', 'CNY'),
             "seller_name": ocr_data.get('seller_name'),
-            "seller_tax_id": ocr_data.get('seller_tax_id'),
+            "seller_tax_id": ocr_data.get('seller_tax_id') or ocr_data.get('seller_tax_number'),
             "buyer_name": ocr_data.get('buyer_name'),
-            "buyer_tax_id": ocr_data.get('buyer_tax_id'),
+            "buyer_tax_id": ocr_data.get('buyer_tax_id') or ocr_data.get('buyer_tax_number'),
             "file_path": file_info['file_path'],
             "file_hash": file_info['file_hash'],
             "file_size": file_info['file_size'],

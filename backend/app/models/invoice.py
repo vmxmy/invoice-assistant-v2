@@ -210,6 +210,26 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         comment="OCR识别置信度（0-1）"
     )
     
+    # 新增：增强的置信度管理字段
+    ocr_field_confidences = Column(
+        JSONB,
+        nullable=True,
+        comment="OCR字段级置信度信息"
+    )
+    
+    ocr_overall_confidence = Column(
+        Numeric(4, 3),
+        nullable=True,
+        comment="OCR整体置信度 (0-1)"
+    )
+    
+    ocr_processing_metadata = Column(
+        JSONB,
+        nullable=True,
+        server_default=text("'{}'::jsonb"),
+        comment="OCR处理元数据"
+    )
+    
     # 来源信息
     source = Column(
         SAEnum(InvoiceSource, name="invoice_source_enum", native_enum=True),
@@ -334,122 +354,225 @@ class Invoice(Base, BaseModel, UserOwnedMixin, TimestampMixin, AuditMixin):
         structured = self.extracted_data.get("structured_data", {})
         return structured.get("items", [])
     
+    @property
+    def confidence_summary(self) -> Dict[str, Any]:
+        """获取置信度汇总信息"""
+        return {
+            "overall": float(self.ocr_overall_confidence or 0),
+            "field_count": len(self.ocr_field_confidences or {}),
+            "low_confidence_fields": [
+                field for field, conf in (self.ocr_field_confidences or {}).items()
+                if conf.get("value_confidence", 100) < 80
+            ],
+            "processing_metadata": self.ocr_processing_metadata or {}
+        }
+    
+    @property
+    def requires_manual_review(self) -> bool:
+        """是否需要人工审核（基于置信度）"""
+        if not self.ocr_overall_confidence:
+            return True
+        return float(self.ocr_overall_confidence) < 0.85
+    
     # 业务方法
-    def _ensure_json_format(self, ocr_result: Dict[str, Any]) -> Dict[str, Any]:
-        """确保OCR结果中的数据为正确的JSON格式"""
-        import json
-        import ast
-        import re
-        
-        def safe_parse_dict_string(dict_str: str) -> Optional[Dict[str, Any]]:
-            """安全解析字符串格式的Python字典"""
-            if not dict_str or not isinstance(dict_str, str):
-                return None
-            
-            try:
-                # 清理HTML转义字符
-                cleaned = dict_str.replace("&amp;", "&").replace("&#39;", "'").replace("&#34;", '"')
-                # 清理多层转义
-                cleaned = re.sub(r'&amp;amp;amp;amp;#39;', "'", cleaned)
-                cleaned = re.sub(r'&amp;amp;amp;amp;#34;', '"', cleaned)
-                
-                # 尝试使用ast.literal_eval安全解析
-                result = ast.literal_eval(cleaned)
-                return result if isinstance(result, dict) else None
-            except (ValueError, SyntaxError):
-                try:
-                    # 尝试JSON解析作为备选
-                    return json.loads(cleaned)
-                except (json.JSONDecodeError, ValueError):
-                    return None
-        
-        result = ocr_result.copy()
-        
-        # 处理structured_data字段
-        structured_data = result.get('structured_data')
-        if isinstance(structured_data, str):
-            parsed_structured = safe_parse_dict_string(structured_data)
-            if parsed_structured:
-                # 将解析后的数据合并到根级别
-                result.update(parsed_structured)
-                # 保留原始数据作为备份
-                result['structured_data_original'] = structured_data
-                # 设置新的structured_data为解析后的数据
-                result['structured_data'] = parsed_structured
-        
-        # 递归处理嵌套的字符串字典
-        for key, value in result.items():
-            if isinstance(value, str) and key.endswith('_data') and value.startswith('{'):
-                parsed_value = safe_parse_dict_string(value)
-                if parsed_value:
-                    result[key] = parsed_value
-        
-        return result
     
     def update_from_ocr(self, ocr_result: Dict[str, Any]) -> None:
-        """从 OCR 结果更新发票信息"""
-        import json
-        import ast
+        """从 OCR 结果更新发票信息 - 仅支持阿里云RecognizeMixedInvoices格式"""
+        # 保存原始OCR结果
+        self.extracted_data = ocr_result
         
-        # 确保extracted_data格式正确
-        processed_ocr_result = self._ensure_json_format(ocr_result)
-        self.extracted_data = processed_ocr_result
+        # 检测并处理阿里云混贴格式
+        if self._is_aliyun_mixed_format(ocr_result):
+            self._process_aliyun_mixed_ocr(ocr_result)
+        else:
+            # 不支持的格式
+            self.ocr_processing_metadata = {
+                "error": "Unsupported OCR format. Only Aliyun RecognizeMixedInvoices format is supported.",
+                "raw_keys": list(ocr_result.keys()) if isinstance(ocr_result, dict) else "invalid",
+                "service_provider": "Unknown"
+            }
+    
+    def _is_aliyun_mixed_format(self, ocr_result: Dict[str, Any]) -> bool:
+        """检测是否为阿里云RecognizeMixedInvoices格式"""
+        return (
+            "data" in ocr_result and 
+            "elements" in ocr_result.get("data", {}) and
+            isinstance(ocr_result["data"]["elements"], list)
+        )
+    
+    
+    def _process_aliyun_mixed_ocr(self, ocr_result: Dict[str, Any]) -> None:
+        """处理阿里云RecognizeMixedInvoices格式的OCR数据"""
+        try:
+            data = ocr_result.get("data", {})
+            elements = data.get("elements", [])
+            
+            if not elements:
+                self.ocr_processing_metadata = {
+                    "error": "No invoice elements found in recognition result",
+                    "service_provider": "Aliyun_RecognizeMixedInvoices"
+                }
+                return
+            
+            # 取第一个识别到的发票
+            first_invoice = elements[0]
+            invoice_type = first_invoice.get('type', '')
+            fields = first_invoice.get('fields', {})
+            
+            # 根据发票类型处理数据
+            if '增值税' in invoice_type or 'VAT' in invoice_type.upper():
+                self._map_aliyun_vat_invoice_fields(fields)
+                self.invoice_type = "增值税发票"
+            elif '火车票' in invoice_type or 'TRAIN' in invoice_type.upper():
+                self._map_aliyun_train_ticket_fields(fields)
+                self.invoice_type = "火车票"
+            else:
+                self._map_aliyun_general_invoice_fields(fields)
+                self.invoice_type = invoice_type or "通用发票"
+            
+            # 提取和存储置信度信息
+            self._extract_aliyun_mixed_confidences(fields)
+            
+            # 存储处理元数据
+            self.ocr_processing_metadata = {
+                "service_provider": "Aliyun_RecognizeMixedInvoices",
+                "processing_time": datetime.now(timezone.utc).isoformat(),
+                "invoice_type": invoice_type,
+                "elements_count": len(elements),
+                "recognition_result": "success"
+            }
+            
+        except (KeyError, IndexError, TypeError) as e:
+            # 处理格式错误，记录但不中断
+            self.ocr_processing_metadata = {
+                "error": f"Aliyun Mixed OCR format error: {str(e)}",
+                "raw_keys": list(ocr_result.keys()) if isinstance(ocr_result, dict) else "invalid",
+                "service_provider": "Aliyun_RecognizeMixedInvoices"
+            }
+    
+    
+    def _map_aliyun_vat_invoice_fields(self, fields: Dict[str, Any]) -> None:
+        """映射阿里云混贴识别的增值税发票字段"""
+        # 基础信息映射
+        self.invoice_number = self._get_field_text(fields, "invoiceNumber")
+        self.invoice_code = self._get_field_text(fields, "invoiceCode")
         
-        # 提取结构化数据
-        structured = processed_ocr_result.get("structured_data", {})
-        main_info = structured.get("main_info", {})
-        buyer_info = structured.get("buyer_info", {})
-        seller_info = structured.get("seller_info", {})
-        summary = structured.get("summary", {})
-        
-        # 更新基本字段
-        if main_info.get("invoice_code"):
-            self.invoice_code = main_info.get("invoice_code")
-        if main_info.get("invoice_number"):
-            self.invoice_number = main_info.get("invoice_number")
-        
-        # 安全的日期转换
-        invoice_date_str = main_info.get("invoice_date")
+        # 日期转换
+        invoice_date_str = self._get_field_text(fields, "invoiceDate")
         if invoice_date_str:
-            try:
-                self.invoice_date = datetime.strptime(invoice_date_str, "%Y-%m-%d").date()
-            except (ValueError, TypeError):
-                # 保持原值或记录错误
-                pass
+            self.invoice_date = self._parse_chinese_date(invoice_date_str)
         
-        # 安全的金额转换
-        if summary.get("amount") is not None:
-            try:
-                self.amount = Decimal(str(summary["amount"]))
-            except (InvalidOperation, ValueError, TypeError):
-                # 保持原值
-                pass
+        # 金额转换
+        self.total_amount = self._safe_decimal(self._get_field_text(fields, "totalAmount"))
+        self.tax_amount = self._safe_decimal(self._get_field_text(fields, "invoiceTax"))
+        self.amount_without_tax = self._safe_decimal(self._get_field_text(fields, "invoiceAmountPreTax"))
         
-        if summary.get("tax_amount") is not None:
-            try:
-                self.tax_amount = Decimal(str(summary["tax_amount"]))
-            except (InvalidOperation, ValueError, TypeError):
-                pass
-                
-        if summary.get("total_amount") is not None:
-            try:
-                self.total_amount = Decimal(str(summary["total_amount"]))
-            except (InvalidOperation, ValueError, TypeError):
-                pass
+        # 交易方信息
+        self.seller_name = self._get_field_text(fields, "sellerName")
+        self.seller_tax_number = self._get_field_text(fields, "sellerTaxNumber")
+        self.buyer_name = self._get_field_text(fields, "purchaserName")
+        self.buyer_tax_number = self._get_field_text(fields, "purchaserTaxNumber")
         
-        # 更新交易方信息
-        if buyer_info.get("name"):
-            self.buyer_name = buyer_info.get("name")
-        if buyer_info.get("tax_id"):
-            self.buyer_tax_id = buyer_info.get("tax_id")
-        if seller_info.get("name"):
-            self.seller_name = seller_info.get("name")
-        if seller_info.get("tax_id"):
-            self.seller_tax_id = seller_info.get("tax_id")
+        # 备注
+        self.remarks = self._get_field_text(fields, "remarks")
+    
+    def _map_aliyun_train_ticket_fields(self, fields: Dict[str, Any]) -> None:
+        """映射阿里云混贴识别的火车票字段"""
+        # 使用票号作为发票号
+        self.invoice_number = self._get_field_text(fields, "ticketNumber")
         
-        # 更新状态
-        self.processing_status = ProcessingStatus.OCR_COMPLETED.value
-        self.status = InvoiceStatus.COMPLETED.value
+        # 日期转换
+        invoice_date_str = self._get_field_text(fields, "invoiceDate")
+        if invoice_date_str:
+            self.invoice_date = self._parse_chinese_date(invoice_date_str)
+        
+        # 使用票价作为总金额
+        self.total_amount = self._safe_decimal(self._get_field_text(fields, "fare"))
+        self.amount_without_tax = self.total_amount  # 火车票通常不含税
+        self.tax_amount = Decimal("0")
+        
+        # 交易方信息 - 火车票的特殊处理
+        self.buyer_name = self._get_field_text(fields, "buyerName")
+        self.buyer_tax_number = self._get_field_text(fields, "buyerCreditCode")
+        self.seller_name = "中国铁路"  # 默认销售方
+    
+    def _map_aliyun_general_invoice_fields(self, fields: Dict[str, Any]) -> None:
+        """映射阿里云混贴识别的通用发票字段"""
+        # 基础信息映射
+        self.invoice_number = self._get_field_text(fields, "invoiceNumber")
+        
+        # 日期转换
+        invoice_date_str = self._get_field_text(fields, "invoiceDate")
+        if invoice_date_str:
+            self.invoice_date = self._parse_chinese_date(invoice_date_str)
+        
+        # 金额转换
+        self.total_amount = self._safe_decimal(self._get_field_text(fields, "totalAmount"))
+        self.amount_without_tax = self.total_amount  # 通用发票通常不区分含税不含税
+        self.tax_amount = Decimal("0")
+        
+        # 交易方信息
+        self.seller_name = self._get_field_text(fields, "sellerName")
+        self.buyer_name = self._get_field_text(fields, "buyerName")
+    
+    def _get_field_text(self, fields: Dict[str, Any], field_name: str) -> str:
+        """从阿里云字段结构中提取文本值"""
+        field_data = fields.get(field_name, {})
+        if isinstance(field_data, dict):
+            return field_data.get('text', '') or field_data.get('value', '')
+        return str(field_data) if field_data else ''
+    
+    def _extract_aliyun_mixed_confidences(self, fields: Dict[str, Any]) -> None:
+        """提取阿里云混贴识别的字段置信度信息"""
+        field_confidences = {}
+        confidence_scores = []
+        
+        for field_name, field_data in fields.items():
+            if isinstance(field_data, dict):
+                confidence = field_data.get('confidence', 0)
+                if confidence > 0:
+                    field_confidences[field_name] = {
+                        "key_confidence": 100,  # 阿里云通常不分离key和value置信度
+                        "value_confidence": confidence
+                    }
+                    confidence_scores.append(confidence / 100.0)
+        
+        # 存储字段级置信度
+        self.ocr_field_confidences = field_confidences
+        
+        # 计算整体置信度
+        if confidence_scores:
+            self.ocr_overall_confidence = sum(confidence_scores) / len(confidence_scores)
+            # 同时更新旧字段以保持兼容性
+            self.ocr_confidence_score = self.ocr_overall_confidence
+        
+    def _parse_chinese_date(self, date_str: str) -> Optional[date]:
+        """解析中文日期格式: 2025年03月26日 → 2025-03-26"""
+        if not date_str:
+            return None
+        
+        try:
+            import re
+            match = re.match(r'(\d{4})年(\d{1,2})月(\d{1,2})日', date_str.strip())
+            if match:
+                year, month, day = match.groups()
+                return date(int(year), int(month), int(day))
+        except (ValueError, TypeError):
+            pass
+        return None
+    
+    def _safe_decimal(self, value: str) -> Decimal:
+        """安全的金额转换"""
+        if not value:
+            return Decimal("0")
+        try:
+            # 清理金额格式
+            cleaned_value = str(value).replace(",", "").replace("￥", "").strip()
+            return Decimal(cleaned_value)
+        except (InvalidOperation, ValueError, TypeError):
+            return Decimal("0")
+    
+        
     
     def mark_as_verified(self, user_id: UUID, notes: Optional[str] = None) -> None:
         """标记为已验证"""

@@ -92,12 +92,7 @@ class Settings(BaseSettings):
     max_email_attachments: int = Field(default=10, description="最大邮件附件数")
     email_download_timeout: int = Field(default=30, description="邮件下载超时(秒)")
     
-    # OCR 服务配置
-    mineru_api_token: str = Field(default="", description="Mineru API Token")
-    mineru_api_base_url: str = Field(
-        default="https://api.mineru.net",
-        description="Mineru API 基础 URL"
-    )
+    # OCR 服务配置 - 仅支持阿里云
     
     # 阿里云 OCR 配置
     alicloud_access_key_id: str = Field(default="", description="阿里云 AccessKey ID")
