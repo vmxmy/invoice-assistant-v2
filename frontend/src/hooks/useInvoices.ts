@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../services/apiClient'
 import { logger } from '../utils/logger'
+// import { transformInvoiceData, transformInvoiceList } from '../utils/invoiceDataTransform'
 
 // 查询键常量
 export const INVOICE_KEYS = {
@@ -24,6 +25,10 @@ export const useInvoices = (params?: {
     queryKey: INVOICE_KEYS.list(params),
     queryFn: async () => {
       const response = await api.invoices.list(params)
+      // 不再需要前端数据转换
+      // if (response.data?.items) {
+      //   response.data.items = transformInvoiceList(response.data.items)
+      // }
       return response.data
     },
     staleTime: 1 * 60 * 1000, // 1分钟内不重新获取（减少缓存时间）
@@ -52,6 +57,10 @@ export const useInvoice = (id: string) => {
     queryKey: INVOICE_KEYS.detail(id),
     queryFn: async () => {
       const response = await api.invoices.get(id)
+      // 不再需要前端数据转换
+      // if (response.data) {
+      //   response.data = transformInvoiceData(response.data)
+      // }
       return response.data
     },
     enabled: !!id, // 只有在有ID时才执行

@@ -1,0 +1,372 @@
+{
+  "version": "2.0",
+  "generated_at": "2025-01-17T10:00:00Z",
+  "description": "发票管理系统共享配置文件 - 前后端同步",
+  
+  "invoice_types": {
+    "增值税发票": {
+      "code": "VAT_INVOICE",
+      "name": "增值税发票",
+      "description": "增值税普通发票和专用发票",
+      "icon": "📄",
+      "field_count": 29,
+      "supports": ["tax_details", "detailed_items", "buyer_seller_info"]
+    },
+    "火车票": {
+      "code": "TRAIN_TICKET", 
+      "name": "火车票",
+      "description": "铁路电子客票",
+      "icon": "🚄",
+      "field_count": 20,
+      "supports": ["passenger_info", "route_info", "transport_details"]
+    },
+    "机票": {
+      "code": "FLIGHT_TICKET",
+      "name": "机票", 
+      "description": "航空电子客票",
+      "icon": "✈️",
+      "field_count": 18,
+      "supports": ["passenger_info", "route_info", "transport_details"]
+    },
+    "出租车票": {
+      "code": "TAXI_TICKET",
+      "name": "出租车票",
+      "description": "出租车发票",
+      "icon": "🚕",
+      "field_count": 12,
+      "supports": ["route_info", "transport_details"]
+    },
+    "客运车票": {
+      "code": "BUS_TICKET",
+      "name": "客运车票",
+      "description": "长途客运票据",
+      "icon": "🚌",
+      "field_count": 14,
+      "supports": ["passenger_info", "route_info", "transport_details"]
+    },
+    "酒店发票": {
+      "code": "HOTEL_INVOICE",
+      "name": "酒店发票",
+      "description": "酒店住宿发票",
+      "icon": "🏨",
+      "field_count": 16,
+      "supports": ["detailed_items", "service_info"]
+    },
+    "通用发票": {
+      "code": "GENERAL_INVOICE",
+      "name": "通用发票",
+      "description": "通用类型发票",
+      "icon": "📃",
+      "field_count": 10,
+      "supports": ["basic_info"]
+    }
+  },
+
+  "field_categories": {
+    "basic": {
+      "name": "基础信息",
+      "description": "发票基本信息",
+      "order": 1,
+      "color": "#3B82F6"
+    },
+    "buyer": {
+      "name": "购买方信息", 
+      "description": "购买方详细信息",
+      "order": 2,
+      "color": "#10B981"
+    },
+    "seller": {
+      "name": "销售方信息",
+      "description": "销售方详细信息", 
+      "order": 3,
+      "color": "#F59E0B"
+    },
+    "amount": {
+      "name": "金额信息",
+      "description": "各类金额字段",
+      "order": 4,
+      "color": "#EF4444"
+    },
+    "tax": {
+      "name": "税务信息",
+      "description": "税务相关字段",
+      "order": 5,
+      "color": "#8B5CF6"
+    },
+    "details": {
+      "name": "明细信息", 
+      "description": "商品或服务明细",
+      "order": 6,
+      "color": "#06B6D4"
+    },
+    "transport": {
+      "name": "交通信息",
+      "description": "交通工具相关信息",
+      "order": 7,
+      "color": "#84CC16"
+    },
+    "passenger": {
+      "name": "乘客信息",
+      "description": "乘客相关信息",
+      "order": 8,
+      "color": "#F97316"
+    },
+    "additional": {
+      "name": "附加信息",
+      "description": "其他补充信息",
+      "order": 9,
+      "color": "#6B7280"
+    },
+    "metadata": {
+      "name": "元数据",
+      "description": "处理相关元数据",
+      "order": 10,
+      "color": "#9CA3AF"
+    }
+  },
+
+  "field_types": {
+    "text": {
+      "name": "文本",
+      "validation": "string",
+      "input_type": "text"
+    },
+    "number": {
+      "name": "数字",
+      "validation": "integer",
+      "input_type": "number"
+    },
+    "decimal": {
+      "name": "小数",
+      "validation": "float",
+      "input_type": "number",
+      "step": "0.01"
+    },
+    "date": {
+      "name": "日期",
+      "validation": "date",
+      "input_type": "date"
+    },
+    "datetime": {
+      "name": "日期时间",
+      "validation": "datetime",
+      "input_type": "datetime-local"
+    },
+    "email": {
+      "name": "邮箱",
+      "validation": "email",
+      "input_type": "email"
+    },
+    "phone": {
+      "name": "电话",
+      "validation": "phone",
+      "input_type": "tel"
+    },
+    "amount": {
+      "name": "金额",
+      "validation": "decimal",
+      "input_type": "number",
+      "step": "0.01",
+      "min": 0
+    }
+  },
+
+  "validation_rules": {
+    "required": {
+      "message": "此字段为必填项",
+      "severity": "error"
+    },
+    "min_length": {
+      "message": "字段长度不能少于 {min} 个字符",
+      "severity": "error"
+    },
+    "max_length": {
+      "message": "字段长度不能超过 {max} 个字符", 
+      "severity": "error"
+    },
+    "pattern": {
+      "message": "字段格式不正确",
+      "severity": "error"
+    },
+    "min_value": {
+      "message": "数值不能小于 {min}",
+      "severity": "error"
+    },
+    "max_value": {
+      "message": "数值不能大于 {max}",
+      "severity": "error"
+    },
+    "low_confidence": {
+      "message": "字段置信度较低，建议人工复核",
+      "severity": "warning"
+    },
+    "missing_optional": {
+      "message": "建议填写此可选字段以提高数据完整性",
+      "severity": "info"
+    }
+  },
+
+  "confidence_thresholds": {
+    "high": 0.9,
+    "medium": 0.7,
+    "low": 0.5,
+    "unacceptable": 0.3
+  },
+
+  "validation_presets": {
+    "strict": {
+      "name": "严格模式",
+      "description": "要求所有必填字段都有效",
+      "require_all_mandatory": true,
+      "min_confidence": 0.8,
+      "allow_low_confidence": false
+    },
+    "normal": {
+      "name": "普通模式", 
+      "description": "标准验证要求",
+      "require_all_mandatory": true,
+      "min_confidence": 0.7,
+      "allow_low_confidence": true
+    },
+    "lenient": {
+      "name": "宽松模式",
+      "description": "允许部分字段缺失",
+      "require_all_mandatory": false,
+      "min_confidence": 0.6,
+      "allow_low_confidence": true
+    }
+  },
+
+  "ocr_providers": {
+    "aliyun": {
+      "name": "阿里云OCR",
+      "endpoint": "https://ecs-west-1.aliyuncs.com",
+      "supported_types": ["VATInvoice", "TrainTicket", "FlightTicket", "TaxiTicket"],
+      "max_file_size": "10MB",
+      "supported_formats": ["PDF", "JPG", "PNG"]
+    }
+  },
+
+  "api_endpoints": {
+    "base_url": "http://localhost:8090/api/v1",
+    "ocr": {
+      "recognize": "/ocr/recognize"
+    },
+    "parser": {
+      "parse": "/parser/",
+      "enhanced": "/parser/enhanced",
+      "batch": "/parser/batch",
+      "types": "/parser/types",
+      "fields": "/parser/fields/{invoice_type}"
+    },
+    "validator": {
+      "validate": "/validator/",
+      "batch": "/validator/batch", 
+      "rules": "/validator/rules/{invoice_type}",
+      "custom": "/validator/custom",
+      "stats": "/validator/stats/{invoice_type}"
+    }
+  },
+
+  "ui_settings": {
+    "pagination": {
+      "default_page_size": 20,
+      "available_sizes": [10, 20, 50, 100]
+    },
+    "date_format": "YYYY-MM-DD",
+    "datetime_format": "YYYY-MM-DD HH:mm:ss",
+    "currency_format": "¥{amount}",
+    "decimal_places": 2,
+    "table_settings": {
+      "default_sort": "created_at",
+      "default_direction": "desc",
+      "sticky_header": true,
+      "row_selection": true
+    },
+    "form_settings": {
+      "auto_save": true,
+      "auto_save_interval": 30000,
+      "validation_on_blur": true,
+      "show_field_errors": true
+    }
+  },
+
+  "feature_flags": {
+    "batch_processing": true,
+    "export_csv": true,
+    "export_excel": true,
+    "advanced_search": true,
+    "field_mapping": true,
+    "custom_validation": true,
+    "audit_log": true,
+    "data_visualization": true
+  },
+
+  "performance_settings": {
+    "ocr_timeout": 30000,
+    "parse_timeout": 10000,
+    "validation_timeout": 5000,
+    "batch_size": 50,
+    "cache_ttl": 300000,
+    "debounce_delay": 500
+  },
+
+  "error_codes": {
+    "OCR_001": "OCR服务不可用",
+    "OCR_002": "文件格式不支持",
+    "OCR_003": "文件大小超限",
+    "OCR_004": "OCR识别失败",
+    "PARSE_001": "数据解析失败",
+    "PARSE_002": "发票类型不支持",
+    "PARSE_003": "字段提取失败",
+    "VALIDATE_001": "数据验证失败",
+    "VALIDATE_002": "必填字段缺失",
+    "VALIDATE_003": "字段格式错误",
+    "VALIDATE_004": "置信度过低",
+    "API_001": "请求参数错误",
+    "API_002": "权限不足",
+    "API_003": "服务器内部错误",
+    "API_004": "请求超时"
+  },
+
+  "localization": {
+    "default_language": "zh-CN",
+    "supported_languages": ["zh-CN", "en-US"],
+    "messages": {
+      "zh-CN": {
+        "loading": "加载中...",
+        "success": "操作成功",
+        "error": "操作失败",
+        "confirm": "确认",
+        "cancel": "取消",
+        "save": "保存",
+        "delete": "删除",
+        "edit": "编辑",
+        "view": "查看",
+        "search": "搜索",
+        "filter": "筛选",
+        "export": "导出",
+        "import": "导入",
+        "upload": "上传",
+        "download": "下载"
+      },
+      "en-US": {
+        "loading": "Loading...",
+        "success": "Success",
+        "error": "Error",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "view": "View",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import",
+        "upload": "Upload",
+        "download": "Download"
+      }
+    }
+  }
+}

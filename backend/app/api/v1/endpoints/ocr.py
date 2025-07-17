@@ -24,12 +24,7 @@ from alibabacloud_tea_util import models as util_models
 
 from app.core.config import settings
 from app.core.dependencies import get_current_user, CurrentUser
-from app.schemas.ocr import (
-    OCRResponse,
-    InvoiceData,
-    TrainTicketData,
-    InvoiceType
-)
+from app.schemas.ocr import OCRResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -47,38 +42,15 @@ class AliyunOCRClient:
         self.client = ocr_api20210707Client(config)
         self.runtime = util_models.RuntimeOptions()
     
-    async def recognize_invoice(self, file_content: bytes) -> Dict[str, Any]:
-        """识别增值税发票"""
+    async def recognize_mixed_invoices(self, file_content: bytes) -> Dict[str, Any]:
+        """使用混贴发票识别统一接口"""
         try:
             # 使用BinaryIO传递文件内容
-            request = ocr_api20210707_models.RecognizeInvoiceRequest(
-                body=io.BytesIO(file_content),
-                page_no=1  # 指定第一页，针对PDF
-            )
-            
-            response = self.client.recognize_invoice_with_options(request, self.runtime)
-            
-            if response.status_code == 200:
-                return response.body.to_map()
-            else:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"阿里云 OCR 错误: {response.body}"
-                )
-                
-        except Exception as e:
-            logger.error(f"识别增值税发票失败: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-    
-    async def recognize_train_ticket(self, file_content: bytes) -> Dict[str, Any]:
-        """识别火车票"""
-        try:
-            # 使用BinaryIO传递文件内容
-            request = ocr_api20210707_models.RecognizeTrainInvoiceRequest(
+            request = ocr_api20210707_models.RecognizeMixedInvoicesRequest(
                 body=io.BytesIO(file_content)
             )
             
-            response = self.client.recognize_train_invoice_with_options(request, self.runtime)
+            response = self.client.recognize_mixed_invoices_with_options(request, self.runtime)
             
             if response.status_code == 200:
                 return response.body.to_map()
@@ -89,7 +61,7 @@ class AliyunOCRClient:
                 )
                 
         except Exception as e:
-            logger.error(f"识别火车票失败: {str(e)}")
+            logger.error(f"混贴发票识别失败: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -118,302 +90,405 @@ def extract_pdf_first_page(pdf_content: bytes) -> bytes:
         raise HTTPException(status_code=400, detail=f"PDF 处理失败: {str(e)}")
 
 
-def detect_invoice_type(file_content: bytes, filename: str) -> InvoiceType:
-    """
-    智能检测发票类型
-    
-    通过以下方式判断：
-    1. PDF 内容文本分析（最准确）
-    2. 文件名关键词
-    3. 金额特征（火车票金额通常在几十到几千元）
-    """
+def parse_mixed_invoices_data(ocr_result: Dict[str, Any]) -> Dict[str, Any]:
+    """解析混贴发票识别结果 - 支持多种发票类型的统一解析"""
+    import json
     import re
     
-    # 先尝试分析PDF内容
     try:
-        pdf_document = fitz.open(stream=file_content, filetype="pdf")
-        if len(pdf_document) > 0:
-            page = pdf_document[0]
-            text = page.get_text()
-            pdf_document.close()
-            
-            # 火车票特征检测
-            train_features = 0
-            if '火车票' in text or '铁路' in text or '动车' in text or '高铁' in text:
-                train_features += 2
-            if re.search(r'[GCDKTZ]\d{1,4}', text):  # 车次号
-                train_features += 2
-            if '站' in text and ('到' in text or '开' in text):
-                train_features += 1
-            if re.search(r'\d+车\d+[A-F]?号?', text):  # 座位号
-                train_features += 2
-            if re.search(r'\d{1,2}:\d{2}开', text):  # 开车时间
-                train_features += 1
-            if '电子客票' in text:
-                train_features += 2
-                
-            # 增值税发票特征检测
-            invoice_features = 0
-            if '增值税' in text:
-                invoice_features += 2
-            if '税率' in text or '征收率' in text:
-                invoice_features += 2
-            if '价税合计' in text:
-                invoice_features += 2
-            if '销售方' in text or '销方' in text:
-                invoice_features += 1
-            if '购买方' in text or '购方' in text:
-                invoice_features += 1
-            if '*餐饮服务*' in text or '*服务*' in text:
-                invoice_features += 1
-                
-            # 基于特征得分判断
-            if train_features > invoice_features:
-                return InvoiceType.TRAIN_TICKET
-            elif invoice_features > train_features:
-                return InvoiceType.VAT_INVOICE
-    except Exception as e:
-        logger.debug(f"PDF内容分析失败，回退到文件名判断: {str(e)}")
-    
-    # 如果PDF分析失败或无法确定，使用文件名判断
-    filename_lower = filename.lower()
-    
-    # 检查文件名中的金额
-    amount_match = re.search(r'-(\d+(?:\.\d+)?)-', filename)
-    if amount_match:
-        amount = float(amount_match.group(1))
-        # 如果金额在典型火车票范围内，且文件名包含"国家税务总局"
-        if 50 <= amount <= 2000 and '国家税务总局' in filename:
-            return InvoiceType.TRAIN_TICKET
-    
-    # 基于文件名的关键词判断
-    train_keywords = ['火车', 'train', '铁路', 'railway', '车票']
-    for keyword in train_keywords:
-        if keyword in filename_lower:
-            return InvoiceType.TRAIN_TICKET
-    
-    # 默认为增值税发票
-    return InvoiceType.VAT_INVOICE
-
-
-def parse_invoice_data(ocr_result: Dict[str, Any]) -> Dict[str, Any]:
-    """解析增值税发票 OCR 结果 - 返回完整的结构化数据"""
-    import json
-    
-    # 处理OCR响应格式
-    if 'data' in ocr_result and 'data' in ocr_result['data']:
-        # 新格式：完整的结构化响应
-        invoice_data = ocr_result['data']['data']
-    elif 'Data' in ocr_result:
-        # 旧格式：Data字段是JSON字符串
+        # 阿里云RecognizeMixedInvoices返回格式：
+        # {
+        #   "Data": "{JSON字符串}",
+        #   "RequestId": "..."
+        # }
+        
+        # 第一步：获取Data字段（JSON字符串）
         data_str = ocr_result.get('Data', '')
-        if isinstance(data_str, str):
-            data = json.loads(data_str)
+        if not data_str:
+            return {
+                'invoice_type': '未知类型',
+                'confidence': 0.0,
+                'error': '未获取到OCR数据'
+            }
+        
+        # 第二步：解析JSON字符串
+        data = json.loads(data_str)
+        
+        # 第三步：获取subMsgs数组
+        sub_msgs = data.get('subMsgs', [])
+        if not sub_msgs:
+            return {
+                'invoice_type': '未知类型',
+                'confidence': 0.0,
+                'error': '未识别到有效发票'
+            }
+        
+        # 第四步：取第一个识别结果
+        first_msg = sub_msgs[0]
+        result = first_msg.get('result', {})
+        invoice_data = result.get('data', {})
+        
+        # 第五步：确定发票类型
+        invoice_type = first_msg.get('type', result.get('ftype', ''))
+        if not invoice_type:
+            # 从数据字段推断类型
+            if 'invoiceType' in invoice_data:
+                invoice_type = invoice_data.get('invoiceType', '通用发票')
+            else:
+                invoice_type = '通用发票'
+        
+        logger.info(f"识别到发票类型: {invoice_type}, 数据字段: {list(invoice_data.keys())}")
+        
+        # 第六步：根据发票类型解析数据
+        if '增值税' in str(invoice_type) or 'VAT' in str(invoice_type).upper() or 'invoice' in str(first_msg.get('op', '')):
+            return _parse_vat_invoice_from_mixed_new(invoice_data, invoice_type)
+        elif '火车票' in str(invoice_type) or 'TRAIN' in str(invoice_type).upper():
+            return _parse_train_ticket_from_mixed_new(invoice_data, invoice_type)
         else:
-            data = data_str
-        invoice_data = data.get('data', {})
-    else:
-        # 直接的数据格式
-        invoice_data = ocr_result.get('data', {})
+            # 通用发票解析
+            return _parse_general_invoice_from_mixed_new(invoice_data, invoice_type)
+            
+    except json.JSONDecodeError as e:
+        logger.error(f"解析OCR结果JSON失败: {str(e)}")
+        return {
+            'invoice_type': '未知类型',
+            'confidence': 0.0,
+            'error': f'JSON解析错误: {str(e)}'
+        }
+    except Exception as e:
+        logger.error(f"解析OCR结果失败: {str(e)}")
+        return {
+            'invoice_type': '未知类型',
+            'confidence': 0.0,
+            'error': f'解析错误: {str(e)}'
+        }
+
+
+def _parse_vat_invoice_from_mixed_new(invoice_data: Dict[str, Any], invoice_type: str) -> Dict[str, Any]:
+    """解析阿里云混贴识别中的增值税发票 - 新版本"""
+    # 从置信度信息中提取字段
+    prism_info = invoice_data.get('prism_keyValueInfo', [])
+    confidence_scores = []
     
-    # 解析发票明细项目
-    invoice_details = []
-    if 'invoiceDetails' in invoice_data:
-        details = invoice_data['invoiceDetails']
-        if isinstance(details, str):
-            # 如果是JSON字符串，解析它
-            try:
-                details = json.loads(details)
-            except (json.JSONDecodeError, TypeError):
-                details = []
-        
-        if isinstance(details, list):
-            invoice_details = details
+    # 构建字段映射
+    field_values = {}
+    field_confidences = {}
     
-    # 构建完整的结构化数据
-    structured_data = {
-        # 基本信息
-        'invoice_type': '增值税发票',
-        'invoiceType': invoice_data.get('invoiceType', '数电普通发票'),
-        'title': invoice_data.get('title', ''),
-        'formType': invoice_data.get('formType', ''),
+    logger.info(f"增值税发票 prism_keyValueInfo 数量: {len(prism_info)}")
+    
+    for field_info in prism_info:
+        field_name = field_info.get('key', '')
+        field_value = field_info.get('value', '')
+        value_confidence = field_info.get('valueProb', 95)
+        key_confidence = field_info.get('keyProb', 100)
         
-        # 发票标识
-        'invoiceCode': invoice_data.get('invoiceCode', ''),
+        if field_name:  # 只处理有效字段名
+            field_values[field_name] = field_value
+            field_confidences[field_name] = {
+                'value_confidence': value_confidence,
+                'key_confidence': key_confidence,
+                'text': field_value
+            }
+            
+            if value_confidence > 0:
+                confidence_scores.append(value_confidence)
+                
+            logger.debug(f"字段 {field_name}: {field_value} (置信度: {value_confidence}%)")
+    
+    # 同时也从直接字段中获取值（备用）
+    direct_fields = {
         'invoiceNumber': invoice_data.get('invoiceNumber', ''),
         'invoiceDate': invoice_data.get('invoiceDate', ''),
-        'printedInvoiceCode': invoice_data.get('printedInvoiceCode', ''),
-        'printedInvoiceNumber': invoice_data.get('printedInvoiceNumber', ''),
-        'checkCode': invoice_data.get('checkCode', ''),
-        'machineCode': invoice_data.get('machineCode', ''),
-        'specialTag': invoice_data.get('specialTag', ''),
-        
-        # 金额信息
         'totalAmount': invoice_data.get('totalAmount', ''),
-        'invoiceTax': invoice_data.get('invoiceTax', ''),
-        'invoiceAmountPreTax': invoice_data.get('invoiceAmountPreTax', ''),
-        'totalAmountInWords': invoice_data.get('totalAmountInWords', ''),
-        
-        # 销售方信息
         'sellerName': invoice_data.get('sellerName', ''),
-        'sellerTaxNumber': invoice_data.get('sellerTaxNumber', ''),
-        'sellerContactInfo': invoice_data.get('sellerContactInfo', ''),
-        'sellerBankAccountInfo': invoice_data.get('sellerBankAccountInfo', ''),
-        
-        # 购买方信息
         'purchaserName': invoice_data.get('purchaserName', ''),
-        'purchaserTaxNumber': invoice_data.get('purchaserTaxNumber', ''),
-        'purchaserContactInfo': invoice_data.get('purchaserContactInfo', ''),
-        'purchaserBankAccountInfo': invoice_data.get('purchaserBankAccountInfo', ''),
-        
-        # 发票明细
-        'invoiceDetails': invoice_details,
-        
-        # 其他信息
-        'remarks': invoice_data.get('remarks', ''),
-        'passwordArea': invoice_data.get('passwordArea', ''),
-        'drawer': invoice_data.get('drawer', ''),
-        'recipient': invoice_data.get('recipient', ''),
-        'reviewer': invoice_data.get('reviewer', ''),
-        
-        # 置信度
-        'confidence': 0.95,
-        
-        # 兼容旧字段名
-        'invoice_code': invoice_data.get('invoiceCode', ''),
-        'invoice_number': invoice_data.get('invoiceNumber', ''),
-        'invoice_date': invoice_data.get('invoiceDate', ''),
-        'total_amount': invoice_data.get('totalAmount', ''),
-        'tax_amount': invoice_data.get('invoiceTax', ''),
-        'amount_without_tax': invoice_data.get('invoiceAmountPreTax', ''),
-        'seller_name': invoice_data.get('sellerName', ''),
-        'seller_tax_number': invoice_data.get('sellerTaxNumber', ''),
-        'buyer_name': invoice_data.get('purchaserName', ''),
-        'buyer_tax_number': invoice_data.get('purchaserTaxNumber', ''),
+        'invoiceType': invoice_data.get('invoiceType', invoice_type)
     }
     
-    # 如果有二维码信息，也保存
-    if 'codes' in ocr_result.get('data', {}):
-        structured_data['qr_codes'] = ocr_result['data']['codes']
+    # 合并字段值（优先使用直接字段）
+    for key, value in direct_fields.items():
+        if value and key not in field_values:
+            field_values[key] = value
     
-    return structured_data
+    # 计算整体置信度
+    overall_confidence = sum(confidence_scores) / len(confidence_scores) / 100.0 if confidence_scores else 0.95
+    
+    return {
+        'invoice_type': invoice_data.get('invoiceType', '增值税发票'),
+        'invoiceCode': field_values.get('invoiceCode', ''),
+        'invoiceNumber': field_values.get('invoiceNumber', ''),
+        'invoiceDate': field_values.get('invoiceDate', ''),
+        'totalAmount': field_values.get('totalAmount', ''),
+        'invoiceTax': field_values.get('invoiceTax', ''),
+        'invoiceAmountPreTax': field_values.get('invoiceAmountPreTax', ''),
+        'sellerName': field_values.get('sellerName', ''),
+        'sellerTaxNumber': field_values.get('sellerTaxNumber', ''),
+        'purchaserName': field_values.get('purchaserName', ''),
+        'purchaserTaxNumber': field_values.get('purchaserTaxNumber', ''),
+        'remarks': field_values.get('remarks', ''),
+        
+        # 兼容字段
+        'invoice_number': field_values.get('invoiceNumber', ''),
+        'invoice_date': field_values.get('invoiceDate', ''),
+        'total_amount': field_values.get('totalAmount', ''),
+        'seller_name': field_values.get('sellerName', ''),
+        'buyer_name': field_values.get('purchaserName', ''),
+        
+        # 置信度信息
+        'confidence': overall_confidence,
+        'field_confidences': field_confidences
+    }
 
 
-def parse_train_ticket_data(ocr_result: Dict[str, Any]) -> Dict[str, Any]:
-    """解析火车票 OCR 结果 - 返回完整的结构化数据"""
-    import json
-    import re
+def _parse_train_ticket_from_mixed_new(invoice_data: Dict[str, Any], invoice_type: str) -> Dict[str, Any]:
+    """解析阿里云混贴识别中的火车票 - 新版本"""
+    # 从置信度信息中提取字段
+    prism_info = invoice_data.get('prism_keyValueInfo', [])
+    confidence_scores = []
     
-    # 处理OCR响应格式
-    if 'data' in ocr_result and 'data' in ocr_result['data']:
-        # 新格式：完整的结构化响应
-        ticket_data = ocr_result['data']['data']
-    elif 'Data' in ocr_result:
-        # 旧格式：Data字段是JSON字符串
-        data_str = ocr_result.get('Data', '')
-        if isinstance(data_str, str):
-            data = json.loads(data_str)
-        else:
-            data = data_str
-        ticket_data = data.get('data', {})
-    else:
-        # 直接的数据格式
-        ticket_data = ocr_result.get('data', {})
+    # 构建字段映射
+    field_values = {}
+    field_confidences = {}
     
-    # 从departureTime中提取日期和时间
-    departure_time_str = ticket_data.get('departureTime', '')
-    departure_date = ''
-    departure_time = ''
-    if departure_time_str:
-        # 格式如: "2025年03月03日09:50开"
-        date_match = re.search(r'(\d{4}年\d{1,2}月\d{1,2}日)', departure_time_str)
-        time_match = re.search(r'(\d{1,2}:\d{2})开?', departure_time_str)
-        if date_match:
-            departure_date = date_match.group(1)
-        if time_match:
-            departure_time = time_match.group(1)
+    logger.info(f"火车票 prism_keyValueInfo 数量: {len(prism_info)}")
     
-    # 从passengerInfo中提取身份证号和姓名
-    passenger_info = ticket_data.get('passengerInfo', '')
-    id_number = ''
-    extracted_passenger_name = ''
-    if passenger_info:
-        # 格式如: "3207051981****2012徐明扬"
-        id_match = re.search(r'(\d+\*+\d+)', passenger_info)
-        if id_match:
-            id_number = id_match.group(1)
-        # 提取身份证号后面的姓名
-        name_match = re.search(r'\d+\*+\d+(.+)', passenger_info)
-        if name_match:
-            extracted_passenger_name = name_match.group(1).strip()
+    for field_info in prism_info:
+        field_name = field_info.get('key', '')
+        field_value = field_info.get('value', '')
+        value_confidence = field_info.get('valueProb', 95)
+        key_confidence = field_info.get('keyProb', 100)
+        
+        if field_name:  # 只处理有效字段名
+            field_values[field_name] = field_value
+            field_confidences[field_name] = {
+                'value_confidence': value_confidence,
+                'key_confidence': key_confidence,
+                'text': field_value
+            }
+            
+            if value_confidence > 0:
+                confidence_scores.append(value_confidence)
+                
+            logger.debug(f"字段 {field_name}: {field_value} (置信度: {value_confidence}%)")
     
-    # 构建完整的结构化数据
-    structured_data = {
-        # 基本信息
+    # 计算整体置信度
+    overall_confidence = sum(confidence_scores) / len(confidence_scores) / 100.0 if confidence_scores else 0.95
+    
+    return {
         'invoice_type': '火车票',
-        'title': ticket_data.get('title', '电子发票(铁路电子客票)'),
+        'ticketNumber': field_values.get('ticketNumber', ''),
+        'trainNumber': field_values.get('trainNumber', ''),
+        'departureStation': field_values.get('departureStation', ''),
+        'arrivalStation': field_values.get('arrivalStation', ''),
+        'departureTime': field_values.get('departureTime', ''),
+        'seatNumber': field_values.get('seatNumber', ''),
+        'fare': field_values.get('fare', ''),
+        'passengerName': field_values.get('passengerName', ''),
         
-        # 票务信息
-        'ticketNumber': ticket_data.get('ticketNumber', ''),
-        'electronicTicketNumber': ticket_data.get('electronicTicketNumber', ''),
-        'ticketCode': ticket_data.get('ticketCode', ''),
-        'invoiceDate': ticket_data.get('invoiceDate', ''),
+        # 统一字段映射
+        'invoiceNumber': field_values.get('ticketNumber', ''),
+        'totalAmount': field_values.get('fare', ''),
+        'buyerName': field_values.get('passengerName', ''),
+        'sellerName': '中国铁路',
         
-        # 乘客信息
-        'passengerName': ticket_data.get('passengerName', '') or extracted_passenger_name,
-        'passengerInfo': passenger_info,
-        'buyerName': ticket_data.get('buyerName', ''),
-        'buyerCreditCode': ticket_data.get('buyerCreditCode', ''),
+        # 兼容字段
+        'invoice_number': field_values.get('ticketNumber', ''),
+        'total_amount': field_values.get('fare', ''),
+        'buyer_name': field_values.get('passengerName', ''),
+        'seller_name': '中国铁路',
         
-        # 行程信息
-        'trainNumber': ticket_data.get('trainNumber', ''),
-        'departureStation': ticket_data.get('departureStation', ''),
-        'arrivalStation': ticket_data.get('arrivalStation', ''),
-        'departureTime': departure_time_str,
-        'departureDate': departure_date,
-        'departure_time': departure_time,
-        
-        # 座位信息
-        'seatNumber': ticket_data.get('seatNumber', ''),
-        'seatType': ticket_data.get('seatType', ''),
-        'ticketGate': ticket_data.get('ticketGate', ''),
-        
-        # 价格信息
-        'fare': ticket_data.get('fare', ''),
-        'ticket_price': ticket_data.get('fare', ''),
-        
-        # 其他信息
-        'saleInfo': ticket_data.get('saleInfo', ''),
-        'remarks': ticket_data.get('remarks', ''),
-        'isCopy': ticket_data.get('isCopy', False),
-        
-        # 置信度
-        'confidence': 0.95,
-        
-        # 兼容旧字段名
-        'ticket_number': ticket_data.get('ticketNumber', ''),
-        'passenger_name': ticket_data.get('passengerName', '') or extracted_passenger_name,
-        'id_number': id_number,
-        'departure_station': ticket_data.get('departureStation', ''),
-        'arrival_station': ticket_data.get('arrivalStation', ''),
-        'train_number': ticket_data.get('trainNumber', ''),
-        'seat_number': ticket_data.get('seatNumber', ''),
+        # 置信度信息
+        'confidence': overall_confidence,
+        'field_confidences': field_confidences
     }
+
+
+def _parse_general_invoice_from_mixed_new(invoice_data: Dict[str, Any], invoice_type: str) -> Dict[str, Any]:
+    """解析阿里云混贴识别中的通用发票 - 新版本"""
+    # 从置信度信息中提取字段
+    prism_info = invoice_data.get('prism_keyValueInfo', [])
+    confidence_scores = []
     
-    return structured_data
+    # 构建字段映射
+    field_values = {}
+    field_confidences = {}
+    
+    logger.info(f"通用发票 prism_keyValueInfo 数量: {len(prism_info)}")
+    
+    for field_info in prism_info:
+        field_name = field_info.get('key', '')
+        field_value = field_info.get('value', '')
+        value_confidence = field_info.get('valueProb', 95)
+        key_confidence = field_info.get('keyProb', 100)
+        
+        if field_name:  # 只处理有效字段名
+            field_values[field_name] = field_value
+            field_confidences[field_name] = {
+                'value_confidence': value_confidence,
+                'key_confidence': key_confidence,
+                'text': field_value
+            }
+            
+            if value_confidence > 0:
+                confidence_scores.append(value_confidence)
+                
+            logger.debug(f"字段 {field_name}: {field_value} (置信度: {value_confidence}%)")
+    
+    # 计算整体置信度
+    overall_confidence = sum(confidence_scores) / len(confidence_scores) / 100.0 if confidence_scores else 0.95
+    
+    return {
+        'invoice_type': invoice_type or '通用发票',
+        'invoiceNumber': field_values.get('invoiceNumber', ''),
+        'invoiceDate': field_values.get('invoiceDate', ''),
+        'totalAmount': field_values.get('totalAmount', ''),
+        'sellerName': field_values.get('sellerName', ''),
+        'buyerName': field_values.get('buyerName', ''),
+        
+        # 兼容字段
+        'invoice_number': field_values.get('invoiceNumber', ''),
+        'invoice_date': field_values.get('invoiceDate', ''),
+        'total_amount': field_values.get('totalAmount', ''),
+        'seller_name': field_values.get('sellerName', ''),
+        'buyer_name': field_values.get('buyerName', ''),
+        
+        # 置信度信息
+        'confidence': overall_confidence,
+        'field_confidences': field_confidences
+    }
 
 
-@router.post("/recognize", summary="智能识别发票/票据")
+def _parse_vat_invoice_from_mixed(invoice_data: Dict[str, Any]) -> Dict[str, Any]:
+    """解析混贴识别中的增值税发票 - 旧版本（保留兼容性）"""
+    # 从 subImages 或 fields 中提取字段信息
+    fields = invoice_data.get('fields', {})
+    
+    return {
+        'invoice_type': '增值税发票',
+        'invoiceCode': fields.get('invoiceCode', {}).get('text', ''),
+        'invoiceNumber': fields.get('invoiceNumber', {}).get('text', ''),
+        'invoiceDate': fields.get('invoiceDate', {}).get('text', ''),
+        'totalAmount': fields.get('totalAmount', {}).get('text', ''),
+        'invoiceTax': fields.get('invoiceTax', {}).get('text', ''),
+        'invoiceAmountPreTax': fields.get('invoiceAmountPreTax', {}).get('text', ''),
+        'sellerName': fields.get('sellerName', {}).get('text', ''),
+        'sellerTaxNumber': fields.get('sellerTaxNumber', {}).get('text', ''),
+        'purchaserName': fields.get('purchaserName', {}).get('text', ''),
+        'purchaserTaxNumber': fields.get('purchaserTaxNumber', {}).get('text', ''),
+        'remarks': fields.get('remarks', {}).get('text', ''),
+        
+        # 兼容字段
+        'invoice_code': fields.get('invoiceCode', {}).get('text', ''),
+        'invoice_number': fields.get('invoiceNumber', {}).get('text', ''),
+        'invoice_date': fields.get('invoiceDate', {}).get('text', ''),
+        'total_amount': fields.get('totalAmount', {}).get('text', ''),
+        'tax_amount': fields.get('invoiceTax', {}).get('text', ''),
+        'amount_without_tax': fields.get('invoiceAmountPreTax', {}).get('text', ''),
+        'seller_name': fields.get('sellerName', {}).get('text', ''),
+        'seller_tax_number': fields.get('sellerTaxNumber', {}).get('text', ''),
+        'buyer_name': fields.get('purchaserName', {}).get('text', ''),
+        'buyer_tax_number': fields.get('purchaserTaxNumber', {}).get('text', ''),
+        
+        # 置信度信息
+        'confidence': _calculate_confidence(fields),
+        'field_confidences': _extract_field_confidences(fields)
+    }
+
+
+def _parse_train_ticket_from_mixed(ticket_data: Dict[str, Any]) -> Dict[str, Any]:
+    """解析混贴识别中的火车票"""
+    fields = ticket_data.get('fields', {})
+    
+    return {
+        'invoice_type': '火车票',
+        'ticketNumber': fields.get('ticketNumber', {}).get('text', ''),
+        'invoiceDate': fields.get('invoiceDate', {}).get('text', ''),
+        'passengerName': fields.get('passengerName', {}).get('text', ''),
+        'buyerName': fields.get('buyerName', {}).get('text', ''),
+        'buyerCreditCode': fields.get('buyerCreditCode', {}).get('text', ''),
+        'trainNumber': fields.get('trainNumber', {}).get('text', ''),
+        'departureStation': fields.get('departureStation', {}).get('text', ''),
+        'arrivalStation': fields.get('arrivalStation', {}).get('text', ''),
+        'departureTime': fields.get('departureTime', {}).get('text', ''),
+        'seatNumber': fields.get('seatNumber', {}).get('text', ''),
+        'fare': fields.get('fare', {}).get('text', ''),
+        
+        # 兼容字段
+        'ticket_number': fields.get('ticketNumber', {}).get('text', ''),
+        'passenger_name': fields.get('passengerName', {}).get('text', ''),
+        'train_number': fields.get('trainNumber', {}).get('text', ''),
+        'departure_station': fields.get('departureStation', {}).get('text', ''),
+        'arrival_station': fields.get('arrivalStation', {}).get('text', ''),
+        'seat_number': fields.get('seatNumber', {}).get('text', ''),
+        'ticket_price': fields.get('fare', {}).get('text', ''),
+        
+        # 置信度信息
+        'confidence': _calculate_confidence(fields),
+        'field_confidences': _extract_field_confidences(fields)
+    }
+
+
+def _parse_general_invoice_from_mixed(invoice_data: Dict[str, Any]) -> Dict[str, Any]:
+    """解析混贴识别中的通用发票"""
+    fields = invoice_data.get('fields', {})
+    
+    return {
+        'invoice_type': invoice_data.get('type', '通用发票'),
+        'invoiceNumber': fields.get('invoiceNumber', {}).get('text', ''),
+        'invoiceDate': fields.get('invoiceDate', {}).get('text', ''),
+        'totalAmount': fields.get('totalAmount', {}).get('text', ''),
+        'sellerName': fields.get('sellerName', {}).get('text', ''),
+        'buyerName': fields.get('buyerName', {}).get('text', ''),
+        
+        # 兼容字段
+        'invoice_number': fields.get('invoiceNumber', {}).get('text', ''),
+        'invoice_date': fields.get('invoiceDate', {}).get('text', ''),
+        'total_amount': fields.get('totalAmount', {}).get('text', ''),
+        'seller_name': fields.get('sellerName', {}).get('text', ''),
+        'buyer_name': fields.get('buyerName', {}).get('text', ''),
+        
+        # 置信度信息
+        'confidence': _calculate_confidence(fields),
+        'field_confidences': _extract_field_confidences(fields)
+    }
+
+
+def _calculate_confidence(fields: Dict[str, Any]) -> float:
+    """计算整体置信度"""
+    confidences = []
+    for field_name, field_data in fields.items():
+        if isinstance(field_data, dict) and 'confidence' in field_data:
+            confidences.append(float(field_data['confidence']))
+    
+    if confidences:
+        return sum(confidences) / len(confidences) / 100.0  # 转换为0-1范围
+    return 0.95  # 默认置信度
+
+
+def _extract_field_confidences(fields: Dict[str, Any]) -> Dict[str, Any]:
+    """提取字段级置信度信息"""
+    field_confidences = {}
+    for field_name, field_data in fields.items():
+        if isinstance(field_data, dict):
+            field_confidences[field_name] = {
+                'value_confidence': field_data.get('confidence', 95),
+                'text': field_data.get('text', ''),
+                'position': field_data.get('position', {})
+            }
+    return field_confidences
+
+
+@router.post("/recognize", summary="阿里云OCR原始识别接口")
 async def recognize_document(
     file: UploadFile = File(..., description="PDF 文件"),
     current_user: CurrentUser = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """
-    智能识别发票或票据
+    使用阿里云 RecognizeMixedInvoices 统一识别接口
     
-    - 自动判断文档类型（增值税发票或火车票）
-    - 调用相应的阿里云 OCR 接口
-    - 返回结构化的识别结果
+    - 直接调用阿里云OCR服务
+    - 返回阿里云OCR的原始响应数据
+    - 不进行任何解析或字段映射处理
     """
     # 验证文件类型
     if not file.filename.lower().endswith('.pdf'):
@@ -427,97 +502,33 @@ async def recognize_document(
         raise HTTPException(status_code=400, detail="文件大小不能超过 10MB")
     
     try:
-        # 检测发票类型
-        invoice_type = detect_invoice_type(file_content, file.filename)
-        
         # 初始化 OCR 客户端
         ocr_client = AliyunOCRClient()
         
-        # 根据类型调用不同的 OCR 接口，直接使用PDF
-        if invoice_type == InvoiceType.VAT_INVOICE:
-            ocr_result = await ocr_client.recognize_invoice(file_content)
-            parsed_data = parse_invoice_data(ocr_result)
-        else:
-            ocr_result = await ocr_client.recognize_train_ticket(file_content)
-            parsed_data = parse_train_ticket_data(ocr_result)
+        # 使用混贴发票识别统一接口
+        ocr_result = await ocr_client.recognize_mixed_invoices(file_content)
         
         # 记录日志
-        logger.info(
-            f"用户 {current_user.id} 成功识别 {invoice_type.value}: {file.filename}"
-        )
+        logger.info(f"用户 {current_user.id} 成功调用阿里云OCR识别: {file.filename}")
         
         return {
             "success": True,
-            "message": "识别成功",
-            "data": parsed_data,
-            "raw_result": ocr_result
+            "message": "OCR识别成功",
+            "data": ocr_result,  # 直接返回阿里云OCR原始数据
+            "file_info": {
+                "filename": file.filename,
+                "size": len(file_content),
+                "user_id": str(current_user.id)
+            }
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"OCR 识别失败: {str(e)}")
+        logger.error(f"阿里云OCR调用失败: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"识别失败: {str(e)}"
+            detail=f"OCR识别失败: {str(e)}"
         )
 
 
-@router.post("/recognize/invoice", summary="识别增值税发票")
-async def recognize_invoice(
-    file: UploadFile = File(..., description="增值税发票 PDF 文件"),
-    current_user: CurrentUser = Depends(get_current_user)
-) -> Dict[str, Any]:
-    """强制识别为增值税发票"""
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="仅支持 PDF 格式文件")
-    
-    file_content = await file.read()
-    if len(file_content) > 10 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="文件大小不能超过 10MB")
-    
-    try:
-        ocr_client = AliyunOCRClient()
-        ocr_result = await ocr_client.recognize_invoice(file_content)
-        parsed_data = parse_invoice_data(ocr_result)
-        
-        return {
-            "success": True,
-            "message": "增值税发票识别成功",
-            "data": parsed_data,
-            "raw_result": ocr_result
-        }
-        
-    except Exception as e:
-        logger.error(f"增值税发票识别失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"识别失败: {str(e)}")
-
-
-@router.post("/recognize/train-ticket", summary="识别火车票")
-async def recognize_train_ticket(
-    file: UploadFile = File(..., description="火车票 PDF 文件"),
-    current_user: CurrentUser = Depends(get_current_user)
-) -> Dict[str, Any]:
-    """强制识别为火车票"""
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="仅支持 PDF 格式文件")
-    
-    file_content = await file.read()
-    if len(file_content) > 10 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="文件大小不能超过 10MB")
-    
-    try:
-        ocr_client = AliyunOCRClient()
-        ocr_result = await ocr_client.recognize_train_ticket(file_content)
-        parsed_data = parse_train_ticket_data(ocr_result)
-        
-        return {
-            "success": True,
-            "message": "火车票识别成功",
-            "data": parsed_data,
-            "raw_result": ocr_result
-        }
-        
-    except Exception as e:
-        logger.error(f"火车票识别失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"识别失败: {str(e)}")

@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from uuid import uuid4
 import json
+import logging
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +19,8 @@ from app.core.database import get_db_session
 from app.core.dependencies import get_current_user, CurrentUser
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource, ProcessingStatus
 from app.services.storage.supabase_storage import SupabaseStorageService
+
+logger = logging.getLogger(__name__)
 from app.schemas.invoice import InvoiceCreate
 
 router = APIRouter()
@@ -40,11 +43,19 @@ async def create_invoice_with_file(
     """
     # 解析发票数据
     try:
+        logger.info(f"[create_invoice_with_file] 接收到的原始invoice_data: {invoice_data[:500]}...")  # 只记录前500字符
         invoice_dict = json.loads(invoice_data)
+        logger.info(f"[create_invoice_with_file] 解析后的invoice_dict键: {list(invoice_dict.keys())}")
+        
         # 提取完整的OCR数据
         extracted_data = invoice_dict.pop('extracted_data', {})
+        logger.info(f"[create_invoice_with_file] extracted_data键: {list(extracted_data.keys()) if extracted_data else 'None'}")
+        logger.info(f"[create_invoice_with_file] 发票类型: {invoice_dict.get('invoice_type')}")
+        logger.info(f"[create_invoice_with_file] 消费日期(前端传入): {invoice_dict.get('consumption_date')}")
+        
         invoice_create = InvoiceCreate(**invoice_dict)
     except Exception as e:
+        logger.error(f"[create_invoice_with_file] 解析发票数据失败: {str(e)}")
         raise HTTPException(status_code=400, detail=f"发票数据格式错误: {str(e)}")
     
     # 验证文件
@@ -101,7 +112,10 @@ async def create_invoice_with_file(
         
         # 处理消费日期：如果前端没有提供，则根据发票类型计算
         consumption_date = getattr(invoice_create, 'consumption_date', None)
+        logger.info(f"[create_invoice_with_file] 从invoice_create获取的消费日期: {consumption_date}")
+        
         if not consumption_date:
+            logger.info("[create_invoice_with_file] 消费日期为空，尝试根据发票类型计算")
             # 引入 parse_consumption_date 函数
             from app.api.v1.endpoints.files import parse_consumption_date
             consumption_date = parse_consumption_date(
@@ -109,6 +123,7 @@ async def create_invoice_with_file(
                 invoice_create.invoice_date,
                 extracted_data
             )
+            logger.info(f"[create_invoice_with_file] 计算后的消费日期: {consumption_date}")
         
         
         # 创建发票记录

@@ -13,62 +13,54 @@
 
 ## Authentication (Supabase)
 
-### 方法 1: 使用 MCP Supabase 工具（推荐）
+### 方法 1: 使用 curl 获取认证令牌（推荐用于测试）
+
+#### 步骤1：创建认证请求文件
 ```bash
-# 获取项目URL和anon key
-# 在Claude Code中使用MCP工具
-mcp__supabase__get_project_url  # 返回: https://sfenhhtvcyslxplvewmt.supabase.co
-mcp__supabase__get_anon_key     # 返回: anon key
-
-# 通过API获取用户认证令牌
-python get_user_token.py
+# 创建认证请求文件（避免特殊字符转义问题）
+cat > auth_request.json << 'EOF'
+{
+  "email": "blueyang@gmail.com",
+  "password": "Xumy8!75"
+}
+EOF
 ```
 
-### 方法 2: 直接使用 Python Supabase 客户端
-```python
-from supabase import create_client
-
-# Supabase配置（旧项目）
-url = 'https://kuvezqgwwtrwfcijpnlj.supabase.co'
-key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1dmV6cWd3d3Ryd2ZjaWpwbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5NzMwNzQsImV4cCI6MjA1MTU0OTA3NH0.iHSUQeJSsKVQ84Ef0f_XaKAy-1xSIgVVqYwuB3fmk7g'
-
-# 新项目配置（通过MCP获取）
-url = 'https://sfenhhtvcyslxplvewmt.supabase.co'
-key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE'
-
-# 创建客户端并登录
-supabase = create_client(url, key)
-response = supabase.auth.sign_in_with_password({
-    'email': 'blueyang@gmail.com',
-    'password': 'Xumy8!75'
-})
-
-# 获取令牌
-if response.user:
-    token = response.session.access_token
-    print(f'Authorization: Bearer {token}')
-```
-
-### 获取用户认证令牌的脚本
+#### 步骤2：获取认证令牌
 ```bash
-# 使用MCP项目配置获取令牌（推荐）
-source backend/venv/bin/activate
-python get_mcp_auth_token.py
-
-# 令牌会保存到 .auth_token 文件中
-# 获取的令牌示例：
-# eyJhbGciOiJIUzI1NiIsImtpZCI6IklraUtRYlY5Z3RYMmRNL3ciLCJ0eXAiOiJKV1QifQ...
+# 获取完整认证响应
+curl -X POST 'https://sfenhhtvcyslxplvewmt.supabase.co/auth/v1/token?grant_type=password' \
+  -H 'Content-Type: application/json' \
+  -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE' \
+  -d @auth_request.json
 ```
 
-### API 测试命令
+#### 步骤3：提取并保存令牌
 ```bash
-# 火车票API测试
-source backend/venv/bin/activate
-python test_api_train_tickets.py
+# 提取访问令牌并保存到文件
+TOKEN=$(curl -s -X POST 'https://sfenhhtvcyslxplvewmt.supabase.co/auth/v1/token?grant_type=password' \
+  -H 'Content-Type: application/json' \
+  -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE' \
+  -d @auth_request.json | jq -r '.access_token')
 
-# 购买方名称测试
-python test_buyer_names.py
+echo "Token: ${TOKEN:0:50}..."
+echo $TOKEN > .auth_token
+echo "令牌已保存到 .auth_token 文件"
 ```
+
+#### 步骤4：验证令牌
+```bash
+# 验证令牌是否有效
+curl -X GET 'https://sfenhhtvcyslxplvewmt.supabase.co/auth/v1/user' \
+  -H "Authorization: Bearer $(cat .auth_token)" \
+  -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE'
+```
+
+# 使用curl测试OCR接口
+# 方法1：使用已保存的令牌
+curl -X POST 'http://localhost:8090/api/v1/ocr/recognize' \
+  -H "Authorization: Bearer $(cat .auth_token)" \
+  -F "file=@/Users/xumingyang/app/invoice_assist/downloads/报销/invoices_20250326162847/2025-03-13-娄底星奕酒店管理有限公司-507.00-25432000000032621839.pdf"
 
 ### 项目配置
 - **当前项目URL**: https://sfenhhtvcyslxplvewmt.supabase.co

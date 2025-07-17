@@ -106,7 +106,12 @@
       "mcp__thinking__sequentialthinking",
       "Bash(supabase secrets:*)",
       "mcp__filesystem__edit_file",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "WebFetch(domain:help.aliyun.com)",
+      "mcp__zen-cc__chat",
+      "Bash(jq:*)",
+      "mcp__zen-docker__chat",
+      "Bash(git pull:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

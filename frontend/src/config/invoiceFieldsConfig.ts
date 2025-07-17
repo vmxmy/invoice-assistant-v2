@@ -57,11 +57,80 @@ export const getNestedValue = (obj: any, path: string): any => {
 
 // 从多个路径中获取第一个非空值
 export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
+  // 调试发票明细字段的路径解析
+  const isInvoiceDetails = paths.some(p => p.includes('invoice_details'));
+  if (isInvoiceDetails) {
+    console.log('🔍 [getValueFromPaths] invoice_details 路径解析调试:', {
+      paths,
+      invoice_id: invoice.id,
+      invoice_type: invoice.invoice_type
+    });
+  }
+  
   for (const path of paths) {
     const value = getNestedValue(invoice, path);
+    
+    if (isInvoiceDetails) {
+      console.log(`🔍 [getValueFromPaths] 路径 "${path}" 解析结果:`, {
+        path,
+        value,
+        valueType: typeof value,
+        isArray: Array.isArray(value),
+        hasValue: value !== undefined && value !== null && value !== ''
+      });
+    }
+    
     if (value !== undefined && value !== null && value !== '') {
+      // 特殊处理 invoice_details 字段 - 如果是字符串，尝试解析为JSON
+      if (path.includes('invoice_details') && typeof value === 'string') {
+        console.log('🔍 [getValueFromPaths] 尝试解析 invoice_details 字符串:', value);
+        try {
+          // 先尝试标准JSON解析
+          const parsed = JSON.parse(value);
+          console.log('✅ [getValueFromPaths] 标准JSON解析成功:', parsed);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          try {
+            // 尝试将Python字典格式转换为JSON格式
+            // 先处理字符串中的单引号问题，但要保护已经存在的双引号内的内容
+            let jsonStr = value;
+            
+            // 替换 Python 特有的值
+            jsonStr = jsonStr.replace(/None/g, 'null');
+            jsonStr = jsonStr.replace(/True/g, 'true');
+            jsonStr = jsonStr.replace(/False/g, 'false');
+            
+            // 处理单引号到双引号的转换，但避免替换字符串内部的单引号
+            // 使用更智能的正则表达式
+            jsonStr = jsonStr.replace(/(\w+)'/g, '$1"'); // 单词后的单引号
+            jsonStr = jsonStr.replace(/'(\w+)/g, '"$1'); // 单词前的单引号
+            jsonStr = jsonStr.replace(/': /g, '": '); // 键值对分隔符
+            jsonStr = jsonStr.replace(/', '/g, '", "'); // 项之间的分隔符
+            jsonStr = jsonStr.replace(/\['/g, '["'); // 数组开始
+            jsonStr = jsonStr.replace(/'\]/g, '"]'); // 数组结束
+            jsonStr = jsonStr.replace(/\{'/g, '{"'); // 对象开始
+            jsonStr = jsonStr.replace(/'\}/g, '"}'); // 对象结束
+            
+            console.log('🔍 [getValueFromPaths] 尝试Python转JSON:', jsonStr);
+            const parsed = JSON.parse(jsonStr);
+            console.log('✅ [getValueFromPaths] Python转JSON解析成功:', parsed);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e2) {
+            console.warn('❌ [getValueFromPaths] 解析发票明细失败:', e2, 'value:', value);
+            return [];
+          }
+        }
+      }
+      
+      if (isInvoiceDetails) {
+        console.log(`✅ [getValueFromPaths] 直接返回路径 "${path}" 的值:`, value);
+      }
       return value;
     }
+  }
+  
+  if (isInvoiceDetails) {
+    console.log('❌ [getValueFromPaths] 所有路径都没有找到有效值，返回空字符串');
   }
   return '';
 };
@@ -89,7 +158,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Train,
           required: true,
-          valuePaths: ['extracted_data.structured_data.trainNumber', 'extracted_data.trainNumber', 'extracted_data.train_number', 'train_details.train_number'],
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.trainNumber',
+            'extracted_data.structured_data.train_number',
+            'extracted_data.structured_data.trainNumber', 
+            'extracted_data.trainNumber', 
+            'extracted_data.train_number', 
+            'train_details.train_number'
+          ],
           validation: {
             pattern: /^[A-Z0-9]+$/,
             message: '车次格式不正确'
@@ -101,7 +177,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: MapPin,
           required: true,
-          valuePaths: ['extracted_data.structured_data.departureStation', 'extracted_data.departureStation', 'extracted_data.departure_station', 'train_details.departure_station']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.departureStation',
+            'extracted_data.structured_data.departure_station',
+            'extracted_data.structured_data.departureStation', 
+            'extracted_data.departureStation', 
+            'extracted_data.departure_station', 
+            'train_details.departure_station'
+          ]
         },
         {
           key: 'arrival_station',
@@ -109,14 +192,28 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: MapPin,
           required: true,
-          valuePaths: ['extracted_data.structured_data.arrivalStation', 'extracted_data.arrivalStation', 'extracted_data.arrival_station', 'train_details.arrival_station']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.arrivalStation',
+            'extracted_data.structured_data.arrival_station',
+            'extracted_data.structured_data.arrivalStation', 
+            'extracted_data.arrivalStation', 
+            'extracted_data.arrival_station', 
+            'train_details.arrival_station'
+          ]
         },
         {
           key: 'departure_time',
           label: '出发时间',
           type: 'text',
           icon: Clock,
-          valuePaths: ['extracted_data.structured_data.departureTime', 'extracted_data.departureTime', 'extracted_data.departure_time', 'train_details.departure_time'],
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.departureTime',
+            'extracted_data.structured_data.departure_time',
+            'extracted_data.structured_data.departureTime', 
+            'extracted_data.departureTime', 
+            'extracted_data.departure_time', 
+            'train_details.departure_time'
+          ],
           placeholder: '例：2025年03月24日08:45开'
         },
         {
@@ -124,7 +221,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           label: '座位类型',
           type: 'text',
           icon: Ticket,
-          valuePaths: ['extracted_data.structured_data.seatType', 'extracted_data.seatType', 'extracted_data.seat_type', 'train_details.seat_class'],
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.seatType',
+            'extracted_data.structured_data.seat_type',
+            'extracted_data.structured_data.seatType', 
+            'extracted_data.seatType', 
+            'extracted_data.seat_type', 
+            'train_details.seat_class'
+          ],
           placeholder: '商务座/一等座/二等座'
         },
         {
@@ -132,7 +236,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           label: '座位号',
           type: 'text',
           icon: Hash,
-          valuePaths: ['extracted_data.structured_data.seatNumber', 'extracted_data.seatNumber', 'extracted_data.seat_number', 'train_details.seat_number']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.seatNumber',
+            'extracted_data.structured_data.seat_number',
+            'extracted_data.structured_data.seatNumber', 
+            'extracted_data.seatNumber', 
+            'extracted_data.seat_number', 
+            'train_details.seat_number'
+          ]
         }
       ]
     },
@@ -147,14 +258,28 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: User,
           required: true,
-          valuePaths: ['extracted_data.structured_data.passengerName', 'extracted_data.passengerName', 'extracted_data.passenger_name', 'buyer_name']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.passengerName',
+            'extracted_data.structured_data.passenger_name',
+            'extracted_data.structured_data.passengerName', 
+            'extracted_data.passengerName', 
+            'extracted_data.passenger_name', 
+            'buyer_name'
+          ]
         },
         {
           key: 'passenger_info',
           label: '身份信息',
           type: 'text',
           icon: CreditCard,
-          valuePaths: ['extracted_data.structured_data.passengerInfo', 'extracted_data.passengerInfo', 'extracted_data.id_number']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.passengerInfo',
+            'extracted_data.structured_data.passenger_info',
+            'extracted_data.structured_data.passengerInfo', 
+            'extracted_data.passengerInfo', 
+            'extracted_data.passenger_info', 
+            'extracted_data.id_number'
+          ]
         }
       ]
     },
@@ -169,14 +294,27 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Hash,
           required: true,
-          valuePaths: ['extracted_data.structured_data.ticketNumber', 'extracted_data.ticketNumber', 'extracted_data.ticket_number', 'invoice_number']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.ticketNumber',
+            'extracted_data.structured_data.ticket_number',
+            'extracted_data.structured_data.ticketNumber', 
+            'extracted_data.ticketNumber', 
+            'extracted_data.ticket_number', 
+            'invoice_number'
+          ]
         },
         {
           key: 'electronic_ticket_number',
           label: '电子客票号',
           type: 'text',
           icon: FileText,
-          valuePaths: ['extracted_data.structured_data.electronicTicketNumber', 'extracted_data.electronicTicketNumber', 'invoice_code']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.electronicTicketNumber',
+            'extracted_data.structured_data.electronic_ticket_number',
+            'extracted_data.structured_data.electronicTicketNumber', 
+            'extracted_data.electronicTicketNumber', 
+            'invoice_code'
+          ]
         },
         {
           key: 'invoice_date',
@@ -201,7 +339,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'currency',
           icon: DollarSign,
           required: true,
-          valuePaths: ['extracted_data.structured_data.fare', 'extracted_data.fare', 'extracted_data.ticket_price', 'total_amount'],
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.fare',
+            'extracted_data.structured_data.total_amount',
+            'extracted_data.structured_data.fare', 
+            'total_amount', 
+            'extracted_data.fare', 
+            'extracted_data.ticket_price'
+          ],
           validation: {
             min: 0,
             message: '票价必须大于0'
@@ -220,14 +365,26 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Building2,
           required: true,
-          valuePaths: ['extracted_data.structured_data.buyerName', 'extracted_data.buyerName', 'buyer_name']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.buyerName',
+            'extracted_data.structured_data.buyer_name',
+            'extracted_data.structured_data.buyerName', 
+            'extracted_data.buyerName', 
+            'buyer_name'
+          ]
         },
         {
           key: 'buyer_credit_code',
           label: '统一社会信用代码',
           type: 'text',
           icon: Hash,
-          valuePaths: ['extracted_data.structured_data.buyerCreditCode', 'extracted_data.buyerCreditCode', 'buyer_tax_number']
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.buyerCreditCode',
+            'extracted_data.structured_data.buyer_credit_code',
+            'extracted_data.structured_data.buyerCreditCode', 
+            'extracted_data.buyerCreditCode', 
+            'buyer_tax_number'
+          ]
         }
       ]
     },
@@ -405,14 +562,14 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           label: '不含税金额',
           type: 'currency',
           icon: DollarSign,
-          valuePaths: ['extracted_data.structured_data.invoiceAmountPreTax', 'extracted_data.invoiceAmountPreTax', 'extracted_data.amount_without_tax', 'amount_without_tax']
+          valuePaths: ['invoice_amount_pre_tax', 'amount_without_tax', 'extracted_data.invoice_amount_pre_tax', 'extracted_data.structured_data.invoice_amount_pre_tax', 'extracted_data.structured_data.invoiceAmountPreTax', 'extracted_data.invoiceAmountPreTax', 'extracted_data.amount_without_tax']
         },
         {
           key: 'tax_amount',
           label: '税额',
           type: 'currency',
           icon: DollarSign,
-          valuePaths: ['extracted_data.structured_data.invoiceTax', 'extracted_data.invoiceTax', 'extracted_data.tax_amount', 'tax_amount']
+          valuePaths: ['invoice_tax', 'tax_amount', 'extracted_data.invoice_tax', 'extracted_data.structured_data.invoice_tax', 'extracted_data.structured_data.invoiceTax', 'extracted_data.invoiceTax', 'extracted_data.tax_amount']
         },
         {
           key: 'total_amount_in_words',
@@ -511,7 +668,22 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
       title: '商品明细',
       icon: Package,
       showWhen: (invoice) => {
-        const details = invoice.extracted_data?.structured_data?.invoiceDetails || invoice.extracted_data?.invoiceDetails;
+        // 使用与字段valuePaths相同的检查逻辑
+        const details = 
+          invoice.extracted_data?.raw_result?.Data?.subMsgs?.[0]?.result?.data?.invoiceDetails ||
+          invoice.extracted_data?.structured_data?.invoice_details || 
+          invoice.extracted_data?.invoice_details || 
+          invoice.extracted_data?.structured_data?.invoiceDetails || 
+          invoice.invoice_details;
+        
+        console.log('🔍 [details_info showWhen] 检查商品明细分组显示条件:', {
+          invoice_type: invoice.invoice_type,
+          details,
+          isArray: Array.isArray(details),
+          length: Array.isArray(details) ? details.length : 'N/A',
+          shouldShow: Array.isArray(details) && details.length > 0
+        });
+        
         return Array.isArray(details) && details.length > 0;
       },
       fields: [
@@ -520,7 +692,13 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           label: '发票明细',
           type: 'readonly',
           icon: Package,
-          valuePaths: ['extracted_data.structured_data.invoiceDetails', 'extracted_data.invoiceDetails'],
+          valuePaths: [
+            'extracted_data.raw_result.Data.subMsgs.0.result.data.invoiceDetails',
+            'extracted_data.structured_data.invoice_details',
+            'extracted_data.invoice_details',
+            'extracted_data.structured_data.invoiceDetails',
+            'invoice_details'
+          ],
           description: '商品名称、规格型号、单位、数量、单价、金额、税率、税额'
         }
       ]
@@ -578,12 +756,42 @@ export const invoiceTypeConfigs: InvoiceTypeConfig[] = [
 
 // 根据发票获取对应的配置
 export const getInvoiceConfig = (invoice: Invoice): InvoiceTypeConfig => {
-  return invoiceTypeConfigs.find(config => config.matcher(invoice)) || vatInvoiceConfig;
+  console.log('🔍 [getInvoiceConfig] 检测发票类型:', {
+    invoice_type: invoice.invoice_type,
+    invoice_number: invoice.invoice_number,
+    available_configs: invoiceTypeConfigs.map(c => c.type)
+  });
+  
+  const matchedConfig = invoiceTypeConfigs.find(config => {
+    const matches = config.matcher(invoice);
+    console.log(`🔍 [getInvoiceConfig] 配置 ${config.type} 匹配结果:`, matches);
+    return matches;
+  });
+  
+  const finalConfig = matchedConfig || vatInvoiceConfig;
+  console.log('🔍 [getInvoiceConfig] 最终使用配置:', finalConfig.type);
+  
+  return finalConfig;
 };
 
 // 获取字段的当前值
 export const getFieldValue = (invoice: Invoice, field: FieldConfig): any => {
-  return getValueFromPaths(invoice, field.valuePaths);
+  const value = getValueFromPaths(invoice, field.valuePaths);
+  
+  // 调试发票明细字段
+  if (field.key === 'invoice_details') {
+    console.log('🔍 [getFieldValue] invoice_details 字段调试:', {
+      fieldKey: field.key,
+      valuePaths: field.valuePaths,
+      value,
+      valueType: typeof value,
+      isArray: Array.isArray(value),
+      invoice_extracted_data: invoice.extracted_data,
+      invoice_direct_access: invoice.invoice_details
+    });
+  }
+  
+  return value;
 };
 
 // 验证字段值

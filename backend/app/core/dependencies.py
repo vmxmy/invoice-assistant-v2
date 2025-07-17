@@ -330,12 +330,12 @@ def get_supabase_client() -> Client:
     global _supabase_client
     
     if _supabase_client is None:
-        if not settings.supabase_url or not settings.supabase_anon_key:
+        if not settings.supabase_url or not settings.supabase_key:
             raise ValueError("Supabase URL and anon key must be configured")
             
         _supabase_client = create_client(
             settings.supabase_url,
-            settings.supabase_anon_key
+            settings.supabase_key
         )
         logger.info("Supabase client initialized")
     

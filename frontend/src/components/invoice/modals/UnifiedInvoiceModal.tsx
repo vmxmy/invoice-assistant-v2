@@ -86,7 +86,16 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
   useEffect(() => {
     if (invoice && isOpen) {
       console.log('🔍 [UnifiedInvoiceModal] 发票数据:', invoice);
-      console.log('🔍 [UnifiedInvoiceModal] consumption_date:', invoice.consumption_date);
+      console.log('🔍 [UnifiedInvoiceModal] 金额字段:', {
+        amount_without_tax: invoice.amount_without_tax,
+        tax_amount: invoice.tax_amount,
+        total_amount: invoice.total_amount
+      });
+      console.log('🔍 [UnifiedInvoiceModal] invoice_details 字段:', {
+        type: typeof invoice.invoice_details,
+        value: invoice.invoice_details,
+        isArray: Array.isArray(invoice.invoice_details)
+      });
       
       const config = getInvoiceConfig(invoice);
       const initialData: EditFormData = {};

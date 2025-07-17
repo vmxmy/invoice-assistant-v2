@@ -17,6 +17,7 @@ import {
   Clock
 } from 'lucide-react';
 import { api } from '../services/apiClient';
+import { notify } from '../utils/notifications';
 import Layout from '../components/layout/Layout';
 import AdaptiveInvoiceFields from '../components/invoice/fields/AdaptiveInvoiceFields';
 import type { Invoice } from '../types';
@@ -45,12 +46,28 @@ const InvoiceUploadPage: React.FC = () => {
   const [filesToRecognize, setFilesToRecognize] = useState<UploadFile[]>([]);
   
 
-  // OCR识别变异
+  // OCR识别变异 - 使用新的combined/full API
   const ocrMutation = useMutation({
     mutationFn: async (file: File) => {
+      console.log('🔍 [OCR变异] 开始调用 /api/v1/ocr/combined/full');
+      console.log('📄 [OCR变异] 文件信息:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: new Date(file.lastModified).toISOString()
+      });
+      
       const formData = new FormData();
       formData.append('file', file);
-      const response = await api.ocr.recognize(formData);
+      
+      const startTime = performance.now();
+      const response = await api.ocr.full(formData);
+      const endTime = performance.now();
+      
+      console.log('✅ [OCR变异] API调用完成，耗时:', `${(endTime - startTime).toFixed(2)}ms`);
+      console.log('📊 [OCR变异] 完整响应:', response);
+      console.log('📊 [OCR变异] 响应数据:', response.data);
+      
       return response.data; // axios response.data
     }
   });
@@ -67,7 +84,10 @@ const InvoiceUploadPage: React.FC = () => {
         ocr_confidence: ocrData.confidence || 0,
       };
       
-      if (ocrData.invoice_type === '火车票' || ocrData.title?.includes('电子发票(铁路电子客票)')) {
+      if (ocrData.invoice_type === '火车票' || 
+          ocrData.invoice_type?.includes('火车票') || 
+          ocrData.invoice_type === 'TrainTicket' ||
+          ocrData.title?.includes('电子发票(铁路电子客票)')) {
         // 火车票数据 - 映射到发票字段
         invoiceData = {
           ...invoiceData,
@@ -126,8 +146,8 @@ const InvoiceUploadPage: React.FC = () => {
           buyer_name: ocrData.purchaserName || ocrData.buyer_name || 'UNKNOWN',
           buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number || '',
           total_amount: ocrData.totalAmount || ocrData.total_amount || '0',
-          tax_amount: ocrData.invoiceTax || ocrData.tax_amount || '0',
-          amount_without_tax: ocrData.invoiceAmountPreTax || ocrData.amount_without_tax || '0',
+          tax_amount: ocrData.invoiceTax || ocrData.invoice_tax || '0',
+          amount_without_tax: ocrData.invoiceAmountPreTax || ocrData.invoice_amount_pre_tax || '0',
           remarks: ocrData.remarks || '',
           // 保存完整的OCR数据到extracted_data字段
           extracted_data: {
@@ -163,6 +183,13 @@ const InvoiceUploadPage: React.FC = () => {
       }
       
       console.log('📤 [uploadMutation] 构建的发票数据:', invoiceData);
+      console.log('📤 [uploadMutation] 发票数据详细检查:');
+      console.log('  - invoice_type:', invoiceData.invoice_type);
+      console.log('  - invoice_date:', invoiceData.invoice_date);
+      console.log('  - consumption_date:', invoiceData.consumption_date);
+      console.log('  - extracted_data:', invoiceData.extracted_data);
+      console.log('  - extracted_data.structured_data:', invoiceData.extracted_data?.structured_data);
+      
       formData.append('invoice_data', JSON.stringify(invoiceData));
       
       console.log('📤 [uploadMutation] FormData内容:');
@@ -171,6 +198,15 @@ const InvoiceUploadPage: React.FC = () => {
           console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
         } else {
           console.log(`  ${key}:`, value);
+          // 解析并验证JSON数据
+          if (key === 'invoice_data') {
+            try {
+              const parsed = JSON.parse(value);
+              console.log('📤 [uploadMutation] 解析后的invoice_data:', parsed);
+            } catch (e) {
+              console.error('❌ [uploadMutation] 解析invoice_data失败:', e);
+            }
+          }
         }
       }
       
@@ -210,19 +246,52 @@ const InvoiceUploadPage: React.FC = () => {
     });
 
     try {
-      console.log('🚀 开始OCR识别:', currentFile.name);
+      console.log('🚀 [recognizeFile] 开始OCR识别:', currentFile.name);
       const ocrResponse = await ocrMutation.mutateAsync(currentFile);
-      console.log('✅ OCR API 响应:', ocrResponse);
+      console.log('✅ [recognizeFile] OCR API 响应:', ocrResponse);
       
-      // 检查响应结构
+      // 数据完整性检查
+      console.log('🔍 [recognizeFile] 数据完整性检查:');
+      console.log('  - success:', ocrResponse?.success);
+      console.log('  - invoice_type:', ocrResponse?.invoice_type);
+      console.log('  - fields 存在:', !!ocrResponse?.fields);
+      console.log('  - fields 字段数:', Object.keys(ocrResponse?.fields || {}).length);
+      console.log('  - validation 存在:', !!ocrResponse?.validation);
+      console.log('  - raw_ocr_data 存在:', !!ocrResponse?.raw_ocr_data);
+      
+      // 检查响应结构 - 适配新的combined/full API
       if (!ocrResponse || !ocrResponse.success) {
         throw new Error(ocrResponse?.message || 'OCR识别失败');
       }
       
-      const ocrData = ocrResponse.data; // 解析正确的数据结构
-      const ocrRawResult = ocrResponse.raw_result; // 保存原始结果
-      console.log('📊 解析到的OCR数据:', ocrData);
-      console.log('📊 OCR原始结果:', ocrRawResult);
+      // 从新API格式提取数据
+      const ocrData = {
+        invoice_type: ocrResponse.invoice_type,
+        ...ocrResponse.fields,  // 展开所有字段
+        confidence: ocrResponse.confidence?.overall || 0,
+        validation: ocrResponse.validation,
+        processing_steps: ocrResponse.processing_steps
+      };
+      
+      const ocrRawResult = ocrResponse.raw_ocr_data; // 保存原始OCR结果
+      
+      console.log('📊 [recognizeFile] 解析到的OCR数据:', ocrData);
+      console.log('📊 [recognizeFile] OCR原始结果:', ocrRawResult);
+      console.log('📊 [recognizeFile] 验证结果:', ocrResponse.validation);
+      
+      // 详细字段日志
+      console.log('📋 [recognizeFile] 字段详情:');
+      Object.entries(ocrResponse.fields || {}).forEach(([key, value]) => {
+        console.log(`  - ${key}:`, value);
+      });
+      
+      // 特殊字段检查
+      console.log('🔍 [recognizeFile] 特殊字段检查:');
+      console.log('  - invoice_details:', ocrData.invoice_details);
+      console.log('  - invoice_details类型:', typeof ocrData.invoice_details);
+      console.log('  - invoice_details是否为数组:', Array.isArray(ocrData.invoice_details));
+      console.log('  - consumption_date:', ocrData.consumption_date);
+      console.log('  - departure_time:', ocrData.departure_time);
       
       setUploadFiles(prev => prev.map(f => 
         f.id === fileId ? { 
@@ -366,12 +435,16 @@ const InvoiceUploadPage: React.FC = () => {
   // 获取消费日期
   const getConsumptionDate = (ocrData: any): string => {
     const invoiceType = ocrData.invoice_type || ocrData.invoiceType || '';
-    const invoiceDate = convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date);
     
-    // 火车票：从 departureTime 中提取日期
-    if (invoiceType === '火车票' || invoiceType.includes('铁路') || ocrData.title?.includes('铁路电子客票')) {
+    // 新API格式：字段在fields对象下
+    const fields = ocrData.fields || ocrData;
+    const invoiceDate = convertChineseDateToISO(fields.invoice_date || ocrData.invoiceDate || ocrData.invoice_date);
+    
+    // 火车票：从 departure_time 中提取日期
+    if (invoiceType === '火车票' || invoiceType === 'TrainTicket' || invoiceType.includes('铁路') || ocrData.title?.includes('铁路电子客票')) {
       // 支持多种数据结构层级
-      const departureTime = ocrData.departureTime || 
+      const departureTime = fields.departure_time || 
+                           ocrData.departureTime || 
                            ocrData.departure_time || 
                            ocrData.structured_data?.departureTime ||
                            ocrData.structured_data?.departure_time || '';
@@ -399,21 +472,28 @@ const InvoiceUploadPage: React.FC = () => {
 
   // 将OCR数据转换为发票对象供AdaptiveInvoiceFields使用
   const createInvoiceFromOcrData = (ocrData: any): Invoice => {
+    console.log('🔄 [createInvoiceFromOcrData] 开始转换OCR数据');
+    console.log('🔄 [createInvoiceFromOcrData] 输入的ocrData:', ocrData);
+    
+    // 新API返回的字段都在 fields 对象下，使用下划线命名
+    const fields = ocrData.fields || ocrData;
+    console.log('🔄 [createInvoiceFromOcrData] fields对象:', fields);
+    
     return {
       id: `temp-${editingFileId}`,
-      invoice_type: ocrData.invoice_type || ocrData.invoiceType || '增值税发票',
-      invoice_number: ocrData.invoiceNumber || ocrData.invoice_number || ocrData.ticketNumber || ocrData.ticket_number || '',
-      invoice_code: ocrData.invoiceCode || ocrData.invoice_code || ocrData.electronicTicketNumber || '',
-      invoice_date: convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date),
+      invoice_type: ocrData.invoice_type || '增值税发票',
+      invoice_number: fields.invoice_number || fields.ticket_number || '',
+      invoice_code: fields.invoice_code || fields.electronic_ticket_number || '',
+      invoice_date: convertChineseDateToISO(fields.invoice_date),
       consumption_date: getConsumptionDate(ocrData),
-      seller_name: ocrData.sellerName || ocrData.seller_name || (ocrData.invoice_type === '火车票' ? '中国铁路' : ''),
-      seller_tax_number: ocrData.sellerTaxNumber || ocrData.seller_tax_number || '',
-      buyer_name: ocrData.purchaserName || ocrData.buyer_name || ocrData.buyerName || ocrData.passengerName || ocrData.passenger_name || '',
-      buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number || ocrData.buyerCreditCode || '',
-      total_amount: parseFloat(ocrData.totalAmount || ocrData.total_amount || ocrData.fare || ocrData.ticket_price || '0'),
-      tax_amount: parseFloat(ocrData.invoiceTax || ocrData.tax_amount || '0'),
-      amount_without_tax: parseFloat(ocrData.invoiceAmountPreTax || ocrData.amount_without_tax || '0'),
-      remarks: ocrData.remarks || ocrData.notes || '',
+      seller_name: fields.seller_name || (ocrData.invoice_type === '火车票' || ocrData.invoice_type === 'TrainTicket' ? '中国铁路' : ''),
+      seller_tax_number: fields.seller_tax_number || '',
+      buyer_name: fields.buyer_name || fields.passenger_name || '',
+      buyer_tax_number: fields.buyer_tax_number || fields.buyer_credit_code || '',
+      total_amount: parseFloat(fields.total_amount || fields.fare || fields.ticket_price || '0'),
+      tax_amount: parseFloat(fields.invoice_tax || '0'),
+      amount_without_tax: parseFloat(fields.invoice_amount_pre_tax || '0'),
+      remarks: ocrData.remarks || '',
       status: 'draft',
       processing_status: 'temp_editing',
       source: 'upload_temp',
@@ -424,62 +504,98 @@ const InvoiceUploadPage: React.FC = () => {
       
       // 保存完整的OCR数据供配置系统使用
       extracted_data: {
-        title: ocrData.title || ocrData.invoice_type || ocrData.invoiceType || '',
+        title: ocrData.title || ocrData.invoice_type || '',
         structured_data: ocrData,
         raw_text: '',
         confidence: ocrData.confidence || 0,
         // 发票类型识别
-        invoiceType: ocrData.invoice_type || ocrData.invoiceType,
+        invoiceType: ocrData.invoice_type,
+        invoice_type: ocrData.invoice_type,
         
-        // 火车票特殊字段映射
-        trainNumber: ocrData.trainNumber || ocrData.train_number,
-        train_number: ocrData.trainNumber || ocrData.train_number,
-        departureStation: ocrData.departureStation || ocrData.departure_station,
-        departure_station: ocrData.departureStation || ocrData.departure_station,
-        arrivalStation: ocrData.arrivalStation || ocrData.arrival_station,
-        arrival_station: ocrData.arrivalStation || ocrData.arrival_station,
-        departureTime: ocrData.departureTime || ocrData.departure_time,
-        departure_time: ocrData.departureTime || ocrData.departure_time,
-        seatType: ocrData.seatType || ocrData.seat_type,
-        seat_type: ocrData.seatType || ocrData.seat_type,
-        seatNumber: ocrData.seatNumber || ocrData.seat_number,
-        seat_number: ocrData.seatNumber || ocrData.seat_number,
-        passengerName: ocrData.passengerName || ocrData.passenger_name,
-        passenger_name: ocrData.passengerName || ocrData.passenger_name,
-        passengerInfo: ocrData.passengerInfo || ocrData.id_number,
-        id_number: ocrData.passengerInfo || ocrData.id_number,
-        ticketNumber: ocrData.ticketNumber || ocrData.ticket_number,
-        ticket_number: ocrData.ticketNumber || ocrData.ticket_number,
-        electronicTicketNumber: ocrData.electronicTicketNumber,
-        // 火车票购买方信息
-        buyerName: ocrData.buyerName || ocrData.buyer_name || ocrData.passengerName || ocrData.passenger_name,
-        buyerCreditCode: ocrData.buyerCreditCode,
-        fare: ocrData.fare || ocrData.ticket_price,
-        ticket_price: ocrData.fare || ocrData.ticket_price,
-        isCopy: ocrData.isCopy,
+        // 保存验证结果
+        validation: ocrData.validation,
+        processing_steps: ocrData.processing_steps,
+        
+        // 所有字段都使用新API返回的下划线格式
+        // 火车票特殊字段
+        train_number: ocrData.train_number,
+        departure_station: ocrData.departure_station,
+        arrival_station: ocrData.arrival_station,
+        departure_time: ocrData.departure_time,
+        seat_type: ocrData.seat_type,
+        seat_number: ocrData.seat_number,
+        passenger_name: ocrData.passenger_name,
+        passenger_info: ocrData.passenger_info,
+        ticket_number: ocrData.ticket_number,
+        electronic_ticket_number: ocrData.electronic_ticket_number,
+        buyer_credit_code: ocrData.buyer_credit_code,
+        fare: ocrData.fare,
+        ticket_gate: ocrData.ticket_gate,
+        ticket_code: ocrData.ticket_code,
+        sale_info: ocrData.sale_info,
         
         // 增值税发票字段
-        invoiceNumber: ocrData.invoiceNumber || ocrData.invoice_number,
-        invoice_number: ocrData.invoiceNumber || ocrData.invoice_number,
-        invoiceCode: ocrData.invoiceCode || ocrData.invoice_code,
-        invoice_code: ocrData.invoiceCode || ocrData.invoice_code,
-        invoiceDate: ocrData.invoiceDate || ocrData.invoice_date,
-        invoice_date: ocrData.invoiceDate || ocrData.invoice_date,
-        sellerName: ocrData.sellerName || ocrData.seller_name,
-        seller_name: ocrData.sellerName || ocrData.seller_name,
-        sellerTaxNumber: ocrData.sellerTaxNumber || ocrData.seller_tax_number,
-        seller_tax_number: ocrData.sellerTaxNumber || ocrData.seller_tax_number,
-        // 增值税发票购买方信息（统一用 buyer_name，避免与火车票字段重复）
-        purchaserName: ocrData.purchaserName || ocrData.buyer_name || ocrData.buyerName,
-        purchaserTaxNumber: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number,
-        buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number,
-        totalAmount: ocrData.totalAmount || ocrData.total_amount,
-        total_amount: ocrData.totalAmount || ocrData.total_amount,
-        invoiceTax: ocrData.invoiceTax || ocrData.tax_amount,
-        tax_amount: ocrData.invoiceTax || ocrData.tax_amount,
-        invoiceAmountPreTax: ocrData.invoiceAmountPreTax || ocrData.amount_without_tax,
-        amount_without_tax: ocrData.invoiceAmountPreTax || ocrData.amount_without_tax,
-        remarks: ocrData.remarks || ocrData.notes
+        invoice_number: ocrData.invoice_number,
+        invoice_code: ocrData.invoice_code,
+        invoice_date: ocrData.invoice_date,
+        seller_name: ocrData.seller_name,
+        seller_tax_number: ocrData.seller_tax_number,
+        buyer_name: ocrData.buyer_name,
+        buyer_tax_number: ocrData.buyer_tax_number,
+        total_amount: ocrData.total_amount,
+        tax_amount: ocrData.invoice_tax,
+        amount_without_tax: ocrData.invoice_amount_pre_tax,
+        remarks: ocrData.remarks,
+        
+        // 其他增值税发票字段
+        check_code: ocrData.check_code,
+        machine_code: ocrData.machine_code,
+        drawer: ocrData.drawer,
+        reviewer: ocrData.reviewer,
+        recipient: ocrData.recipient,
+        printed_invoice_code: ocrData.printed_invoice_code,
+        printed_invoice_number: ocrData.printed_invoice_number,
+        form_type: ocrData.form_type,
+        special_tag: ocrData.special_tag,
+        invoice_details: (() => {
+          // 尝试从多个路径获取发票明细
+          const detailsData = ocrData.invoice_details || ocrData.fields?.invoice_details || fields.invoice_details;
+          
+          // 调试信息已移除，数据处理正常
+          
+          // 如果已经是数组，直接返回
+          if (Array.isArray(detailsData)) {
+            return detailsData;
+          }
+          
+          // 如果是字符串，尝试解析为JSON
+          if (typeof detailsData === 'string') {
+            try {
+              // 先尝试标准JSON解析
+              const parsed = JSON.parse(detailsData);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+              try {
+                // 尝试将Python字典格式转换为JSON格式
+                const jsonStr = detailsData
+                  .replace(/'/g, '"')  // 单引号替换为双引号
+                  .replace(/None/g, 'null')  // Python None 替换为 null
+                  .replace(/True/g, 'true')  // Python True 替换为 true
+                  .replace(/False/g, 'false'); // Python False 替换为 false
+                
+                const parsed = JSON.parse(jsonStr);
+                return Array.isArray(parsed) ? parsed : [];
+              } catch (e2) {
+                console.warn('Python格式转换也失败:', e2);
+                console.warn('原始数据:', detailsData);
+                return [];
+              }
+            }
+          }
+          
+          // 其他情况返回空数组
+          return [];
+        })()
       }
     };
   };
@@ -500,56 +616,102 @@ const InvoiceUploadPage: React.FC = () => {
     const initialFormData: Record<string, any> = {};
     
     console.log('🔧 [editOcrData] 创建的临时发票对象:', tempInvoice);
-    console.log('🔧 [editOcrData] OCR数据的发票类型:', fileItem.ocrData.invoice_type, fileItem.ocrData.invoiceType);
+    console.log('🔧 [editOcrData] OCR数据的发票类型:', fileItem.ocrData.invoice_type);
+    
+    // 新API格式：所有字段都在 fields 对象下，使用 snake_case
+    const fields = fileItem.ocrData.fields || fileItem.ocrData;
     
     // 根据发票类型预填充对应字段
-    if (fileItem.ocrData.invoice_type === '火车票' || fileItem.ocrData.invoiceType === '火车票' || fileItem.ocrData.title?.includes('铁路')) {
+    if (fileItem.ocrData.invoice_type === '火车票' || 
+        fileItem.ocrData.invoice_type === 'TrainTicket') {
       // 火车票字段映射
-      initialFormData.train_number = fileItem.ocrData.trainNumber || fileItem.ocrData.train_number || '';
-      initialFormData.departure_station = fileItem.ocrData.departureStation || fileItem.ocrData.departure_station || '';
-      initialFormData.arrival_station = fileItem.ocrData.arrivalStation || fileItem.ocrData.arrival_station || '';
-      initialFormData.departure_time = fileItem.ocrData.departureTime || fileItem.ocrData.departure_time || '';
-      initialFormData.seat_type = fileItem.ocrData.seatType || fileItem.ocrData.seat_type || '';
-      initialFormData.seat_number = fileItem.ocrData.seatNumber || fileItem.ocrData.seat_number || '';
-      initialFormData.passenger_name = fileItem.ocrData.passengerName || fileItem.ocrData.passenger_name || '';
-      initialFormData.passenger_info = fileItem.ocrData.passengerInfo || fileItem.ocrData.id_number || '';
-      initialFormData.ticket_number = fileItem.ocrData.ticketNumber || fileItem.ocrData.ticket_number || '';
-      initialFormData.electronic_ticket_number = fileItem.ocrData.electronicTicketNumber || '';
-      initialFormData.invoice_date = convertChineseDateToISO(fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date);
+      initialFormData.train_number = fields.train_number || '';
+      initialFormData.departure_station = fields.departure_station || '';
+      initialFormData.arrival_station = fields.arrival_station || '';
+      initialFormData.departure_time = fields.departure_time || '';
+      initialFormData.seat_type = fields.seat_type || '';
+      initialFormData.seat_number = fields.seat_number || '';
+      initialFormData.passenger_name = fields.passenger_name || '';
+      initialFormData.passenger_info = fields.passenger_info || fields.id_number || '';
+      initialFormData.ticket_number = fields.ticket_number || '';
+      initialFormData.electronic_ticket_number = fields.electronic_ticket_number || '';
+      initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
       initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
-      initialFormData.fare = fileItem.ocrData.fare || fileItem.ocrData.ticket_price || '0';
-      initialFormData.buyer_name = fileItem.ocrData.buyerName || fileItem.ocrData.buyer_name || fileItem.ocrData.passengerName || fileItem.ocrData.passenger_name || '';
-      initialFormData.buyer_credit_code = fileItem.ocrData.buyerCreditCode || '';
-      initialFormData.remarks = fileItem.ocrData.remarks || fileItem.ocrData.notes || '';
+      initialFormData.fare = fields.total_amount || fields.ticket_price || fields.fare || '0';
+      initialFormData.buyer_name = fields.buyer_name || fields.passenger_name || '';
+      initialFormData.buyer_credit_code = fields.buyer_credit_code || '';
+      initialFormData.remarks = fields.remarks || fields.notes || '';
     } else {
       // 增值税发票字段映射
-      initialFormData.invoice_type = fileItem.ocrData.invoiceType || fileItem.ocrData.invoice_type || '增值税发票';
-      initialFormData.invoice_number = fileItem.ocrData.invoiceNumber || fileItem.ocrData.invoice_number || '';
-      initialFormData.invoice_code = fileItem.ocrData.invoiceCode || fileItem.ocrData.invoice_code || '';
-      initialFormData.invoice_date = convertChineseDateToISO(fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date);
+      initialFormData.invoice_type = fileItem.ocrData.invoice_type || '增值税发票';
+      initialFormData.invoice_number = fields.invoice_number || '';
+      initialFormData.invoice_code = fields.invoice_code || '';
+      initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
       initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
-      initialFormData.seller_name = fileItem.ocrData.sellerName || fileItem.ocrData.seller_name || '';
-      initialFormData.seller_tax_number = fileItem.ocrData.sellerTaxNumber || fileItem.ocrData.seller_tax_number || '';
-      initialFormData.buyer_name = fileItem.ocrData.purchaserName || fileItem.ocrData.buyer_name || fileItem.ocrData.buyerName || '';
-      initialFormData.buyer_tax_number = fileItem.ocrData.purchaserTaxNumber || fileItem.ocrData.buyer_tax_number || '';
-      initialFormData.total_amount = fileItem.ocrData.totalAmount || fileItem.ocrData.total_amount || '0';
-      initialFormData.tax_amount = fileItem.ocrData.invoiceTax || fileItem.ocrData.tax_amount || '0';
-      initialFormData.amount_without_tax = fileItem.ocrData.invoiceAmountPreTax || fileItem.ocrData.amount_without_tax || '0';
+      initialFormData.seller_name = fields.seller_name || '';
+      initialFormData.seller_tax_number = fields.seller_tax_number || '';
+      initialFormData.buyer_name = fields.buyer_name || '';
+      initialFormData.buyer_tax_number = fields.buyer_tax_number || '';
+      initialFormData.total_amount = fields.total_amount || '0';
+      
+      // 处理税额和不含税金额的字段映射
+      initialFormData.tax_amount = fields.invoice_tax || '0';
+      initialFormData.amount_without_tax = fields.invoice_amount_pre_tax || '0';
+      
+      console.log('🔧 [editOcrData] 金额字段映射调试:');
+      console.log('  - total_amount:', initialFormData.total_amount);
+      console.log('  - tax_amount:', initialFormData.tax_amount, '(原始: invoice_tax=', fields.invoice_tax, ')');
+      console.log('  - amount_without_tax:', initialFormData.amount_without_tax, '(原始: invoice_amount_pre_tax=', fields.invoice_amount_pre_tax, ')');
       
       // 发票明细字段映射
-      initialFormData.invoice_details = fileItem.ocrData.invoiceDetails || fileItem.ocrData.invoice_details || [];
+      initialFormData.invoice_details = (() => {
+        // 尝试从多个路径获取发票明细
+        const detailsData = fields.invoice_details || fileItem.ocrData.invoice_details || fileItem.ocrData.invoiceDetails;
+        
+        console.log('🔧 [editOcrData] 处理invoice_details:');
+        console.log('  - 原始detailsData:', detailsData);
+        console.log('  - detailsData类型:', typeof detailsData);
+        console.log('  - 是否为数组:', Array.isArray(detailsData));
+        
+        // 如果是字符串，尝试解析为JSON
+        if (typeof detailsData === 'string') {
+          try {
+            // 先尝试标准JSON解析
+            const parsed = JSON.parse(detailsData);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            try {
+              // 尝试将Python字典格式转换为JSON格式
+              const jsonStr = detailsData
+                .replace(/'/g, '"')  // 单引号替换为双引号
+                .replace(/None/g, 'null')  // Python None 替换为 null
+                .replace(/True/g, 'true')  // Python True 替换为 true
+                .replace(/False/g, 'false'); // Python False 替换为 false
+              
+              const parsed = JSON.parse(jsonStr);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch (e2) {
+              console.warn('解析发票明细失败:', e2);
+              return [];
+            }
+          }
+        }
+        
+        // 如果已经是数组，直接返回
+        return Array.isArray(detailsData) ? detailsData : [];
+      })();
       
       // 其他增值税发票特定字段
-      initialFormData.check_code = fileItem.ocrData.checkCode || '';
-      initialFormData.printed_invoice_code = fileItem.ocrData.printedInvoiceCode || '';
-      initialFormData.printed_invoice_number = fileItem.ocrData.printedInvoiceNumber || '';
-      initialFormData.machine_code = fileItem.ocrData.machineCode || '';
-      initialFormData.form_type = fileItem.ocrData.formType || '';
-      initialFormData.drawer = fileItem.ocrData.drawer || '';
-      initialFormData.reviewer = fileItem.ocrData.reviewer || '';
-      initialFormData.recipient = fileItem.ocrData.recipient || '';
+      initialFormData.check_code = fields.check_code || '';
+      initialFormData.printed_invoice_code = fields.printed_invoice_code || '';
+      initialFormData.printed_invoice_number = fields.printed_invoice_number || '';
+      initialFormData.machine_code = fields.machine_code || '';
+      initialFormData.form_type = fields.form_type || '';
+      initialFormData.drawer = fields.drawer || '';
+      initialFormData.reviewer = fields.reviewer || '';
+      initialFormData.recipient = fields.recipient || '';
       
-      initialFormData.remarks = fileItem.ocrData.remarks || fileItem.ocrData.notes || '';
+      initialFormData.remarks = fields.remarks || fields.notes || '';
     }
     
     console.log('🔧 [editOcrData] 初始表单数据:', initialFormData);
@@ -580,42 +742,48 @@ const InvoiceUploadPage: React.FC = () => {
   const saveOcrEdit = () => {
     if (!editingFileId || !editingOcrData) return;
     
+    console.log('💾 [saveOcrEdit] 开始保存编辑结果');
+    console.log('💾 [saveOcrEdit] 编辑的文件ID:', editingFileId);
+    console.log('💾 [saveOcrEdit] 原始OCR数据:', editingOcrData);
     console.log('💾 [saveOcrEdit] 表单数据:', editFormData);
+    console.log('💾 [saveOcrEdit] 表单数据键:', Object.keys(editFormData));
     
     // 将表单数据合并回OCR数据
     const updatedOcrData = { ...editingOcrData };
     
-    // 映射表单字段回OCR数据结构
+    // 确保有 fields 对象（新API格式）
+    if (!updatedOcrData.fields) {
+      updatedOcrData.fields = {};
+    }
+    
+    // 映射表单字段回OCR数据结构（直接更新 fields 对象）
     Object.keys(editFormData).forEach(key => {
       const value = editFormData[key];
       
+      // 新API格式：所有字段都在 fields 对象下
       switch (key) {
         // 基本发票字段
         case 'invoice_number':
-          if (updatedOcrData.invoice_type === '火车票') {
-            updatedOcrData.ticketNumber = value;
-            updatedOcrData.ticket_number = value;
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            updatedOcrData.fields.ticket_number = value;
           } else {
-            updatedOcrData.invoiceNumber = value;
-            updatedOcrData.invoice_number = value;
+            updatedOcrData.fields.invoice_number = value;
           }
           break;
         case 'invoice_code':
-          updatedOcrData.invoiceCode = value;
-          updatedOcrData.invoice_code = value;
-          if (updatedOcrData.invoice_type === '火车票') {
-            updatedOcrData.electronicTicketNumber = value;
+          updatedOcrData.fields.invoice_code = value;
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            updatedOcrData.fields.electronic_ticket_number = value;
           }
           break;
         case 'invoice_date':
-          updatedOcrData.invoiceDate = value;
-          updatedOcrData.invoice_date = value;
+          updatedOcrData.fields.invoice_date = value;
           break;
         case 'consumption_date':
-          // 对于火车票，更新 departureTime 以便重新计算消费日期
-          if (updatedOcrData.invoice_type === '火车票') {
-            // 如果用户编辑了发车日期，更新 departureTime
-            const existingDepartureTime = updatedOcrData.departureTime || updatedOcrData.departure_time || '';
+          // 对于火车票，更新 departure_time 以便重新计算消费日期
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            // 如果用户编辑了发车日期，更新 departure_time
+            const existingDepartureTime = updatedOcrData.fields.departure_time || '';
             if (existingDepartureTime && value) {
               // 保留时间部分，只更新日期
               const timeMatch = existingDepartureTime.match(/(\d{1,2}:\d{2})/);
@@ -623,156 +791,142 @@ const InvoiceUploadPage: React.FC = () => {
               
               // 将 ISO 日期转换为中文格式
               const [year, month, day] = value.split('-');
-              updatedOcrData.departureTime = `${year}年${parseInt(month)}月${parseInt(day)}日${timePart}`;
-              updatedOcrData.departure_time = updatedOcrData.departureTime;
+              updatedOcrData.fields.departure_time = `${year}年${parseInt(month)}月${parseInt(day)}日${timePart}`;
             }
           }
           // 直接保存编辑的消费日期值
-          updatedOcrData.consumption_date = value;
+          updatedOcrData.fields.consumption_date = value;
           break;
         case 'seller_name':
-          updatedOcrData.sellerName = value;
-          updatedOcrData.seller_name = value;
+          updatedOcrData.fields.seller_name = value;
           break;
         case 'seller_tax_number':
-          updatedOcrData.sellerTaxNumber = value;
-          updatedOcrData.seller_tax_number = value;
+          updatedOcrData.fields.seller_tax_number = value;
           break;
         case 'buyer_name':
-          if (updatedOcrData.invoice_type === '火车票') {
-            updatedOcrData.passengerName = value;
-            updatedOcrData.passenger_name = value;
-          } else {
-            updatedOcrData.purchaserName = value;
-            updatedOcrData.buyer_name = value;
-            updatedOcrData.buyerName = value;
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            updatedOcrData.fields.passenger_name = value;
           }
+          updatedOcrData.fields.buyer_name = value;
           break;
         case 'buyer_tax_number':
-          if (updatedOcrData.invoice_type === '火车票') {
-            updatedOcrData.buyerCreditCode = value;
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            updatedOcrData.fields.buyer_credit_code = value;
           } else {
-            updatedOcrData.purchaserTaxNumber = value;
-            updatedOcrData.buyer_tax_number = value;
+            updatedOcrData.fields.buyer_tax_number = value;
           }
           break;
         case 'total_amount':
-          if (updatedOcrData.invoice_type === '火车票') {
-            updatedOcrData.fare = value;
-            updatedOcrData.ticket_price = value;
+          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
+            updatedOcrData.fields.ticket_price = value;
           } else {
-            updatedOcrData.totalAmount = value;
-            updatedOcrData.total_amount = value;
+            updatedOcrData.fields.total_amount = value;
           }
           break;
         case 'tax_amount':
-          updatedOcrData.invoiceTax = value;
-          updatedOcrData.tax_amount = value;
+          updatedOcrData.fields.invoice_tax = value;
           break;
         case 'amount_without_tax':
-          updatedOcrData.invoiceAmountPreTax = value;
-          updatedOcrData.amount_without_tax = value;
+          updatedOcrData.fields.invoice_amount_pre_tax = value;
           break;
         case 'remarks':
-          updatedOcrData.remarks = value;
-          updatedOcrData.notes = value;
+          updatedOcrData.fields.remarks = value;
           break;
         
         // 火车票特殊字段
         case 'train_number':
-          updatedOcrData.trainNumber = value;
-          updatedOcrData.train_number = value;
+          updatedOcrData.fields.train_number = value;
           break;
         case 'departure_station':
-          updatedOcrData.departureStation = value;
-          updatedOcrData.departure_station = value;
+          updatedOcrData.fields.departure_station = value;
           break;
         case 'arrival_station':
-          updatedOcrData.arrivalStation = value;
-          updatedOcrData.arrival_station = value;
+          updatedOcrData.fields.arrival_station = value;
           break;
         case 'departure_time':
-          updatedOcrData.departureTime = value;
-          updatedOcrData.departure_time = value;
+          updatedOcrData.fields.departure_time = value;
           break;
         case 'seat_type':
-          updatedOcrData.seatType = value;
-          updatedOcrData.seat_type = value;
+          updatedOcrData.fields.seat_type = value;
           break;
         case 'seat_number':
-          updatedOcrData.seatNumber = value;
-          updatedOcrData.seat_number = value;
+          updatedOcrData.fields.seat_number = value;
           break;
         case 'passenger_name':
-          updatedOcrData.passengerName = value;
-          updatedOcrData.passenger_name = value;
+          updatedOcrData.fields.passenger_name = value;
           break;
         case 'passenger_info':
-          updatedOcrData.passengerInfo = value;
-          updatedOcrData.id_number = value;
+          updatedOcrData.fields.id_number = value;
           break;
         case 'ticket_number':
-          updatedOcrData.ticketNumber = value;
-          updatedOcrData.ticket_number = value;
+          updatedOcrData.fields.ticket_number = value;
           break;
         case 'electronic_ticket_number':
-          updatedOcrData.electronicTicketNumber = value;
+          updatedOcrData.fields.electronic_ticket_number = value;
           break;
         case 'fare':
-          updatedOcrData.fare = value;
-          updatedOcrData.ticket_price = value;
+          updatedOcrData.fields.ticket_price = value;
           break;
         case 'buyer_credit_code':
-          updatedOcrData.buyerCreditCode = value;
+          updatedOcrData.fields.buyer_credit_code = value;
           break;
         
         // 增值税发票特殊字段
         case 'invoice_type':
-          updatedOcrData.invoiceType = value;
+          // invoice_type 保存在顶层，不在 fields 下
           updatedOcrData.invoice_type = value;
           break;
         case 'invoice_details':
-          updatedOcrData.invoiceDetails = value;
-          updatedOcrData.invoice_details = value;
+          updatedOcrData.fields.invoice_details = value;
           break;
         case 'check_code':
-          updatedOcrData.checkCode = value;
+          updatedOcrData.fields.check_code = value;
           break;
         case 'printed_invoice_code':
-          updatedOcrData.printedInvoiceCode = value;
+          updatedOcrData.fields.printed_invoice_code = value;
           break;
         case 'printed_invoice_number':
-          updatedOcrData.printedInvoiceNumber = value;
+          updatedOcrData.fields.printed_invoice_number = value;
           break;
         case 'machine_code':
-          updatedOcrData.machineCode = value;
+          updatedOcrData.fields.machine_code = value;
           break;
         case 'form_type':
-          updatedOcrData.formType = value;
+          updatedOcrData.fields.form_type = value;
           break;
         case 'drawer':
-          updatedOcrData.drawer = value;
+          updatedOcrData.fields.drawer = value;
           break;
         case 'reviewer':
-          updatedOcrData.reviewer = value;
+          updatedOcrData.fields.reviewer = value;
           break;
         case 'recipient':
-          updatedOcrData.recipient = value;
+          updatedOcrData.fields.recipient = value;
           break;
         
         default:
-          // 其他字段直接设置
-          updatedOcrData[key] = value;
+          // 其他字段直接设置到 fields 下
+          updatedOcrData.fields[key] = value;
           break;
       }
     });
     
     console.log('💾 [saveOcrEdit] 更新后的OCR数据:', updatedOcrData);
+    console.log('💾 [saveOcrEdit] 更新后的fields对象:', updatedOcrData.fields);
+    console.log('💾 [saveOcrEdit] 消费日期处理:', {
+      原始消费日期: editFormData.consumption_date,
+      更新后消费日期: updatedOcrData.fields?.consumption_date,
+      departure_time: updatedOcrData.fields?.departure_time
+    });
     
     // 更新文件的OCR数据
-    setUploadFiles(prev => prev.map(f => 
-      f.id === editingFileId ? { ...f, ocrData: updatedOcrData } : f
-    ));
+    setUploadFiles(prev => {
+      const updated = prev.map(f => 
+        f.id === editingFileId ? { ...f, ocrData: updatedOcrData } : f
+      );
+      console.log('💾 [saveOcrEdit] 更新后的文件列表:', updated);
+      return updated;
+    });
     
     // 关闭编辑模态框
     setIsOcrEditModalOpen(false);
@@ -808,7 +962,9 @@ const InvoiceUploadPage: React.FC = () => {
       // 确保日期格式正确转换
       let processedOcrData = { ...fileItem.ocrData };
       
-      if (fileItem.ocrData.invoice_type === '火车票' || fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) {
+      if (fileItem.ocrData.invoice_type === '火车票' || 
+          fileItem.ocrData.invoice_type === 'TrainTicket' ||
+          fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) {
         // 火车票：转换日期格式
         const invoiceDate = fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date;
         processedOcrData.invoiceDate = convertChineseDateToISO(invoiceDate);
@@ -1128,39 +1284,41 @@ const InvoiceUploadPage: React.FC = () => {
                               </span>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                              {(fileItem.ocrData.invoice_type === '火车票' || fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) ? (
+                              {(fileItem.ocrData.invoice_type === '火车票' || 
+                                fileItem.ocrData.invoice_type === 'TrainTicket' ||
+                                fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) ? (
                                 <>
                                   <div>
                                     <span className="text-base-content/60">车票号：</span>
-                                    <span className="font-medium">{fileItem.ocrData.ticketNumber || fileItem.ocrData.ticket_number || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.ticket_number || fileItem.ocrData.fields?.ticket_number || fileItem.ocrData.ticketNumber || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">车次：</span>
-                                    <span className="font-medium">{fileItem.ocrData.trainNumber || fileItem.ocrData.train_number || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.train_number || fileItem.ocrData.fields?.train_number || fileItem.ocrData.trainNumber || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">乘车人：</span>
-                                    <span className="font-medium">{fileItem.ocrData.passengerName || fileItem.ocrData.passenger_name || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.passenger_name || fileItem.ocrData.fields?.passenger_name || fileItem.ocrData.passengerName || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">开票日期：</span>
-                                    <span className="font-medium">{fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.invoice_date || fileItem.ocrData.fields?.invoice_date || fileItem.ocrData.invoiceDate || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">出发站：</span>
-                                    <span className="font-medium">{fileItem.ocrData.departureStation || fileItem.ocrData.departure_station || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.departure_station || fileItem.ocrData.fields?.departure_station || fileItem.ocrData.departureStation || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">到达站：</span>
-                                    <span className="font-medium">{fileItem.ocrData.arrivalStation || fileItem.ocrData.arrival_station || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.arrival_station || fileItem.ocrData.fields?.arrival_station || fileItem.ocrData.arrivalStation || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">座位：</span>
-                                    <span className="font-medium">{fileItem.ocrData.seatNumber || fileItem.ocrData.seat_number || '-'} {fileItem.ocrData.seatType || ''}</span>
+                                    <span className="font-medium">{fileItem.ocrData.seat_number || fileItem.ocrData.fields?.seat_number || fileItem.ocrData.seatNumber || '-'} {fileItem.ocrData.seat_type || fileItem.ocrData.fields?.seat_type || fileItem.ocrData.seatType || ''}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">票价：</span>
-                                    <span className="font-medium">¥{fileItem.ocrData.fare || fileItem.ocrData.ticket_price || '0'}</span>
+                                    <span className="font-medium">¥{fileItem.ocrData.total_amount || fileItem.ocrData.fields?.total_amount || fileItem.ocrData.fare || fileItem.ocrData.fields?.fare || fileItem.ocrData.ticket_price || fileItem.ocrData.fields?.ticket_price || '0'}</span>
                                   </div>
                                 </>
                               ) : (

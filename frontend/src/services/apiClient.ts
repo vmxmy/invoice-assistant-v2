@@ -181,18 +181,13 @@ export const api = {
   
   // OCR相关接口
   ocr: {
-    // 智能识别（自动判断类型）
-    recognize: (data: FormData) => apiClient.post('/api/v1/ocr/recognize', data, {
+    // 完整OCR处理（包含识别、解析、验证）
+    full: (data: FormData) => apiClient.post('/api/v1/ocr/combined/full', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
     
-    // 识别增值税发票
-    recognizeInvoice: (data: FormData) => apiClient.post('/api/v1/ocr/recognize/invoice', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    
-    // 识别火车票
-    recognizeTrainTicket: (data: FormData) => apiClient.post('/api/v1/ocr/recognize/train-ticket', data, {
+    // 快速OCR处理（无验证）
+    quick: (data: FormData) => apiClient.post('/api/v1/ocr/combined/quick', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
   }

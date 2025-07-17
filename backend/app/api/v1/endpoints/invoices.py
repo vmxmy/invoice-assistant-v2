@@ -268,20 +268,43 @@ async def get_invoice_detail(
                     except (json.JSONDecodeError, ValueError):
                         return None
             
-            def parse_and_sanitize_value(v):
+            def parse_and_sanitize_value(v, field_name=None):
                 if v is None:
                     return None
                 elif isinstance(v, str):
+                    # 对于已知的JSON字段，尝试解析但不转义
+                    if field_name in ['invoice_details', 'invoiceDetails']:
+                        # 检查是否是字符串格式的列表/字典
+                        if (v.startswith('[') and v.endswith(']')) or (v.startswith('{') and v.endswith('}')):
+                            try:
+                                # 先尝试标准JSON解析
+                                parsed = json.loads(v)
+                                return parsed
+                            except (json.JSONDecodeError, TypeError):
+                                try:
+                                    # 尝试将Python字典格式转换为JSON格式
+                                    import html
+                                    # 先解码HTML实体
+                                    decoded = html.unescape(v)
+                                    # 再转换Python格式到JSON格式
+                                    json_str = decoded.replace("'", '"').replace('None', 'null').replace('True', 'true').replace('False', 'false')
+                                    parsed = json.loads(json_str)
+                                    return parsed
+                                except (json.JSONDecodeError, TypeError):
+                                    # 无法解析，返回原始字符串
+                                    return v
+                        return v
+                    
                     # 检查是否是字符串格式的字典
                     if v.startswith('{') and v.endswith('}'):
                         parsed_dict = safe_parse_dict_string(v)
                         if parsed_dict:
-                            return parse_and_sanitize_value(parsed_dict)
+                            return parse_and_sanitize_value(parsed_dict, field_name)
                     
                     # 尝试解析JSON字符串
                     try:
                         parsed = json.loads(v)
-                        return parse_and_sanitize_value(parsed)
+                        return parse_and_sanitize_value(parsed, field_name)
                     except (json.JSONDecodeError, TypeError):
                         # 不是JSON字符串，直接转义
                         return str(escape(str(v)))
@@ -290,7 +313,7 @@ async def get_invoice_detail(
                     if isinstance(v, list):
                         return [parse_and_sanitize_value(item) for item in v]
                     else:
-                        return {k: parse_and_sanitize_value(val) for k, val in v.items()}
+                        return {k: parse_and_sanitize_value(val, k) for k, val in v.items()}
                 else:
                     # 其他类型直接转换为字符串并转义
                     return str(escape(str(v)))
@@ -309,7 +332,7 @@ async def get_invoice_detail(
                     raw_extracted_data['structured_data'] = parsed_structured
             
             sanitized_extracted_data = {
-                k: parse_and_sanitize_value(v)
+                k: parse_and_sanitize_value(v, k)
                 for k, v in raw_extracted_data.items()
             }
         else:
