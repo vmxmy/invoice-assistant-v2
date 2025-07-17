@@ -44,6 +44,13 @@ interface Invoice {
   invoice_type?: string;
   created_at: string;
   tags: string[];
+  extracted_data?: {
+    structured_data?: {
+      total_amount?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
 }
 
 interface InvoiceListResponse {

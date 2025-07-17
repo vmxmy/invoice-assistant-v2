@@ -16,6 +16,13 @@ interface Invoice {
   invoice_type?: string;
   created_at: string;
   tags: string[];
+  extracted_data?: {
+    structured_data?: {
+      total_amount?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
 }
 
 interface InvoiceListViewProps {
@@ -201,7 +208,11 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
                   </td>
                   <td>
                     <span className="font-semibold text-success">
-                      {formatCurrency(invoice.total_amount)}
+                      {formatCurrency(
+                        invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
+                          ? parseFloat(invoice.extracted_data.structured_data.total_amount)
+                          : invoice.total_amount
+                      )}
                     </span>
                   </td>
                   <td>

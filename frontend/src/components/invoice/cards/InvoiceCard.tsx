@@ -26,6 +26,13 @@ interface Invoice {
   invoice_type?: string;
   created_at: string;
   tags: string[];
+  extracted_data?: {
+    structured_data?: {
+      total_amount?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
 }
 
 interface InvoiceCardProps {
@@ -158,7 +165,11 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-success" />
               <span className="font-semibold text-success">
-                {formatCurrency(invoice.total_amount)}
+                {formatCurrency(
+                  invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
+                    ? parseFloat(invoice.extracted_data.structured_data.total_amount)
+                    : invoice.total_amount
+                )}
               </span>
             </div>
           </div>
