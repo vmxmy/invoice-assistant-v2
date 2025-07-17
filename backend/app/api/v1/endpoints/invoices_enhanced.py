@@ -125,6 +125,47 @@ async def create_invoice_with_file(
             )
             logger.info(f"[create_invoice_with_file] 计算后的消费日期: {consumption_date}")
         
+        # 处理火车票的特殊情况：从extracted_data中获取票价
+        total_amount = invoice_create.total_amount
+        if invoice_create.invoice_type == '火车票' and extracted_data:
+            logger.info(f"[create_invoice_with_file] 处理火车票金额，extracted_data keys: {list(extracted_data.keys()) if isinstance(extracted_data, dict) else 'Not a dict'}")
+            
+            # 尝试从多个可能的位置获取票价
+            fare_amount = None
+            
+            # 1. 直接从extracted_data中查找fare字段
+            if 'fare' in extracted_data:
+                fare_amount = extracted_data['fare']
+                logger.info(f"[create_invoice_with_file] 从fare字段获取金额: {fare_amount}")
+            
+            # 2. 从structured_data中查找
+            elif 'structured_data' in extracted_data and isinstance(extracted_data['structured_data'], dict):
+                structured = extracted_data['structured_data']
+                if 'total_amount' in structured:
+                    fare_amount = structured['total_amount']
+                    logger.info(f"[create_invoice_with_file] 从structured_data.total_amount获取金额: {fare_amount}")
+                elif 'fare' in structured:
+                    fare_amount = structured['fare']
+                    logger.info(f"[create_invoice_with_file] 从structured_data.fare获取金额: {fare_amount}")
+            
+            # 3. 尝试从原始OCR数据中查找
+            elif 'raw_data' in extracted_data and isinstance(extracted_data['raw_data'], dict):
+                raw = extracted_data['raw_data']
+                if 'fare' in raw:
+                    fare_amount = raw['fare']
+                    logger.info(f"[create_invoice_with_file] 从raw_data.fare获取金额: {fare_amount}")
+            
+            # 如果找到了票价，转换为Decimal
+            if fare_amount is not None:
+                try:
+                    from decimal import Decimal
+                    total_amount = Decimal(str(fare_amount))
+                    logger.info(f"[create_invoice_with_file] 火车票金额设置为: {total_amount}")
+                except Exception as e:
+                    logger.error(f"[create_invoice_with_file] 转换火车票金额失败: {e}, 使用原始值: {invoice_create.total_amount}")
+                    total_amount = invoice_create.total_amount
+            else:
+                logger.warning(f"[create_invoice_with_file] 未能从extracted_data中找到火车票票价，使用前端传递的值: {invoice_create.total_amount}")
         
         # 创建发票记录
         invoice = Invoice(
@@ -137,9 +178,9 @@ async def create_invoice_with_file(
             seller_tax_number=invoice_create.seller_tax_number,
             buyer_name=invoice_create.buyer_name,
             buyer_tax_number=invoice_create.buyer_tax_number,
-            total_amount=invoice_create.total_amount,
+            total_amount=total_amount,  # 使用处理后的金额
             tax_amount=invoice_create.tax_amount,
-            amount_without_tax=getattr(invoice_create, 'amount_without_tax', None) or (invoice_create.total_amount - invoice_create.tax_amount),
+            amount_without_tax=getattr(invoice_create, 'amount_without_tax', None) or (total_amount - invoice_create.tax_amount),
             invoice_type=invoice_create.invoice_type,
             file_path=file_path,  # 设置文件路径
             file_url=file_url,

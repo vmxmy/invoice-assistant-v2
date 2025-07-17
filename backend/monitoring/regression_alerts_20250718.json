@@ -97,5 +97,14 @@
     "threshold": 2.0,
     "severity": "critical",
     "timestamp": "2025-07-18T04:57:05.006210"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
+    "current_time_ms": 5.451679229736328,
+    "baseline_p95_ms": 0.6279945373535156,
+    "regression_ratio": 8.681093394077449,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-18T06:05:37.871817"
   }
 ]
