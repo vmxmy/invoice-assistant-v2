@@ -47,13 +47,40 @@ async def create_invoice_with_file(
         invoice_dict = json.loads(invoice_data)
         logger.info(f"[create_invoice_with_file] 解析后的invoice_dict键: {list(invoice_dict.keys())}")
         
+        # 特别追踪金额字段
+        logger.info(f"💰 [create_invoice_with_file] 金额字段追踪 - 前端传入:")
+        logger.info(f"  - total_amount: {invoice_dict.get('total_amount')} (类型: {type(invoice_dict.get('total_amount'))})")
+        logger.info(f"  - tax_amount: {invoice_dict.get('tax_amount')} (类型: {type(invoice_dict.get('tax_amount'))})")
+        logger.info(f"  - amount_without_tax: {invoice_dict.get('amount_without_tax')} (类型: {type(invoice_dict.get('amount_without_tax'))})")
+        
         # 提取完整的OCR数据
         extracted_data = invoice_dict.pop('extracted_data', {})
         logger.info(f"[create_invoice_with_file] extracted_data键: {list(extracted_data.keys()) if extracted_data else 'None'}")
         logger.info(f"[create_invoice_with_file] 发票类型: {invoice_dict.get('invoice_type')}")
         logger.info(f"[create_invoice_with_file] 消费日期(前端传入): {invoice_dict.get('consumption_date')}")
         
+        # 检查 extracted_data 中的金额字段
+        if extracted_data:
+            logger.info(f"💰 [create_invoice_with_file] extracted_data中的金额字段:")
+            logger.info(f"  - structured_data存在: {bool(extracted_data.get('structured_data'))}")
+            if extracted_data.get('structured_data'):
+                structured = extracted_data['structured_data']
+                logger.info(f"  - structured_data.tax_amount: {structured.get('tax_amount')}")
+                logger.info(f"  - structured_data.amount_without_tax: {structured.get('amount_without_tax')}")
+                logger.info(f"  - structured_data.total_amount: {structured.get('total_amount')}")
+                if hasattr(structured, 'get') and structured.get('fields'):
+                    fields = structured['fields']
+                    logger.info(f"  - structured_data.fields.tax_amount: {fields.get('tax_amount')}")
+                    logger.info(f"  - structured_data.fields.amount_without_tax: {fields.get('amount_without_tax')}")
+                    logger.info(f"  - structured_data.fields.total_amount: {fields.get('total_amount')}")
+        
         invoice_create = InvoiceCreate(**invoice_dict)
+        
+        # 记录 InvoiceCreate 对象的解析结果
+        logger.info(f"💰 [create_invoice_with_file] InvoiceCreate 对象解析结果:")
+        logger.info(f"  - invoice_create.total_amount: {invoice_create.total_amount} (类型: {type(invoice_create.total_amount)})")
+        logger.info(f"  - invoice_create.tax_amount: {invoice_create.tax_amount} (类型: {type(invoice_create.tax_amount)})")
+        logger.info(f"  - invoice_create.amount_without_tax: {getattr(invoice_create, 'amount_without_tax', None)} (类型: {type(getattr(invoice_create, 'amount_without_tax', None))})")
     except Exception as e:
         logger.error(f"[create_invoice_with_file] 解析发票数据失败: {str(e)}")
         raise HTTPException(status_code=400, detail=f"发票数据格式错误: {str(e)}")
@@ -167,6 +194,27 @@ async def create_invoice_with_file(
             else:
                 logger.warning(f"[create_invoice_with_file] 未能从extracted_data中找到火车票票价，使用前端传递的值: {invoice_create.total_amount}")
         
+        # 计算 amount_without_tax
+        amount_without_tax = getattr(invoice_create, 'amount_without_tax', None)
+        tax_amount = invoice_create.tax_amount
+        
+        # 如果没有 amount_without_tax，尝试从 total_amount 和 tax_amount 计算
+        if amount_without_tax is None and tax_amount is not None:
+            try:
+                from decimal import Decimal
+                amount_without_tax = Decimal(str(total_amount)) - Decimal(str(tax_amount))
+            except:
+                amount_without_tax = None
+        
+        # 记录最终的金额值
+        logger.info(f"💰 [create_invoice_with_file] 最终金额值计算:")
+        logger.info(f"  - invoice_create.total_amount: {invoice_create.total_amount}")
+        logger.info(f"  - invoice_create.tax_amount: {invoice_create.tax_amount}")
+        logger.info(f"  - invoice_create.amount_without_tax: {getattr(invoice_create, 'amount_without_tax', None)}")
+        logger.info(f"  - 计算后的 total_amount: {total_amount}")
+        logger.info(f"  - 计算后的 tax_amount: {tax_amount}")
+        logger.info(f"  - 计算后的 amount_without_tax: {amount_without_tax}")
+        
         # 创建发票记录
         invoice = Invoice(
             user_id=current_user.id,
@@ -179,8 +227,8 @@ async def create_invoice_with_file(
             buyer_name=invoice_create.buyer_name,
             buyer_tax_number=invoice_create.buyer_tax_number,
             total_amount=total_amount,  # 使用处理后的金额
-            tax_amount=invoice_create.tax_amount,
-            amount_without_tax=getattr(invoice_create, 'amount_without_tax', None) or (total_amount - invoice_create.tax_amount),
+            tax_amount=tax_amount,
+            amount_without_tax=amount_without_tax,
             invoice_type=invoice_create.invoice_type,
             file_path=file_path,  # 设置文件路径
             file_url=file_url,
@@ -193,6 +241,12 @@ async def create_invoice_with_file(
             source=InvoiceSource.UPLOAD,
             processing_status=ProcessingStatus.OCR_COMPLETED  # 设置为已完成OCR
         )
+        
+        # 记录发票对象的最终值
+        logger.info(f"💰 [create_invoice_with_file] 发票对象最终金额值:")
+        logger.info(f"  - invoice.total_amount: {invoice.total_amount}")
+        logger.info(f"  - invoice.tax_amount: {invoice.tax_amount}")
+        logger.info(f"  - invoice.amount_without_tax: {invoice.amount_without_tax}")
         
         session.add(invoice)
         await session.commit()

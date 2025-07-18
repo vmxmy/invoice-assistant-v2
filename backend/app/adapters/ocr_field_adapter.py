@@ -52,7 +52,8 @@ class OCRFieldAdapter:
             return {}
         
         try:
-            logger.debug(f"开始适配字段，原始字段数: {len(ocr_fields)}")
+            logger.info(f"开始适配字段，发票类型: {invoice_type}, 原始字段数: {len(ocr_fields)}")
+            logger.info(f"原始字段列表: {list(ocr_fields.keys())}")
             
             # 步骤1：合并重复字段
             merged_fields = merge_duplicate_fields(ocr_fields)
@@ -62,15 +63,22 @@ class OCRFieldAdapter:
             
             # 步骤2：标准化字段名
             normalized_fields = normalize_fields_dict(merged_fields)
+            logger.info(f"标准化后字段: {list(normalized_fields.keys())}")
             
             # 步骤3：处理特殊字段
             final_fields = self._process_special_fields(normalized_fields, invoice_type)
+            
+            # 记录特殊处理后的变化
+            added_fields = set(final_fields.keys()) - set(normalized_fields.keys())
+            if added_fields:
+                logger.info(f"特殊处理添加的字段: {list(added_fields)}")
             
             # 步骤4：数据验证
             self._validate_output(final_fields)
             
             self.stats['processed_fields'] = len(final_fields)
-            logger.debug(f"字段适配完成，最终字段数: {len(final_fields)}")
+            logger.info(f"字段适配完成，最终字段数: {len(final_fields)}")
+            logger.info(f"最终字段列表: {list(final_fields.keys())}")
             
             return final_fields
             
@@ -204,8 +212,10 @@ class OCRFieldAdapter:
             if 'seller_name' not in result:
                 result['seller_name'] = '中国铁路'
             
-            # 票号字段统一
-            if 'ticket_number' not in result and 'invoice_number' in result:
+            # 票号字段统一 - 重要：前端期望 invoice_number
+            if 'invoice_number' not in result and 'ticket_number' in result:
+                result['invoice_number'] = result['ticket_number']
+            elif 'ticket_number' not in result and 'invoice_number' in result:
                 result['ticket_number'] = result['invoice_number']
             
             # 乘客信息字段统一
@@ -213,8 +223,18 @@ class OCRFieldAdapter:
                 result['buyer_name'] = result['passenger_name']
             
             # 票价字段统一
-            if 'total_amount' not in result and 'ticket_price' in result:
+            if 'total_amount' not in result and 'fare' in result:
+                result['total_amount'] = result['fare']
+            elif 'total_amount' not in result and 'ticket_price' in result:
                 result['total_amount'] = result['ticket_price']
+            
+            # 确保有发票日期（使用出发时间的日期部分）
+            if 'invoice_date' not in result and 'departure_time' in result:
+                departure_time = result['departure_time']
+                date_match = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', departure_time)
+                if date_match:
+                    year, month, day = date_match.groups()
+                    result['invoice_date'] = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
             
             return result
             
@@ -273,8 +293,8 @@ class OCRFieldAdapter:
                 if not re.match(r'^[a-z0-9_]+$', key):
                     logger.warning(f"字段名不符合snake_case格式: {key}")
             
-            # 检查必要字段
-            required_fields = ['invoice_number', 'invoice_date']
+            # 检查必要字段 - 注意：invoice_date 可能为空（特殊发票类型）
+            required_fields = ['invoice_number']
             missing_fields = [field for field in required_fields if field not in fields]
             if missing_fields:
                 logger.warning(f"缺少必要字段: {missing_fields}")

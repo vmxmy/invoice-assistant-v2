@@ -1,110 +1,92 @@
 [
   {
     "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "current_time_ms": 11.740922927856445,
-    "baseline_p95_ms": 5.318164825439453,
-    "regression_ratio": 2.2077019635972386,
+    "current_time_ms": 47.08576202392578,
+    "baseline_p95_ms": 5.344152450561523,
+    "regression_ratio": 8.81070711577069,
     "threshold": 2.0,
     "severity": "warning",
-    "timestamp": "2025-07-18T01:27:22.579535"
+    "timestamp": "2025-07-18T11:23:33.641661"
   },
   {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 36.63897514343262,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 58.34282460136674,
+    "query_name": "endpoint_OPTIONS _api_v1_ocr_combined_full",
+    "current_time_ms": 83.7411880493164,
+    "baseline_p95_ms": 5.571126937866211,
+    "regression_ratio": 15.031283433902512,
     "threshold": 2.0,
     "severity": "critical",
-    "timestamp": "2025-07-18T02:14:29.710121"
+    "timestamp": "2025-07-18T11:23:43.941691"
   },
   {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 3.2639503479003906,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 5.197418375094912,
+    "query_name": "endpoint_OPTIONS _api_v1_ocr_combined_full",
+    "current_time_ms": 84.9459171295166,
+    "baseline_p95_ms": 5.571126937866211,
+    "regression_ratio": 15.247528565926306,
     "threshold": 2.0,
     "severity": "critical",
-    "timestamp": "2025-07-18T02:21:31.105942"
+    "timestamp": "2025-07-18T11:23:43.943357"
   },
   {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 1.8191337585449219,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 2.896735003796507,
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 89849.0731716156,
+    "baseline_p95_ms": 3692.751884460449,
+    "regression_ratio": 24.331196891324183,
     "threshold": 2.0,
     "severity": "warning",
-    "timestamp": "2025-07-18T02:21:35.602695"
+    "timestamp": "2025-07-18T13:53:37.665776"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 992102.3921966553,
+    "baseline_p95_ms": 3692.751884460449,
+    "regression_ratio": 268.66207729025695,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-18T14:41:47.903907"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+    "current_time_ms": 5.472898483276367,
+    "baseline_p95_ms": 2.276897430419922,
+    "regression_ratio": 2.4036649214659684,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-18T15:01:14.652745"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 359505.0120353699,
+    "baseline_p95_ms": 3692.751884460449,
+    "regression_ratio": 97.35422884711286,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-18T15:17:13.919287"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 359569.83971595764,
+    "baseline_p95_ms": 3692.751884460449,
+    "regression_ratio": 97.37178423199009,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-18T15:17:13.956717"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "current_time_ms": 19.989967346191406,
-    "baseline_p95_ms": 5.290985107421875,
-    "regression_ratio": 3.778118240807498,
+    "current_time_ms": 12.315034866333008,
+    "baseline_p95_ms": 5.344152450561523,
+    "regression_ratio": 2.3043943787642203,
     "threshold": 2.0,
     "severity": "warning",
-    "timestamp": "2025-07-18T02:22:12.783395"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 53.4968376159668,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 85.1867881548975,
-    "threshold": 2.0,
-    "severity": "critical",
-    "timestamp": "2025-07-18T02:40:35.154367"
+    "timestamp": "2025-07-18T16:20:17.192228"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "current_time_ms": 10.645866394042969,
-    "baseline_p95_ms": 5.290985107421875,
-    "regression_ratio": 2.012076423936554,
+    "current_time_ms": 47.132015228271484,
+    "baseline_p95_ms": 5.344152450561523,
+    "regression_ratio": 8.819362034351997,
     "threshold": 2.0,
     "severity": "warning",
-    "timestamp": "2025-07-18T02:49:15.113058"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "current_time_ms": 60.32514572143555,
-    "baseline_p95_ms": 5.290985107421875,
-    "regression_ratio": 11.401496034607066,
-    "threshold": 2.0,
-    "severity": "warning",
-    "timestamp": "2025-07-18T03:12:38.518224"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "current_time_ms": 68.99809837341309,
-    "baseline_p95_ms": 5.290985107421875,
-    "regression_ratio": 13.04069033886085,
-    "threshold": 2.0,
-    "severity": "warning",
-    "timestamp": "2025-07-18T03:51:01.021082"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 2.150297164916992,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 3.424069855732726,
-    "threshold": 2.0,
-    "severity": "warning",
-    "timestamp": "2025-07-18T04:57:05.003837"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 4.09698486328125,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 6.523917995444191,
-    "threshold": 2.0,
-    "severity": "critical",
-    "timestamp": "2025-07-18T04:57:05.006210"
-  },
-  {
-    "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "current_time_ms": 5.451679229736328,
-    "baseline_p95_ms": 0.6279945373535156,
-    "regression_ratio": 8.681093394077449,
-    "threshold": 2.0,
-    "severity": "critical",
-    "timestamp": "2025-07-18T06:05:37.871817"
+    "timestamp": "2025-07-18T16:49:56.400213"
   }
 ]

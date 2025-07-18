@@ -118,3 +118,5 @@ debug-*.py
 
 # Shell scripts for testing
 update-*.sh
+scripts/archive/
+backend/monitoring/archive/
