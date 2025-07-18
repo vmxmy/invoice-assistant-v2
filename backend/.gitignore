@@ -47,4 +47,4 @@ ENV/
 .idea/
 
 # 系统文件
-.DS_Store
+.DS_Storetest_output/

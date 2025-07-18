@@ -134,21 +134,37 @@ const InvoiceUploadPage: React.FC = () => {
           }
         };
       } else {
-        // 增值税发票数据 - 支持新旧字段名
+        // 增值税发票数据 - 支持新旧字段名，优先从直接字段获取，然后从 fields 对象获取
+        const fields = ocrData.fields || {};
+        
+        // 调试金额字段映射
+        console.log('💰 [uploadMutation] 金额字段映射调试:');
+        console.log('  - ocrData.tax_amount:', ocrData.tax_amount);
+        console.log('  - fields.tax_amount:', fields.tax_amount);
+        console.log('  - ocrData.amount_without_tax:', ocrData.amount_without_tax);
+        console.log('  - fields.amount_without_tax:', fields.amount_without_tax);
+        
+        const tax_amount = ocrData.tax_amount || fields.tax_amount || ocrData.invoiceTax || ocrData.invoice_tax || '0';
+        const amount_without_tax = ocrData.amount_without_tax || fields.amount_without_tax || ocrData.invoiceAmountPreTax || ocrData.invoice_amount_pre_tax || '0';
+        
+        console.log('💰 [uploadMutation] 最终映射结果:');
+        console.log('  - tax_amount:', tax_amount);
+        console.log('  - amount_without_tax:', amount_without_tax);
+        
         invoiceData = {
           ...invoiceData,
-          invoice_number: ocrData.invoiceNumber || ocrData.invoice_number || 'UNKNOWN',
-          invoice_code: ocrData.invoiceCode || ocrData.invoice_code || '',
-          invoice_date: convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date),
+          invoice_number: ocrData.invoice_number || fields.invoice_number || ocrData.invoiceNumber || 'UNKNOWN',
+          invoice_code: ocrData.invoice_code || fields.invoice_code || ocrData.invoiceCode || '',
+          invoice_date: convertChineseDateToISO(ocrData.invoice_date || fields.invoice_date || ocrData.invoiceDate),
           consumption_date: getConsumptionDate(ocrData),  // 添加消费日期
-          seller_name: ocrData.sellerName || ocrData.seller_name || 'UNKNOWN',
-          seller_tax_number: ocrData.sellerTaxNumber || ocrData.seller_tax_number || '',
-          buyer_name: ocrData.purchaserName || ocrData.buyer_name || 'UNKNOWN',
-          buyer_tax_number: ocrData.purchaserTaxNumber || ocrData.buyer_tax_number || '',
-          total_amount: ocrData.totalAmount || ocrData.total_amount || '0',
-          tax_amount: ocrData.invoiceTax || ocrData.invoice_tax || '0',
-          amount_without_tax: ocrData.invoiceAmountPreTax || ocrData.invoice_amount_pre_tax || '0',
-          remarks: ocrData.remarks || '',
+          seller_name: ocrData.seller_name || fields.seller_name || ocrData.sellerName || 'UNKNOWN',
+          seller_tax_number: ocrData.seller_tax_number || fields.seller_tax_number || ocrData.sellerTaxNumber || '',
+          buyer_name: ocrData.buyer_name || fields.buyer_name || ocrData.purchaserName || 'UNKNOWN',
+          buyer_tax_number: ocrData.buyer_tax_number || fields.buyer_tax_number || ocrData.purchaserTaxNumber || '',
+          total_amount: ocrData.total_amount || fields.total_amount || ocrData.totalAmount || '0',
+          tax_amount: tax_amount,
+          amount_without_tax: amount_without_tax,
+          remarks: ocrData.remarks || fields.remarks || '',
           // 保存完整的OCR数据到extracted_data字段
           extracted_data: {
             ocr_type: 'vat_invoice',
@@ -158,7 +174,7 @@ const InvoiceUploadPage: React.FC = () => {
               overall: ocrData.confidence || 0
             },
             // 保存发票明细项目
-            invoice_details: ocrData.invoiceDetails || [],
+            invoice_details: fields.invoice_details || ocrData.invoiceDetails || [],
             // 保存其他重要字段
             metadata: {
               title: ocrData.title,
@@ -187,8 +203,25 @@ const InvoiceUploadPage: React.FC = () => {
       console.log('  - invoice_type:', invoiceData.invoice_type);
       console.log('  - invoice_date:', invoiceData.invoice_date);
       console.log('  - consumption_date:', invoiceData.consumption_date);
+      console.log('  - total_amount:', invoiceData.total_amount);
+      console.log('  - tax_amount:', invoiceData.tax_amount);
+      console.log('  - amount_without_tax:', invoiceData.amount_without_tax);
       console.log('  - extracted_data:', invoiceData.extracted_data);
       console.log('  - extracted_data.structured_data:', invoiceData.extracted_data?.structured_data);
+      
+      // 特别追踪金额字段的传递
+      console.log('💰 [uploadMutation] 金额字段追踪:');
+      console.log('  - 原始OCR数据中的金额字段:', {
+        'ocrData.fields.tax_amount': ocrData.fields?.tax_amount,
+        'ocrData.fields.amount_without_tax': ocrData.fields?.amount_without_tax,
+        'ocrData.fields.invoice_tax': ocrData.fields?.invoice_tax,
+        'ocrData.fields.invoice_amount_pre_tax': ocrData.fields?.invoice_amount_pre_tax
+      });
+      console.log('  - 构建后的发票数据中的金额字段:', {
+        'invoiceData.tax_amount': invoiceData.tax_amount,
+        'invoiceData.amount_without_tax': invoiceData.amount_without_tax,
+        'invoiceData.total_amount': invoiceData.total_amount
+      });
       
       formData.append('invoice_data', JSON.stringify(invoiceData));
       
@@ -203,6 +236,22 @@ const InvoiceUploadPage: React.FC = () => {
             try {
               const parsed = JSON.parse(value);
               console.log('📤 [uploadMutation] 解析后的invoice_data:', parsed);
+              
+              // 特别检查金额字段
+              console.log('💰 [uploadMutation] 解析后的金额字段验证:');
+              console.log('  - parsed.tax_amount:', parsed.tax_amount, '(类型:', typeof parsed.tax_amount, ')');
+              console.log('  - parsed.amount_without_tax:', parsed.amount_without_tax, '(类型:', typeof parsed.amount_without_tax, ')');
+              console.log('  - parsed.total_amount:', parsed.total_amount, '(类型:', typeof parsed.total_amount, ')');
+              
+              // 检查extracted_data中的金额字段
+              if (parsed.extracted_data && parsed.extracted_data.structured_data) {
+                console.log('💰 [uploadMutation] extracted_data.structured_data中的金额字段:');
+                console.log('  - structured_data.tax_amount:', parsed.extracted_data.structured_data.tax_amount);
+                console.log('  - structured_data.amount_without_tax:', parsed.extracted_data.structured_data.amount_without_tax);
+                console.log('  - structured_data.fields.tax_amount:', parsed.extracted_data.structured_data.fields?.tax_amount);
+                console.log('  - structured_data.fields.amount_without_tax:', parsed.extracted_data.structured_data.fields?.amount_without_tax);
+              }
+              
             } catch (e) {
               console.error('❌ [uploadMutation] 解析invoice_data失败:', e);
             }
@@ -491,8 +540,8 @@ const InvoiceUploadPage: React.FC = () => {
       buyer_name: fields.buyer_name || fields.passenger_name || '',
       buyer_tax_number: fields.buyer_tax_number || fields.buyer_credit_code || '',
       total_amount: parseFloat(fields.total_amount || fields.fare || fields.ticket_price || '0'),
-      tax_amount: parseFloat(fields.invoice_tax || '0'),
-      amount_without_tax: parseFloat(fields.invoice_amount_pre_tax || '0'),
+      tax_amount: parseFloat(fields.tax_amount || '0'),
+      amount_without_tax: parseFloat(fields.amount_without_tax || '0'),
       remarks: ocrData.remarks || '',
       status: 'draft',
       processing_status: 'temp_editing',
@@ -543,8 +592,8 @@ const InvoiceUploadPage: React.FC = () => {
         buyer_name: ocrData.buyer_name,
         buyer_tax_number: ocrData.buyer_tax_number,
         total_amount: ocrData.total_amount,
-        tax_amount: ocrData.invoice_tax,
-        amount_without_tax: ocrData.invoice_amount_pre_tax,
+        tax_amount: ocrData.tax_amount,
+        amount_without_tax: ocrData.amount_without_tax,
         remarks: ocrData.remarks,
         
         // 其他增值税发票字段
@@ -559,7 +608,7 @@ const InvoiceUploadPage: React.FC = () => {
         special_tag: ocrData.special_tag,
         invoice_details: (() => {
           // 尝试从多个路径获取发票明细
-          const detailsData = ocrData.invoice_details || ocrData.fields?.invoice_details || fields.invoice_details;
+          const detailsData = ocrData.invoice_details || fields.invoice_details;
           
           // 调试信息已移除，数据处理正常
           
@@ -621,6 +670,9 @@ const InvoiceUploadPage: React.FC = () => {
     // 新API格式：所有字段都在 fields 对象下，使用 snake_case
     const fields = fileItem.ocrData.fields || fileItem.ocrData;
     
+    console.log('🔧 [editOcrData] 提取的字段数据:', fields);
+    console.log('🔧 [editOcrData] 字段列表:', Object.keys(fields));
+    
     // 根据发票类型预填充对应字段
     if (fileItem.ocrData.invoice_type === '火车票' || 
         fileItem.ocrData.invoice_type === 'TrainTicket') {
@@ -655,13 +707,13 @@ const InvoiceUploadPage: React.FC = () => {
       initialFormData.total_amount = fields.total_amount || '0';
       
       // 处理税额和不含税金额的字段映射
-      initialFormData.tax_amount = fields.invoice_tax || '0';
-      initialFormData.amount_without_tax = fields.invoice_amount_pre_tax || '0';
+      initialFormData.tax_amount = fields.tax_amount || '0';
+      initialFormData.amount_without_tax = fields.amount_without_tax || '0';
       
       console.log('🔧 [editOcrData] 金额字段映射调试:');
       console.log('  - total_amount:', initialFormData.total_amount);
-      console.log('  - tax_amount:', initialFormData.tax_amount, '(原始: invoice_tax=', fields.invoice_tax, ')');
-      console.log('  - amount_without_tax:', initialFormData.amount_without_tax, '(原始: invoice_amount_pre_tax=', fields.invoice_amount_pre_tax, ')');
+      console.log('  - tax_amount:', initialFormData.tax_amount, '(来源: tax_amount=', fields.tax_amount, ')');
+      console.log('  - amount_without_tax:', initialFormData.amount_without_tax, '(来源: amount_without_tax=', fields.amount_without_tax, ')');
       
       // 发票明细字段映射
       initialFormData.invoice_details = (() => {
@@ -824,10 +876,22 @@ const InvoiceUploadPage: React.FC = () => {
           }
           break;
         case 'tax_amount':
+          console.log('💾 [saveOcrEdit] 处理tax_amount字段:', { key, value, 原始值: updatedOcrData.fields.tax_amount });
+          updatedOcrData.fields.tax_amount = value;
           updatedOcrData.fields.invoice_tax = value;
+          console.log('💾 [saveOcrEdit] tax_amount字段处理完成:', { 
+            'fields.tax_amount': updatedOcrData.fields.tax_amount,
+            'fields.invoice_tax': updatedOcrData.fields.invoice_tax 
+          });
           break;
         case 'amount_without_tax':
+          console.log('💾 [saveOcrEdit] 处理amount_without_tax字段:', { key, value, 原始值: updatedOcrData.fields.amount_without_tax });
+          updatedOcrData.fields.amount_without_tax = value;
           updatedOcrData.fields.invoice_amount_pre_tax = value;
+          console.log('💾 [saveOcrEdit] amount_without_tax字段处理完成:', { 
+            'fields.amount_without_tax': updatedOcrData.fields.amount_without_tax,
+            'fields.invoice_amount_pre_tax': updatedOcrData.fields.invoice_amount_pre_tax 
+          });
           break;
         case 'remarks':
           updatedOcrData.fields.remarks = value;
