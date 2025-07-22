@@ -1,4 +1,4 @@
-import type { Invoice } from '../types';
+import type { Invoice } from '../types/index';
 
 /**
  * 清理文件名中的非法字符

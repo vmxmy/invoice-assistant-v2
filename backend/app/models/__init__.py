@@ -8,6 +8,9 @@ from app.models.base import Base, BaseModel, TimestampMixin, UserOwnedMixin, Aud
 from app.models.profile import Profile
 from app.models.invoice import Invoice, InvoiceStatus, ProcessingStatus, InvoiceSource
 from app.models.task import EmailProcessingTask, TaskType, TaskStatus
+from app.models.email_account import EmailAccount
+from app.models.email_scan_job import EmailScanJob
+from app.models.email_index import EmailIndex, EmailSyncState
 
 __all__ = [
     # 基础类
@@ -21,6 +24,10 @@ __all__ = [
     "Profile",
     "Invoice",
     "EmailProcessingTask",
+    "EmailAccount",
+    "EmailScanJob",
+    "EmailIndex",
+    "EmailSyncState",
     
     # 枚举类
     "InvoiceStatus",

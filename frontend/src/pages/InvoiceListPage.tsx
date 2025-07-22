@@ -27,8 +27,10 @@ import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { notify } from '../utils/notifications';
 import { useDebounce } from '../hooks/useDebounce';
 import InvoiceListView from '../components/invoice/cards/InvoiceListView';
+import InvoiceTableView from '../components/invoice/table/InvoiceTableView';
 import { useExport } from '../hooks/useExport';
 import DownloadProgressModal from '../components/ui/DownloadProgressModal';
+import type { Invoice as InvoiceType } from '../types/table';
 
 interface Invoice {
   id: string;
@@ -66,8 +68,9 @@ const InvoiceListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms 防抖
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+  const [useTableView, setUseTableView] = useState(true); // 新增：控制表格视图
   
   // 高级搜索状态
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
@@ -189,11 +192,24 @@ const InvoiceListPage: React.FC = () => {
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedInvoices.length === invoicesData?.items.length) {
-      setSelectedInvoices([]);
+  const handleSelectAll = (invoiceIds?: string[]) => {
+    if (invoiceIds !== undefined) {
+      // 从表格组件传入的ID列表
+      console.log('[handleSelectAll] Setting selectedInvoices to:', invoiceIds);
+      // 确保是数组
+      if (Array.isArray(invoiceIds)) {
+        setSelectedInvoices(invoiceIds);
+      } else {
+        console.error('[handleSelectAll] invoiceIds is not an array:', invoiceIds);
+        setSelectedInvoices([]);
+      }
     } else {
-      setSelectedInvoices(invoicesData?.items.map(inv => inv.id) || []);
+      // 原来的逻辑（用于其他地方调用）
+      if (selectedInvoices.length === invoicesData?.items.length && invoicesData?.items.length > 0) {
+        setSelectedInvoices([]);
+      } else {
+        setSelectedInvoices(invoicesData?.items.map(inv => inv.id) || []);
+      }
     }
   };
 
@@ -338,6 +354,29 @@ const InvoiceListPage: React.FC = () => {
     setSelectedInvoices([]);
   };
 
+  // 批量操作处理
+  const handleBulkAction = async (action: string, invoiceIds: string[]) => {
+    switch (action) {
+      case 'export':
+        const selectedInvoiceData = invoicesData?.items.filter(inv => 
+          invoiceIds.includes(inv.id)
+        ) || [];
+        await downloadBatch(selectedInvoiceData);
+        setSelectedInvoices([]);
+        break;
+      case 'delete':
+        const selectedInvoiceNumbers = invoicesData?.items
+          .filter(inv => invoiceIds.includes(inv.id))
+          .map(inv => inv.invoice_number) || [];
+        setDeleteInvoiceIds(invoiceIds);
+        setDeleteInvoiceNumbers(selectedInvoiceNumbers);
+        setIsDeleteModalOpen(true);
+        break;
+      default:
+        notify.warning('未知的批量操作');
+    }
+  };
+
   return (
     <ErrorBoundary>
       <Layout>
@@ -409,6 +448,34 @@ const InvoiceListPage: React.FC = () => {
                   <span className="badge badge-sm badge-primary">{activeFilterCount}</span>
                 )}
               </button>
+              
+              {/* 视图切换按钮 - 仅桌面端显示 */}
+              <div className="hidden lg:flex items-center gap-2 ml-2">
+                <button
+                  className={`btn btn-sm ${!useTableView ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => setUseTableView(false)}
+                  title="卡片视图"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
+                    <line x1="9" y1="3" x2="9" y2="21" strokeWidth="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9" strokeWidth="2"/>
+                  </svg>
+                </button>
+                <button
+                  className={`btn btn-sm ${useTableView ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => setUseTableView(true)}
+                  title="表格视图"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
+                    <line x1="3" y1="8" x2="21" y2="8" strokeWidth="2"/>
+                    <line x1="3" y1="13" x2="21" y2="13" strokeWidth="2"/>
+                    <line x1="8" y1="3" x2="8" y2="21" strokeWidth="2"/>
+                    <line x1="15" y1="3" x2="15" y2="21" strokeWidth="2"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -423,42 +490,44 @@ const InvoiceListPage: React.FC = () => {
         {/* 发票列表 */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body p-0">
-            {/* 列表头部 */}
-            <div className="p-4 border-b border-base-300">
-              <div className="flex items-center justify-between">
-                <label className="label cursor-pointer gap-2">
-                  <input 
-                    type="checkbox" 
-                    className="checkbox checkbox-sm"
-                    checked={selectedInvoices.length === invoicesData?.items.length && invoicesData?.items.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                  <span className="label-text">
-                    {selectedInvoices.length > 0 ? `已选择 ${selectedInvoices.length} 项` : '全选'}
-                  </span>
-                </label>
-                
-                {selectedInvoices.length > 0 && (
-                  <div className="flex gap-2">
-                    <button 
-                      className="btn btn-sm btn-outline"
-                      onClick={handleBatchExport}
-                      disabled={isExporting}
-                    >
-                      <Download className="w-3 h-3" />
-                      导出
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-error btn-outline"
-                      onClick={handleBatchDelete}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      删除
-                    </button>
-                  </div>
-                )}
+            {/* 列表头部 - 仅在卡片视图时显示 */}
+            {!useTableView && (
+              <div className="p-4 border-b border-base-300">
+                <div className="flex items-center justify-between">
+                  <label className="label cursor-pointer gap-2">
+                    <input 
+                      type="checkbox" 
+                      className="checkbox checkbox-sm"
+                      checked={selectedInvoices.length === invoicesData?.items.length && invoicesData?.items.length > 0}
+                      onChange={() => handleSelectAll()}
+                    />
+                    <span className="label-text">
+                      {selectedInvoices.length > 0 ? `已选择 ${selectedInvoices.length} 项` : '全选'}
+                    </span>
+                  </label>
+                  
+                  {selectedInvoices.length > 0 && (
+                    <div className="flex gap-2">
+                      <button 
+                        className="btn btn-sm btn-outline"
+                        onClick={handleBatchExport}
+                        disabled={isExporting}
+                      >
+                        <Download className="w-3 h-3" />
+                        导出
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-error btn-outline"
+                        onClick={handleBatchDelete}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        删除
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 发票列表 */}
             {isLoading ? (
@@ -484,7 +553,26 @@ const InvoiceListPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+            ) : useTableView ? (
+              // 新的 TanStack Table 视图
+              <InvoiceTableView
+                invoices={invoicesData?.items || []}
+                selectedInvoices={selectedInvoices}
+                onSelectInvoice={handleSelectInvoice}
+                onSelectAll={handleSelectAll}
+                onViewInvoice={handleViewInvoice}
+                onEditInvoice={handleEditInvoice}
+                onDeleteInvoice={handleDeleteInvoice}
+                onBulkAction={handleBulkAction}
+                isLoading={isLoading}
+                totalCount={invoicesData?.total || 0}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={setPageSize}
+              />
             ) : (
+              // 原有的卡片视图
               <InvoiceListView
                 invoices={invoicesData?.items || []}
                 selectedInvoices={selectedInvoices}
@@ -496,8 +584,8 @@ const InvoiceListPage: React.FC = () => {
               />
             )}
 
-            {/* 分页 */}
-            {invoicesData && invoicesData.total > pageSize && (
+            {/* 分页 - 仅在使用卡片视图时显示 */}
+            {!useTableView && invoicesData && invoicesData.total > pageSize && (
               <div className="p-3 sm:p-4 border-t border-base-300">
                 <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
                   {/* 页码信息 */}

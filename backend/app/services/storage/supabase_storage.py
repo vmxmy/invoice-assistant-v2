@@ -158,7 +158,7 @@ class SupabaseStorageService:
         try:
             # 尝试获取bucket信息
             buckets = self.storage.list_buckets()
-            bucket_names = [b["name"] for b in buckets]
+            bucket_names = [b.name for b in buckets]
             
             if bucket_name not in bucket_names:
                 # 创建bucket

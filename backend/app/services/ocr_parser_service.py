@@ -8,6 +8,7 @@ import json
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
+from types import SimpleNamespace
 
 from app.core.exceptions import ValidationError
 from app.schemas.field_definitions import get_field_schema
@@ -247,6 +248,31 @@ class OCRParserService:
         
         total_confidence = sum(field.confidence for field in fields)
         return total_confidence / len(fields)
+        
+    async def parse_ocr_result(self, ocr_result: Dict[str, Any]) -> Any:
+        """
+        解析OCR结果，返回结构化数据
+        
+        Args:
+            ocr_result: OCR识别结果
+            
+        Returns:
+            解析后的结构化数据
+        """
+        # 解析发票类型和字段
+        invoice_type, fields = self.parse_invoice_data(ocr_result)
+        
+        # 计算整体置信度
+        overall_confidence = self.calculate_overall_confidence(fields)
+        
+        # 创建返回结构
+        from types import SimpleNamespace
+        result = SimpleNamespace()
+        result.invoice_type = invoice_type
+        result.fields = fields
+        result.confidence = overall_confidence
+        
+        return result
 
 
 # 依赖注入函数

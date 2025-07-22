@@ -111,7 +111,15 @@
       "mcp__zen-cc__chat",
       "Bash(jq:*)",
       "mcp__zen-docker__chat",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "mcp__zen-docker__analyze",
+      "mcp__filesystem__search_files",
+      "Bash(backend/venv/bin/python scripts/test_email_accounts.py:*)",
+      "Bash(npx tsc:*)",
+      "mcp__zen-docker__listmodels",
+      "Bash(./scripts/test_api_limits_simple.sh:*)",
+      "mcp__zen-docker__codereview",
+      "WebFetch(domain:pypi.org)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import { api } from './apiClient';
-import type { Invoice } from '../types';
+import type { Invoice } from '../types/index';
 import { 
   generateTypeSpecificFileName, 
   generateBatchExportFileName,

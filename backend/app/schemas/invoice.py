@@ -8,6 +8,7 @@ from decimal import Decimal
 from pydantic import BaseModel, Field, validator
 
 from app.models.invoice import InvoiceStatus, InvoiceSource
+from .base_response import BaseListResponse
 
 
 class InvoiceBase(BaseModel):
@@ -79,13 +80,9 @@ class InvoiceResponse(InvoiceInDB):
     download_url: Optional[str] = Field(None, description="文件下载URL（签名URL）")
 
 
-class InvoiceListResponse(BaseModel):
+class InvoiceListResponse(BaseListResponse[InvoiceResponse]):
     """发票列表响应Schema"""
-    items: List[InvoiceResponse]
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
+    total_pages: int = Field(..., description="总页数")
 
 
 class InvoiceStatistics(BaseModel):

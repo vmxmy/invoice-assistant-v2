@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { exportService, ExportError } from '../services/exportService';
-import type { Invoice } from '../types';
+import type { Invoice } from '../types/index';
 import type { DownloadProgress } from '../components/ui/DownloadProgressModal';
 import { notify } from '../utils/notifications';
 import { prepareBatchDownloadFiles } from '../utils/fileNameGenerator';

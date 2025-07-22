@@ -1,0 +1,488 @@
+[
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 76.25889778137207,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 14.870658793993211,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:13:12.464037"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_email-scan_jobs",
+    "current_time_ms": 34312.47091293335,
+    "baseline_p95_ms": 2683.3839416503906,
+    "regression_ratio": 12.787015074641081,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T01:31:48.527147"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 93.56808662414551,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 18.24599005067646,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:32:01.552179"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_email-scan_jobs",
+    "current_time_ms": 33700.45065879822,
+    "baseline_p95_ms": 2683.3839416503906,
+    "regression_ratio": 12.558937293956923,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T01:42:29.756173"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_email-scan_jobs",
+    "current_time_ms": 35708.178758621216,
+    "baseline_p95_ms": 2683.3839416503906,
+    "regression_ratio": 13.307144834689302,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T01:49:01.759670"
+  },
+  {
+    "query_name": "endpoint_POST _api_v1_email-scan_jobs",
+    "current_time_ms": 35265.48624038696,
+    "baseline_p95_ms": 2683.3839416503906,
+    "regression_ratio": 13.142169367942646,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T01:49:39.362844"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 217.1781063079834,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 42.35022548700544,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:50:10.544633"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-accounts",
+    "current_time_ms": 29.740095138549805,
+    "baseline_p95_ms": 3.397703170776367,
+    "regression_ratio": 8.752999789488458,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T01:54:15.917941"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 65.37294387817383,
+    "baseline_p95_ms": 3.2939910888671875,
+    "regression_ratio": 19.846120440069484,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:54:15.955777"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 44.751882553100586,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 8.726719047840438,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:54:15.960949"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 94.90585327148438,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 18.506857594495326,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T01:57:03.263455"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 62.2100830078125,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 12.131107908317448,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:12:14.286659"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 6.593942642211914,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.0115644774165395,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:14:13.269614"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 11.080026626586914,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 2.1606304337719093,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:14:13.277763"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 21.429061889648438,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 6.53720270565132,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:18:38.930064"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 12.379884719848633,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 2.414105723185643,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:18:38.933731"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 7.429838180541992,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.2665648410793513,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:20:00.885017"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 107.44285583496094,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 32.77678376609208,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:20:57.536929"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 107.85293579101562,
+    "baseline_p95_ms": 5.128145217895508,
+    "regression_ratio": 21.031568180761543,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:20:57.538290"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-accounts",
+    "current_time_ms": 7.052183151245117,
+    "baseline_p95_ms": 3.397703170776367,
+    "regression_ratio": 2.0755736439548103,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:58:07.887059"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 96.90713882446289,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 17.39229781771502,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:58:07.990224"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 16.054153442382812,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 4.897519819623246,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:59:58.256711"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 23.59294891357422,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 4.234317501069747,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T02:59:58.278553"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 8.528947830200195,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.601861953596625,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:01:10.768111"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 8.836030960083008,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.695541493926831,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:03:02.662941"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 57.70587921142578,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 10.356696619597775,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:46:01.129633"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-accounts",
+    "current_time_ms": 418313.63797187805,
+    "baseline_p95_ms": 2193.676710128784,
+    "regression_ratio": 190.6906501037339,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T03:48:20.497314"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 139465.64888954163,
+    "baseline_p95_ms": 3634.58514213562,
+    "regression_ratio": 38.3718205615054,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:48:20.605721"
+  },
+  {
+    "query_name": "invoice_statistics",
+    "current_time_ms": 66843.98531913757,
+    "baseline_p95_ms": 4145.347833633423,
+    "regression_ratio": 16.125060670855312,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T03:49:27.586466"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 76.24197006225586,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 13.683440308087292,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:51:11.866071"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 6.911039352416992,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.1082987853662085,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:54:49.190748"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 7.603883743286133,
+    "baseline_p95_ms": 3.278017044067383,
+    "regression_ratio": 2.3196596116081167,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:54:49.192462"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 208285.54487228394,
+    "baseline_p95_ms": 2383.6958408355713,
+    "regression_ratio": 87.37924583501909,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T03:54:49.494725"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 117.40279197692871,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 21.070731707317073,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T03:59:41.612533"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 21.86274528503418,
+    "baseline_p95_ms": 4.065990447998047,
+    "regression_ratio": 5.376979007857394,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:01:55.862253"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 41.45383834838867,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 7.439880188275567,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:01:55.883136"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 11.750936508178711,
+    "baseline_p95_ms": 4.065990447998047,
+    "regression_ratio": 2.890055119033658,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:06:17.032468"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 21.776914596557617,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 3.9083868207103123,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:06:17.053131"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 131233.67071151733,
+    "baseline_p95_ms": 2383.6958408355713,
+    "regression_ratio": 55.054704741824445,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T04:08:54.724108"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 154697.1309185028,
+    "baseline_p95_ms": 2383.6958408355713,
+    "regression_ratio": 64.89801604229669,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T04:11:30.769721"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-accounts",
+    "current_time_ms": 154701.54190063477,
+    "baseline_p95_ms": 2193.676710128784,
+    "regression_ratio": 70.5215773985004,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T04:11:30.771623"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 17.094850540161133,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 3.068078733418913,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:11:30.789427"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 8.198261260986328,
+    "baseline_p95_ms": 4.065990447998047,
+    "regression_ratio": 2.016301161017943,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:40:23.607775"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 15.18392562866211,
+    "baseline_p95_ms": 6.127834320068359,
+    "regression_ratio": 2.4778616450081707,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T04:40:23.621366"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 4738.296985626221,
+    "baseline_p95_ms": 2166.836977005005,
+    "regression_ratio": 2.1867344132992783,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:00:32.776400"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 11293.686866760254,
+    "baseline_p95_ms": 2166.836977005005,
+    "regression_ratio": 5.212061168704233,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:04:54.242559"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_email-scan_jobs",
+    "current_time_ms": 5891.359090805054,
+    "baseline_p95_ms": 2166.836977005005,
+    "regression_ratio": 2.7188750945851363,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:12:08.763972"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
+    "current_time_ms": 82.61990547180176,
+    "baseline_p95_ms": 4.065990447998047,
+    "regression_ratio": 20.31974903248505,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:17:49.011030"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 83.78911018371582,
+    "baseline_p95_ms": 6.127834320068359,
+    "regression_ratio": 13.673527351957047,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:17:49.012302"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 97.49102592468262,
+    "baseline_p95_ms": 5.923748016357422,
+    "regression_ratio": 16.457659180552202,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T05:18:36.550254"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 12.377262115478516,
+    "baseline_p95_ms": 5.923748016357422,
+    "regression_ratio": 2.089430894308943,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T11:09:52.433615"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 74.7220516204834,
+    "baseline_p95_ms": 5.923748016357422,
+    "regression_ratio": 12.61398212992031,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T11:34:52.528908"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_invoices_",
+    "current_time_ms": 46.13518714904785,
+    "baseline_p95_ms": 2.276897430419922,
+    "regression_ratio": 20.262303664921465,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-22T11:35:21.166117"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 45.01509666442871,
+    "baseline_p95_ms": 5.923748016357422,
+    "regression_ratio": 7.599090396844563,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-22T11:35:21.179493"
+  }
+]
