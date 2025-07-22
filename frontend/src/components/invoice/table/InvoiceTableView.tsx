@@ -43,8 +43,6 @@ import {
 import { getColumnDefinitions } from './columnDefinitions';
 import TablePagination from './TablePagination';
 import ColumnVisibilityManager from './ColumnVisibilityManager';
-import GlobalSearchFilter from './filters/GlobalSearchFilter';
-import { useDebounce } from '../../../hooks/useDebounce';
 
 interface InvoiceTableViewProps {
   invoices: Invoice[];
@@ -88,13 +86,9 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
   // 表格状态
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => loadColumnVisibility());
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isColumnManagerOpen, setIsColumnManagerOpen] = useState(false);
-
-  // 防抖全局搜索
-  const debouncedGlobalFilter = useDebounce(globalFilter, 300);
 
   // 同步外部选中状态到内部行选择状态
   useEffect(() => {
@@ -134,7 +128,6 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
     state: {
       sorting,
       columnFilters,
-      globalFilter: debouncedGlobalFilter,
       columnVisibility,
       rowSelection,
       pagination: {
@@ -144,7 +137,6 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: (updater) => {
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
@@ -194,7 +186,7 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
   };
 
   // 获取活跃筛选数量
-  const activeFilterCount = columnFilters.length + (globalFilter ? 1 : 0);
+  const activeFilterCount = columnFilters.length;
 
   // 批量操作
   const handleBulkExport = () => {
@@ -229,24 +221,17 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
         {/* 工具栏 */}
         <div className="p-4 border-b border-base-300">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* 左侧：搜索和筛选 */}
+            {/* 左侧：列筛选信息 */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center flex-1">
-              <GlobalSearchFilter
-                value={globalFilter}
-                onChange={setGlobalFilter}
-                className="w-full sm:w-64"
-              />
-              
-              {activeFilterCount > 0 && (
+              {columnFilters.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-base-content/60">
-                    {activeFilterCount} 个筛选条件
+                    {columnFilters.length} 个列筛选条件
                   </span>
                   <button
                     className="btn btn-ghost btn-xs"
                     onClick={() => {
                       setColumnFilters([]);
-                      setGlobalFilter('');
                     }}
                   >
                     <X className="w-3 h-3" />
@@ -401,7 +386,7 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
           {/* 空状态 */}
           {table.getRowModel().rows.length === 0 && (
             <div className="p-8 text-center text-base-content/60">
-              {globalFilter || columnFilters.length > 0
+              {columnFilters.length > 0
                 ? '没有找到匹配的发票'
                 : '暂无发票数据'}
             </div>

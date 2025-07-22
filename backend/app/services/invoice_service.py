@@ -14,7 +14,7 @@ import logging
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func, and_, or_, text
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
@@ -671,9 +671,17 @@ class InvoiceService:
                 or_(
                     Invoice.seller_name.ilike(search_pattern),
                     Invoice.invoice_number.ilike(search_pattern),
+                    Invoice.invoice_code.ilike(search_pattern),
+                    Invoice.invoice_type.ilike(search_pattern),
                     Invoice.buyer_name.ilike(search_pattern),
+                    Invoice.seller_tax_number.ilike(search_pattern),
+                    Invoice.buyer_tax_number.ilike(search_pattern),
+                    Invoice.remarks.ilike(search_pattern),
+                    Invoice.notes.ilike(search_pattern),
                     Invoice.file_path.ilike(search_pattern),
-                    Invoice.source_metadata['original_filename'].astext.ilike(search_pattern)
+                    Invoice.source_metadata['original_filename'].astext.ilike(search_pattern),
+                    # 搜索 extracted_data 中的所有文本内容
+                    text(f"extracted_data::text ILIKE :pattern").bindparams(pattern=search_pattern)
                 )
             )
         
