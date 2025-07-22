@@ -94,20 +94,24 @@ const EmailAccountsPage: React.FC = () => {
 
   // 渲染空状态
   const renderEmptyState = () => (
-    <div className="card bg-base-100 shadow-lg border border-base-200 p-8 text-center">
-      <div className="mb-4">
-        <svg className="w-24 h-24 mx-auto text-base-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    <div className="flex flex-col items-center justify-center py-16">
+      <div className="relative mb-6">
+        <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl"></div>
+        <svg className="w-24 h-24 mx-auto text-base-300 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold mb-2">暂无邮箱账户</h3>
-      <p className="text-base-content/60 mb-4">
-        添加邮箱账户以自动扫描和导入发票
+      <h3 className="text-xl font-semibold mb-2">暂无邮箱账户</h3>
+      <p className="text-base-content/60 mb-6 max-w-sm text-center">
+        添加邮箱账户以自动扫描和导入发票，支持 Gmail、QQ邮箱、163邮箱等主流邮箱服务
       </p>
       <button 
         className="btn btn-primary"
         onClick={() => setShowAddModal(true)}
       >
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
         添加第一个邮箱账户
       </button>
     </div>

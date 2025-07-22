@@ -24,7 +24,6 @@ from app.services.email_account_service import EmailAccountService
 from app.utils.encryption import decrypt_email_password
 from app.core.exceptions import NotFoundError, BusinessException
 from app.core.config import settings
-from app.services.automated_invoice_processor import AutomatedInvoiceProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -297,24 +296,9 @@ class EmailScannerService:
             await db.flush()  # 先刷新到数据库会话
             await db.commit()  # 然后提交事务
             
-            # 启动自动化发票处理流程
-            try:
-                logger.info(f"启动扫描任务 {job_id} 的自动化发票处理流程")
-                processor = AutomatedInvoiceProcessor()
-                automation_stats = await processor.process_scan_job(db, job_id, user_id)
-                
-                logger.info(f"自动化处理完成，统计信息: {automation_stats}")
-                
-            except Exception as automation_error:
-                logger.error(f"自动化发票处理失败: {str(automation_error)}")
-                # 自动化处理失败不影响扫描任务的完成状态
-                # 只记录错误，用户仍然可以手动处理下载的附件
-                # 重要：确保任务状态保持为已完成
-                scan_job.status = ScanJobStatus.COMPLETED
-                scan_job.progress = 100
-                scan_job.current_step = "扫描完成（自动化处理失败）"
-                scan_job.error_message = f"自动化处理失败: {str(automation_error)}"
-                await db.commit()
+            # 注意：自动化发票处理已经集成到邮件处理端点中
+            # 用户可以通过邮件处理端点直接处理下载的附件
+            logger.info(f"扫描任务 {job_id} 完成，附件已下载，可通过邮件处理端点进行发票识别")
             
         except Exception as e:
             logger.error(f"扫描任务 {job_id} 执行失败: {str(e)}")

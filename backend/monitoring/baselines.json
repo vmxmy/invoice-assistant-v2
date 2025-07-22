@@ -1,12 +1,12 @@
 [
   {
     "query_name": "endpoint_GET _api_v1_profiles_me",
-    "avg_time_ms": 2128.6298852496675,
+    "avg_time_ms": 2093.9803670002866,
     "p95_time_ms": 3618.673086166382,
-    "p99_time_ms": 5789.989948272705,
+    "p99_time_ms": 5837.491989135742,
     "max_time_ms": 269780.3342342377,
-    "sample_count": 1800,
-    "created_at": "2025-07-22T11:31:02.331408"
+    "sample_count": 1950,
+    "created_at": "2025-07-22T14:50:26.677658"
   },
   {
     "query_name": "invoice_search",
@@ -28,30 +28,30 @@
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "avg_time_ms": 2.762243296649005,
+    "avg_time_ms": 4.2038055566641,
     "p95_time_ms": 5.956888198852539,
-    "p99_time_ms": 74.7220516204834,
-    "max_time_ms": 217.1781063079834,
-    "sample_count": 1850,
-    "created_at": "2025-07-22T11:35:21.181677"
+    "p99_time_ms": 76.24197006225586,
+    "max_time_ms": 2789.8290157318115,
+    "sample_count": 1950,
+    "created_at": "2025-07-22T14:35:25.074539"
   },
   {
     "query_name": "invoice_by_id",
-    "avg_time_ms": 1430.8923657735188,
-    "p95_time_ms": 3609.88187789917,
-    "p99_time_ms": 4561.743259429932,
+    "avg_time_ms": 1370.1728681723278,
+    "p95_time_ms": 3400.2721309661865,
+    "p99_time_ms": 4523.361921310425,
     "max_time_ms": 7268.131971359253,
-    "sample_count": 450,
-    "created_at": "2025-07-22T10:58:45.199835"
+    "sample_count": 600,
+    "created_at": "2025-07-22T14:54:17.773151"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_invoices_",
-    "avg_time_ms": 0.6667304039001465,
+    "avg_time_ms": 0.8128070831298828,
     "p95_time_ms": 2.276897430419922,
     "p99_time_ms": 5.9719085693359375,
-    "max_time_ms": 9.412288665771484,
-    "sample_count": 200,
-    "created_at": "2025-07-22T05:09:44.301721"
+    "max_time_ms": 46.13518714904785,
+    "sample_count": 250,
+    "created_at": "2025-07-22T14:04:21.625726"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
@@ -145,21 +145,21 @@
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
-    "avg_time_ms": 1.8613251050313313,
-    "p95_time_ms": 4.065990447998047,
+    "avg_time_ms": 1.899111821101262,
+    "p95_time_ms": 3.960132598876953,
     "p99_time_ms": 27.469158172607422,
     "max_time_ms": 176.55277252197266,
-    "sample_count": 600,
-    "created_at": "2025-07-22T05:11:54.672542"
+    "sample_count": 650,
+    "created_at": "2025-07-22T13:06:04.037750"
   },
   {
     "query_name": "endpoint_GET _api_v1_email-scan_jobs",
-    "avg_time_ms": 1355.0786846334283,
-    "p95_time_ms": 2166.836977005005,
-    "p99_time_ms": 4098.272085189819,
-    "max_time_ms": 10063.03095817566,
-    "sample_count": 550,
-    "created_at": "2025-07-22T04:34:11.802334"
+    "avg_time_ms": 1381.3580977916718,
+    "p95_time_ms": 2406.7420959472656,
+    "p99_time_ms": 4264.189958572388,
+    "max_time_ms": 11293.686866760254,
+    "sample_count": 600,
+    "created_at": "2025-07-22T11:51:05.150519"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_email-accounts_",

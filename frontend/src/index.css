@@ -23,20 +23,26 @@
 /* 配置 Tailwind CSS v4 暗色模式变体 */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-/* 全局背景渐变 */
+/* 全局背景渐变 - 优雅层次感 */
 @layer base {
   .page-container {
     background: 
-      radial-gradient(ellipse at top left, oklch(from var(--color-primary) l c h / 0.05), transparent 50%),
-      radial-gradient(ellipse at bottom right, oklch(from var(--color-accent) l c h / 0.03), transparent 50%),
-      oklch(from var(--color-base-200) l c h / 0.3);
+      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--color-primary) l c h / 0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--color-accent) l c h / 0.03), transparent),
+      linear-gradient(180deg, 
+        oklch(97% 0.006 250),
+        oklch(96% 0.008 250) 50%,
+        oklch(95.5% 0.009 250));
   }
   
   [data-theme="dark"] .page-container {
     background: 
-      radial-gradient(ellipse at top left, oklch(from var(--color-primary) l c h / 0.03), transparent 50%),
-      radial-gradient(ellipse at bottom right, oklch(from var(--color-accent) l c h / 0.02), transparent 50%),
-      oklch(from var(--color-base-200) l c h / 0.5);
+      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--color-primary) l c h / 0.02), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--color-accent) l c h / 0.015), transparent),
+      linear-gradient(180deg,
+        oklch(15% 0.01 255),
+        oklch(14% 0.012 255) 50%,
+        oklch(13.5% 0.013 255));
   }
 }
 
@@ -52,11 +58,11 @@
   --font-serif: "Charter", "Georgia", "Times New Roman", serif;
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
 
-  /* 专业金融软件配色方案 - 基于可访问性优先原则 */
-  --color-base-100: oklch(99% 0.003 265);      /* 纯净白色带微妙色调 */
-  --color-base-200: oklch(97% 0.004 265);      /* 浅灰背景 */
-  --color-base-300: oklch(94% 0.006 265);      /* 中灰背景 */
-  --color-base-content: oklch(23% 0.02 265);   /* 深灰文字，确保高对比度 */
+  /* 专业金融软件配色方案 - 优雅非纯白色调 */
+  --color-base-100: oklch(98.5% 0.005 250);    /* 优雅米白，带轻微蓝调 */
+  --color-base-200: oklch(96.5% 0.008 250);    /* 柔和灰白 */
+  --color-base-300: oklch(93% 0.01 250);       /* 温暖中灰 */
+  --color-base-content: oklch(22% 0.02 250);   /* 深灰文字，保持高对比度 */
   
   --color-primary: oklch(58% 0.19 245);        /* 专业蓝 - 传达信任与稳定 */
   --color-primary-content: oklch(98% 0.01 245);
@@ -111,11 +117,11 @@
   --font-serif: "Charter", "Georgia", "Times New Roman", serif;
   --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
 
-  /* 专业暗色金融软件配色方案 - 避免纯黑，减少眼睛疲劳 */
-  --color-base-100: oklch(15% 0.01 265);        /* 深石板背景 - 非纯黑 */
-  --color-base-200: oklch(13% 0.01 265);        /* 更深背景 */
-  --color-base-300: oklch(11% 0.01 265);        /* 最深背景 */
-  --color-base-content: oklch(93% 0.01 265);    /* 浅灰文字 - 高对比度 */
+  /* 专业暗色金融软件配色方案 - 优雅深色调 */
+  --color-base-100: oklch(16% 0.012 255);       /* 深蓝灰背景 - 带温暖感 */
+  --color-base-200: oklch(14% 0.012 255);       /* 更深背景 */
+  --color-base-300: oklch(12% 0.012 255);       /* 最深背景 */
+  --color-base-content: oklch(92% 0.008 255);   /* 柔和白字 - 高对比度但不刺眼 */
   
   --color-primary: oklch(65% 0.18 245);         /* 明亮专业蓝 - 暗背景优化 */
   --color-primary-content: oklch(15% 0.02 245);

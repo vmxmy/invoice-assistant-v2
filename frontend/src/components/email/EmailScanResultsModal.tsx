@@ -146,7 +146,18 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
       }
     } catch (error: any) {
       console.error('批量处理错误:', error)
-      toast.error(error.message || '批量处理失败')
+      
+      // 更详细的错误处理
+      let errorMessage = '批量处理失败'
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = '处理超时，请稍后重试或减少选择的邮件数量'
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage)
       setProcessingStatus(prev => ({ ...prev, isProcessing: false }))
     }
   }
@@ -246,20 +257,29 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
         {/* 处理进度 */}
         {processingStatus.isProcessing && (
           <div className="mt-4">
-            <div className="flex justify-between text-sm mb-1">
-              <span>处理进度</span>
-              <span>{processingStatus.progress}/{processingStatus.total}</span>
+            <div className="alert alert-info">
+              <span className="loading loading-spinner loading-sm"></span>
+              <div>
+                <h4 className="font-semibold">正在批量处理发票...</h4>
+                <p className="text-sm">处理较多文件可能需要几分钟，请耐心等待</p>
+              </div>
             </div>
-            <progress 
-              className="progress progress-primary w-full" 
-              value={processingStatus.progress} 
-              max={processingStatus.total}
-            ></progress>
-            {processingStatus.currentEmail && (
-              <p className="text-sm text-base-content/70 mt-1">
-                正在处理: {processingStatus.currentEmail}
-              </p>
-            )}
+            <div className="mt-2">
+              <div className="flex justify-between text-sm mb-1">
+                <span>处理进度</span>
+                <span>{processingStatus.progress}/{processingStatus.total}</span>
+              </div>
+              <progress 
+                className="progress progress-primary w-full" 
+                value={processingStatus.progress} 
+                max={processingStatus.total}
+              ></progress>
+              {processingStatus.currentEmail && (
+                <p className="text-sm text-base-content/70 mt-1">
+                  正在处理: {processingStatus.currentEmail}
+                </p>
+              )}
+            </div>
           </div>
         )}
 

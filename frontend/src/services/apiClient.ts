@@ -7,7 +7,7 @@ import { transformResponse, extractErrorMessage } from '../utils/responseTransfo
 // 创建 Axios 实例
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8090',
-  timeout: 10000,
+  timeout: 10000, // 默认 10 秒超时
   headers: {
     'Content-Type': 'application/json',
   },
@@ -283,7 +283,9 @@ export const api = {
       }>;
       auto_create_invoice: boolean;
       continue_on_error: boolean;
-    }) => apiClient.post('/api/v1/email-processing/batch-process', data),
+    }) => apiClient.post('/api/v1/email-processing/batch-process', data, {
+      timeout: 300000, // 5分钟超时，批量处理需要更长时间
+    }),
     
     // 获取处理状态
     getStatus: (jobId: string) => apiClient.get(`/api/v1/email-processing/processing-status/${jobId}`),
