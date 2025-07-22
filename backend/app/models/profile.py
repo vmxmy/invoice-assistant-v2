@@ -108,6 +108,13 @@ class Profile(Base, BaseModel, AuditMixin):
     #     lazy="dynamic",
     #     cascade="all, delete-orphan"
     # )
+    # email_accounts = relationship(
+    #     "EmailAccount",
+    #     primaryjoin="Profile.auth_user_id == foreign(EmailAccount.user_id)",
+    #     back_populates="profile",
+    #     lazy="dynamic",
+    #     cascade="all, delete-orphan"
+    # )
     
     # 索引定义
     __table_args__ = (

@@ -140,6 +140,11 @@ class BusinessLogicError(APIException):
         )
 
 
+class BusinessException(BusinessLogicError):
+    """业务异常（简写别名）"""
+    pass
+
+
 class InvoiceProcessingError(BusinessLogicError):
     """发票处理异常"""
     
@@ -195,3 +200,15 @@ class ConfigurationError(InvoiceAssistantException):
     
     def __init__(self, message: str = "配置错误", **kwargs):
         super().__init__(message=message, code="CONFIGURATION_ERROR")
+
+
+class ServiceError(APIException):
+    """服务异常"""
+    
+    def __init__(self, message: str = "服务异常", **kwargs):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=message,
+            code="SERVICE_ERROR",
+            **kwargs
+        )

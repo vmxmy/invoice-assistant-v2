@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useCreateProfile } from '../hooks/useAuth'
-import type { ProfileFormData } from '../types'
+import type { ProfileFormData } from '../types/index'
 
 interface ProfileData extends ProfileFormData {}
 

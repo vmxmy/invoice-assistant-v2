@@ -31,6 +31,8 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
   children,
   disabled,
   className = '',
+  // 过滤掉可能误传的 loading 属性
+  loading: _loading,
   ...props
 }) => {
   const getButtonClasses = () => {

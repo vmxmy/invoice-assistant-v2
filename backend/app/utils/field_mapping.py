@@ -22,7 +22,7 @@ FIELD_MAPPING = {
     # === 金额字段 ===
     'totalAmount': 'total_amount',
     'taxAmount': 'tax_amount',
-    'invoiceTax': 'tax_amount',  # 阿里云OCR返回的税额字段
+    'invoiceTax': 'tax_amount',  # 阿里云OCR返回的税额字段，与taxAmount映射到相同字段（兼容设计）
     'invoiceAmountPreTax': 'amount_without_tax',
     'fare': 'fare',
     'ticketPrice': 'ticket_price',
@@ -37,9 +37,9 @@ FIELD_MAPPING = {
     
     # === 买方信息 ===
     'buyerName': 'buyer_name',
-    'purchaserName': 'buyer_name',  # 阿里云OCR返回的购买方字段
+    'purchaserName': 'buyer_name',  # 阿里云OCR返回的购买方字段，与buyerName映射到相同字段（兼容设计）
     'buyerTaxNumber': 'buyer_tax_number',
-    'purchaserTaxNumber': 'buyer_tax_number',  # 阿里云OCR返回的购买方税号
+    'purchaserTaxNumber': 'buyer_tax_number',  # 阿里云OCR返回的购买方税号，与buyerTaxNumber映射到相同字段（兼容设计）
     'buyerAddress': 'buyer_address',
     'buyerPhone': 'buyer_phone',
     'buyerBank': 'buyer_bank',
@@ -285,12 +285,17 @@ def validate_field_mapping() -> bool:
             if not re.match(r'^[a-z0-9_]+$', snake_key):
                 logger.warning(f"字段映射表中的snake_case值格式不正确: {snake_key}")
         
-        # 检查反向映射的唯一性
+        # 检查反向映射的唯一性（收集重复的camelCase键）
         reverse_conflicts = {}
         for camel_key, snake_key in FIELD_MAPPING.items():
-            if snake_key in reverse_conflicts:
-                logger.warning(f"snake_case值重复: {snake_key} 对应多个camelCase键")
-            reverse_conflicts[snake_key] = camel_key
+            if snake_key not in reverse_conflicts:
+                reverse_conflicts[snake_key] = []
+            reverse_conflicts[snake_key].append(camel_key)
+        
+        # 报告重复映射（降低日志级别，这是预期的兼容性设计）
+        for snake_key, camel_keys in reverse_conflicts.items():
+            if len(camel_keys) > 1:
+                logger.info(f"字段兼容性映射: {snake_key} <- {', '.join(camel_keys)}")
         
         logger.info(f"字段映射表验证完成，共 {len(FIELD_MAPPING)} 个映射")
         return True

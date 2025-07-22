@@ -87,17 +87,15 @@ class TrainTicketData(BaseInvoiceData):
 
 
 class OCRResponse(BaseModel):
-    """OCR 响应模型"""
-    success: bool = Field(..., description="是否成功")
-    message: str = Field(..., description="响应消息")
+    """OCR 响应模型 - 直接返回识别结果"""
     data: Optional[Union[InvoiceData, TrainTicketData]] = Field(None, description="识别结果")
     raw_result: Optional[Dict[str, Any]] = Field(None, description="原始 OCR 结果")
+    confidence: float = Field(0.0, description="整体置信度")
+    processing_time: Optional[float] = Field(None, description="处理时间（秒）")
     
     class Config:
         json_schema_extra = {
             "example": {
-                "success": True,
-                "message": "识别成功",
                 "data": {
                     "invoice_type": "增值税发票",
                     "invoice_code": "3300223130",
@@ -112,6 +110,8 @@ class OCRResponse(BaseModel):
                     "remarks": "",
                     "confidence": 0.98
                 },
+                "confidence": 0.98,
+                "processing_time": 2.5,
                 "raw_result": {
                     "Data": {
                         "Content": {

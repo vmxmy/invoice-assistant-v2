@@ -88,5 +88,14 @@
     "threshold": 2.0,
     "severity": "warning",
     "timestamp": "2025-07-18T16:49:56.400213"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_profiles_me",
+    "current_time_ms": 17868670.408964157,
+    "baseline_p95_ms": 3692.751884460449,
+    "regression_ratio": 4838.84944562826,
+    "threshold": 2.0,
+    "severity": "critical",
+    "timestamp": "2025-07-18T21:50:44.162773"
   }
 ]

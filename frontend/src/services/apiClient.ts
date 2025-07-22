@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { supabase } from './supabase'
 import { logger } from '../utils/logger'
+import { transformResponse, extractErrorMessage } from '../utils/responseTransformer'
 
 // 创建 Axios 实例
 const apiClient = axios.create({
@@ -36,10 +37,31 @@ apiClient.interceptors.request.use(
   }
 )
 
-// 响应拦截器 - 统一错误处理
+// 响应拦截器 - 统一错误处理和响应格式转换
 apiClient.interceptors.response.use(
   (response) => {
     logger.log('✅ API Response:', response.config.method?.toUpperCase(), response.config.url, response.status)
+    
+    // 转换响应格式以确保向后兼容
+    const originalData = response.data
+    response.data = transformResponse(originalData, response.config.url)
+    
+    // 对OCR相关接口添加详细日志
+    if (response.config.url?.includes('/ocr/')) {
+      logger.log('📊 OCR响应详情:', {
+        url: response.config.url,
+        status: response.status,
+        success: response.data?.success,
+        invoice_type: response.data?.invoice_type,
+        fields_count: response.data?.fields ? Object.keys(response.data.fields).length : 0,
+        fields: response.data?.fields ? Object.keys(response.data.fields) : [],
+        has_raw_ocr: !!response.data?.raw_ocr_data,
+        has_validation: !!response.data?.validation,
+        has_confidence: !!response.data?.confidence,
+        processing_time: response.data?.processing_time
+      })
+    }
+    
     return response
   },
   async (error) => {
@@ -72,9 +94,8 @@ apiClient.interceptors.response.use(
       return Promise.reject(error)
     }
     
-    // 处理其他错误
-    const errorMessage = error.response?.data?.detail || 
-                        error.response?.data?.message || 
+    // 处理其他错误 - 使用统一错误提取器
+    const errorMessage = extractErrorMessage(error.response?.data) || 
                         error.message || 
                         '网络请求失败'
     
@@ -190,6 +211,82 @@ export const api = {
     quick: (data: FormData) => apiClient.post('/api/v1/ocr/combined/quick', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
+  },
+
+  // 邮箱账户相关接口
+  emailAccounts: {
+    // 获取邮箱账户列表
+    list: (params?: { skip?: number; limit?: number; is_active?: boolean }) => 
+      apiClient.get('/api/v1/email-accounts', { params }),
+    
+    // 获取单个邮箱账户
+    get: (id: string) => apiClient.get(`/api/v1/email-accounts/${id}`),
+    
+    // 创建邮箱账户
+    create: (data: any) => apiClient.post('/api/v1/email-accounts', data),
+    
+    // 更新邮箱账户
+    update: (id: string, data: any) => apiClient.put(`/api/v1/email-accounts/${id}`, data),
+    
+    // 删除邮箱账户
+    delete: (id: string) => apiClient.delete(`/api/v1/email-accounts/${id}`),
+    
+    // 测试邮箱连接
+    testConnection: (id: string, testData?: { password?: string }) => 
+      apiClient.post(`/api/v1/email-accounts/${id}/test`, testData || {}),
+    
+    // 重置同步状态
+    resetSync: (id: string) => apiClient.post(`/api/v1/email-accounts/${id}/reset-sync`),
+    
+    // 完全重置账户数据
+    resetAll: (id: string) => apiClient.post(`/api/v1/email-accounts/${id}/reset-all`),
+    
+    // 检测IMAP配置
+    detectConfig: (email: string) => 
+      apiClient.post('/api/v1/email-accounts/detect-config', { email_address: email }),
+  },
+
+  // 邮箱扫描相关接口
+  emailScan: {
+    // 创建扫描任务
+    createJob: (data: any) => apiClient.post('/api/v1/email-scan/jobs', data),
+    
+    // 获取扫描任务列表
+    listJobs: (params?: { skip?: number; limit?: number; status?: string }) => 
+      apiClient.get('/api/v1/email-scan/jobs', { params }),
+    
+    // 获取扫描任务详情
+    getJob: (jobId: string) => apiClient.get(`/api/v1/email-scan/jobs/${jobId}`),
+    
+    // 获取扫描进度
+    getProgress: (jobId: string) => apiClient.get(`/api/v1/email-scan/jobs/${jobId}/progress`),
+    
+    // 取消扫描任务
+    cancelJob: (jobId: string, force?: boolean) => 
+      apiClient.post(`/api/v1/email-scan/jobs/${jobId}/cancel`, { force: force || false }),
+    
+    // 重试扫描任务
+    retryJob: (jobId: string) => apiClient.post(`/api/v1/email-scan/jobs/${jobId}/retry`),
+    
+    // 删除扫描任务
+    deleteJob: (jobId: string) => apiClient.delete(`/api/v1/email-scan/jobs/${jobId}`),
+  },
+  
+  // Email Processing 相关接口
+  emailProcessing: {
+    // 批量处理邮件
+    batchProcess: (data: {
+      emails: Array<{
+        account_id: string;
+        uid: number;
+        subject: string;
+      }>;
+      auto_create_invoice: boolean;
+      continue_on_error: boolean;
+    }) => apiClient.post('/api/v1/email-processing/batch-process', data),
+    
+    // 获取处理状态
+    getStatus: (jobId: string) => apiClient.get(`/api/v1/email-processing/processing-status/${jobId}`),
   }
 }
 

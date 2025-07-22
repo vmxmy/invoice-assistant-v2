@@ -2,52 +2,55 @@ import React from 'react';
 import { CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react';
 
 interface AccountStatusBadgeProps {
-  status: 'connected' | 'disconnected' | 'error' | 'testing';
+  isActive?: boolean;
+  isVerified?: boolean;
+  lastError?: string | null;
   className?: string;
 }
 
-const AccountStatusBadge: React.FC<AccountStatusBadgeProps> = ({ status, className = '' }) => {
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case 'connected':
-        return {
-          icon: CheckCircle,
-          text: '已连接',
-          badgeClass: 'badge-success',
-          iconColor: 'text-success',
-        };
-      case 'disconnected':
-        return {
-          icon: AlertCircle,
-          text: '未连接',
-          badgeClass: 'badge-warning',
-          iconColor: 'text-warning',
-        };
-      case 'error':
-        return {
-          icon: XCircle,
-          text: '连接失败',
-          badgeClass: 'badge-error',
-          iconColor: 'text-error',
-        };
-      case 'testing':
-        return {
-          icon: Clock,
-          text: '测试中',
-          badgeClass: 'badge-info',
-          iconColor: 'text-info',
-        };
-      default:
-        return {
-          icon: AlertCircle,
-          text: '未知状态',
-          badgeClass: 'badge-neutral',
-          iconColor: 'text-neutral',
-        };
+const AccountStatusBadge: React.FC<AccountStatusBadgeProps> = ({ 
+  isActive = true, 
+  isVerified = false, 
+  lastError, 
+  className = '' 
+}) => {
+  const getStatusConfig = () => {
+    if (!isActive) {
+      return {
+        icon: AlertCircle,
+        text: '已停用',
+        badgeClass: 'badge-neutral',
+        iconColor: 'text-neutral',
+      };
     }
+    
+    if (isVerified) {
+      return {
+        icon: CheckCircle,
+        text: '已连接',
+        badgeClass: 'badge-success',
+        iconColor: 'text-success',
+      };
+    }
+    
+    if (lastError) {
+      return {
+        icon: XCircle,
+        text: '连接失败',
+        badgeClass: 'badge-error',
+        iconColor: 'text-error',
+      };
+    }
+    
+    return {
+      icon: AlertCircle,
+      text: '未知状态',
+      badgeClass: 'badge-neutral',
+      iconColor: 'text-neutral',
+    };
   };
 
-  const config = getStatusConfig(status);
+  const config = getStatusConfig();
   const Icon = config.icon;
 
   return (

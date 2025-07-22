@@ -1,529 +1,369 @@
-# Profile 模型详细设计
+# 用户模型（Profile）设计文档
 
-## 概述
+## 1. 模型概述
 
-Profile 模型用于存储用户的扩展信息，补充 Supabase Auth 提供的基础认证信息。每个认证用户都应有一个对应的 Profile 记录。
+用户模型是系统的核心模型之一，与 Supabase Auth 系统集成，存储用户的扩展信息和业务相关数据。
 
-## 需求背景
+## 2. 表结构设计
 
-1. Supabase Auth 只提供基础的认证信息（email、id）
-2. 需要存储用户的个性化设置、邮件配置等业务数据
-3. 需要支持用户档案的灵活扩展
-
-## 表结构设计
-
+### 2.1 profiles 表
 ```sql
 CREATE TABLE profiles (
-    -- 主键
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    
-    -- 关联字段
-    auth_user_id UUID NOT NULL UNIQUE,  -- 关联 auth.users.id
+    -- 主键，与 auth.users 表的 id 关联
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     
     -- 基本信息
-    display_name VARCHAR(100),
+    email VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
     avatar_url VARCHAR(500),
-    bio TEXT,
+    phone VARCHAR(20),
+    
+    -- 业务信息
+    company_name VARCHAR(200),
+    tax_number VARCHAR(50),
+    address TEXT,
+    
+    -- 账户信息
+    account_type VARCHAR(20) DEFAULT 'free', -- free, pro, enterprise
+    storage_quota BIGINT DEFAULT 1073741824, -- 1GB in bytes
+    storage_used BIGINT DEFAULT 0,
     
     -- 配置信息
-    preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
-    email_config JSONB NOT NULL DEFAULT '{}'::jsonb,
-    
-    -- 统计信息
-    total_invoices INTEGER NOT NULL DEFAULT 0,
-    last_invoice_date DATE,
-    
-    -- 账户状态
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    is_premium BOOLEAN NOT NULL DEFAULT false,
-    premium_expires_at TIMESTAMPTZ,
-    
-    -- 元数据
-    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+    preferences JSONB DEFAULT '{}',
+    notification_settings JSONB DEFAULT '{"email": true, "sms": false}',
     
     -- 时间戳
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    last_login_at TIMESTAMP WITH TIME ZONE,
     
-    -- 审计字段
-    created_by UUID,
-    updated_by UUID,
-    version INTEGER NOT NULL DEFAULT 1
+    -- 软删除
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    
+    -- 约束
+    CONSTRAINT email_unique UNIQUE(email),
+    CONSTRAINT account_type_check CHECK (account_type IN ('free', 'pro', 'enterprise'))
 );
 
 -- 索引
-CREATE INDEX idx_profiles_auth_user_id ON profiles(auth_user_id);
-CREATE INDEX idx_profiles_deleted_at ON profiles(deleted_at);
-CREATE INDEX idx_profiles_is_active ON profiles(is_active) WHERE deleted_at IS NULL;
-CREATE INDEX idx_profiles_preferences_gin ON profiles USING gin(preferences);
-CREATE INDEX idx_profiles_email_config_gin ON profiles USING gin(email_config);
-
--- 约束
-ALTER TABLE profiles ADD CONSTRAINT fk_profiles_auth_user 
-    FOREIGN KEY (auth_user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+CREATE INDEX idx_profiles_email ON profiles(email);
+CREATE INDEX idx_profiles_company ON profiles(company_name);
+CREATE INDEX idx_profiles_deleted ON profiles(deleted_at);
 ```
 
-## 字段说明
+## 3. 数据模型
 
-### 基本信息字段
-
-| 字段名 | 类型 | 说明 | 示例 |
-|--------|------|------|------|
-| display_name | VARCHAR(100) | 显示名称 | "张三" |
-| avatar_url | VARCHAR(500) | 头像URL | "https://..." |
-| bio | TEXT | 个人简介 | "财务经理..." |
-
-### JSONB 字段结构
-
-#### preferences（用户偏好设置）
-```json
-{
-    "theme": "light",              // 主题设置
-    "language": "zh-CN",           // 语言设置
-    "timezone": "Asia/Shanghai",   // 时区
-    "notifications": {
-        "email": true,             // 邮件通知
-        "push": false,             // 推送通知
-        "invoice_ready": true,     // 发票就绪通知
-        "weekly_summary": true     // 周报通知
-    },
-    "ui_preferences": {
-        "default_view": "grid",    // 默认视图
-        "items_per_page": 20       // 每页显示数
-    }
-}
-```
-
-#### email_config（邮件配置）
-```json
-{
-    "forward_addresses": [         // 转发地址列表
-        {
-            "email": "user+invoice@example.com",
-            "is_active": true,
-            "created_at": "2024-01-01T00:00:00Z"
-        }
-    ],
-    "auto_process": true,          // 自动处理
-    "process_rules": {
-        "min_amount": 0,           // 最小金额
-        "max_amount": 999999,      // 最大金额
-        "allowed_senders": [],     // 允许的发件人
-        "blocked_senders": []      // 屏蔽的发件人
-    }
-}
-```
-
-## SQLAlchemy 模型实现
-
+### 3.1 SQLAlchemy 模型
 ```python
-from typing import Optional, Dict, Any, List
-from datetime import datetime, date
-from uuid import UUID
+from sqlalchemy import Column, String, DateTime, BigInteger, JSON
+from sqlalchemy.dialects.postgresql import UUID
+from app.core.database import Base
 
-from sqlalchemy import Column, String, Text, Boolean, Integer, Date, ForeignKey, Index
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.orm import relationship
-
-from app.models.base import Base, AuditMixin
-
-
-class Profile(Base, AuditMixin):
-    """用户档案模型"""
-    
+class Profile(Base):
     __tablename__ = "profiles"
     
-    # 关联字段
-    auth_user_id = Column(
-        PGUUID(as_uuid=True),
-        ForeignKey("auth.users.id", ondelete="CASCADE"),
-        unique=True,
-        nullable=False,
-        index=True,
-        comment="Supabase Auth 用户 ID"
-    )
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    email = Column(String(255), nullable=False, unique=True)
+    full_name = Column(String(100))
+    avatar_url = Column(String(500))
+    phone = Column(String(20))
     
-    # 基本信息
-    display_name = Column(String(100), nullable=True, comment="显示名称")
-    avatar_url = Column(String(500), nullable=True, comment="头像 URL")
-    bio = Column(Text, nullable=True, comment="个人简介")
+    company_name = Column(String(200))
+    tax_number = Column(String(50))
+    address = Column(String)
     
-    # 配置信息
-    preferences = Column(
-        JSONB,
-        nullable=False,
-        server_default="'{}'::jsonb",
-        comment="用户偏好设置"
-    )
+    account_type = Column(String(20), default='free')
+    storage_quota = Column(BigInteger, default=1073741824)
+    storage_used = Column(BigInteger, default=0)
     
-    email_config = Column(
-        JSONB,
-        nullable=False,
-        server_default="'{}'::jsonb",
-        comment="邮件处理配置"
-    )
+    preferences = Column(JSON, default={})
+    notification_settings = Column(JSON, default={"email": True, "sms": False})
     
-    # 统计信息
-    total_invoices = Column(
-        Integer,
-        nullable=False,
-        server_default="0",
-        comment="发票总数"
-    )
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    last_login_at = Column(DateTime(timezone=True))
+    deleted_at = Column(DateTime(timezone=True))
     
-    last_invoice_date = Column(
-        Date,
-        nullable=True,
-        comment="最后发票日期"
-    )
-    
-    # 账户状态
-    is_active = Column(
-        Boolean,
-        nullable=False,
-        server_default="true",
-        index=True,
-        comment="是否激活"
-    )
-    
-    is_premium = Column(
-        Boolean,
-        nullable=False,
-        server_default="false",
-        comment="是否高级用户"
-    )
-    
-    premium_expires_at = Column(
-        DateTime(timezone=True),
-        nullable=True,
-        comment="高级用户过期时间"
-    )
-    
-    # 关系（已验证的配置）
-    invoices = relationship(
-        "Invoice",
-        # 明确定义 JOIN 条件，使用 foreign() 注解
-        primaryjoin="Profile.auth_user_id == foreign(Invoice.user_id)",
-        # 指向反向关系
-        back_populates="profile",
-        # 动态查询，支持大型集合操作
-        lazy="dynamic",
-        # 级联删除
-        cascade="all, delete-orphan"
-    )
-    email_tasks = relationship(
-        "EmailProcessingTask",
-        # 明确定义 JOIN 条件，使用 foreign() 注解
-        primaryjoin="Profile.auth_user_id == foreign(EmailProcessingTask.user_id)",
-        back_populates="profile", 
-        lazy="dynamic",
-        cascade="all, delete-orphan"
-    )
-    
-    # 索引定义
-    __table_args__ = (
-        Index('idx_profiles_is_active', 'is_active', 
-              postgresql_where='deleted_at IS NULL'),
-        Index('idx_profiles_preferences_gin', 'preferences',
-              postgresql_using='gin'),
-        Index('idx_profiles_email_config_gin', 'email_config',
-              postgresql_using='gin'),
-    )
-    
-    # 属性方法
-    @property
-    def is_premium_active(self) -> bool:
-        """检查高级用户是否有效"""
-        if not self.is_premium:
-            return False
-        if not self.premium_expires_at:
-            return True
-        return self.premium_expires_at > datetime.utcnow()
-    
-    @property
-    def forward_email(self) -> Optional[str]:
-        """获取主要转发邮箱"""
-        addresses = self.email_config.get("forward_addresses", [])
-        for addr in addresses:
-            if addr.get("is_active"):
-                return addr.get("email")
-        return None
-    
-    @property
-    def notification_settings(self) -> Dict[str, bool]:
-        """获取通知设置"""
-        return self.preferences.get("notifications", {})
-    
-    # 业务方法
-    def update_preferences(self, updates: Dict[str, Any]) -> None:
-        """更新偏好设置（深度合并）"""
-        from app.utils.dict_utils import deep_merge
-        self.preferences = deep_merge(self.preferences, updates)
-    
-    def add_forward_email(self, email: str) -> None:
-        """添加转发邮箱"""
-        addresses = self.email_config.get("forward_addresses", [])
-        addresses.append({
-            "email": email,
-            "is_active": True,
-            "created_at": datetime.utcnow().isoformat()
-        })
-        self.email_config["forward_addresses"] = addresses
-    
-    def increment_invoice_count(self) -> None:
-        """增加发票计数"""
-        self.total_invoices += 1
-        self.last_invoice_date = date.today()
+    # 关系
+    invoices = relationship("Invoice", back_populates="user")
+    tasks = relationship("Task", back_populates="user")
 ```
 
-## Pydantic Schema
-
+### 3.2 Pydantic Schema
 ```python
-from typing import Optional, Dict, Any
-from datetime import datetime, date
-from uuid import UUID
-
-from pydantic import BaseModel, Field, EmailStr, HttpUrl
-
-
-class ProfilePreferences(BaseModel):
-    """用户偏好设置"""
-    theme: str = Field(default="light", pattern="^(light|dark|auto)$")
-    language: str = Field(default="zh-CN")
-    timezone: str = Field(default="Asia/Shanghai")
-    notifications: Dict[str, bool] = Field(default_factory=dict)
-    ui_preferences: Dict[str, Any] = Field(default_factory=dict)
-
-
-class EmailConfig(BaseModel):
-    """邮件配置"""
-    forward_addresses: List[Dict[str, Any]] = Field(default_factory=list)
-    auto_process: bool = True
-    process_rules: Dict[str, Any] = Field(default_factory=dict)
-
+from pydantic import BaseModel, EmailStr, UUID4
+from typing import Optional, Dict
+from datetime import datetime
 
 class ProfileBase(BaseModel):
-    """Profile 基础 Schema"""
-    display_name: Optional[str] = Field(None, max_length=100)
-    avatar_url: Optional[HttpUrl] = None
-    bio: Optional[str] = None
-
+    email: EmailStr
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company_name: Optional[str] = None
+    tax_number: Optional[str] = None
+    address: Optional[str] = None
 
 class ProfileCreate(ProfileBase):
-    """创建 Profile"""
-    auth_user_id: UUID
+    pass
 
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company_name: Optional[str] = None
+    tax_number: Optional[str] = None
+    address: Optional[str] = None
+    avatar_url: Optional[str] = None
+    preferences: Optional[Dict] = None
+    notification_settings: Optional[Dict] = None
 
-class ProfileUpdate(ProfileBase):
-    """更新 Profile"""
-    preferences: Optional[ProfilePreferences] = None
-    email_config: Optional[EmailConfig] = None
-    is_active: Optional[bool] = None
-
-
-class ProfileResponse(ProfileBase):
-    """Profile 响应"""
-    id: UUID
-    auth_user_id: UUID
-    preferences: Dict[str, Any]
-    email_config: Dict[str, Any]
-    total_invoices: int
-    last_invoice_date: Optional[date]
-    is_active: bool
-    is_premium: bool
-    is_premium_active: bool
-    premium_expires_at: Optional[datetime]
+class ProfileInDB(ProfileBase):
+    id: UUID4
+    account_type: str
+    storage_quota: int
+    storage_used: int
+    preferences: Dict
+    notification_settings: Dict
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
+    last_login_at: Optional[datetime]
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 ```
 
-## 数据库触发器
+## 4. 功能设计
 
-```sql
--- 自动创建 Profile
-CREATE OR REPLACE FUNCTION create_profile_for_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO profiles (auth_user_id, display_name)
-    VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name');
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW
-    EXECUTE FUNCTION create_profile_for_user();
-
--- 更新统计信息
-CREATE OR REPLACE FUNCTION update_profile_stats()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE profiles 
-        SET total_invoices = total_invoices + 1,
-            last_invoice_date = NEW.invoice_date
-        WHERE auth_user_id = NEW.user_id;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER on_invoice_created
-    AFTER INSERT ON invoices
-    FOR EACH ROW
-    EXECUTE FUNCTION update_profile_stats();
+### 4.1 用户注册流程
+```python
+async def create_profile(user_id: UUID, email: str) -> Profile:
+    """
+    1. Supabase Auth 创建用户
+    2. 触发 trigger 自动创建 profile
+    3. 发送欢迎邮件
+    4. 初始化用户配置
+    """
+    profile = Profile(
+        id=user_id,
+        email=email,
+        created_at=datetime.utcnow()
+    )
+    db.add(profile)
+    await db.commit()
+    return profile
 ```
 
-## RLS 策略
+### 4.2 用户认证
+```python
+async def authenticate_user(email: str, password: str) -> Optional[Profile]:
+    """
+    1. 调用 Supabase Auth 验证
+    2. 获取用户 profile
+    3. 更新 last_login_at
+    4. 返回用户信息和 token
+    """
+    # Supabase 认证
+    auth_response = await supabase.auth.sign_in_with_password({
+        "email": email,
+        "password": password
+    })
+    
+    # 更新登录时间
+    profile = await get_profile(auth_response.user.id)
+    profile.last_login_at = datetime.utcnow()
+    await db.commit()
+    
+    return profile
+```
 
+## 5. 权限控制
+
+### 5.1 Row Level Security (RLS)
 ```sql
 -- 启用 RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- 用户只能查看和更新自己的 Profile
-CREATE POLICY "Users can view own profile" ON profiles
-    FOR SELECT USING (auth.uid() = auth_user_id);
+-- 用户只能查看和修改自己的数据
+CREATE POLICY "Users can view own profile" 
+    ON profiles FOR SELECT 
+    USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile" ON profiles
-    FOR UPDATE USING (auth.uid() = auth_user_id);
+CREATE POLICY "Users can update own profile" 
+    ON profiles FOR UPDATE 
+    USING (auth.uid() = id);
 
--- 系统可以创建 Profile（通过触发器）
-CREATE POLICY "System can insert profiles" ON profiles
-    FOR INSERT WITH CHECK (true);
-```
-
-## 使用示例
-
-### 获取当前用户 Profile
-```python
-async def get_current_user_profile(
-    db: AsyncSession,
-    current_user_id: UUID
-) -> Profile:
-    """获取当前用户的 Profile"""
-    result = await db.execute(
-        select(Profile).where(
-            Profile.auth_user_id == current_user_id,
-            Profile.deleted_at.is_(None)
+-- 管理员可以查看所有用户
+CREATE POLICY "Admins can view all profiles" 
+    ON profiles FOR SELECT 
+    USING (
+        EXISTS (
+            SELECT 1 FROM profiles 
+            WHERE id = auth.uid() 
+            AND account_type = 'admin'
         )
+    );
+```
+
+### 5.2 账户类型权限
+| 功能 | Free | Pro | Enterprise |
+|------|------|-----|------------|
+| 发票数量 | 100/月 | 1000/月 | 无限制 |
+| 存储空间 | 1GB | 10GB | 100GB |
+| API 调用 | 1000/天 | 10000/天 | 无限制 |
+| 邮箱数量 | 1 | 5 | 无限制 |
+| 导出功能 | 基础 | 高级 | 全部 |
+
+## 6. 存储配额管理
+
+### 6.1 配额检查
+```python
+async def check_storage_quota(user_id: UUID, file_size: int) -> bool:
+    """检查用户存储配额"""
+    profile = await get_profile(user_id)
+    return profile.storage_used + file_size <= profile.storage_quota
+
+async def update_storage_used(user_id: UUID, size_delta: int):
+    """更新已用存储空间"""
+    await db.execute(
+        update(Profile)
+        .where(Profile.id == user_id)
+        .values(storage_used=Profile.storage_used + size_delta)
     )
-    profile = result.scalar_one_or_none()
-    
-    if not profile:
-        # 如果不存在，创建新的 Profile
-        profile = Profile(auth_user_id=current_user_id)
-        db.add(profile)
-        await db.commit()
-    
-    return profile
 ```
 
-### 更新用户偏好
+### 6.2 配额告警
 ```python
-async def update_user_preferences(
-    db: AsyncSession,
-    profile: Profile,
-    preferences: Dict[str, Any]
-) -> Profile:
-    """更新用户偏好设置"""
-    profile.update_preferences(preferences)
-    await db.commit()
-    await db.refresh(profile)
-    return profile
+def get_storage_usage_percentage(profile: Profile) -> float:
+    """获取存储使用百分比"""
+    return (profile.storage_used / profile.storage_quota) * 100
+
+async def check_storage_alert(profile: Profile):
+    """存储空间告警"""
+    usage = get_storage_usage_percentage(profile)
+    if usage >= 90:
+        await send_storage_alert_email(profile.email, usage)
 ```
 
-## 注意事项
+## 7. 用户偏好设置
 
-1. **Profile 创建时机**
-   - 通过数据库触发器在用户注册时自动创建
-   - 或在首次访问时延迟创建
-
-2. **JSONB 字段验证**
-   - 在应用层使用 Pydantic 进行验证
-   - 避免存储无效的 JSON 结构
-
-3. **性能优化**
-   - 为常用的 JSONB 查询路径创建索引
-   - 避免在 JSONB 中存储大量数据
-
-4. **数据迁移**
-   - 新增 JSONB 字段时提供默认值
-   - 修改 JSONB 结构时考虑向后兼容
-
-## 测试验证结果
-
-### ✅ 功能验证（2025-07-03）
-
-#### 基础 CRUD 操作
-- **创建**：✅ 成功创建 Profile 记录，UUID 主键生成正常
-- **查询**：✅ 成功查询用户档案，索引性能良好
-- **更新**：✅ 成功更新显示名称、统计信息等字段
-- **软删除**：✅ 软删除机制正常工作
-
-#### JSONB 字段操作
-- **偏好设置查询**：✅ 成功查询 `preferences->>'theme'` 等字段
-- **邮件配置存储**：✅ 复杂 JSONB 结构存储和检索正常
-- **GIN 索引性能**：✅ JSONB 字段查询性能优化生效
-
-#### 关系映射
-- **一对多关系**：✅ `profile.invoices` 动态查询正常工作
-- **关联查询**：✅ 通过 Profile 查询关联的发票和任务
-- **级联删除**：✅ 删除 Profile 时正确处理关联数据
-
-#### 业务方法
-- **偏好更新**：✅ `update_preferences()` 深度合并正常
-- **发票计数**：✅ `increment_invoice_count()` 统计更新正常
-- **属性方法**：✅ `is_premium_active` 等计算属性正常
-
-### 性能指标
-- **查询延迟**：< 50ms (基础字段查询)
-- **JSONB 查询**：< 100ms (复杂条件查询)
-- **关联查询**：< 150ms (包含 Invoice 的 JOIN 查询)
-
-### 测试用例覆盖
-```python
-# 测试数据示例
-profile = Profile(
-    auth_user_id=uuid4(),
-    display_name="测试用户",
-    bio="这是一个测试用户档案",
-    email_config={
-        "auto_process": True,
-        "forward_addresses": ["test@example.com"],
-        "imap_settings": {
-            "server": "imap.example.com",
-            "port": 993,
-            "use_ssl": True
-        }
-    },
-    preferences={
-        "theme": "light",
+### 7.1 偏好设置结构
+```json
+{
+    "preferences": {
         "language": "zh-CN",
         "timezone": "Asia/Shanghai",
-        "notifications": {
-            "email": True,
-            "sms": False
-        }
-    },
-    is_premium=True
-)
+        "theme": "light",
+        "date_format": "YYYY-MM-DD",
+        "currency": "CNY",
+        "invoice_naming": "{date}-{seller}-{amount}",
+        "auto_download": true,
+        "ocr_service": "aliyun"
+    }
+}
 ```
 
-### 已验证特性
-- ✅ UUID 主键自动生成
-- ✅ 时间戳自动管理
-- ✅ JSONB 字段验证和查询
-- ✅ 索引性能优化
-- ✅ 关系映射和级联操作
-- ✅ 业务逻辑方法
-- ✅ 软删除机制
+### 7.2 通知设置
+```json
+{
+    "notification_settings": {
+        "email": {
+            "enabled": true,
+            "invoice_processed": true,
+            "weekly_report": true,
+            "storage_alert": true
+        },
+        "sms": {
+            "enabled": false,
+            "urgent_only": true
+        },
+        "webhook": {
+            "enabled": false,
+            "url": "https://example.com/webhook"
+        }
+    }
+}
+```
 
-## 变更历史
+## 8. 数据迁移
 
-- 2025-01-21：初始设计
-- 2025-07-03：添加关系配置验证和测试结果
+### 8.1 V1 到 V2 迁移
+```sql
+-- 从旧系统迁移用户数据
+INSERT INTO profiles (id, email, full_name, created_at)
+SELECT 
+    gen_random_uuid(),
+    email,
+    username,
+    date_joined
+FROM v1.users;
+```
+
+### 8.2 字段更新
+```sql
+-- 添加新字段
+ALTER TABLE profiles 
+ADD COLUMN department VARCHAR(100),
+ADD COLUMN employee_id VARCHAR(50);
+
+-- 更新现有数据
+UPDATE profiles 
+SET preferences = jsonb_set(preferences, '{ocr_service}', '"mineru"')
+WHERE account_type = 'enterprise';
+```
+
+## 9. 性能优化
+
+### 9.1 查询优化
+```python
+# 使用 select 只查询需要的字段
+query = select(
+    Profile.id,
+    Profile.email,
+    Profile.full_name,
+    Profile.storage_used,
+    Profile.storage_quota
+).where(Profile.id == user_id)
+
+# 使用 joinedload 避免 N+1 查询
+query = select(Profile).options(
+    joinedload(Profile.invoices),
+    joinedload(Profile.tasks)
+).where(Profile.id == user_id)
+```
+
+### 9.2 缓存策略
+```python
+from functools import lru_cache
+import redis
+
+redis_client = redis.Redis()
+
+async def get_profile_cached(user_id: UUID) -> Profile:
+    """缓存用户信息"""
+    cache_key = f"profile:{user_id}"
+    cached = redis_client.get(cache_key)
+    
+    if cached:
+        return Profile.parse_raw(cached)
+    
+    profile = await get_profile(user_id)
+    redis_client.setex(
+        cache_key, 
+        3600,  # 1小时过期
+        profile.json()
+    )
+    return profile
+```
+
+## 10. 监控指标
+
+### 10.1 用户活跃度
+- 日活跃用户（DAU）
+- 月活跃用户（MAU）
+- 用户留存率
+- 平均会话时长
+
+### 10.2 账户分布
+- 各类型账户数量
+- 存储使用分布
+- 地理位置分布
+- 注册渠道分析

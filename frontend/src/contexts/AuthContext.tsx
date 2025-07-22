@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { supabase } from '../services/supabase'
 import { logger } from '../utils/logger'
-import type { User, Profile, AuthError, AuthResponse } from '../types'
+import type { User, Profile, AuthError, AuthResponse } from '../types/index'
 
 interface AuthContextType {
   user: User | null

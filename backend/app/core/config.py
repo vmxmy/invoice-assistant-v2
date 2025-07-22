@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     app_host: str = Field(default="0.0.0.0", description="应用主机")
     app_port: int = Field(default=8000, description="应用端口")
     debug: bool = Field(default=False, description="调试模式")
+    api_base_url: Optional[str] = Field(default=None, description="API基础URL，用于内部服务调用")
     
     # 安全配置
     secret_key: str = Field(

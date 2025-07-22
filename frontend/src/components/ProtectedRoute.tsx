@@ -2,7 +2,7 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import type { ProtectedRouteProps } from '../types'
+import type { ProtectedRouteProps } from '../types/index'
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 

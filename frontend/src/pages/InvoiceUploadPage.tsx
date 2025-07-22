@@ -20,7 +20,7 @@ import { api } from '../services/apiClient';
 import { notify } from '../utils/notifications';
 import Layout from '../components/layout/Layout';
 import AdaptiveInvoiceFields from '../components/invoice/fields/AdaptiveInvoiceFields';
-import type { Invoice } from '../types';
+import type { Invoice } from '../types/index';
 
 interface UploadFile {
   file: File;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package } from 'lucide-react';
-import type { Invoice } from '../types';
+import type { Invoice } from '../types/index';
 
 // Lucide 图标组件类型
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;

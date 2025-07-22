@@ -1,284 +1,195 @@
-# 数据模型设计概览
+# 数据库设计概览
 
-## 概述
+## 1. 数据库选择
 
-本文档描述发票助手系统的核心数据模型设计，包括表结构、关系映射和设计决策。
+### 1.1 技术选型
+- **数据库系统**：PostgreSQL（通过 Supabase）
+- **ORM 框架**：SQLAlchemy（异步模式）
+- **迁移工具**：Alembic
+- **连接池**：asyncpg
 
-## 核心模型
+### 1.2 选择理由
+- PostgreSQL：成熟稳定、功能丰富、性能优秀
+- Supabase：提供认证、实时订阅、存储等增值服务
+- SQLAlchemy：Python 生态最成熟的 ORM
+- 异步支持：充分利用 FastAPI 异步特性
 
-### 1. Profile（用户档案）
-- **用途**：扩展 Supabase Auth 用户信息，存储用户个性化设置
-- **关系**：一对一关联 auth.users
+## 2. 数据库架构
 
-### 2. Invoice（发票）
-- **用途**：存储发票核心数据和 OCR 提取的结构化信息
-- **关系**：多对一关联 Profile，多对一关联 EmailProcessingTask
-
-### 3. EmailProcessingTask（邮件处理任务）
-- **用途**：跟踪邮件处理的异步任务状态
-- **关系**：多对一关联 Profile，一对多关联 Invoice
-
-## 实体关系图
-
-```mermaid
-erDiagram
-    auth_users ||--|| profiles : "extends"
-    profiles ||--o{ invoices : "owns"
-    profiles ||--o{ email_processing_tasks : "creates"
-    email_processing_tasks ||--o{ invoices : "generates"
-    
-    auth_users {
-        uuid id PK
-        string email
-        jsonb raw_user_meta_data
-    }
-    
-    profiles {
-        uuid id PK
-        uuid auth_user_id FK "UNIQUE"
-        string display_name
-        string avatar_url
-        jsonb preferences
-        jsonb email_config
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    invoices {
-        uuid id PK
-        uuid user_id FK
-        uuid email_task_id FK
-        string invoice_number "UNIQUE with user_id"
-        string status
-        jsonb extracted_data
-        decimal amount
-        date invoice_date
-        string seller_name
-        string buyer_name
-        string file_path
-        jsonb metadata
-        timestamp created_at
-        timestamp updated_at
-        timestamp deleted_at
-    }
-    
-    email_processing_tasks {
-        uuid id PK
-        uuid user_id FK
-        string task_type
-        string status
-        jsonb task_data
-        jsonb result_data
-        string error_message
-        integer retry_count
-        timestamp started_at
-        timestamp completed_at
-        timestamp created_at
-        timestamp updated_at
-    }
+### 2.1 核心表结构
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   profiles  │     │   invoices  │     │    tasks    │
+├─────────────┤     ├─────────────┤     ├─────────────┤
+│ id          │←────│ user_id     │     │ id          │
+│ email       │     │ id          │     │ user_id     │
+│ full_name   │     │ invoice_no  │     │ type        │
+│ created_at  │     │ amount      │     │ status      │
+└─────────────┘     │ ...         │     │ ...         │
+                    └─────────────┘     └─────────────┘
+                           │                    │
+                           ↓                    ↓
+                    ┌─────────────┐     ┌─────────────┐
+                    │ invoice_    │     │ task_logs   │
+                    │ items       │     ├─────────────┤
+                    ├─────────────┤     │ task_id     │
+                    │ invoice_id  │     │ message     │
+                    │ name        │     │ created_at  │
+                    │ quantity    │     └─────────────┘
+                    │ price       │
+                    └─────────────┘
 ```
 
-## 设计原则
+### 2.2 表关系说明
+- **一对多关系**：
+  - profiles → invoices（一个用户有多个发票）
+  - profiles → tasks（一个用户有多个任务）
+  - invoices → invoice_items（一个发票有多个明细）
+  - tasks → task_logs（一个任务有多个日志）
 
-### 1. 主键设计
-- 所有表使用 UUID v4 作为主键
-- 使用 PostgreSQL 的 `gen_random_uuid()` 函数生成
-- **验证状态**：✅ 已通过测试，UUID 生成和主键约束正常工作
+## 3. 数据模型详解
 
-### 2. 时间戳管理
-- 所有时间戳使用 `TIMESTAMPTZ`（带时区）
-- `created_at` 和 `updated_at` 自动管理
-- 使用数据库触发器更新 `updated_at`
-- **验证状态**：✅ 已通过测试，自动时间戳和触发器正常工作
+### 3.1 用户模型（profiles）
+- 与 Supabase Auth 集成
+- 存储用户扩展信息
+- 支持多租户隔离
 
-### 3. 软删除
-- 使用 `deleted_at` 字段实现软删除
-- 所有查询默认过滤已删除记录
-- **验证状态**：✅ 已通过测试，软删除机制正常工作
+### 3.2 发票模型（invoices）
+- 核心业务数据
+- 支持多种发票类型
+- 灵活的字段设计
 
-### 4. JSON 数据存储
-- 使用 JSONB 存储灵活的结构化数据
-- 为 JSONB 字段创建 GIN 索引优化查询
-- **验证状态**：✅ 已通过测试，JSONB 查询和 GIN 索引正常工作
+### 3.3 任务模型（tasks）
+- 异步任务管理
+- 状态跟踪
+- 错误处理
 
-### 5. 多租户隔离
-- 所有业务表包含 `user_id` 字段
-- 使用 Row Level Security (RLS) 确保数据隔离
-- **验证状态**：✅ 已通过测试，RLS 策略和数据隔离正常工作
+## 4. 数据库设计原则
 
-### 6. 关系定义（新增）
-- 使用非标准外键关联：`Invoice.user_id == Profile.auth_user_id`
-- SQLAlchemy 关系需要明确配置 `foreign_keys` 和 `primaryjoin`
-- **验证状态**：✅ 已通过测试，跨字段关系映射正常工作
+### 4.1 规范化设计
+- 遵循第三范式（3NF）
+- 适度反规范化优化查询
+- 避免数据冗余
 
-## 索引策略
-
-### 基础索引
-- 所有外键自动创建索引
-- `deleted_at` 字段创建索引支持软删除查询
-
-### 业务索引
-- `invoices.invoice_number` + `user_id` 复合唯一索引
-- `invoices.status` + `user_id` 复合索引
-- `email_processing_tasks.status` + `user_id` 复合索引
-
-### JSONB 索引
-- `profiles.preferences` GIN 索引
-- `invoices.extracted_data` GIN 索引
-
-## 数据完整性
-
-### 约束
-1. **唯一约束**
-   - `profiles.auth_user_id` 必须唯一
-   - `invoices.invoice_number` + `user_id` 组合唯一
-
-2. **检查约束**
-   - `invoices.amount >= 0`
-   - `email_processing_tasks.retry_count >= 0`
-
-3. **外键约束**
-   - 所有外键关系都设置适当的级联规则
-
-## SQLAlchemy 关系配置
-
-### 关键挑战
-由于使用非标准外键关联（`Invoice.user_id == Profile.auth_user_id`），需要明确配置 SQLAlchemy 关系映射。
-
-### 解决方案
-
-#### 1. 多对一关系（Invoice → Profile）
-```python
-# 在 Invoice 模型中
-profile = relationship(
-    "Profile",
-    # 指定用于 JOIN 的外键列
-    foreign_keys="[Invoice.user_id]",
-    # 明确定义 JOIN 条件
-    primaryjoin="Invoice.user_id == Profile.auth_user_id",
-    # 指向反向关系
-    back_populates="invoices",
-    # 单个对象，不是列表
-    uselist=False,
-    # 优化：避免 N+1 查询
-    lazy="joined"
-)
-```
-
-#### 2. 一对多关系（Profile → Invoice）
-```python
-# 在 Profile 模型中
-invoices = relationship(
-    "Invoice",
-    # 明确定义 JOIN 条件，使用 foreign() 注解
-    primaryjoin="Profile.auth_user_id == foreign(Invoice.user_id)",
-    # 指向反向关系
-    back_populates="profile",
-    # 动态查询，支持大型集合操作
-    lazy="dynamic",
-    # 级联删除
-    cascade="all, delete-orphan"
-)
-```
-
-### 验证结果
-- ✅ **关系方向性**：正确识别一对多和多对一方向
-- ✅ **JOIN 条件**：跨字段关联正常工作
-- ✅ **级联操作**：删除用户时正确处理关联数据
-- ✅ **查询性能**：避免了 N+1 查询问题
-
-## Row Level Security (RLS)
-
-### 基本策略
+### 4.2 索引策略
 ```sql
--- 用户只能访问自己的数据
-CREATE POLICY "Users can view own data" ON [table_name]
-    FOR ALL USING (auth.uid() = user_id);
+-- 常用查询索引
+CREATE INDEX idx_invoices_user_id ON invoices(user_id);
+CREATE INDEX idx_invoices_invoice_date ON invoices(invoice_date);
+CREATE INDEX idx_invoices_seller_name ON invoices(seller_name);
+
+-- 复合索引
+CREATE INDEX idx_invoices_user_date ON invoices(user_id, invoice_date DESC);
+
+-- 唯一索引
+CREATE UNIQUE INDEX idx_invoices_no ON invoices(invoice_no) WHERE deleted_at IS NULL;
 ```
 
-### 特殊策略
-- Profile 表通过 auth_user_id 关联
-- 其他表通过 user_id 关联
-- **验证状态**：✅ 已通过测试，数据隔离策略正常工作
+### 4.3 数据完整性
+- 外键约束确保引用完整性
+- CHECK 约束验证数据有效性
+- NOT NULL 约束保证必填字段
 
-## 性能优化
+## 5. 性能优化
 
-### 1. 连接池配置
-- 使用 NullPool 适配 Supabase pgbouncer
-- 合理配置连接数限制
-
-### 2. 查询优化
-- 使用适当的索引
+### 5.1 查询优化
+- 使用 EXPLAIN ANALYZE 分析查询
 - 避免 N+1 查询问题
-- 使用数据库视图聚合复杂查询
+- 合理使用 JOIN 和子查询
 
-### 3. 数据分区（未来考虑）
-- 按时间分区历史发票数据
-- 按用户分区大数据量场景
+### 5.2 分区策略
+```sql
+-- 按月分区发票表（未来优化）
+CREATE TABLE invoices_2024_01 PARTITION OF invoices
+    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+```
 
-## 迁移策略
+### 5.3 连接池配置
+```python
+# 连接池参数
+SQLALCHEMY_POOL_SIZE = 20
+SQLALCHEMY_POOL_TIMEOUT = 30
+SQLALCHEMY_POOL_RECYCLE = 3600
+SQLALCHEMY_MAX_OVERFLOW = 40
+```
 
-### 版本控制
-- 使用顺序编号的 SQL 迁移脚本
-- 每个迁移包含 UP 和 DOWN 操作
-- **当前状态**：✅ 已部署初始迁移到 Supabase
+## 6. 数据安全
 
-### 零停机迁移
-- 新增字段使用默认值
-- 分步骤进行破坏性变更
-- 使用数据库事务确保一致性
+### 6.1 访问控制
+- Row Level Security (RLS) 行级安全
+- 用户只能访问自己的数据
+- 管理员特殊权限控制
 
-## 测试验证报告
+### 6.2 数据加密
+- 敏感字段加密存储
+- SSL/TLS 传输加密
+- 备份数据加密
 
-### 测试环境
-- **数据库**：PostgreSQL 17.4 on Supabase
-- **连接方式**：pgbouncer 池化连接
-- **ORM**：SQLAlchemy 2.0 with psycopg2
+### 6.3 审计日志
+```sql
+-- 审计日志表
+CREATE TABLE audit_logs (
+    id SERIAL PRIMARY KEY,
+    table_name VARCHAR(50),
+    operation VARCHAR(10),
+    user_id UUID,
+    old_data JSONB,
+    new_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### 验证项目
+## 7. 备份恢复
 
-#### ✅ 基础功能测试
-- **数据库连接**：正常连接到 Supabase PostgreSQL
-- **CRUD 操作**：所有模型的创建、查询、更新、删除操作成功
-- **事务管理**：事务提交和回滚机制正常
+### 7.1 备份策略
+- 每日全量备份
+- 每小时增量备份
+- 异地容灾备份
 
-#### ✅ 约束验证测试
-- **唯一约束**：成功阻止重复发票号（`invoice_number` + `user_id`）
-- **检查约束**：成功阻止负数金额
-- **外键约束**：用户与发票、任务的关联关系正常
+### 7.2 恢复流程
+1. 停止应用服务
+2. 恢复数据库备份
+3. 验证数据完整性
+4. 重启应用服务
 
-#### ✅ 高级功能测试
-- **JSONB 查询**：复杂 JSONB 条件查询正常工作
-- **数组操作**：PostgreSQL 数组字段查询成功
-- **GIN 索引**：JSONB 字段查询性能优化生效
+## 8. 监控指标
 
-#### ✅ 关系映射测试
-- **跨字段关联**：`Invoice.user_id == Profile.auth_user_id` 关系正常
-- **级联操作**：删除用户时正确处理关联数据
-- **查询性能**：使用 `lazy="joined"` 避免 N+1 查询问题
+### 8.1 性能指标
+- 查询响应时间
+- 连接池使用率
+- 死锁和锁等待
+- 缓存命中率
 
-#### ✅ 安全功能测试
-- **RLS 策略**：Row Level Security 数据隔离正常工作
-- **多租户隔离**：不同用户间数据完全隔离
-- **软删除**：`deleted_at` 字段和过滤机制正常
+### 8.2 容量指标
+- 表大小增长
+- 索引膨胀率
+- 存储空间使用
+- 连接数限制
 
-### 性能指标
-- **连接建立时间**：< 100ms
-- **基础 CRUD 延迟**：< 50ms
-- **复杂 JSONB 查询**：< 200ms
-- **关联查询（WITH JOIN）**：< 100ms
+## 9. 迁移策略
 
-### 测试覆盖率
-- **模型定义**：100% 覆盖所有字段和约束
-- **关系映射**：100% 覆盖所有模型间关系
-- **约束验证**：100% 覆盖所有业务规则
-- **JSONB 操作**：覆盖常见查询场景
+### 9.1 版本管理
+```bash
+# Alembic 迁移命令
+alembic init migrations
+alembic revision --autogenerate -m "Add invoice table"
+alembic upgrade head
+```
 
-### 已知问题与解决方案
-1. **问题**：SQLAlchemy 关系定义复杂性
-   - **解决方案**：使用 `foreign_keys` 和 `foreign()` 注解明确配置
-   - **状态**：✅ 已解决
+### 9.2 零停机迁移
+1. 添加新列（允许 NULL）
+2. 回填历史数据
+3. 设置 NOT NULL 约束
+4. 删除旧列
 
-2. **问题**：pgbouncer 连接池兼容性
-   - **解决方案**：使用 psycopg2 + NullPool 替代 asyncpg
-   - **状态**：✅ 已解决
+## 10. 未来规划
+
+### 10.1 短期优化
+- 添加物化视图加速统计
+- 实现读写分离
+- 优化慢查询
+
+### 10.2 长期演进
+- 分库分表方案
+- 时序数据库集成
+- 图数据库补充

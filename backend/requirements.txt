@@ -32,3 +32,4 @@ alibabacloud-tea-openapi
 alibabacloud-tea-util
 Pillow
 markupsafe
+imap-tools
