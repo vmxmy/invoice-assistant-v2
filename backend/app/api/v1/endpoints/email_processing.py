@@ -23,10 +23,7 @@ from app.services.ocr_parser_service import OCRParserService, get_ocr_parser_ser
 from app.services.invoice_service import InvoiceService
 from app.services.file_service import FileService
 from app.models.invoice import InvoiceSource, Invoice, InvoiceStatus, ProcessingStatus
-from app.api.v1.endpoints.ocr_combined import process_invoice_ocr
 from app.core.database import async_session_maker
-from app.api.v1.endpoints.invoices_enhanced import create_invoice_with_file
-from fastapi import UploadFile
 from decimal import Decimal, InvalidOperation
 import json
 
@@ -266,77 +263,9 @@ async def process_email_task(
         )
 
 
-async def create_invoice_from_email_pdf(
-    pdf_data: Dict[str, Any],
-    invoice_data: Dict[str, Any],
-    current_user: CurrentUser,
-    email_info: EmailInfo,
-    session: AsyncSession
-) -> str:
-    """
-    从邮件PDF创建发票记录，直接调用现有的create-with-file端点
-    
-    Args:
-        pdf_data: PDF文件数据
-        invoice_data: 发票数据字典
-        current_user: 当前用户
-        email_info: 邮件信息
-        session: 数据库会话
-        
-    Returns:
-        str: 创建的发票ID
-    """
-    # 创建UploadFile对象
-    file_content = pdf_data['data']
-    filename = pdf_data.get('name', 'email_attachment.pdf')
-    
-    # 创建一个模拟的UploadFile对象
-    class MockUploadFile:
-        def __init__(self, content: bytes, filename: str):
-            self.content = content
-            self.filename = filename
-            self.content_type = "application/pdf"
-            self.size = len(content)
-        
-        async def read(self) -> bytes:
-            return self.content
-    
-    mock_file = MockUploadFile(file_content, filename)
-    
-    # 准备发票数据，添加邮件相关的元数据
-    enhanced_invoice_data = invoice_data.copy()
-    
-    # 添加邮件来源的元数据到extracted_data中
-    if 'extracted_data' not in enhanced_invoice_data:
-        enhanced_invoice_data['extracted_data'] = {}
-    
-    enhanced_invoice_data['extracted_data'].update({
-        'email_source': {
-            'email_uid': email_info.uid,
-            'email_subject': email_info.subject,
-            'pdf_source': pdf_data['source'],
-            'pdf_url': pdf_data.get('url') if pdf_data['source'] == 'body_link' else None
-        }
-    })
-    
-    # 将发票数据转换为JSON字符串
-    invoice_data_json = json.dumps(enhanced_invoice_data, ensure_ascii=False, default=str)
-    
-    logger.info(f"调用create_invoice_with_file创建发票，数据: {invoice_data_json[:500]}...")
-    
-    # 直接调用现有的create_invoice_with_file函数
-    result = await create_invoice_with_file(
-        file=mock_file,
-        invoice_data=invoice_data_json,
-        current_user=current_user,
-        session=session
-    )
-    
-    # 从结果中提取发票ID
-    if result and result.get('success') and result.get('data'):
-        return result['data']['id']
-    else:
-        raise Exception(f"创建发票失败: {result}")
+# 注意：create_invoice_from_email_pdf 函数已被移除
+# 统一发票处理器 (UnifiedInvoiceProcessor) 已经包含了发票创建功能
+# 请使用 process_single_pdf 函数，它会自动处理 OCR、解析和发票创建
 
 
 async def process_single_pdf(
@@ -348,138 +277,278 @@ async def process_single_pdf(
     auto_create_invoice: bool,
     email_info: EmailInfo
 ) -> PDFProcessResult:
-    """处理单个PDF - 重构版本，复用手动上传发票模块的逻辑"""
+    """处理单个PDF - 使用与手动上传完全相同的流程"""
     try:
-        # 1. OCR识别
-        logger.info(f"开始OCR识别: {pdf_data.get('name', pdf_data.get('url'))}")
+        # 1. 保存PDF到临时文件
+        import tempfile
+        import os
+        from uuid import uuid4
+        from app.schemas.invoice import InvoiceCreate
+        from sqlalchemy import select
+        from app.services.storage.supabase_storage import SupabaseStorageService
+        from app.api.v1.endpoints.parser import ParsedField
+        from app.adapters.ocr_field_adapter import ocr_field_adapter
+        from pathlib import Path
         
-        # 调用OCR服务
         pdf_content = pdf_data['data']
-        ocr_result = await ocr_service.recognize_mixed_invoices(pdf_content)
+        filename = pdf_data.get('name', f'email_attachment_{email_info.uid}.pdf')
         
-        # 2. 解析结果
-        parser_result = await parser_service.parse_ocr_result(ocr_result)
+        # 创建临时文件
+        with tempfile.NamedTemporaryFile(mode='wb', suffix='.pdf', delete=False) as tmp_file:
+            tmp_file.write(pdf_content)
+            temp_file_path = tmp_file.name
         
-        # 3. 提取发票数据
-        invoice_type = parser_result.invoice_type
-        raw_invoice_data = {
-            field.name: field.value
-            for field in parser_result.fields
-            if field.value is not None
-        }
-        
-        # 记录提取的字段，用于调试
-        logger.info(f"OCR提取的发票类型: {invoice_type}")
-        logger.info(f"OCR提取的字段: {', '.join(raw_invoice_data.keys())}")
-        
-        # 4. 创建发票记录（如果启用）
-        invoice_id = None
-        if auto_create_invoice and invoice_type != "unknown":
-            try:
-                # 使用新的数据库会话
-                async with async_session_maker() as session:
-                    # 映射字段名称
-                    field_mapping = {
-                        '发票号码': 'invoice_number',
-                        '开票日期': 'invoice_date',
-                        '价税合计': 'total_amount',
-                        '销售方名称': 'seller_name',
-                        '购买方名称': 'buyer_name',
-                        '合计金额': 'amount_without_tax',
-                        '合计税额': 'tax_amount',
-                        '销售方纳税人识别号': 'seller_tax_number',
-                        '购买方纳税人识别号': 'buyer_tax_number',
-                        '发票代码': 'invoice_code',
-                        '备注': 'remarks'
-                    }
-                    
-                    # 映射字段
-                    mapped_data = {}
-                    for cn_field, en_field in field_mapping.items():
-                        if cn_field in raw_invoice_data:
-                            mapped_data[en_field] = raw_invoice_data[cn_field]
-                    
-                    # 处理日期格式
-                    if 'invoice_date' in mapped_data and isinstance(mapped_data['invoice_date'], str):
-                        if re.match(r'(\d{4})年(\d{1,2})月(\d{1,2})日', mapped_data['invoice_date']):
-                            match = re.match(r'(\d{4})年(\d{1,2})月(\d{1,2})日', mapped_data['invoice_date'])
-                            year, month, day = match.groups()
-                            mapped_data['invoice_date'] = f"{year}-{int(month):02d}-{int(day):02d}"
-                    
-                    # 确保必要字段存在
-                    if not mapped_data.get('invoice_number'):
-                        filename = pdf_data.get('name', '')
-                        if filename and any(c.isdigit() for c in filename):
-                            numbers = re.findall(r'\d+', filename)
-                            if numbers:
-                                mapped_data['invoice_number'] = ''.join(numbers)
-                        
-                        if not mapped_data.get('invoice_number'):
-                            mapped_data['invoice_number'] = f"EMAIL_{int(time.time())}_{email_info.uid}"
-                    
-                    if not mapped_data.get('invoice_date'):
-                        mapped_data['invoice_date'] = date.today().isoformat()
-                    
-                    # 转换日期字符串为date对象
-                    if isinstance(mapped_data.get('invoice_date'), str):
-                        try:
-                            mapped_data['invoice_date'] = datetime.strptime(mapped_data['invoice_date'], '%Y-%m-%d').date()
-                        except ValueError:
-                            mapped_data['invoice_date'] = date.today()
-                    
-                    # 转换金额为Decimal
-                    for field in ['total_amount', 'amount_without_tax', 'tax_amount']:
-                        if field in mapped_data and mapped_data[field] is not None:
-                            try:
-                                if isinstance(mapped_data[field], str):
-                                    mapped_data[field] = Decimal(mapped_data[field].replace(',', ''))
-                                else:
-                                    mapped_data[field] = Decimal(str(mapped_data[field]))
-                            except (ValueError, TypeError, InvalidOperation):
-                                logger.warning(f"无法转换字段 {field} 为Decimal: {mapped_data[field]}")
-                                mapped_data[field] = Decimal('0')
-                    
-                    # 设置默认值
-                    mapped_data.setdefault('tax_amount', Decimal('0'))
-                    mapped_data.setdefault('total_amount', Decimal('0'))
-                    
-                    # 添加其他必要字段
-                    mapped_data['invoice_type'] = invoice_type
-                    mapped_data['ocr_confidence'] = getattr(parser_result, 'confidence', 0.9)
-                    mapped_data['extracted_data'] = {
-                        'raw_ocr_data': raw_invoice_data,
-                        'ocr_result': ocr_result,
-                        'invoice_type': invoice_type
-                    }
-                    
-                    logger.info(f"准备创建发票，数据: {mapped_data}")
-                    
-                    # 使用现有的create-with-file端点创建发票
-                    invoice_id = await create_invoice_from_email_pdf(
-                        pdf_data=pdf_data,
-                        invoice_data=mapped_data,
-                        current_user=current_user,
-                        email_info=email_info,
-                        session=session
-                    )
-                    
-                    logger.info(f"成功创建发票记录: {invoice_id}")
-
-
+        try:
+            async with async_session_maker() as session:
+                # 2. OCR识别 - 使用手动上传相同的方式
+                logger.info(f"[process_single_pdf] 开始OCR识别: {filename}")
                 
-            except Exception as e:
-                logger.error(f"创建发票记录失败: {e}")
-                # 继续返回OCR结果，但标记创建失败
-        
-        return PDFProcessResult(
-            source=pdf_data['source'],
-            name=pdf_data.get('name', pdf_data.get('url', 'unknown')),
-            status="success",
-            invoice_id=invoice_id,
-            invoice_type=invoice_type,
-            invoice_data=raw_invoice_data
-        )
-        
+                # 调用OCR服务
+                ocr_result = await ocr_service.recognize_mixed_invoices(pdf_content)
+                
+                if not ocr_result or 'Data' not in ocr_result:
+                    raise ValueError("OCR识别失败：无有效结果")
+                
+                # 解析OCR结果
+                logger.info(f"[process_single_pdf] 开始解析OCR结果")
+                invoice_type, parsed_fields = parser_service.parse_invoice_data(ocr_result)
+                logger.info(f"[process_single_pdf] 解析结果 - 发票类型: {invoice_type}, 字段数: {len(parsed_fields)}")
+                
+                # 转换为字典格式
+                raw_fields_dict = {}
+                for field in parsed_fields:
+                    raw_fields_dict[field.original_key or field.name] = field.value
+                
+                # 使用字段适配器
+                adapted_fields = ocr_field_adapter.adapt_fields(raw_fields_dict, invoice_type)
+                logger.info(f"[process_single_pdf] 适配后字段: {list(adapted_fields.keys())}")
+                
+                # 构建extracted_data
+                extracted_data = {
+                    'ocr_result': ocr_result,
+                    'raw_data': raw_fields_dict,
+                    'structured_data': adapted_fields,
+                    'invoice_type': invoice_type
+                }
+                
+                # 准备创建发票的数据
+                invoice_dict = {
+                    'invoice_number': adapted_fields.get('invoice_number'),
+                    'invoice_code': adapted_fields.get('invoice_code'),
+                    'invoice_date': adapted_fields.get('invoice_date'),
+                    'seller_name': adapted_fields.get('seller_name'),
+                    'seller_tax_number': adapted_fields.get('seller_tax_number'),
+                    'buyer_name': adapted_fields.get('buyer_name'),
+                    'buyer_tax_number': adapted_fields.get('buyer_tax_number'),
+                    'total_amount': adapted_fields.get('total_amount', 0),
+                    'tax_amount': adapted_fields.get('tax_amount', 0),
+                    'invoice_type': invoice_type,
+                    'remarks': adapted_fields.get('remarks'),
+                    'extracted_data': extracted_data
+                }
+                
+                # 转换日期格式
+                if invoice_dict.get('invoice_date'):
+                    invoice_date_str = invoice_dict['invoice_date']
+                    logger.info(f"[process_single_pdf] 原始日期格式: {invoice_date_str}")
+                    
+                    # 尝试解析中文日期格式
+                    try:
+                        if '年' in str(invoice_date_str) and '月' in str(invoice_date_str) and '日' in str(invoice_date_str):
+                            # 解析中文日期格式: 2025年07月22日
+                            match = re.match(r'(\d{4})年(\d{1,2})月(\d{1,2})日', str(invoice_date_str).strip())
+                            if match:
+                                year, month, day = match.groups()
+                                invoice_dict['invoice_date'] = date(int(year), int(month), int(day))
+                                logger.info(f"[process_single_pdf] 转换后日期: {invoice_dict['invoice_date']}")
+                        elif isinstance(invoice_date_str, str) and '-' in invoice_date_str:
+                            # 已经是标准格式
+                            parts = invoice_date_str.split('-')
+                            if len(parts) == 3:
+                                invoice_dict['invoice_date'] = date(int(parts[0]), int(parts[1]), int(parts[2]))
+                        elif isinstance(invoice_date_str, date):
+                            # 已经是date对象
+                            invoice_dict['invoice_date'] = invoice_date_str
+                    except Exception as e:
+                        logger.error(f"[process_single_pdf] 日期转换失败: {e}, 原始值: {invoice_date_str}")
+                        # 如果转换失败，尝试使用今天的日期
+                        invoice_dict['invoice_date'] = date.today()
+                
+                logger.info(f"💰 [process_single_pdf] 金额字段追踪:")
+                logger.info(f"  - total_amount: {invoice_dict.get('total_amount')}")
+                logger.info(f"  - tax_amount: {invoice_dict.get('tax_amount')}")
+                
+                # 创建 InvoiceCreate 对象
+                invoice_create = InvoiceCreate(**invoice_dict)
+                
+                # 检查重复发票
+                existing_query = select(Invoice).where(
+                    Invoice.user_id == current_user.id,
+                    Invoice.invoice_number == invoice_create.invoice_number,
+                    Invoice.deleted_at.is_(None)
+                )
+                existing_result = await session.execute(existing_query)
+                existing_invoice = existing_result.scalar_one_or_none()
+                
+                if existing_invoice:
+                    logger.warning(f"发票已存在: {invoice_create.invoice_number}")
+                    return PDFProcessResult(
+                        source=pdf_data['source'],
+                        name=filename,
+                        status="failed",
+                        error=f"发票号码 {invoice_create.invoice_number} 已存在",
+                        invoice_id=str(existing_invoice.id),
+                        invoice_type=invoice_type,
+                        invoice_data={
+                            '发票号码': existing_invoice.invoice_number,
+                            '状态': '已存在'
+                        }
+                    )
+                
+                # 处理消费日期
+                consumption_date = getattr(invoice_create, 'consumption_date', None)
+                if not consumption_date:
+                    from app.api.v1.endpoints.files import parse_consumption_date
+                    consumption_date = parse_consumption_date(
+                        invoice_create.invoice_type or '增值税发票',
+                        invoice_create.invoice_date,
+                        extracted_data
+                    )
+                
+                # 处理火车票的特殊情况
+                total_amount = invoice_create.total_amount
+                if invoice_create.invoice_type == '火车票' and extracted_data:
+                    logger.info(f"[process_single_pdf] 处理火车票金额")
+                    
+                    # 尝试从多个位置获取票价
+                    fare_amount = None
+                    
+                    # 从adapted_fields中查找
+                    if 'fare' in adapted_fields:
+                        fare_amount = adapted_fields['fare']
+                    elif 'total_amount' in adapted_fields:
+                        fare_amount = adapted_fields['total_amount']
+                    
+                    # 从raw_fields_dict中查找
+                    if fare_amount is None and 'fare' in raw_fields_dict:
+                        fare_amount = raw_fields_dict['fare']
+                    
+                    if fare_amount is not None:
+                        try:
+                            total_amount = Decimal(str(fare_amount))
+                            logger.info(f"[process_single_pdf] 火车票金额设置为: {total_amount}")
+                        except Exception as e:
+                            logger.error(f"[process_single_pdf] 转换火车票金额失败: {e}")
+                
+                # 计算 amount_without_tax
+                amount_without_tax = getattr(invoice_create, 'amount_without_tax', None)
+                tax_amount = invoice_create.tax_amount
+                
+                if amount_without_tax is None and tax_amount is not None:
+                    try:
+                        amount_without_tax = Decimal(str(total_amount)) - Decimal(str(tax_amount))
+                    except:
+                        amount_without_tax = None
+                
+                logger.info(f"💰 [process_single_pdf] 最终金额值:")
+                logger.info(f"  - total_amount: {total_amount}")
+                logger.info(f"  - tax_amount: {tax_amount}")
+                logger.info(f"  - amount_without_tax: {amount_without_tax}")
+                
+                # 生成文件路径
+                file_ext = filename.split('.')[-1]
+                file_name = f"{uuid4()}.{file_ext}"
+                file_path = f"invoices/{current_user.id}/{datetime.now().year}/{datetime.now().month}/{file_name}"
+                
+                # 上传到Supabase Storage
+                storage_service = SupabaseStorageService()
+                file_url = await storage_service.upload_file(
+                    bucket_name="invoice-files",
+                    file_path=file_path,
+                    file_content=pdf_content,
+                    content_type="application/pdf"
+                )
+                
+                # 创建发票记录
+                invoice = Invoice(
+                    user_id=current_user.id,
+                    invoice_number=invoice_create.invoice_number,
+                    invoice_code=invoice_create.invoice_code,
+                    invoice_date=invoice_create.invoice_date,
+                    consumption_date=consumption_date,
+                    seller_name=invoice_create.seller_name,
+                    seller_tax_number=invoice_create.seller_tax_number,
+                    buyer_name=invoice_create.buyer_name,
+                    buyer_tax_number=invoice_create.buyer_tax_number,
+                    total_amount=total_amount,
+                    tax_amount=tax_amount,
+                    amount_without_tax=amount_without_tax,
+                    invoice_type=invoice_create.invoice_type,
+                    file_path=file_path,
+                    file_url=file_url,
+                    file_name=filename,
+                    file_size=len(pdf_content),
+                    ocr_confidence_score=getattr(invoice_create, 'ocr_confidence', None),
+                    extracted_data=extracted_data,
+                    remarks=getattr(invoice_create, 'remarks', None),
+                    status=InvoiceStatus.ACTIVE,
+                    source=InvoiceSource.EMAIL,
+                    source_metadata={
+                        'email_uid': email_info.uid,
+                        'email_subject': email_info.subject,
+                        'pdf_source': pdf_data['source'],
+                        'pdf_url': pdf_data.get('url') if pdf_data['source'] == 'body_link' else None,
+                        'email_account_id': email_info.account_id
+                    },
+                    processing_status=ProcessingStatus.OCR_COMPLETED
+                )
+                
+                logger.info(f"💰 [process_single_pdf] 发票对象最终金额值:")
+                logger.info(f"  - invoice.total_amount: {invoice.total_amount}")
+                logger.info(f"  - invoice.tax_amount: {invoice.tax_amount}")
+                logger.info(f"  - invoice.amount_without_tax: {invoice.amount_without_tax}")
+                
+                session.add(invoice)
+                await session.commit()
+                await session.refresh(invoice)
+                
+                # 构建返回结果
+                display_data = {
+                    '发票号码': invoice.invoice_number,
+                    '开票日期': invoice.invoice_date.isoformat() if invoice.invoice_date else None,
+                    '销售方名称': invoice.seller_name,
+                    '购买方名称': invoice.buyer_name,
+                    '价税合计': float(invoice.total_amount or 0)
+                }
+                
+                if invoice_type == '火车票':
+                    display_data['票价'] = float(invoice.total_amount or 0)
+                
+                # 过滤掉空值
+                display_data = {k: v for k, v in display_data.items() if v is not None}
+                
+                return PDFProcessResult(
+                    source=pdf_data['source'],
+                    name=filename,
+                    status="success",
+                    invoice_id=str(invoice.id),
+                    invoice_type=invoice_type,
+                    invoice_data=display_data
+                )
+                    
+        except Exception as e:
+            logger.error(f"处理PDF时发生错误: {e}", exc_info=True)
+            return PDFProcessResult(
+                source=pdf_data['source'],
+                name=filename,
+                status="failed",
+                error=str(e)
+            )
+        finally:
+            # 清理临时文件
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                
     except Exception as e:
         logger.error(f"处理PDF失败: {e}", exc_info=True)
         return PDFProcessResult(

@@ -179,7 +179,7 @@ export const getColumnDefinitions = ({
     },
     enableSorting: true,
     enableColumnFilter: true,
-    filterFn: dateRangeFilter as any,
+    filterFn: dateRangeFilter,
   }),
 
   // 金额列

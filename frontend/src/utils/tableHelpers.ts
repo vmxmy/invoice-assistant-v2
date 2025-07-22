@@ -69,41 +69,130 @@ export const getInvoiceDisplayDate = (invoice: Invoice): string => {
 export const dateRangeFilter = (
   row: any,
   columnId: string,
-  filterValue: [Date | null, Date | null]
+  filterValue: { from?: string; to?: string } | undefined
 ): boolean => {
-  const [start, end] = filterValue;
-  const dateValue = new Date(row.getValue(columnId));
+  // 调试日志
+  console.log('[dateRangeFilter]', { columnId, filterValue, rowValue: row.getValue(columnId) });
   
-  if (!start && !end) return true;
-  if (start && !end) return dateValue >= start;
-  if (!start && end) return dateValue <= end;
-  return dateValue >= start! && dateValue <= end!;
+  // 如果没有筛选值，返回所有行
+  if (!filterValue) return true;
+  
+  const { from, to } = filterValue;
+  const rawValue = row.getValue(columnId);
+  
+  // 确保日期值有效
+  if (!rawValue) return true;
+  
+  const dateValue = new Date(rawValue);
+  
+  // 检查日期是否有效
+  if (isNaN(dateValue.getTime())) {
+    console.warn('[dateRangeFilter] Invalid date value:', rawValue);
+    return true;
+  }
+  
+  // 如果没有开始和结束日期，返回所有行
+  if (!from && !to) return true;
+  
+  // 只有开始日期
+  if (from && !to) {
+    const startDate = new Date(from);
+    return dateValue >= startDate;
+  }
+  
+  // 只有结束日期
+  if (!from && to) {
+    const endDate = new Date(to);
+    // 设置结束日期为当天的最后一刻，以包含整个结束日期
+    endDate.setHours(23, 59, 59, 999);
+    return dateValue <= endDate;
+  }
+  
+  // 有开始和结束日期
+  const startDate = new Date(from!);
+  const endDate = new Date(to!);
+  // 设置结束日期为当天的最后一刻，以包含整个结束日期
+  endDate.setHours(23, 59, 59, 999);
+  
+  const result = dateValue >= startDate && dateValue <= endDate;
+  console.log('[dateRangeFilter] Result:', { 
+    dateValue: dateValue.toISOString(), 
+    startDate: startDate.toISOString(), 
+    endDate: endDate.toISOString(), 
+    result 
+  });
+  
+  return result;
 };
 
 // 金额范围筛选函数
 export const amountRangeFilter = (
   row: any,
   columnId: string,
-  filterValue: [number | null, number | null]
+  filterValue: { min?: number; max?: number } | undefined
 ): boolean => {
-  const [min, max] = filterValue;
+  // 调试日志
+  console.log('[amountRangeFilter]', { columnId, filterValue, rowValue: row.getValue(columnId) });
+  
+  // 如果没有筛选值，返回所有行
+  if (!filterValue) return true;
+  
+  const { min, max } = filterValue;
   const amount = row.getValue(columnId) as number;
   
-  if (min === null && max === null) return true;
-  if (min !== null && max === null) return amount >= min;
-  if (min === null && max !== null) return amount <= max;
-  return amount >= min! && amount <= max!;
+  // 确保金额值有效
+  if (amount === undefined || amount === null || isNaN(amount)) {
+    console.warn('[amountRangeFilter] Invalid amount value:', amount);
+    return true;
+  }
+  
+  // 如果没有最小和最大金额，返回所有行
+  if (min === undefined && max === undefined) return true;
+  
+  // 只有最小金额
+  if (min !== undefined && max === undefined) {
+    const result = amount >= min;
+    console.log('[amountRangeFilter] Min only result:', { amount, min, result });
+    return result;
+  }
+  
+  // 只有最大金额
+  if (min === undefined && max !== undefined) {
+    const result = amount <= max;
+    console.log('[amountRangeFilter] Max only result:', { amount, max, result });
+    return result;
+  }
+  
+  // 有最小和最大金额
+  const result = amount >= min! && amount <= max!;
+  console.log('[amountRangeFilter] Range result:', { amount, min, max, result });
+  return result;
 };
 
 // 多选筛选函数
 export const multiSelectFilter = (
   row: any,
   columnId: string,
-  filterValue: string[]
+  filterValue: string[] | undefined
 ): boolean => {
+  // 调试日志
+  console.log('[multiSelectFilter]', { columnId, filterValue, rowValue: row.getValue(columnId) });
+  
+  // 如果没有筛选值或筛选值为空数组，返回所有行
   if (!filterValue || filterValue.length === 0) return true;
+  
   const value = row.getValue(columnId) as string;
-  return filterValue.includes(value);
+  
+  // 确保值有效
+  if (value === undefined || value === null) {
+    console.warn('[multiSelectFilter] Invalid value:', value);
+    return false; // 如果值无效，不显示该行
+  }
+  
+  // 检查行的值是否在选中的值列表中
+  const result = filterValue.includes(value);
+  console.log('[multiSelectFilter] Result:', { value, filterValue, result });
+  return result;
 };
 
 // 全局搜索函数

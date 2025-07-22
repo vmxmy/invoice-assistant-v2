@@ -4,7 +4,7 @@
 """
 
 from markupsafe import escape
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from datetime import date, datetime, timedelta
 from typing import List, Optional, Dict, Any

@@ -217,14 +217,14 @@ class InvoiceService:
             "invoice_code": structured_data.main_info.invoice_code,
             "invoice_type": structured_data.main_info.invoice_type or '增值税普通发票',
             "invoice_date": structured_data.main_info.invoice_date,
-            "amount": float(structured_data.summary.amount) if structured_data.summary.amount else 0,
+            "amount_without_tax": float(structured_data.summary.amount) if structured_data.summary.amount else 0,
             "tax_amount": float(structured_data.summary.tax_amount) if structured_data.summary.tax_amount else 0,
             "total_amount": float(structured_data.summary.total_amount) if structured_data.summary.total_amount else 0,
             "currency": 'CNY',
             "seller_name": structured_data.seller_info.name,
-            "seller_tax_id": structured_data.seller_info.tax_id,
+            "seller_tax_number": structured_data.seller_info.tax_id,
             "buyer_name": structured_data.buyer_info.name,
-            "buyer_tax_id": structured_data.buyer_info.tax_id,
+            "buyer_tax_number": structured_data.buyer_info.tax_id,
             "file_path": file_path,
             "file_url": self.file_service.get_file_url(file_path),
             "file_size": file_size,
@@ -257,14 +257,14 @@ class InvoiceService:
             "invoice_code": raw_data.get('invoice_code'),
             "invoice_type": raw_data.get('invoice_type', '增值税普通发票'),
             "invoice_date": self._parse_date(raw_data.get('invoice_date')),
-            "amount": self._parse_amount(raw_data.get('amount', 0)),
+            "amount_without_tax": self._parse_amount(raw_data.get('amount_without_tax', 0)),
             "tax_amount": self._parse_amount(raw_data.get('tax_amount', 0)),
             "total_amount": self._parse_amount(raw_data.get('total_amount', 0)),
             "currency": 'CNY',
             "seller_name": raw_data.get('seller_name'),
-            "seller_tax_id": raw_data.get('seller_tax_id'),
+            "seller_tax_number": raw_data.get('seller_tax_number'),
             "buyer_name": raw_data.get('buyer_name'),
-            "buyer_tax_id": raw_data.get('buyer_tax_id'),
+            "buyer_tax_number": raw_data.get('buyer_tax_number'),
             "file_path": file_path,
             "file_url": self.file_service.get_file_url(file_path),
             "file_size": file_size,
@@ -295,6 +295,134 @@ class InvoiceService:
                 setattr(invoice, key, value)
         
         invoice.updated_at = datetime.now(timezone.utc)
+    
+    async def create_invoice_from_processed_data(
+        self,
+        processed_data: Dict[str, Any],
+        file_info: Dict[str, Any],
+        user_id: UUID,
+        source: InvoiceSource = InvoiceSource.UPLOAD,
+        source_metadata: Optional[Dict[str, Any]] = None
+    ) -> Tuple[Invoice, bool]:
+        """
+        从处理后的数据创建或更新发票（统一处理流程）
+        
+        Args:
+            processed_data: 处理后的发票数据（包含extracted_data）
+            file_info: 文件信息
+            user_id: 用户ID
+            source: 发票来源
+            source_metadata: 来源元数据
+            
+        Returns:
+            Tuple[Invoice, bool]: (发票实例, 是否为新创建)
+        """
+        # 构建发票数据，使用标准化路径
+        invoice_data = self._build_extracted_data_with_standard_paths(
+            processed_data,
+            file_info,
+            user_id,
+            source,
+            source_metadata
+        )
+        
+        # 检查是否存在重复发票
+        invoice_number = invoice_data.get('invoice_number')
+        if invoice_number:
+            existing_invoice = await self._find_invoice_by_number(invoice_number, user_id)
+            if existing_invoice:
+                # 更新现有发票
+                await self._update_invoice_data(existing_invoice, invoice_data)
+                await self.db.commit()
+                await self.db.refresh(existing_invoice)
+                return existing_invoice, False
+        
+        # 创建新发票
+        try:
+            invoice = Invoice(**invoice_data)
+            self.db.add(invoice)
+            await self.db.commit()
+            await self.db.refresh(invoice)
+            
+            # 更新用户统计
+            await self._update_user_invoice_stats(user_id)
+            
+            return invoice, True
+            
+        except IntegrityError as e:
+            await self.db.rollback()
+            raise BusinessLogicError(f"数据库保存失败: {str(e)}")
+    
+    def _build_extracted_data_with_standard_paths(
+        self,
+        processed_data: Dict[str, Any],
+        file_info: Dict[str, Any],
+        user_id: UUID,
+        source: InvoiceSource,
+        source_metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        构建包含标准化路径的发票数据
+        确保商品明细在多个路径下可用，兼容前端配置
+        """
+        # 获取extracted_data（如果已存在）
+        extracted_data = processed_data.get('extracted_data', {})
+        
+        # 确保商品明细在所有标准路径下可用
+        items = (
+            processed_data.get('items') or
+            processed_data.get('invoice_items') or
+            processed_data.get('invoice_details') or
+            processed_data.get('invoiceDetails') or
+            extracted_data.get('items') or
+            extracted_data.get('invoice_details') or
+            []
+        )
+        
+        # 更新extracted_data，确保多路径访问
+        if items:
+            extracted_data['items'] = items
+            extracted_data['invoice_items'] = items
+            extracted_data['invoice_details'] = items
+            extracted_data['invoiceDetails'] = items
+            extracted_data['commodities'] = items
+        
+        # 合并所有数据
+        extracted_data.update({
+            'invoice_type': processed_data.get('invoice_type'),
+            'source': source.value,
+            'source_metadata': source_metadata,
+            'processing_time': datetime.utcnow().isoformat(),
+            'file_info': file_info
+        })
+        
+        # 构建发票记录数据
+        return {
+            "user_id": user_id,
+            "invoice_number": processed_data.get('invoice_number', f"UPLOAD_{file_info['file_hash'][:8]}"),
+            "invoice_code": processed_data.get('invoice_code'),
+            "invoice_type": processed_data.get('invoice_type', '增值税普通发票'),
+            "invoice_date": self._parse_date(processed_data.get('invoice_date')),
+            "amount_without_tax": self._parse_amount(processed_data.get('amount_without_tax', 0)),
+            "tax_amount": self._parse_amount(processed_data.get('tax_amount', 0)),
+            "total_amount": self._parse_amount(processed_data.get('total_amount', 0)),
+            "currency": processed_data.get('currency', 'CNY'),
+            "seller_name": processed_data.get('seller_name'),
+            "seller_tax_number": processed_data.get('seller_tax_id') or processed_data.get('seller_tax_number'),
+            "buyer_name": processed_data.get('buyer_name'),
+            "buyer_tax_number": processed_data.get('buyer_tax_id') or processed_data.get('buyer_tax_number'),
+            "file_path": file_info['file_path'],
+            "file_url": self.file_service.get_file_url(file_info['file_path']),
+            "file_size": file_info['file_size'],
+            "file_hash": file_info['file_hash'],
+            "source": source,
+            "status": InvoiceStatus.COMPLETED,
+            "processing_status": ProcessingStatus.OCR_COMPLETED,
+            "extracted_data": extracted_data,
+            "source_metadata": source_metadata,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
 
     async def create_invoice_from_ocr_data(
         self,
@@ -369,9 +497,9 @@ class InvoiceService:
             "total_amount": self._parse_amount(ocr_data.get('total_amount', 0)),
             "currency": ocr_data.get('currency', 'CNY'),
             "seller_name": ocr_data.get('seller_name'),
-            "seller_tax_id": ocr_data.get('seller_tax_id') or ocr_data.get('seller_tax_number'),
+            "seller_tax_number": ocr_data.get('seller_tax_id') or ocr_data.get('seller_tax_number'),
             "buyer_name": ocr_data.get('buyer_name'),
-            "buyer_tax_id": ocr_data.get('buyer_tax_id') or ocr_data.get('buyer_tax_number'),
+            "buyer_tax_number": ocr_data.get('buyer_tax_id') or ocr_data.get('buyer_tax_number'),
             "file_path": file_info['file_path'],
             "file_hash": file_info['file_hash'],
             "file_size": file_info['file_size'],

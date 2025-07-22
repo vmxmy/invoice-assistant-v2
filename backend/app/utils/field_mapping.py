@@ -304,5 +304,91 @@ def validate_field_mapping() -> bool:
         logger.error(f"字段映射表验证失败: {str(e)}")
         return False
 
+def merge_to_standard_format(
+    ocr_data: Dict[str, any],
+    parsed_data: Dict[str, any],
+    invoice_type: str
+) -> Dict[str, any]:
+    """
+    合并OCR数据和解析数据到标准格式
+    确保商品明细在多个路径下可用，兼容前端配置
+    
+    Args:
+        ocr_data: OCR直接返回的数据
+        parsed_data: 适配器解析后的数据
+        invoice_type: 发票类型
+        
+    Returns:
+        标准化的发票数据
+    """
+    # 1. 合并基础数据
+    result = {
+        'invoice_type': invoice_type,
+        **normalize_fields_dict(ocr_data),
+        **parsed_data
+    }
+    
+    # 2. 确保商品明细在多个路径下可用
+    items = None
+    
+    # 尝试从不同路径获取商品明细
+    for field in ['items', 'invoice_items', 'invoice_details', 'invoiceDetails', 'commodities']:
+        if field in result and result[field]:
+            items = result[field]
+            break
+        # 也检查OCR原始数据
+        if field in ocr_data and ocr_data[field]:
+            items = ocr_data[field]
+            break
+    
+    # 如果找到商品明细，确保在所有标准路径下都可用
+    if items:
+        result['items'] = items
+        result['invoice_items'] = items
+        result['invoice_details'] = items
+        result['invoiceDetails'] = items
+        result['commodities'] = items
+    
+    # 3. 处理金额字段的多种可能名称
+    # 税前金额
+    amount_without_tax = (
+        result.get('amount_without_tax') or
+        result.get('invoice_amount_pre_tax') or
+        result.get('amount') or
+        0
+    )
+    if amount_without_tax:
+        result['amount_without_tax'] = amount_without_tax
+        result['amount'] = amount_without_tax
+    
+    # 税额
+    tax_amount = (
+        result.get('tax_amount') or
+        result.get('invoice_tax') or
+        0
+    )
+    if tax_amount:
+        result['tax_amount'] = tax_amount
+    
+    # 4. 确保关键字段存在
+    essential_fields = [
+        'invoice_number', 'invoice_date', 'total_amount',
+        'seller_name', 'buyer_name'
+    ]
+    
+    for field in essential_fields:
+        if field not in result:
+            # 尝试从OCR数据中获取
+            camel_field = denormalize_field_name(field)
+            if camel_field in ocr_data:
+                result[field] = ocr_data[camel_field]
+    
+    # 5. 添加元数据
+    if 'created_at' not in result:
+        from datetime import datetime
+        result['created_at'] = datetime.utcnow().isoformat()
+    
+    return result
+
 # 在模块加载时验证映射表
 validate_field_mapping()

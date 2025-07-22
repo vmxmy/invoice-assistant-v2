@@ -2,6 +2,7 @@
 增强的发票处理端点
 
 整合OCR识别、文件存储和数据库操作
+使用统一处理器确保数据一致性
 """
 
 from typing import Optional, Dict, Any
@@ -9,6 +10,8 @@ from datetime import datetime
 from uuid import uuid4
 import json
 import logging
+from pathlib import Path
+import tempfile
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +22,8 @@ from app.core.database import get_db_session
 from app.core.dependencies import get_current_user, CurrentUser
 from app.models.invoice import Invoice, InvoiceStatus, InvoiceSource, ProcessingStatus
 from app.services.storage.supabase_storage import SupabaseStorageService
+from app.services.file_service import FileService
+from app.services.invoice_service import InvoiceService
 
 logger = logging.getLogger(__name__)
 from app.schemas.invoice import InvoiceCreate
@@ -26,7 +31,8 @@ from app.schemas.invoice import InvoiceCreate
 router = APIRouter()
 
 
-@router.post("/create-with-file", summary="创建发票（含文件上传）")
+
+@router.post("/create-with-file", summary="创建发票（含文件上传）", deprecated=True)
 async def create_invoice_with_file(
     file: UploadFile = File(..., description="发票PDF文件"),
     invoice_data: str = Form(..., description="发票数据JSON字符串"),
@@ -36,11 +42,19 @@ async def create_invoice_with_file(
     """
     创建发票记录并上传文件到Supabase Storage
     
+    .. deprecated:: 2.0
+        使用 `/create-with-file-unified` 端点替代，该端点提供统一的处理流程
+    
     1. 解析发票数据
     2. 上传文件到Supabase Storage
     3. 创建发票记录
     4. 使用事务确保一致性
     """
+    # 记录废弃端点的使用
+    logger.warning(
+        f"使用了废弃的端点 /create-with-file，用户: {current_user.id}，"
+        f"请迁移到 /create-with-file-unified"
+    )
     # 解析发票数据
     try:
         logger.info(f"[create_invoice_with_file] 接收到的原始invoice_data: {invoice_data[:500]}...")  # 只记录前500字符
