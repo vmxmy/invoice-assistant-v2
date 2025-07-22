@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Search, 
@@ -27,10 +27,18 @@ import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { notify } from '../utils/notifications';
 import { useDebounce } from '../hooks/useDebounce';
 import InvoiceListView from '../components/invoice/cards/InvoiceListView';
+import InvoiceListTableView from '../components/invoice/list/InvoiceListTableView';
 import InvoiceTableView from '../components/invoice/table/InvoiceTableView';
 import { useExport } from '../hooks/useExport';
 import DownloadProgressModal from '../components/ui/DownloadProgressModal';
 import type { Invoice as InvoiceType } from '../types/table';
+
+// 视图模式枚举
+enum ViewMode {
+  TABLE = 'table',      // 表格视图（TanStack Table）
+  LIST = 'list',        // 列表视图（简单表格）
+  GRID = 'grid'         // 网格视图（卡片）
+}
 
 interface Invoice {
   id: string;
@@ -70,7 +78,8 @@ const InvoiceListPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
-  const [useTableView, setUseTableView] = useState(true); // 新增：控制表格视图
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TABLE); // 新增：控制视图模式
+  const [isMobile, setIsMobile] = useState(false);
   
   // 高级搜索状态
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
@@ -104,6 +113,22 @@ const InvoiceListPage: React.FC = () => {
     totalProgress,
     downloadsCount: downloads.length 
   });
+
+  // 检测屏幕尺寸并自动切换视图
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // 移动端自动切换到网格视图
+      if (mobile && viewMode === ViewMode.TABLE) {
+        setViewMode(ViewMode.GRID);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [viewMode]);
 
   // 获取发票列表
   const { data: invoicesData, isLoading, error, refetch, isError, isFetching } = useQuery({
@@ -414,7 +439,7 @@ const InvoiceListPage: React.FC = () => {
                   <div className="relative flex-1">
                     <input
                       type="text"
-                      placeholder="搜索发票号、销售方..."
+                      placeholder="搜索发票号、代码、公司名、税号、类型、备注、明细..."
                       className="input input-bordered input-sm sm:input-md join-item w-full pr-10"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -451,30 +476,48 @@ const InvoiceListPage: React.FC = () => {
               
               {/* 视图切换按钮 - 仅桌面端显示 */}
               <div className="hidden lg:flex items-center gap-2 ml-2">
-                <button
-                  className={`btn btn-sm ${!useTableView ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => setUseTableView(false)}
-                  title="卡片视图"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
-                    <line x1="9" y1="3" x2="9" y2="21" strokeWidth="2"/>
-                    <line x1="3" y1="9" x2="21" y2="9" strokeWidth="2"/>
-                  </svg>
-                </button>
-                <button
-                  className={`btn btn-sm ${useTableView ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => setUseTableView(true)}
-                  title="表格视图"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
-                    <line x1="3" y1="8" x2="21" y2="8" strokeWidth="2"/>
-                    <line x1="3" y1="13" x2="21" y2="13" strokeWidth="2"/>
-                    <line x1="8" y1="3" x2="8" y2="21" strokeWidth="2"/>
-                    <line x1="15" y1="3" x2="15" y2="21" strokeWidth="2"/>
-                  </svg>
-                </button>
+                <span className="text-sm text-base-content/60">视图：</span>
+                <div className="flex items-center gap-1 bg-base-200 rounded-lg p-1">
+                  <button
+                    className={`btn btn-sm ${viewMode === ViewMode.GRID ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => setViewMode(ViewMode.GRID)}
+                    title="网格视图"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="7" height="7" strokeWidth="2" rx="1"/>
+                      <rect x="14" y="3" width="7" height="7" strokeWidth="2" rx="1"/>
+                      <rect x="3" y="14" width="7" height="7" strokeWidth="2" rx="1"/>
+                      <rect x="14" y="14" width="7" height="7" strokeWidth="2" rx="1"/>
+                    </svg>
+                    <span className="hidden xl:inline ml-1">网格</span>
+                  </button>
+                  <button
+                    className={`btn btn-sm ${viewMode === ViewMode.LIST ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => setViewMode(ViewMode.LIST)}
+                    title="列表视图"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
+                      <line x1="3" y1="8" x2="21" y2="8" strokeWidth="2"/>
+                      <line x1="3" y1="13" x2="21" y2="13" strokeWidth="2"/>
+                    </svg>
+                    <span className="hidden xl:inline ml-1">列表</span>
+                  </button>
+                  <button
+                    className={`btn btn-sm ${viewMode === ViewMode.TABLE ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => setViewMode(ViewMode.TABLE)}
+                    title="表格视图"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
+                      <line x1="3" y1="8" x2="21" y2="8" strokeWidth="2"/>
+                      <line x1="3" y1="13" x2="21" y2="13" strokeWidth="2"/>
+                      <line x1="8" y1="3" x2="8" y2="21" strokeWidth="2"/>
+                      <line x1="15" y1="3" x2="15" y2="21" strokeWidth="2"/>
+                    </svg>
+                    <span className="hidden xl:inline ml-1">表格</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -490,8 +533,8 @@ const InvoiceListPage: React.FC = () => {
         {/* 发票列表 */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body p-0">
-            {/* 列表头部 - 仅在卡片视图时显示 */}
-            {!useTableView && (
+            {/* 列表头部 - 仅在非表格视图时显示 */}
+            {viewMode !== ViewMode.TABLE && (
               <div className="p-4 border-b border-base-300">
                 <div className="flex items-center justify-between">
                   <label className="label cursor-pointer gap-2">
@@ -553,8 +596,8 @@ const InvoiceListPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ) : useTableView ? (
-              // 新的 TanStack Table 视图
+            ) : viewMode === ViewMode.TABLE ? (
+              // TanStack Table 视图
               <InvoiceTableView
                 invoices={invoicesData?.items || []}
                 selectedInvoices={selectedInvoices}
@@ -571,8 +614,20 @@ const InvoiceListPage: React.FC = () => {
                 onPageChange={setCurrentPage}
                 onPageSizeChange={setPageSize}
               />
+            ) : viewMode === ViewMode.LIST ? (
+              // 简单列表视图
+              <InvoiceListTableView
+                invoices={invoicesData?.items || []}
+                selectedInvoices={selectedInvoices}
+                onSelectInvoice={handleSelectInvoice}
+                onSelectAll={handleSelectAll}
+                onViewInvoice={handleViewInvoice}
+                onEditInvoice={handleEditInvoice}
+                onDeleteInvoice={handleDeleteInvoice}
+                isLoading={isLoading}
+              />
             ) : (
-              // 原有的卡片视图
+              // 网格卡片视图
               <InvoiceListView
                 invoices={invoicesData?.items || []}
                 selectedInvoices={selectedInvoices}
@@ -584,8 +639,8 @@ const InvoiceListPage: React.FC = () => {
               />
             )}
 
-            {/* 分页 - 仅在使用卡片视图时显示 */}
-            {!useTableView && invoicesData && invoicesData.total > pageSize && (
+            {/* 分页 - 仅在非表格视图时显示 */}
+            {viewMode !== ViewMode.TABLE && invoicesData && invoicesData.total > pageSize && (
               <div className="p-3 sm:p-4 border-t border-base-300">
                 <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
                   {/* 页码信息 */}
