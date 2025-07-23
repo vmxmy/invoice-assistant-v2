@@ -115,7 +115,17 @@ class InvoiceConfigManager {
 
   constructor() {
     this.config = invoiceConfigData as InvoiceConfig;
-    this.currentLanguage = this.config.localization.default_language;
+    // 确保 localization 存在
+    if (!this.config.localization) {
+      this.config.localization = {
+        default_language: 'zh-CN',
+        supported_languages: ['zh-CN'],
+        messages: {
+          'zh-CN': {}
+        }
+      };
+    }
+    this.currentLanguage = this.config.localization.default_language || 'zh-CN';
   }
 
   // ===== 基础配置获取 =====
@@ -446,7 +456,14 @@ class InvoiceConfigManager {
    */
   getMessage(key: string, language?: string): string {
     const lang = language || this.currentLanguage;
-    return this.config.localization.messages[lang]?.[key] || key;
+    // 确保 messages 和对应语言存在
+    if (!this.config.localization?.messages) {
+      return key;
+    }
+    if (!this.config.localization.messages[lang]) {
+      return key;
+    }
+    return this.config.localization.messages[lang][key] || key;
   }
 
   /**
@@ -454,6 +471,10 @@ class InvoiceConfigManager {
    */
   getMessages(language?: string): Record<string, string> {
     const lang = language || this.currentLanguage;
+    // 确保 messages 和对应语言存在
+    if (!this.config.localization?.messages) {
+      return {};
+    }
     return this.config.localization.messages[lang] || {};
   }
 
