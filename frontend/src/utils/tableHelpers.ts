@@ -222,7 +222,28 @@ export const saveColumnVisibility = (visibility: Record<string, boolean>): void 
 // 从本地存储加载列可见性
 export const loadColumnVisibility = (): Record<string, boolean> => {
   const saved = localStorage.getItem('invoiceTableColumnVisibility');
-  return saved ? JSON.parse(saved) : {};
+  
+  // 默认列可见性配置
+  const defaultVisibility: Record<string, boolean> = {
+    select: true,
+    invoice_number: true,
+    seller_name: true,
+    consumption_date: true,
+    total_amount: true,
+    status: true,
+    source: true,
+    invoice_details: true,  // 发票明细列默认显示
+    created_at: false,  // 创建时间默认隐藏
+    actions: true,
+  };
+  
+  if (saved) {
+    // 合并保存的设置和默认设置，确保新列有默认值
+    const savedVisibility = JSON.parse(saved);
+    return { ...defaultVisibility, ...savedVisibility };
+  }
+  
+  return defaultVisibility;
 };
 
 // 保存表格状态到本地存储

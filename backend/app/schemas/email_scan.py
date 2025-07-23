@@ -71,6 +71,21 @@ class ScanParams(BaseModel):
         ge=1024,
         description="最大附件大小（字节）"
     )
+    # 正文PDF提取相关配置
+    enable_body_pdf_extraction: bool = Field(
+        default=True,
+        description="是否启用从邮件正文提取PDF链接功能"
+    )
+    max_body_analysis_emails: int = Field(
+        default=10,
+        ge=1,
+        le=100,
+        description="最多分析多少封无附件邮件的正文"
+    )
+    prioritize_attachments: bool = Field(
+        default=True,
+        description="是否优先处理有附件的邮件"
+    )
     
     @field_validator('date_from', 'date_to')
     @classmethod

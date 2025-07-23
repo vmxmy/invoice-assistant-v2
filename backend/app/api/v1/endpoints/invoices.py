@@ -44,6 +44,8 @@ class InvoiceListItem(BaseModel):
     source: str
     created_at: datetime
     tags: List[str] = []
+    extracted_data: Optional[dict] = None  # 添加 extracted_data 字段
+    invoice_type: Optional[str] = None     # 添加 invoice_type 字段
 
     class Config:
         from_attributes = True
@@ -80,7 +82,7 @@ class InvoiceDetail(BaseModel):
     category: Optional[str] = None
     notes: Optional[str] = None
     remarks: Optional[str] = None
-    extracted_data: Dict[str, Any] = {}
+    extracted_data: Optional[Dict[str, Any]] = None  # 添加 extracted_data 字段
     source_metadata: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
@@ -693,27 +695,42 @@ async def get_batch_download_urls(
         result = await db.execute(invoice_query)
         invoices = result.scalars().all()
 
-        # 过滤出有文件路径的发票
-        invoices = [invoice for invoice in invoices if invoice.file_path]
-
         if not invoices:
             raise HTTPException(status_code=404, detail="没有找到有效的发票文件")
 
         # 准备批量下载请求
         file_requests = []
+        direct_urls = []
+        
         for invoice in invoices:
-            file_requests.append({
-                'user_id': str(current_user.id),
-                'file_path': invoice.file_path,
-                'invoice_id': str(invoice.id)
-            })
+            # 如果有file_url且是Supabase URL，直接使用
+            if invoice.file_url and invoice.file_url.startswith('https://'):
+                logger.info(f"使用现有的Supabase URL: {invoice.file_url[:100]}...")
+                expires_at = (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat()
+                direct_urls.append({
+                    'download_url': invoice.file_url,
+                    'expires_at': expires_at,
+                    'invoice_id': str(invoice.id)
+                })
+            # 否则，如果有文件路径，添加到需要生成URL的请求列表
+            elif invoice.file_path:
+                file_requests.append({
+                    'user_id': str(current_user.id),
+                    'file_path': invoice.file_path,
+                    'invoice_id': str(invoice.id)
+                })
 
         # 批量生成下载URL（使用增强的存储服务）
-        urls = await storage_service.batch_generate_download_urls(
-            file_requests,
-            expires_in
-        )
-
+        generated_urls = []
+        if file_requests:
+            generated_urls = await storage_service.batch_generate_download_urls(
+                file_requests,
+                expires_in
+            )
+        
+        # 合并直接URL和生成的URL
+        urls = direct_urls + generated_urls
+        
         if not urls:
             raise HTTPException(status_code=500, detail="无法生成任何下载链接")
 

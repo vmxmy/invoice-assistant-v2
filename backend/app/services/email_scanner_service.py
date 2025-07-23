@@ -246,7 +246,7 @@ class EmailScannerService:
             scan_job.progress = 50
             await db.commit()
             
-            # 从本地索引搜索发票邮件
+            # 从本地索引搜索发票邮件 - 不限制只搜索有附件的邮件
             scan_params = ScanParams(**scan_job.scan_params)
             invoice_emails = await hybrid_sync.search_emails(
                 account_id=scan_job.email_account_id,
@@ -254,8 +254,73 @@ class EmailScannerService:
                 date_to=scan_params.date_to,
                 subject_keywords=scan_params.subject_keywords or EmailScannerService.INVOICE_KEYWORDS,
                 exclude_keywords=scan_params.exclude_keywords,
-                has_attachments=True  # 只搜索有附件的邮件
+                # 移除has_attachments=True限制，允许搜索所有符合条件的邮件
             )
+            
+            # 处理无附件邮件中的PDF链接
+            if scan_params.enable_body_pdf_extraction:
+                # 分离有附件和无附件的邮件
+                no_attachment_emails = [email for email in invoice_emails if not email['has_attachments']]
+                
+                if no_attachment_emails:
+                    scan_job.current_step = "分析邮件正文中的PDF链接"
+                    scan_job.progress = 60
+                    await db.commit()
+                    
+                    # 限制处理数量
+                    max_emails = min(len(no_attachment_emails), scan_params.max_body_analysis_emails)
+                    logger.info(f"开始分析 {max_emails} 封无附件邮件的正文")
+                    
+                    # 创建PDF提取器
+                    from app.services.email.pdf_extractor import EmailPDFExtractor
+                    pdf_extractor = EmailPDFExtractor(db, user_id)
+                    
+                    # 记录找到的PDF
+                    body_pdfs_count = 0
+                    body_pdf_emails = []
+                    
+                    # 处理每封无附件邮件
+                    for i, email in enumerate(no_attachment_emails[:max_emails]):
+                        try:
+                            # 更新进度
+                            progress = 60 + (i / max_emails) * 20
+                            scan_job.progress = int(progress)
+                            scan_job.current_step = f"分析邮件正文 {i+1}/{max_emails}"
+                            await db.commit()
+                            
+                            # 提取PDF
+                            pdfs = await pdf_extractor.extract_pdfs_from_email(
+                                scan_job.email_account_id,
+                                email['uid']
+                            )
+                            
+                            if pdfs:
+                                logger.info(f"从邮件 UID {email['uid']} 正文中找到 {len(pdfs)} 个PDF")
+                                body_pdfs_count += len(pdfs)
+                                
+                                # 添加PDF信息到邮件
+                                email['body_pdfs'] = [
+                                    {
+                                        'source': pdf.get('source'),
+                                        'name': pdf.get('name', ''),
+                                        'url': pdf.get('url', ''),
+                                        'size': pdf.get('size', 0)
+                                    }
+                                    for pdf in pdfs
+                                ]
+                                
+                                # 记录找到PDF的邮件
+                                body_pdf_emails.append(email)
+                                
+                        except Exception as e:
+                            logger.warning(f"分析邮件 UID {email['uid']} 正文失败: {e}")
+                    
+                    logger.info(f"正文分析完成，从 {max_emails} 封邮件中找到 {body_pdfs_count} 个PDF")
+                    
+                    # 更新统计信息
+                    scan_job.current_step = "正文PDF分析完成"
+                    scan_job.progress = 80
+                    await db.commit()
             
             # 构建结果
             result = {
@@ -264,6 +329,7 @@ class EmailScannerService:
                 'matched_emails': len(invoice_emails),
                 'scanned_emails': sync_result.get('new_emails', 0) + sync_result.get('updated_emails', 0),
                 'processed_invoices': 0,  # 需要后续实现OCR处理
+                'body_pdfs_found': body_pdfs_count if 'body_pdfs_count' in locals() else 0,
                 'emails': [
                     {
                         'uid': email['uid'],
@@ -271,7 +337,8 @@ class EmailScannerService:
                         'from': email['from_address'],
                         'date': email['email_date'].isoformat(),
                         'has_attachments': email['has_attachments'],
-                        'attachment_names': email.get('attachment_names', [])
+                        'attachment_names': email.get('attachment_names', []),
+                        'body_pdfs': email.get('body_pdfs', []) if 'body_pdfs' in email else []
                     }
                     for email in invoice_emails[:100]  # 限制返回数量
                 ],
@@ -292,13 +359,21 @@ class EmailScannerService:
             scan_job.downloaded_attachments = result.get('downloaded_attachments', 0)
             scan_job.processed_invoices = result.get('processed_invoices', 0)
             
+            # 添加正文PDF统计
+            if 'body_pdfs_found' in result:
+                # 如果模型中没有这个字段，可以放在scan_results中
+                result['body_pdfs_found'] = result.get('body_pdfs_found', 0)
+            
             # 确保所有更新在同一个事务中提交
             await db.flush()  # 先刷新到数据库会话
             await db.commit()  # 然后提交事务
             
             # 注意：自动化发票处理已经集成到邮件处理端点中
             # 用户可以通过邮件处理端点直接处理下载的附件
-            logger.info(f"扫描任务 {job_id} 完成，附件已下载，可通过邮件处理端点进行发票识别")
+            if 'body_pdfs_found' in result and result['body_pdfs_found'] > 0:
+                logger.info(f"扫描任务 {job_id} 完成，附件已下载，从邮件正文中找到 {result['body_pdfs_found']} 个PDF链接，可通过邮件处理端点进行发票识别")
+            else:
+                logger.info(f"扫描任务 {job_id} 完成，附件已下载，可通过邮件处理端点进行发票识别")
             
         except Exception as e:
             logger.error(f"扫描任务 {job_id} 执行失败: {str(e)}")
@@ -573,6 +648,88 @@ class EmailScannerService:
         # 检查文件扩展名
         file_ext = os.path.splitext(filename)[1].lower()
         return file_ext in EmailScannerService.ATTACHMENT_TYPES
+        
+    @staticmethod
+    async def _analyze_email_body_for_pdfs(
+        email_account_id: str,
+        email_uid: int,
+        pdf_extractor,
+        context_length: int = 100
+    ) -> List[Dict[str, Any]]:
+        """分析邮件正文中的PDF链接
+        
+        Args:
+            email_account_id: 邮箱账户ID
+            email_uid: 邮件UID
+            pdf_extractor: PDF提取器实例
+            context_length: 链接上下文长度
+            
+        Returns:
+            提取的PDF列表
+        """
+        try:
+            # 使用现有的PDF提取器提取PDF
+            pdfs = await pdf_extractor.extract_pdfs_from_email(
+                email_account_id,
+                email_uid
+            )
+            
+            # 增强PDF信息
+            for pdf in pdfs:
+                if pdf.get('source') == 'body_link':
+                    # 计算链接可信度评分
+                    score = EmailScannerService._calculate_link_score(
+                        pdf.get('url', ''),
+                        pdf.get('context', '')
+                    )
+                    pdf['confidence_score'] = score
+            
+            return pdfs
+            
+        except Exception as e:
+            logger.error(f"分析邮件正文失败 (UID {email_uid}): {e}")
+            return []
+    
+    @staticmethod
+    def _calculate_link_score(link: str, context: str = '') -> float:
+        """计算链接可信度评分
+        
+        Args:
+            link: PDF链接
+            context: 链接上下文
+            
+        Returns:
+            可信度评分 (0-100)
+        """
+        score = 0.0
+        
+        # 直接PDF链接得分最高
+        if link.lower().endswith('.pdf'):
+            score += 50
+        
+        # 包含发票关键词的上下文
+        invoice_keywords = ['发票', 'invoice', '账单', 'bill', '收据', 'receipt']
+        for keyword in invoice_keywords:
+            if keyword in context.lower():
+                score += 20
+                break
+        
+        # 可信域名加分
+        trusted_domains = ['gov.cn', 'tax.gov.cn', '12366.cn', 'chinatax.gov.cn']
+        for domain in trusted_domains:
+            if domain in link:
+                score += 15
+                break
+        
+        # 网盘链接适中评分
+        if any(x in link for x in ['pan.baidu.com', 'share.weiyun.com', 'aliyundrive.com']):
+            score += 10
+        
+        # 下载相关链接
+        if any(x in link.lower() for x in ['/download/', 'download=', 'attachment']):
+            score += 5
+        
+        return min(score, 100.0)  # 最高100分
     
     @staticmethod
     def _save_attachment(
