@@ -1,12 +1,12 @@
 import React from 'react';
-import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package } from 'lucide-react';
+import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package, Tag } from 'lucide-react';
 import type { Invoice } from '../types/index';
 
 // Lucide 图标组件类型
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 // 字段类型定义
-export type FieldType = 'text' | 'number' | 'date' | 'textarea' | 'readonly' | 'currency' | 'tags';
+export type FieldType = 'text' | 'number' | 'date' | 'textarea' | 'readonly' | 'currency' | 'tags' | 'category';
 
 // 字段配置接口
 export interface FieldConfig {
@@ -708,6 +708,14 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
       title: '其他信息',
       icon: Info,
       fields: [
+        {
+          key: 'expense_category',
+          label: '费用分类',
+          type: 'category',
+          icon: Tag,
+          valuePaths: ['expense_category'],
+          description: '发票的费用分类'
+        },
         {
           key: 'drawer',
           label: '开票人',

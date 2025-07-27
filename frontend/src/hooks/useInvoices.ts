@@ -1,6 +1,6 @@
 // React Query hooks for invoice management
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '../services/apiClient'
+import { invoiceService } from '../services/invoice'
 import { logger } from '../utils/logger'
 // import { transformInvoiceData, transformInvoiceList } from '../utils/invoiceDataTransform'
 
@@ -24,7 +24,7 @@ export const useInvoices = (params?: {
   return useQuery({
     queryKey: INVOICE_KEYS.list(params),
     queryFn: async () => {
-      const response = await api.invoices.list(params)
+      const response = await invoiceService.list(params)
       // 不再需要前端数据转换
       // if (response.data?.items) {
       //   response.data.items = transformInvoiceList(response.data.items)
@@ -56,7 +56,7 @@ export const useInvoice = (id: string) => {
   return useQuery({
     queryKey: INVOICE_KEYS.detail(id),
     queryFn: async () => {
-      const response = await api.invoices.get(id)
+      const response = await invoiceService.get(id)
       // 不再需要前端数据转换
       // if (response.data) {
       //   response.data = transformInvoiceData(response.data)
@@ -73,7 +73,7 @@ export const useInvoiceStats = () => {
   return useQuery({
     queryKey: INVOICE_KEYS.stats(),
     queryFn: async () => {
-      const response = await api.invoices.stats()
+      const response = await invoiceService.stats()
       return response.data
     },
     staleTime: 10 * 60 * 1000, // 10分钟内不重新获取
@@ -88,7 +88,7 @@ export const useUpdateInvoice = () => {
   
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await api.invoices.update(id, data)
+      const response = await invoiceService.update(id, data)
       return response.data
     },
     onSuccess: (data) => {
@@ -124,8 +124,8 @@ export const useDeleteInvoice = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await api.invoices.delete(id)
-      return response.data
+      await invoiceService.delete(id)
+      return { id }
     },
     onSuccess: (_, id) => {
       // 移除特定发票的缓存

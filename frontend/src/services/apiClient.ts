@@ -67,7 +67,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
     
-    logger.error('❌ API Error:', error.response?.status, error.response?.data)
+    logger.error('❌ API Error:', error.response?.status, JSON.stringify(error.response?.data, null, 2))
     
     // 处理 401 未授权错误
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -270,6 +270,36 @@ export const api = {
     
     // 删除扫描任务
     deleteJob: (jobId: string) => apiClient.delete(`/api/v1/email-scan/jobs/${jobId}`),
+    
+    // 智能扫描
+    createSmartScan: (data: any) => apiClient.post('/api/v1/email-scan/jobs/smart-scan', data),
+  },
+  
+  // Config 相关接口
+  config: {
+    // 获取分类配置
+    getCategoryConfig: (category: string, params?: { environment: string }, headers?: Record<string, string>) =>
+      apiClient.get(`/config/categories/${category}`, { params, headers }),
+    
+    // 获取单个配置
+    getConfig: (category: string, key: string, params?: { environment: string }) =>
+      apiClient.get(`/config/categories/${category}/${key}`, { params }),
+    
+    // 更新配置
+    updateConfig: (category: string, key: string, data: { value: any; reason: string; environment: string }) =>
+      apiClient.put(`/config/categories/${category}/${key}`, data),
+    
+    // 获取发票类型
+    getInvoiceTypes: () => apiClient.get('/config/invoice-types'),
+    
+    // 获取指定发票类型配置
+    getInvoiceTypeConfig: (code: string) => apiClient.get(`/config/invoice-types/${code}`),
+    
+    // 获取功能开关
+    getFeatureFlags: () => apiClient.get('/config/feature-flags'),
+    
+    // 检查功能是否启用
+    getFeatureFlag: (featureName: string) => apiClient.get(`/config/feature-flags/${featureName}`),
   },
   
   // Email Processing 相关接口
@@ -289,7 +319,29 @@ export const api = {
     
     // 获取处理状态
     getStatus: (jobId: string) => apiClient.get(`/api/v1/email-processing/processing-status/${jobId}`),
+  },
+
+  // Monitoring 相关接口
+  monitoring: {
+    // 获取性能报告
+    getPerformanceReport: () => apiClient.get('/api/v1/monitoring/performance-report'),
+    
+    // 获取健康检查
+    getHealthCheck: () => apiClient.get('/api/v1/monitoring/health-check'),
+    
+    // 获取回归警告
+    getRegressionAlerts: () => apiClient.get('/api/v1/monitoring/regression-alerts'),
+    
+    // 获取查询统计
+    getQueryStats: () => apiClient.get('/api/v1/monitoring/query-stats'),
+    
+    // 获取慢查询
+    getSlowQueries: () => apiClient.get('/api/v1/monitoring/slow-queries'),
+    
+    // 重置监控
+    resetMonitoring: () => apiClient.post('/api/v1/monitoring/reset'),
   }
 }
 
-export default apiClient
+// 不再导出 apiClient，只导出 api 对象
+// export default apiClient

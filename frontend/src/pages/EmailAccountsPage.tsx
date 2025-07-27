@@ -7,6 +7,7 @@ import Layout from '../components/layout/Layout'
 import EmailAccountCard from '../components/email/EmailAccountCard'
 import AddEmailAccountModal from '../components/modals/AddEmailAccountModal'
 import EmailScanModal from '../components/modals/EmailScanModal'
+import SmartScanModal from '../components/modals/SmartScanModal'
 import EmailScanResultsModal from '../components/email/EmailScanResultsModal'
 import SkeletonLoader from '../components/ui/SkeletonLoader'
 import { toast } from 'react-hot-toast'
@@ -18,6 +19,7 @@ const EmailAccountsPage: React.FC = () => {
   // 状态管理
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScanModal, setShowScanModal] = useState(false)
+  const [showSmartScanModal, setShowSmartScanModal] = useState(false)
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState<EmailAccount | null>(null)
   const [selectedScanJob, setSelectedScanJob] = useState<any>(null)
@@ -55,6 +57,12 @@ const EmailAccountsPage: React.FC = () => {
   const handleScanAccount = (account: EmailAccount) => {
     setSelectedAccount(account)
     setShowScanModal(true)
+  }
+
+  // 处理智能扫描账户
+  const handleSmartScanAccount = (account: EmailAccount) => {
+    setSelectedAccount(account)
+    setShowSmartScanModal(true)
   }
 
   // 处理添加账户成功
@@ -126,6 +134,7 @@ const EmailAccountsPage: React.FC = () => {
           account={account}
           onEdit={handleEditAccount}
           onScan={handleScanAccount}
+          onSmartScan={handleSmartScanAccount}
         />
       ))}
     </div>
@@ -432,6 +441,16 @@ const EmailAccountsPage: React.FC = () => {
           isOpen={showScanModal}
           onClose={() => {
             setShowScanModal(false)
+            setSelectedAccount(null)
+          }}
+          account={selectedAccount}
+          onSuccess={handleScanSuccess}
+        />
+
+        <SmartScanModal
+          isOpen={showSmartScanModal}
+          onClose={() => {
+            setShowSmartScanModal(false)
             setSelectedAccount(null)
           }}
           account={selectedAccount}

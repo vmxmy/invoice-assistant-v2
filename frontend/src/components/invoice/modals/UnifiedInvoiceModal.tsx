@@ -262,7 +262,10 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
 
   // 处理保存
   const handleSave = async () => {
+    console.log('🔧 [UnifiedInvoiceModal] 开始保存发票...');
+    
     if (!validateForm() || !invoice) {
+      console.log('❌ [UnifiedInvoiceModal] 表单验证失败或发票不存在');
       return;
     }
 
@@ -270,6 +273,8 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
       // 构建更新数据
       const updateData: Partial<Invoice> = {};
       const config = getInvoiceConfig(invoice);
+
+      console.log('📝 [UnifiedInvoiceModal] 当前编辑数据:', editData);
 
       // 根据字段配置构建更新数据
       config.groups.forEach(group => {
@@ -293,6 +298,8 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
             } else if (field.type === 'date') {
               if (field.key === 'invoice_date') {
                 updateData.invoice_date = value;
+              } else if (field.key === 'consumption_date' || field.key === 'travel_date' || field.key === 'flight_date') {
+                updateData.consumption_date = value;
               }
             } else if (field.type === 'text' || field.type === 'textarea') {
               // 映射到发票字段
@@ -315,23 +322,33 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
               }
             } else if (field.type === 'tags') {
               updateData.tags = value;
+            } else if (field.type === 'category') {
+              // 处理分类字段
+              if (field.key === 'expense_category') {
+                updateData.expense_category = value;
+              }
             }
           }
         });
       });
 
-      console.log('保存发票数据:', updateData);
+      console.log('💾 [UnifiedInvoiceModal] 准备保存的数据:', updateData);
+      console.log('🆔 [UnifiedInvoiceModal] 发票ID:', invoice.id);
 
-      await updateInvoiceMutation.mutateAsync({
+      const result = await updateInvoiceMutation.mutateAsync({
         id: invoice.id,
         data: updateData
       });
 
+      console.log('✅ [UnifiedInvoiceModal] 保存成功:', result);
+
       // 显示成功动画
       setShowSuccess(true);
+      notify.success('发票保存成功');
       
       // 延迟执行后续操作
       setTimeout(() => {
+        setShowSuccess(false);
         onSuccess?.();
         handleModeChange('view');
         // 刷新数据
@@ -339,6 +356,7 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
       }, 1500);
 
     } catch (error: any) {
+      console.error('❌ [UnifiedInvoiceModal] 保存失败:', error);
       notify.error(error.message || '发票更新失败');
     }
   };

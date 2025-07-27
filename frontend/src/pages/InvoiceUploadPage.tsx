@@ -94,7 +94,7 @@ const InvoiceUploadPage: React.FC = () => {
           invoice_number: ocrData.ticketNumber || ocrData.ticket_number || 'UNKNOWN',
           invoice_code: ocrData.electronicTicketNumber || '',
           invoice_date: convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date),
-          consumption_date: getConsumptionDate(ocrData),  // 添加消费日期（发车日期）
+          consumption_date: null,  // 消费日期由后端触发器自动计算
           seller_name: '中国铁路',
           buyer_name: ocrData.buyerName || ocrData.buyer_name || ocrData.passengerName || ocrData.passenger_name || 'UNKNOWN',
           buyer_tax_number: ocrData.buyerCreditCode || '',
@@ -156,7 +156,7 @@ const InvoiceUploadPage: React.FC = () => {
           invoice_number: ocrData.invoice_number || fields.invoice_number || ocrData.invoiceNumber || 'UNKNOWN',
           invoice_code: ocrData.invoice_code || fields.invoice_code || ocrData.invoiceCode || '',
           invoice_date: convertChineseDateToISO(ocrData.invoice_date || fields.invoice_date || ocrData.invoiceDate),
-          consumption_date: getConsumptionDate(ocrData),  // 添加消费日期
+          consumption_date: null,  // 消费日期由后端触发器自动计算
           seller_name: ocrData.seller_name || fields.seller_name || ocrData.sellerName || 'UNKNOWN',
           seller_tax_number: ocrData.seller_tax_number || fields.seller_tax_number || ocrData.sellerTaxNumber || '',
           buyer_name: ocrData.buyer_name || fields.buyer_name || ocrData.purchaserName || 'UNKNOWN',
@@ -481,36 +481,36 @@ const InvoiceUploadPage: React.FC = () => {
     return new Date().toISOString().split('T')[0];
   };
 
-  // 获取消费日期
-  const getConsumptionDate = (ocrData: any): string => {
-    const invoiceType = ocrData.invoice_type || ocrData.invoiceType || '';
-    
-    // 新API格式：字段在fields对象下
-    const fields = ocrData.fields || ocrData;
-    const invoiceDate = convertChineseDateToISO(fields.invoice_date || ocrData.invoiceDate || ocrData.invoice_date);
-    
-    // 火车票：从 departure_time 中提取日期
-    if (invoiceType === '火车票' || invoiceType === 'TrainTicket' || invoiceType.includes('铁路') || ocrData.title?.includes('铁路电子客票')) {
-      // 支持多种数据结构层级
-      const departureTime = fields.departure_time || 
-                           ocrData.departureTime || 
-                           ocrData.departure_time || 
-                           ocrData.structured_data?.departureTime ||
-                           ocrData.structured_data?.departure_time || '';
-      
-      if (departureTime) {
-        // 处理格式: "2024年1月15日 14:30" 或 "2025年03月24日08:45开"
-        const dateMatch = departureTime.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-        if (dateMatch) {
-          const [, year, month, day] = dateMatch;
-          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        }
-      }
-    }
-    
-    // 其他发票类型：默认使用开票日期
-    return invoiceDate;
-  };
+  // 获取消费日期 - 已注释，改由后端触发器自动计算
+  // const getConsumptionDate = (ocrData: any): string => {
+  //   const invoiceType = ocrData.invoice_type || ocrData.invoiceType || '';
+  //   
+  //   // 新API格式：字段在fields对象下
+  //   const fields = ocrData.fields || ocrData;
+  //   const invoiceDate = convertChineseDateToISO(fields.invoice_date || ocrData.invoiceDate || ocrData.invoice_date);
+  //   
+  //   // 火车票：从 departure_time 中提取日期
+  //   if (invoiceType === '火车票' || invoiceType === 'TrainTicket' || invoiceType.includes('铁路') || ocrData.title?.includes('铁路电子客票')) {
+  //     // 支持多种数据结构层级
+  //     const departureTime = fields.departure_time || 
+  //                          ocrData.departureTime || 
+  //                          ocrData.departure_time || 
+  //                          ocrData.structured_data?.departureTime ||
+  //                          ocrData.structured_data?.departure_time || '';
+  //     
+  //     if (departureTime) {
+  //       // 处理格式: "2024年1月15日 14:30" 或 "2025年03月24日08:45开"
+  //       const dateMatch = departureTime.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  //       if (dateMatch) {
+  //         const [, year, month, day] = dateMatch;
+  //         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  //       }
+  //     }
+  //   }
+  //   
+  //   // 其他发票类型：默认使用开票日期
+  //   return invoiceDate;
+  // };
 
   // OCR 编辑状态
   const [editingOcrData, setEditingOcrData] = useState<any>(null);
@@ -534,7 +534,7 @@ const InvoiceUploadPage: React.FC = () => {
       invoice_number: fields.invoice_number || fields.ticket_number || '',
       invoice_code: fields.invoice_code || fields.electronic_ticket_number || '',
       invoice_date: convertChineseDateToISO(fields.invoice_date),
-      consumption_date: getConsumptionDate(ocrData),
+      consumption_date: null,  // 消费日期由后端触发器自动计算
       seller_name: fields.seller_name || (ocrData.invoice_type === '火车票' || ocrData.invoice_type === 'TrainTicket' ? '中国铁路' : ''),
       seller_tax_number: fields.seller_tax_number || '',
       buyer_name: fields.buyer_name || fields.passenger_name || '',
@@ -688,7 +688,9 @@ const InvoiceUploadPage: React.FC = () => {
       initialFormData.ticket_number = fields.ticket_number || '';
       initialFormData.electronic_ticket_number = fields.electronic_ticket_number || '';
       initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
-      initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
+      // 消费日期由后端触发器自动计算
+      // initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
+      initialFormData.consumption_date = fields.consumption_date || null;
       initialFormData.fare = fields.total_amount || fields.ticket_price || fields.fare || '0';
       initialFormData.buyer_name = fields.buyer_name || fields.passenger_name || '';
       initialFormData.buyer_credit_code = fields.buyer_credit_code || '';
@@ -699,7 +701,9 @@ const InvoiceUploadPage: React.FC = () => {
       initialFormData.invoice_number = fields.invoice_number || '';
       initialFormData.invoice_code = fields.invoice_code || '';
       initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
-      initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
+      // 消费日期由后端触发器自动计算
+      // initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
+      initialFormData.consumption_date = fields.consumption_date || null;
       initialFormData.seller_name = fields.seller_name || '';
       initialFormData.seller_tax_number = fields.seller_tax_number || '';
       initialFormData.buyer_name = fields.buyer_name || '';
@@ -1040,10 +1044,10 @@ const InvoiceUploadPage: React.FC = () => {
         processedOcrData.invoiceDate = processedOcrData.invoice_date;
       }
       
-      // 确保包含消费日期
-      if (!processedOcrData.consumption_date) {
-        processedOcrData.consumption_date = getConsumptionDate(processedOcrData);
-      }
+      // 消费日期由后端触发器自动计算，前端不再处理
+      // if (!processedOcrData.consumption_date) {
+      //   processedOcrData.consumption_date = getConsumptionDate(processedOcrData);
+      // }
       
       console.log('📤 [uploadFile] 处理后的OCR数据:', processedOcrData);
       

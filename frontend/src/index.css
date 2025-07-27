@@ -17,151 +17,42 @@
 
 /* 配置 DaisyUI 主题 */
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark;
+  themes: all;
 }
 
-/* 配置 Tailwind CSS v4 暗色模式变体 */
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+/* 配置 Tailwind CSS v4 暗色模式变体 - 支持所有深色主题 */
+@custom-variant dark (&:where(
+  [data-theme=dark], [data-theme=dark] *,
+  [data-theme=synthwave], [data-theme=synthwave] *,
+  [data-theme=halloween], [data-theme=halloween] *,
+  [data-theme=forest], [data-theme=forest] *,
+  [data-theme=aqua], [data-theme=aqua] *,
+  [data-theme=black], [data-theme=black] *,
+  [data-theme=luxury], [data-theme=luxury] *,
+  [data-theme=dracula], [data-theme=dracula] *,
+  [data-theme=business], [data-theme=business] *,
+  [data-theme=night], [data-theme=night] *,
+  [data-theme=coffee], [data-theme=coffee] *,
+  [data-theme=dim], [data-theme=dim] *,
+  [data-theme=sunset], [data-theme=sunset] *
+));
 
-/* 全局背景渐变 - 优雅层次感 */
+/* 全局背景渐变 - 自适应主题色彩 */
 @layer base {
   .page-container {
     background: 
-      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--color-primary) l c h / 0.04), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--color-accent) l c h / 0.03), transparent),
-      linear-gradient(180deg, 
-        oklch(97% 0.006 250),
-        oklch(96% 0.008 250) 50%,
-        oklch(95.5% 0.009 250));
+      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--p) l c h / 0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--a) l c h / 0.03), transparent),
+      oklch(from var(--b1) l c h);
   }
   
-  [data-theme="dark"] .page-container {
+  /* 深色主题优化背景 */
+  .dark .page-container {
     background: 
-      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--color-primary) l c h / 0.02), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--color-accent) l c h / 0.015), transparent),
-      linear-gradient(180deg,
-        oklch(15% 0.01 255),
-        oklch(14% 0.012 255) 50%,
-        oklch(13.5% 0.013 255));
+      radial-gradient(ellipse 80% 50% at 20% 0%, oklch(from var(--p) l c h / 0.02), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, oklch(from var(--a) l c h / 0.015), transparent),
+      oklch(from var(--b1) l c h);
   }
-}
-
-/* 亮色主题配置 - 专业发票管理系统 */
-@plugin "daisyui/theme" {
-  name: "light";
-  default: true;
-  prefersdark: false;
-  color-scheme: light;
-
-  /* 优化的字体配置 */
-  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-serif: "Charter", "Georgia", "Times New Roman", serif;
-  --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
-
-  /* 专业金融软件配色方案 - 优雅非纯白色调 */
-  --color-base-100: oklch(98.5% 0.005 250);    /* 优雅米白，带轻微蓝调 */
-  --color-base-200: oklch(96.5% 0.008 250);    /* 柔和灰白 */
-  --color-base-300: oklch(93% 0.01 250);       /* 温暖中灰 */
-  --color-base-content: oklch(22% 0.02 250);   /* 深灰文字，保持高对比度 */
-  
-  --color-primary: oklch(58% 0.19 245);        /* 专业蓝 - 传达信任与稳定 */
-  --color-primary-content: oklch(98% 0.01 245);
-  
-  --color-secondary: oklch(71% 0.04 247);      /* 石板灰 - 专业中性色 */
-  --color-secondary-content: oklch(98% 0.01 247);
-  
-  --color-accent: oklch(55% 0.21 275);         /* 靛蓝 - 高端感 */
-  --color-accent-content: oklch(98% 0.01 275);
-  
-  --color-neutral: oklch(32% 0.02 265);        /* 精致深灰 */
-  --color-neutral-content: oklch(95% 0.01 265);
-  
-  --color-info: oklch(66% 0.18 220);           /* 信息蓝 */
-  --color-info-content: oklch(98% 0.01 220);
-  
-  --color-success: oklch(64% 0.22 142);        /* 增长绿 - 财务正向指标 */
-  --color-success-content: oklch(98% 0.01 142);
-  
-  --color-warning: oklch(77% 0.18 85);         /* 注意琥珀 */
-  --color-warning-content: oklch(15% 0.02 85);
-  
-  --color-error: oklch(65% 0.27 25);           /* 警示红 */
-  --color-error-content: oklch(98% 0.01 25);
-
-  /* 专业圆角设计 */
-  --radius-selector: 0.5rem;
-  --radius-field: 0.375rem;
-  --radius-box: 0.5rem;
-
-  /* 精确尺寸 */
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-
-  /* 细腻边框 */
-  --border: 1px;
-
-  /* 层次深度 */
-  --depth: 1;
-  --noise: 0;
-}
-
-/* 暗色主题配置 - 专业发票管理系统 */
-@plugin "daisyui/theme" {
-  name: "dark";
-  default: false;
-  prefersdark: true;
-  color-scheme: dark;
-
-  /* 优化的字体配置 */
-  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --font-serif: "Charter", "Georgia", "Times New Roman", serif;
-  --font-mono: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace;
-
-  /* 专业暗色金融软件配色方案 - 优雅深色调 */
-  --color-base-100: oklch(16% 0.012 255);       /* 深蓝灰背景 - 带温暖感 */
-  --color-base-200: oklch(14% 0.012 255);       /* 更深背景 */
-  --color-base-300: oklch(12% 0.012 255);       /* 最深背景 */
-  --color-base-content: oklch(92% 0.008 255);   /* 柔和白字 - 高对比度但不刺眼 */
-  
-  --color-primary: oklch(65% 0.18 245);         /* 明亮专业蓝 - 暗背景优化 */
-  --color-primary-content: oklch(15% 0.02 245);
-  
-  --color-secondary: oklch(75% 0.04 247);       /* 亮石板灰 */
-  --color-secondary-content: oklch(15% 0.02 247);
-  
-  --color-accent: oklch(68% 0.20 275);          /* 活力靛蓝 */
-  --color-accent-content: oklch(15% 0.02 275);
-  
-  --color-neutral: oklch(85% 0.02 265);         /* 浅灰中性色 */
-  --color-neutral-content: oklch(25% 0.02 265);
-  
-  --color-info: oklch(69% 0.17 220);            /* 明亮信息蓝 */
-  --color-info-content: oklch(15% 0.02 220);
-  
-  --color-success: oklch(67% 0.20 142);         /* 明亮增长绿 */
-  --color-success-content: oklch(15% 0.02 142);
-  
-  --color-warning: oklch(79% 0.17 85);          /* 活力琥珀 */
-  --color-warning-content: oklch(15% 0.02 85);
-  
-  --color-error: oklch(68% 0.25 25);            /* 明亮警示红 */
-  --color-error-content: oklch(15% 0.02 25);
-
-  /* 专业圆角设计 - 与亮色主题保持一致 */
-  --radius-selector: 0.5rem;
-  --radius-field: 0.375rem;
-  --radius-box: 0.5rem;
-
-  /* 精确尺寸 */
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-
-  /* 细腻边框 */
-  --border: 1px;
-
-  /* 适合暗色主题的深度效果 */
-  --depth: 1;
-  --noise: 0;
 }
 
 /* 字体配置已统一在 typography.css 中管理 */

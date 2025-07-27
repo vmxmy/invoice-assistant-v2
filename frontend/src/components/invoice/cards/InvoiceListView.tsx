@@ -15,6 +15,10 @@ interface Invoice {
   invoice_type?: string;
   created_at: string;
   tags: string[];
+  secondary_category_name?: string;
+  primary_category_name?: string;
+  expense_category?: string;
+  category_icon?: string;
   extracted_data?: {
     structured_data?: {
       total_amount?: string;
@@ -29,7 +33,7 @@ interface InvoiceListViewProps {
   selectedInvoices: string[];
   onSelectInvoice: (invoiceId: string) => void;
   onViewInvoice: (invoiceId: string) => void;
-  onEditInvoice: (invoice: Invoice) => void;
+  onDownloadInvoice: (invoice: Invoice) => void;
   onDeleteInvoice: (invoice: Invoice) => void;
   isLoading?: boolean;
 }
@@ -39,7 +43,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   selectedInvoices,
   onSelectInvoice,
   onViewInvoice,
-  onEditInvoice,
+  onDownloadInvoice,
   onDeleteInvoice,
   isLoading = false
 }) => {
@@ -89,7 +93,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
             isSelected={selectedInvoices.includes(invoice.id)}
             onSelect={onSelectInvoice}
             onView={onViewInvoice}
-            onEdit={onEditInvoice}
+            onEdit={onDownloadInvoice}
             onDelete={onDeleteInvoice}
           />
         ))}

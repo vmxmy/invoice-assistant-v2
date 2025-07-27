@@ -13,7 +13,8 @@ import {
   Receipt,
   Package,
   Hotel,
-  Coffee
+  Coffee,
+  Download
 } from 'lucide-react';
 import type { Invoice } from '../../../types/table';
 import { 
@@ -63,13 +64,13 @@ const getInvoiceIcon = (type?: string) => {
 
 interface ColumnDefinitionOptions {
   onViewInvoice: (invoiceId: string) => void;
-  onEditInvoice: (invoice: Invoice) => void;
+  onDownloadInvoice: (invoice: Invoice) => void;
   onDeleteInvoice: (invoice: Invoice) => void;
 }
 
 export const getColumnDefinitions = ({
   onViewInvoice,
-  onEditInvoice,
+  onDownloadInvoice,
   onDeleteInvoice,
 }: ColumnDefinitionOptions): ColumnDef<Invoice>[] => [
   // 选择列
@@ -470,10 +471,10 @@ export const getColumnDefinitions = ({
           </button>
           <button
             className="btn btn-ghost btn-xs"
-            onClick={() => onEditInvoice(invoice)}
-            title="编辑"
+            onClick={() => onDownloadInvoice(invoice)}
+            title="下载"
           >
-            <Edit className="w-4 h-4" />
+            <Download className="w-4 h-4" />
           </button>
           <button
             className="btn btn-ghost btn-xs text-error"

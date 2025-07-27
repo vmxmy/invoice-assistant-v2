@@ -5,7 +5,7 @@
  * 支持多层缓存、ETag验证和实时更新
  */
 
-import { apiClient } from './apiClient';
+import { api } from './apiClient';
 import { InvoiceType } from '../types/invoice';
 
 // ===== 接口定义 =====
@@ -275,12 +275,10 @@ class ConfigService {
         headers['If-None-Match'] = cached.etag;
       }
       
-      const response = await apiClient.get(
-        `/config/categories/${category}`,
-        {
-          params: { environment: this.environment },
-          headers
-        }
+      const response = await api.config.getCategoryConfig(
+        category,
+        { environment: this.environment },
+        headers
       );
       
       // 304 Not Modified - 使用缓存
@@ -318,11 +316,10 @@ class ConfigService {
     const cached = this.getCache(cacheKey);
     
     try {
-      const response = await apiClient.get(
-        `/config/categories/${category}/${key}`,
-        {
-          params: { environment: this.environment }
-        }
+      const response = await api.config.getConfig(
+        category,
+        key,
+        { environment: this.environment }
       );
       
       const data = response.data;
@@ -354,7 +351,7 @@ class ConfigService {
     }
     
     try {
-      const response = await apiClient.get('/config/invoice-types');
+      const response = await api.config.getInvoiceTypes();
       const data = response.data;
       
       // 缓存数据
@@ -382,7 +379,7 @@ class ConfigService {
     }
     
     try {
-      const response = await apiClient.get(`/config/invoice-types/${code}`);
+      const response = await api.config.getInvoiceTypeConfig(code);
       const data = response.data;
       
       // 缓存数据
@@ -410,7 +407,7 @@ class ConfigService {
     }
     
     try {
-      const response = await apiClient.get('/config/feature-flags');
+      const response = await api.config.getFeatureFlags();
       const data = response.data;
       
       // 缓存数据（功能开关缓存时间较短）
@@ -438,7 +435,7 @@ class ConfigService {
     }
     
     try {
-      const response = await apiClient.get(`/config/feature-flags/${featureName}`);
+      const response = await api.config.getFeatureFlag(featureName);
       const data = response.data;
       
       // 缓存数据
@@ -463,7 +460,7 @@ class ConfigService {
    */
   async updateConfig(category: string, key: string, value: any, reason: string): Promise<ConfigResponse> {
     try {
-      const response = await apiClient.put(`/config/categories/${category}/${key}`, {
+      const response = await api.config.updateConfig(category, key, {
         value,
         reason,
         environment: this.environment

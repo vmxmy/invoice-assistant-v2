@@ -12,6 +12,8 @@ import SetupProfile from './components/SetupProfile'
 import InvoiceListPage from './pages/InvoiceListPage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import EmailAccountsPage from './pages/EmailAccountsPage'
+import EmailScanJobsPage from './pages/EmailScanJobsPage'
+import AccountSettingsPage from './pages/AccountSettingsPage'
 import FontDemo from './components/FontDemo'
 import ThemeDemo from './components/ui/ThemeDemo'
 import './App.css'
@@ -81,6 +83,22 @@ function App() {
               element={
                 <ProtectedRoute requireProfile={true}>
                   <EmailAccountsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings/email-scan-jobs" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <EmailScanJobsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <AccountSettingsPage />
                 </ProtectedRoute>
               } 
             />

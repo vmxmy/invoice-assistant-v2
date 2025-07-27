@@ -23,6 +23,19 @@ export interface Invoice {
     };
     [key: string]: any;
   };
+  // 费用分类相关字段
+  expense_category?: string;
+  primary_category_name?: string;
+  secondary_category_name?: string;
+  category_full_path?: string;
+  category_level?: number;
+  parent_category_name?: string;
+  category_info?: {
+    current?: {
+      icon?: string;
+      color?: string;
+    };
+  };
 }
 
 // 表格状态接口

@@ -328,7 +328,7 @@ class EmailScannerService:
                 'total_emails': sync_result.get('total_emails', 0) or sync_result.get('recent_emails', 0),
                 'matched_emails': len(invoice_emails),
                 'scanned_emails': sync_result.get('new_emails', 0) + sync_result.get('updated_emails', 0),
-                'processed_invoices': 0,  # 需要后续实现OCR处理
+                'processed_invoices': 0,  # 将在自动处理后更新
                 'body_pdfs_found': body_pdfs_count if 'body_pdfs_count' in locals() else 0,
                 'emails': [
                     {
@@ -344,6 +344,36 @@ class EmailScannerService:
                 ],
                 'sync_errors': sync_result.get('errors', [])
             }
+            
+            # 自动处理扫描到的发票邮件
+            if invoice_emails:
+                logger.info(f"开始自动处理 {len(invoice_emails)} 封发票邮件")
+                scan_job.current_step = "自动处理发票"
+                scan_job.progress = 85
+                await db.commit()
+                
+                try:
+                    # 调用自动处理方法
+                    processing_result = await EmailScannerService._auto_process_invoices(
+                        db=db,
+                        scan_job=scan_job,
+                        email_account=email_account,
+                        invoice_emails=invoice_emails[:100],  # 限制处理数量
+                        user_id=user_id
+                    )
+                    
+                    # 更新处理结果
+                    result['processed_invoices'] = processing_result['processed_count']
+                    result['processing_summary'] = processing_result['summary']
+                    result['duplicate_count'] = processing_result['duplicate_count']
+                    result['error_count'] = processing_result['error_count']
+                    
+                    # 更新扫描任务统计
+                    scan_job.processed_invoices = processing_result['processed_count']
+                    
+                except Exception as e:
+                    logger.error(f"自动处理发票失败: {str(e)}", exc_info=True)
+                    result['processing_error'] = str(e)
             
             # 原子更新任务完成状态 - 确保所有字段同时更新
             scan_job.status = ScanJobStatus.COMPLETED
@@ -591,6 +621,211 @@ class EmailScannerService:
         search_criteria = " ".join(criteria) if criteria else "ALL"
         logger.info(f"构建的IMAP搜索条件: {search_criteria}")
         return search_criteria
+    
+    @staticmethod
+    async def _auto_process_invoices(
+        db: AsyncSession,
+        scan_job: EmailScanJob,
+        email_account: EmailAccount,
+        invoice_emails: List[Dict[str, Any]],
+        user_id: str
+    ) -> Dict[str, Any]:
+        """自动处理扫描到的发票邮件
+        
+        Args:
+            db: 数据库会话
+            scan_job: 扫描任务
+            email_account: 邮箱账户
+            invoice_emails: 发票邮件列表
+            user_id: 用户ID
+            
+        Returns:
+            处理结果统计
+        """
+        from app.services.email.pdf_extractor import EmailPDFExtractor
+        from app.services.aliyun_ocr_service import AliyunOCRService
+        from app.services.ocr_parser_service import OCRParserService
+        from app.services.invoice_service import InvoiceService
+        from app.services.file_service import FileService
+        from app.models.invoice import Invoice, InvoiceSource
+        from sqlalchemy import select
+        
+        # 初始化服务
+        pdf_extractor = EmailPDFExtractor(db, user_id)
+        ocr_service = AliyunOCRService(settings)
+        parser_service = OCRParserService()
+        file_service = FileService()
+        invoice_service = InvoiceService(db, file_service)
+        
+        # 处理统计
+        processed_count = 0
+        duplicate_count = 0
+        error_count = 0
+        processing_details = []
+        
+        # 批量处理每封邮件
+        for idx, email in enumerate(invoice_emails):
+            try:
+                # 更新进度
+                progress = 85 + (idx / len(invoice_emails)) * 10
+                scan_job.current_step = f"处理发票 {idx + 1}/{len(invoice_emails)}"
+                scan_job.progress = int(progress)
+                await db.commit()
+                
+                # 提取PDF（包括附件和正文链接）
+                pdfs = await pdf_extractor.extract_pdfs_from_email(
+                    str(email_account.id),
+                    email['uid']
+                )
+                
+                if not pdfs:
+                    logger.info(f"邮件 UID {email['uid']} 中未找到PDF")
+                    continue
+                
+                # 处理每个PDF
+                for pdf in pdfs:
+                    try:
+                        # OCR识别
+                        ocr_result = await ocr_service.recognize_mixed_invoices(pdf['data'])
+                        
+                        if not ocr_result or 'Data' not in ocr_result:
+                            logger.warning(f"OCR识别失败: {pdf.get('name', 'unknown')}")
+                            error_count += 1
+                            continue
+                        
+                        # 解析OCR结果
+                        invoice_type, parsed_fields = parser_service.parse_invoice_data(ocr_result)
+                        
+                        # 转换为字典格式
+                        from app.adapters.ocr_field_adapter import ocr_field_adapter
+                        raw_fields_dict = {}
+                        for field in parsed_fields:
+                            raw_fields_dict[field.original_key or field.name] = field.value
+                        
+                        # 使用字段适配器
+                        adapted_fields = ocr_field_adapter.adapt_fields(raw_fields_dict, invoice_type)
+                        
+                        # 检查重复
+                        invoice_number = adapted_fields.get('invoice_number')
+                        if invoice_number:
+                            existing_query = select(Invoice).where(
+                                Invoice.user_id == user_id,
+                                Invoice.invoice_number == invoice_number,
+                                Invoice.deleted_at.is_(None)
+                            )
+                            existing_result = await db.execute(existing_query)
+                            existing_invoice = existing_result.scalar_one_or_none()
+                            
+                            if existing_invoice:
+                                logger.info(f"发票 {invoice_number} 已存在，执行智能合并")
+                                duplicate_count += 1
+                                
+                                # 智能合并：如果新数据更完整，更新现有记录
+                                updated = False
+                                if not existing_invoice.seller_name and adapted_fields.get('seller_name'):
+                                    existing_invoice.seller_name = adapted_fields['seller_name']
+                                    updated = True
+                                if not existing_invoice.buyer_name and adapted_fields.get('buyer_name'):
+                                    existing_invoice.buyer_name = adapted_fields['buyer_name']
+                                    updated = True
+                                if not existing_invoice.total_amount and adapted_fields.get('total_amount'):
+                                    existing_invoice.total_amount = adapted_fields['total_amount']
+                                    updated = True
+                                    
+                                if updated:
+                                    existing_invoice.updated_at = datetime.utcnow()
+                                    await db.commit()
+                                    logger.info(f"更新了发票 {invoice_number} 的信息")
+                                
+                                processing_details.append({
+                                    'invoice_number': invoice_number,
+                                    'action': 'merged' if updated else 'skipped',
+                                    'email_uid': email['uid']
+                                })
+                                continue
+                        
+                        # 准备发票数据
+                        ocr_data = {
+                            'invoice_number': adapted_fields.get('invoice_number'),
+                            'invoice_date': adapted_fields.get('invoice_date'),
+                            'seller_name': adapted_fields.get('seller_name'),
+                            'buyer_name': adapted_fields.get('buyer_name'),
+                            'total_amount': adapted_fields.get('total_amount', 0),
+                            'tax_amount': adapted_fields.get('tax_amount', 0),
+                            'invoice_type': invoice_type,
+                            'extracted_data': {
+                                'ocr_result': ocr_result,
+                                'raw_data': raw_fields_dict,
+                                'structured_data': adapted_fields,
+                                'invoice_type': invoice_type
+                            }
+                        }
+                        
+                        # 文件信息
+                        file_info = {
+                            'file_path': f"temp/{pdf.get('name', 'email_attachment.pdf')}",
+                            'file_hash': hashlib.md5(pdf['data']).hexdigest(),
+                            'file_size': len(pdf['data']),
+                            'original_filename': pdf.get('name', 'email_attachment.pdf')
+                        }
+                        
+                        # 源元数据
+                        source_metadata = {
+                            'email_uid': email['uid'],
+                            'email_subject': email['subject'],
+                            'email_account_id': str(email_account.id),
+                            'scan_job_id': str(scan_job.id),
+                            'pdf_source': pdf['source']
+                        }
+                        
+                        # 创建发票记录（复用现有方法）
+                        from uuid import UUID
+                        invoice = await invoice_service.create_invoice_from_ocr_data(
+                            ocr_data=ocr_data,
+                            file_info=file_info,
+                            user_id=UUID(user_id),
+                            source=InvoiceSource.EMAIL,
+                            source_metadata=source_metadata
+                        )
+                        
+                        processed_count += 1
+                        processing_details.append({
+                            'invoice_number': invoice.invoice_number,
+                            'action': 'created',
+                            'invoice_id': str(invoice.id),
+                            'email_uid': email['uid']
+                        })
+                        
+                        logger.info(f"成功创建发票: {invoice.invoice_number}")
+                        
+                    except Exception as e:
+                        logger.error(f"处理PDF失败: {str(e)}", exc_info=True)
+                        error_count += 1
+                        processing_details.append({
+                            'pdf_name': pdf.get('name', 'unknown'),
+                            'action': 'error',
+                            'error': str(e),
+                            'email_uid': email['uid']
+                        })
+                        
+            except Exception as e:
+                logger.error(f"处理邮件 UID {email['uid']} 失败: {str(e)}", exc_info=True)
+                error_count += 1
+        
+        # 返回处理结果
+        return {
+            'processed_count': processed_count,
+            'duplicate_count': duplicate_count,
+            'error_count': error_count,
+            'total_emails': len(invoice_emails),
+            'summary': {
+                'new_invoices': processed_count,
+                'duplicates_handled': duplicate_count,
+                'errors': error_count,
+                'success_rate': processed_count / len(invoice_emails) if invoice_emails else 0
+            },
+            'details': processing_details[:50]  # 限制返回详情数量
+        }
     
     @staticmethod
     def _is_invoice_email(email_info: Dict[str, Any], scan_params: ScanParams) -> bool:

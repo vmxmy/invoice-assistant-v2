@@ -40,7 +40,7 @@ class SearchBuilder:
                 raise TypeError(f"date_from 必须是字符串、date 或 datetime 对象")
                 
             self.criteria_parts.append(('date_gte', date_from))
-            logger.debug(f"Added date_from: {date_from}")
+            logger.info(f"SearchBuilder - Added date_from: {date_from} (type: {type(date_from)})")
             
         if date_to:
             # 处理字符串格式的日期
@@ -58,8 +58,9 @@ class SearchBuilder:
                 raise TypeError(f"date_to 必须是字符串、date 或 datetime 对象")
                 
             # imap-tools date_lt is exclusive, so add 1 day
-            self.criteria_parts.append(('date_lt', date_to + timedelta(days=1)))
-            logger.debug(f"Added date_to: {date_to} (search until {date_to + timedelta(days=1)})")
+            date_to_exclusive = date_to + timedelta(days=1)
+            self.criteria_parts.append(('date_lt', date_to_exclusive))
+            logger.info(f"SearchBuilder - Added date_to: {date_to} -> {date_to_exclusive} (type: {type(date_to_exclusive)})")
             
         return self
         
@@ -325,6 +326,14 @@ class SearchBuilder:
             result = 'ALL'
             
         logger.info(f"SearchBuilder.build - 最终搜索条件: {result}")
+        logger.info(f"SearchBuilder.build - 条件类型: {type(result)}")
+        
+        # 添加额外的调试信息
+        if hasattr(result, '__dict__'):
+            logger.info(f"SearchBuilder.build - 条件详情: {result.__dict__}")
+        elif hasattr(result, '_field_value_map'):
+            logger.info(f"SearchBuilder.build - 字段映射: {result._field_value_map}")
+        
         return result
             
     def to_string(self) -> str:

@@ -15,9 +15,10 @@ interface EmailAccountCardProps {
   account: EmailAccount
   onEdit?: (account: EmailAccount) => void
   onScan?: (account: EmailAccount) => void
+  onSmartScan?: (account: EmailAccount) => void
 }
 
-const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, onScan }) => {
+const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, onScan, onSmartScan }) => {
   const [showScanOptions, setShowScanOptions] = useState(false)
 
   const deleteMutation = useDeleteEmailAccount()
@@ -279,7 +280,7 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
             <>
               {/* 扫描选项 */}
               {showScanOptions ? (
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <button
                     className="btn btn-sm btn-ghost"
                     onClick={() => setShowScanOptions(false)}
@@ -287,7 +288,7 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
                     取消
                   </button>
                   <LoadingButton
-                    className="btn btn-sm btn-outline btn-primary"
+                    className="btn btn-sm btn-outline btn-secondary"
                     isLoading={createScanJobMutation.isPending || resetSyncMutation.isPending}
                     onClick={handleInitSync}
                   >
@@ -295,9 +296,9 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
                   </LoadingButton>
                   <button
                     className="btn btn-sm btn-primary"
-                    onClick={() => { onScan?.(account); setShowScanOptions(false); }}
+                    onClick={() => { onSmartScan?.(account); setShowScanOptions(false); }}
                   >
-                    自定义扫描
+                    🚀 增量扫描
                   </button>
                 </div>
               ) : (

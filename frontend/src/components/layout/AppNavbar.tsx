@@ -10,7 +10,7 @@ import {
   Mail
 } from 'lucide-react';
 import { useSession, useProfile, useSignOut } from '../../hooks/useAuth';
-import ThemeToggle from '../ui/ThemeToggle';
+import ThemeSelector from '../ui/ThemeSelector';
 
 const AppNavbar: React.FC = () => {
   const location = useLocation();
@@ -107,7 +107,7 @@ const AppNavbar: React.FC = () => {
             <li>
               <div className="flex items-center justify-between px-4 py-2">
                 <span className="text-sm">主题切换</span>
-                <ThemeToggle showLabel={false} className="scale-90" />
+                <ThemeSelector showLabel={false} className="scale-90" />
               </div>
             </li>
             <li>
@@ -130,7 +130,7 @@ const AppNavbar: React.FC = () => {
         
         {/* 主题切换 - 桌面端 */}
         <div className="hidden lg:flex mr-4">
-          <ThemeToggle showLabel={false} />
+          <ThemeSelector showLabel={false} />
         </div>
         
         {/* 用户信息 - 仅桌面端显示 */}
@@ -158,33 +158,59 @@ const AppNavbar: React.FC = () => {
           </div>
           <ul
             tabIndex={0}
-            className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-52 border border-base-200"
+            className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-64 border border-base-200"
           >
-            <li className="menu-title px-2 py-2">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-base-content">
-                  {profile?.display_name || user?.email?.split('@')[0]}
-                </span>
-                <span className="text-xs text-base-content/60 truncate">
-                  {user?.email}
-                </span>
+            {/* 用户信息 */}
+            <li className="p-3 hover:bg-transparent">
+              <div className="flex items-center gap-3">
+                <div className="avatar">
+                  <div className="w-12 rounded-full">
+                    <img 
+                      src={profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email}&backgroundColor=3b82f6&textColor=ffffff`}
+                      alt="用户头像"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-base truncate">
+                    {profile?.display_name || user?.email?.split('@')[0]}
+                  </div>
+                  <div className="text-xs text-base-content/60 truncate">
+                    {user?.email}
+                  </div>
+                </div>
               </div>
             </li>
+            
             <div className="divider my-1"></div>
+            
+            {/* 个人资料 */}
             <li>
-              <Link to="/settings" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                账户设置
+              <Link to="/settings" className="flex items-center gap-2 py-2">
+                <User className="w-4 h-4" />
+                <span>个人资料</span>
               </Link>
             </li>
+            
+            {/* 账户设置 */}
+            <li>
+              <Link to="/settings#security" className="flex items-center gap-2 py-2">
+                <Settings className="w-4 h-4" />
+                <span>账户设置</span>
+              </Link>
+            </li>
+            
+            <div className="divider my-1"></div>
+            
+            {/* 退出登录 */}
             <li>
               <button 
                 onClick={handleSignOut}
-                className="flex items-center gap-2 text-error hover:bg-error/10"
+                className="flex items-center gap-2 py-2 text-error hover:bg-error/10"
                 disabled={signOutMutation.isLoading}
               >
                 <LogOut className="w-4 h-4" />
-                {signOutMutation.isLoading ? '退出中...' : '退出登录'}
+                <span>{signOutMutation.isLoading ? '退出中...' : '退出登录'}</span>
               </button>
             </li>
           </ul>

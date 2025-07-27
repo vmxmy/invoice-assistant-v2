@@ -136,6 +136,13 @@ export interface EmailScanJobCreate {
   description?: string
 }
 
+export interface SmartScanRequest {
+  email_account_id: string
+  keywords?: string[]
+  exclude_keywords?: string[]
+  description?: string
+}
+
 export interface EmailScanProgress {
   job_id: string
   status: string

@@ -8,6 +8,7 @@ import {
   type FieldConfig,
   type FieldGroup
 } from '../../../config/invoiceFieldsConfig';
+import { CategorySelector } from '../CategorySelector';
 
 interface AdaptiveInvoiceFieldsProps {
   invoice: Invoice;
@@ -126,6 +127,27 @@ const FieldRenderer: React.FC<{
           </div>
         );
       }
+    }
+
+    // 分类字段的查看模式
+    if (field.type === 'category') {
+      return (
+        <div className="flex items-start gap-3">
+          <IconComponent className="w-4 h-4 text-base-content/60 mt-1" />
+          <div className="flex-1">
+            <p className="text-sm text-base-content/60">{field.label}</p>
+            <CategorySelector
+              value={value || ''}
+              onChange={() => {}} // 查看模式不需要onChange
+              disabled={true}
+              size="sm"
+            />
+            {field.description && (
+              <p className="text-xs text-base-content/40 mt-1">{field.description}</p>
+            )}
+          </div>
+        </div>
+      );
     }
 
     // 普通字段查看模式
@@ -330,6 +352,40 @@ const FieldRenderer: React.FC<{
               <AlertCircle className="w-3 h-3" />
               {error}
             </span>
+          </label>
+        )}
+      </div>
+    );
+  }
+
+  // 分类选择字段
+  if (field.type === 'category') {
+    return (
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text flex items-center gap-2">
+            <IconComponent className="w-4 h-4" />
+            {field.label}
+            {field.required && <span className="text-error">*</span>}
+          </span>
+        </label>
+        <CategorySelector
+          value={value || ''}
+          onChange={(newValue) => onChange?.(newValue)}
+          disabled={mode === 'view'}
+          size="md"
+        />
+        {error && (
+          <label className="label">
+            <span className="label-text-alt text-error flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {error}
+            </span>
+          </label>
+        )}
+        {field.description && !error && (
+          <label className="label">
+            <span className="label-text-alt text-base-content/60">{field.description}</span>
           </label>
         )}
       </div>

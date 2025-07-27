@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, Filter, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
+import { fieldMetadataService, type FieldMetadata } from '../../../services/fieldMetadata.service';
 
+// 通用搜索过滤器接口 - 支持所有字段
 export interface SearchFilters {
+  // 传统支持的字段（保持向后兼容）
   invoiceNumber?: string;
   sellerName?: string;
   buyerName?: string;
@@ -11,6 +14,9 @@ export interface SearchFilters {
   dateTo?: string;
   status?: string[];
   source?: string[];
+  
+  // 动态字段搜索 - 键为字段名，值为搜索条件
+  [fieldName: string]: any;
 }
 
 interface AdvancedSearchDrawerProps {
@@ -27,6 +33,39 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
   currentFilters
 }) => {
   const [filters, setFilters] = useState<SearchFilters>(currentFilters);
+  const [searchableFields, setSearchableFields] = useState<FieldMetadata[]>([]);
+  const [isLoadingFields, setIsLoadingFields] = useState(true);
+
+  // 加载可搜索字段
+  useEffect(() => {
+    const loadSearchableFields = async () => {
+      setIsLoadingFields(true);
+      try {
+        const fields = await fieldMetadataService.getSearchableFields();
+        // 按分类和显示顺序排序
+        const sortedFields = fields.sort((a, b) => {
+          const categoryOrder = { basic: 1, financial: 2, temporal: 3, metadata: 4, system: 5 };
+          const aCategoryOrder = categoryOrder[a.category || 'basic'] || 999;
+          const bCategoryOrder = categoryOrder[b.category || 'basic'] || 999;
+          
+          if (aCategoryOrder !== bCategoryOrder) {
+            return aCategoryOrder - bCategoryOrder;
+          }
+          
+          return (a.display_order || 999) - (b.display_order || 999);
+        });
+        setSearchableFields(sortedFields);
+      } catch (error) {
+        console.error('Failed to load searchable fields:', error);
+      } finally {
+        setIsLoadingFields(false);
+      }
+    };
+    
+    if (isOpen) {
+      loadSearchableFields();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     setFilters(currentFilters);
@@ -88,6 +127,156 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     !(Array.isArray(value) && value.length === 0)
   );
 
+  // 获取字段分类
+  const getFieldsByCategory = (category: string) => {
+    return searchableFields.filter(field => field.category === category);
+  };
+
+  // 渲染字段输入组件
+  const renderFieldInput = (field: FieldMetadata) => {
+    const fieldValue = filters[field.column_name];
+
+    switch (field.filter_type) {
+      case 'text':
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}</span>
+            </label>
+            <input
+              type="text"
+              placeholder={`搜索${field.display_name}...`}
+              className="input input-bordered input-sm sm:input-md"
+              value={fieldValue || ''}
+              onChange={(e) => handleInputChange(field.column_name, e.target.value)}
+            />
+          </div>
+        );
+
+      case 'number_range':
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}范围</span>
+            </label>
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                placeholder="最小值"
+                className="input input-bordered input-sm sm:input-md flex-1"
+                value={fieldValue?.min || ''}
+                onChange={(e) => handleInputChange(field.column_name, {
+                  ...fieldValue,
+                  min: e.target.value ? Number(e.target.value) : undefined
+                })}
+                step={field.format_type === 'currency' ? '0.01' : '1'}
+              />
+              <span className="text-sm">-</span>
+              <input
+                type="number"
+                placeholder="最大值"
+                className="input input-bordered input-sm sm:input-md flex-1"
+                value={fieldValue?.max || ''}
+                onChange={(e) => handleInputChange(field.column_name, {
+                  ...fieldValue,
+                  max: e.target.value ? Number(e.target.value) : undefined
+                })}
+                step={field.format_type === 'currency' ? '0.01' : '1'}
+              />
+            </div>
+          </div>
+        );
+
+      case 'date_range':
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}范围</span>
+            </label>
+            <div className="flex gap-2 items-center">
+              <input
+                type="date"
+                className="input input-bordered input-sm sm:input-md flex-1"
+                value={fieldValue?.from || ''}
+                onChange={(e) => handleInputChange(field.column_name, {
+                  ...fieldValue,
+                  from: e.target.value
+                })}
+                max={new Date().toISOString().split('T')[0]}
+              />
+              <span className="text-sm">-</span>
+              <input
+                type="date"
+                className="input input-bordered input-sm sm:input-md flex-1"
+                value={fieldValue?.to || ''}
+                onChange={(e) => handleInputChange(field.column_name, {
+                  ...fieldValue,
+                  to: e.target.value
+                })}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          </div>
+        );
+
+      case 'select':
+        // 这里可以扩展为动态获取选项，目前使用简单文本输入
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}</span>
+            </label>
+            <input
+              type="text"
+              placeholder={`选择${field.display_name}...`}
+              className="input input-bordered input-sm sm:input-md"
+              value={fieldValue || ''}
+              onChange={(e) => handleInputChange(field.column_name, e.target.value)}
+            />
+          </div>
+        );
+
+      case 'boolean':
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}</span>
+            </label>
+            <select
+              className="select select-bordered select-sm sm:select-md"
+              value={fieldValue !== undefined ? String(fieldValue) : ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleInputChange(field.column_name, 
+                  value === '' ? undefined : value === 'true'
+                );
+              }}
+            >
+              <option value="">全部</option>
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </div>
+        );
+
+      default:
+        return (
+          <div key={field.column_name} className="form-control">
+            <label className="label">
+              <span className="label-text">{field.display_name}</span>
+            </label>
+            <input
+              type="text"
+              placeholder={`搜索${field.display_name}...`}
+              className="input input-bordered input-sm sm:input-md"
+              value={fieldValue || ''}
+              onChange={(e) => handleInputChange(field.column_name, e.target.value)}
+            />
+          </div>
+        );
+    }
+  };
+
   return (
     <>
       {/* 遮罩层 */}
@@ -119,168 +308,111 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
 
           {/* 搜索表单 */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 sm:space-y-6">
-            {/* 文本搜索 */}
-            <div className="space-y-4">
-              <h4 className="font-medium flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                文本搜索
-              </h4>
-              
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">发票号码</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="精确匹配发票号"
-                  className="input input-bordered input-sm sm:input-md"
-                  value={filters.invoiceNumber || ''}
-                  onChange={(e) => handleInputChange('invoiceNumber', e.target.value)}
-                />
+            {isLoadingFields ? (
+              <div className="flex items-center justify-center py-8">
+                <span className="loading loading-spinner loading-sm"></span>
+                <span className="ml-2 text-sm text-base-content/60">正在加载搜索字段...</span>
               </div>
+            ) : (
+              <>
+                {/* 基础信息字段 */}
+                {getFieldsByCategory('basic').length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      基础信息
+                    </h4>
+                    {getFieldsByCategory('basic').map(field => renderFieldInput(field))}
+                  </div>
+                )}
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">销售方名称</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="模糊匹配销售方"
-                  className="input input-bordered input-sm sm:input-md"
-                  value={filters.sellerName || ''}
-                  onChange={(e) => handleInputChange('sellerName', e.target.value)}
-                />
-              </div>
+                {/* 财务信息字段 */}
+                {getFieldsByCategory('financial').length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      财务信息
+                    </h4>
+                    {getFieldsByCategory('financial').map(field => renderFieldInput(field))}
+                  </div>
+                )}
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">购买方名称</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="模糊匹配购买方"
-                  className="input input-bordered input-sm sm:input-md"
-                  value={filters.buyerName || ''}
-                  onChange={(e) => handleInputChange('buyerName', e.target.value)}
-                />
-              </div>
-            </div>
+                {/* 时间信息字段 */}
+                {getFieldsByCategory('temporal').length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      时间信息
+                    </h4>
+                    {getFieldsByCategory('temporal').map(field => renderFieldInput(field))}
+                  </div>
+                )}
 
-            {/* 范围搜索 */}
-            <div className="space-y-4">
-              <h4 className="font-medium flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                范围搜索
-              </h4>
+                {/* 分类和元数据字段 */}
+                {getFieldsByCategory('metadata').length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Tag className="w-4 h-4" />
+                      分类和标签
+                    </h4>
+                    {getFieldsByCategory('metadata').map(field => renderFieldInput(field))}
+                  </div>
+                )}
 
-              {/* 金额范围 */}
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text">金额范围</span>
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="number"
-                    placeholder="最小金额"
-                    className="input input-bordered input-sm sm:input-md flex-1"
-                    value={filters.amountMin || ''}
-                    onChange={(e) => handleInputChange('amountMin', e.target.value ? Number(e.target.value) : undefined)}
-                    min="0"
-                    step="0.01"
-                  />
-                  <span className="text-sm">-</span>
-                  <input
-                    type="number"
-                    placeholder="最大金额"
-                    className="input input-bordered input-sm sm:input-md flex-1"
-                    value={filters.amountMax || ''}
-                    onChange={(e) => handleInputChange('amountMax', e.target.value ? Number(e.target.value) : undefined)}
-                    min="0"
-                    step="0.01"
-                  />
+                {/* 传统的状态筛选（保持向后兼容） */}
+                <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Tag className="w-4 h-4" />
+                    快捷筛选
+                  </h4>
+
+                  {/* 处理状态 */}
+                  <div className="space-y-2">
+                    <label className="label">
+                      <span className="label-text">处理状态</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {['pending', 'processing', 'completed', 'failed'].map(status => (
+                        <button
+                          key={status}
+                          className={`btn btn-xs sm:btn-sm ${
+                            filters.status?.includes(status) ? 'btn-primary' : 'btn-ghost'
+                          }`}
+                          onClick={() => handleStatusToggle(status)}
+                        >
+                          {status === 'pending' && '待处理'}
+                          {status === 'processing' && '处理中'}
+                          {status === 'completed' && '已完成'}
+                          {status === 'failed' && '失败'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 来源类型 */}
+                  <div className="space-y-2">
+                    <label className="label">
+                      <span className="label-text">来源类型</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {['email', 'upload', 'api'].map(source => (
+                        <button
+                          key={source}
+                          className={`btn btn-xs sm:btn-sm ${
+                            filters.source?.includes(source) ? 'btn-primary' : 'btn-ghost'
+                          }`}
+                          onClick={() => handleSourceToggle(source)}
+                        >
+                          {source === 'email' && '邮件'}
+                          {source === 'upload' && '上传'}
+                          {source === 'api' && 'API'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              {/* 消费日期范围 */}
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    消费日期范围
-                  </span>
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="date"
-                    className="input input-bordered input-sm sm:input-md flex-1"
-                    value={filters.dateFrom || ''}
-                    onChange={(e) => handleInputChange('dateFrom', e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                  <span className="text-sm">-</span>
-                  <input
-                    type="date"
-                    className="input input-bordered input-sm sm:input-md flex-1"
-                    value={filters.dateTo || ''}
-                    onChange={(e) => handleInputChange('dateTo', e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 状态筛选 */}
-            <div className="space-y-4">
-              <h4 className="font-medium flex items-center gap-2">
-                <Tag className="w-4 h-4" />
-                状态筛选
-              </h4>
-
-              {/* 处理状态 */}
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text">处理状态</span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {['pending', 'processing', 'completed', 'failed'].map(status => (
-                    <button
-                      key={status}
-                      className={`btn btn-xs sm:btn-sm ${
-                        filters.status?.includes(status) ? 'btn-primary' : 'btn-ghost'
-                      }`}
-                      onClick={() => handleStatusToggle(status)}
-                    >
-                      {status === 'pending' && '待处理'}
-                      {status === 'processing' && '处理中'}
-                      {status === 'completed' && '已完成'}
-                      {status === 'failed' && '失败'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 来源类型 */}
-              <div className="space-y-2">
-                <label className="label">
-                  <span className="label-text">来源类型</span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {['email', 'upload', 'api'].map(source => (
-                    <button
-                      key={source}
-                      className={`btn btn-xs sm:btn-sm ${
-                        filters.source?.includes(source) ? 'btn-primary' : 'btn-ghost'
-                      }`}
-                      onClick={() => handleSourceToggle(source)}
-                    >
-                      {source === 'email' && '邮件'}
-                      {source === 'upload' && '上传'}
-                      {source === 'api' && 'API'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* 底部操作栏 */}

@@ -104,10 +104,22 @@ frontend/.env.production.local
 .auth_token
 .user_token
 
-# Test scripts
+# Test scripts and API keys
 test-*.py
 test_*.py
 *test*.py
+test_*.js
+test_*.cjs
+*test*.js
+api/ocr.js
+scripts/test_*
+
+# OCR and Cloud API related
+*ocr*.js
+*ocr*.cjs
+*tencent*.js
+*alibaba*.js
+*aliyun*.js
 
 # SQL scripts
 *.sql
@@ -120,3 +132,7 @@ debug-*.py
 update-*.sh
 scripts/archive/
 backend/monitoring/archive/
+
+# Edge functions with sensitive info
+supabase/functions/*/index.ts
+supabase/functions/*ocr*

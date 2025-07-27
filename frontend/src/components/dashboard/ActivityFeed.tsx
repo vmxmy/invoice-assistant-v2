@@ -3,7 +3,7 @@ import { Clock, FileText, Upload, CheckCircle, AlertCircle, User } from 'lucide-
 
 interface Activity {
   id: string;
-  type: 'invoice_created' | 'invoice_updated' | 'file_uploaded' | 'profile_updated' | 'invoice_verified';
+  type: 'invoice_created' | 'invoice_updated' | 'file_uploaded' | 'profile_updated' | 'invoice_verified' | 'email_imported';
   title: string;
   description?: string;
   timestamp: string;
@@ -88,32 +88,50 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = memo(({
 
     const { invoiceNumber, fileName, amount } = activity.metadata;
     
+    // 组合显示多个元数据
+    const parts = [];
+    
     if (invoiceNumber) {
-      return (
-        <span className="text-primary font-medium">
-          {invoiceNumber}
+      parts.push(
+        <span key="invoice" className="text-primary font-medium">
+          #{invoiceNumber}
         </span>
       );
     }
     
-    if (fileName) {
-      return (
-        <span className="text-info font-medium">
-          {fileName}
-        </span>
-      );
-    }
-    
-    if (amount) {
-      return (
-        <span className="text-success font-medium">
+    if (amount && amount > 0) {
+      parts.push(
+        <span key="amount" className="text-success font-medium">
           ¥{amount.toLocaleString()}
         </span>
       );
     }
     
-    return null;
+    if (parts.length === 0 && fileName) {
+      parts.push(
+        <span key="file" className="text-info font-medium text-xs">
+          {fileName}
+        </span>
+      );
+    }
+    
+    if (parts.length === 0) return null;
+    
+    return (
+      <span className="inline-flex items-center gap-2">
+        {parts.map((part, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <span className="text-base-content/30">·</span>}
+            {part}
+          </React.Fragment>
+        ))}
+      </span>
+    );
   };
+
+  const displayActivities = useMemo(() => {
+    return activities.slice(0, maxItems);
+  }, [activities, maxItems]);
 
   if (loading) {
     return (
@@ -136,10 +154,6 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = memo(({
       </div>
     );
   }
-
-  const displayActivities = useMemo(() => {
-    return activities.slice(0, maxItems);
-  }, [activities, maxItems]);
 
   return (
     <div className="card bg-base-100 shadow-lg border border-base-300">
@@ -171,15 +185,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = memo(({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-base-content">
-                        {activity.title}
-                        {formatMetadata(activity) && (
-                          <>
-                            {' '}
-                            {formatMetadata(activity)}
-                          </>
-                        )}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-base-content">
+                        <span>{activity.title}</span>
+                        {formatMetadata(activity)}
+                      </div>
                       {activity.description && (
                         <p className="text-xs text-base-content/60 mt-1">
                           {activity.description}

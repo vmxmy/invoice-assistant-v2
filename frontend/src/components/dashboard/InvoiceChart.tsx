@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -52,20 +52,11 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = memo(({
   height = 300,
   loading = false,
 }) => {
-  const formatTooltipValue = (value: any, name: string) => {
-    if (name === 'amount' || name === 'value') {
-      return [`¥${value.toLocaleString()}`, name === 'amount' ? '金额' : '总额'];
-    }
-    if (name === 'invoices') {
-      return [`${value}张`, '发票数量'];
-    }
-    return [value, name];
-  };
 
   const formatXAxisTick = (value: string) => {
     // 简化月份显示
     if (value.includes('-')) {
-      const [year, month] = value.split('-');
+      const [, month] = value.split('-');
       return `${month}月`;
     }
     return value;
@@ -77,14 +68,20 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = memo(({
     return (
       <div className="bg-base-100 border border-base-300 rounded-lg shadow-lg p-3">
         <p className="text-sm font-medium text-base-content mb-2">{label}</p>
-        {payload.map((item: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: item.color }}>
-            {`${item.name}: ${item.name === 'amount' || item.name === 'value' 
-              ? `¥${item.value.toLocaleString()}` 
-              : item.value
-            }`}
-          </p>
-        ))}
+        {payload.map((item: any, index: number) => {
+          const displayName = item.name === 'invoices' ? '发票数量' : 
+                             item.name === 'amount' ? '金额' : 
+                             item.name === 'value' ? '总额' : item.name;
+          const displayValue = item.name === 'amount' || item.name === 'value' 
+            ? `¥${item.value.toLocaleString()}` 
+            : item.name === 'invoices' ? `${item.value}张` : item.value;
+          
+          return (
+            <p key={index} className="text-sm" style={{ color: item.color }}>
+              {`${displayName}: ${displayValue}`}
+            </p>
+          );
+        })}
       </div>
     );
   }, []);
@@ -95,6 +92,34 @@ export const InvoiceChart: React.FC<InvoiceChartProps> = memo(({
         <div className="card-body">
           {title && <h3 className="card-title text-lg mb-4">{title}</h3>}
           <div className="skeleton w-full" style={{ height }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  // 检查是否有数据
+  const hasData = data && data.length > 0;
+  
+  if (!hasData) {
+    return (
+      <div className="card bg-base-100 shadow-lg border border-base-300">
+        <div className="card-body">
+          {title && (
+            <h3 className="card-title text-lg mb-4 flex items-center justify-between">
+              <span>{title}</span>
+              <div className="text-xs text-base-content/50 font-normal">
+                暂无数据
+              </div>
+            </h3>
+          )}
+          
+          <div className="w-full flex items-center justify-center" style={{ height }}>
+            <div className="text-center text-base-content/50">
+              <div className="text-6xl mb-4">📊</div>
+              <div className="text-lg font-medium mb-2">暂无数据</div>
+              <div className="text-sm">开始使用系统后，这里将显示统计图表</div>
+            </div>
+          </div>
         </div>
       </div>
     );
