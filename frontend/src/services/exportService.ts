@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
-import { api } from './apiClient';
+import { invoiceService } from './invoice';
 import type { Invoice } from '../types/index';
 import { 
   generateTypeSpecificFileName, 
@@ -13,13 +13,19 @@ import type { DownloadProgress } from '../components/ui/DownloadProgressModal';
 // 下载URL响应接口
 interface DownloadUrlResponse {
   download_url: string;
-  expires_at: string;
-  invoice_id: string;
+  expires_at?: string;
+  invoice_id?: string;
+  filename?: string;
 }
 
 interface BatchDownloadUrlResponse {
-  urls: DownloadUrlResponse[];
-  batch_id: string;
+  urls?: DownloadUrlResponse[];
+  files?: Array<{
+    invoice_id: string;
+    download_url: string;
+    filename: string;
+  }>;
+  batch_id?: string;
 }
 
 // 下载的文件数据
@@ -189,8 +195,9 @@ export class ExportService {
         throw error;
       }
       
-      // 创建URL映射
-      const urlMap = new Map(urlResponse.urls.map(url => [url.invoice_id, url.download_url]));
+      // 创建URL映射 - 兼容两种响应格式
+      const urls = urlResponse.urls || urlResponse.files || [];
+      const urlMap = new Map(urls.map(url => [url.invoice_id, url.download_url]));
       
       // 并发下载所有文件
       const downloadedFiles: DownloadedFile[] = [];
@@ -315,8 +322,15 @@ export class ExportService {
    */
   private async getDownloadUrl(invoiceId: string): Promise<DownloadUrlResponse> {
     try {
-      const response = await api.invoices.getDownloadUrl(invoiceId, this.abortController?.signal);
-      return response.data;
+      const response = await invoiceService.getDownloadUrl(invoiceId);
+      // 兼容不同的响应格式
+      const data = response.data;
+      return {
+        download_url: data.download_url || data.file_url,
+        expires_at: data.expires_at,
+        invoice_id: data.invoice_id || invoiceId,
+        filename: data.filename || data.file_name
+      };
     } catch (error: any) {
       throw new ExportError(
         `获取下载链接失败: ${error.message || '网络错误'}`,
@@ -331,9 +345,7 @@ export class ExportService {
    */
   private async getBatchDownloadUrls(invoiceIds: string[]): Promise<BatchDownloadUrlResponse> {
     try {
-      const response = await api.invoices.getBatchDownloadUrls({
-        invoice_ids: invoiceIds
-      }, this.abortController?.signal);
+      const response = await invoiceService.getBatchDownloadUrls(invoiceIds);
       return response.data;
     } catch (error: any) {
       throw new ExportError(

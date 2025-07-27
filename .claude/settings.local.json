@@ -119,11 +119,14 @@
       "mcp__zen-docker__listmodels",
       "Bash(./scripts/test_api_limits_simple.sh:*)",
       "mcp__zen-docker__codereview",
-      "WebFetch(domain:pypi.org)"
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:github.com)"
     ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "supabase"
+    "supabase",
+    "playwright",
+    "mem0-memory-mcp"
   ]
 }

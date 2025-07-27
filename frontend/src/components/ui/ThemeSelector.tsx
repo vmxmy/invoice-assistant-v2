@@ -1,215 +1,157 @@
 import React, { useEffect, useState } from 'react';
-
-interface Theme {
-  id: string;
-  name: string;
-  description: string;
-  preview: {
-    primary: string;
-    secondary: string;
-    accent: string;
-    background: string;
-  };
-}
-
-const themes: Theme[] = [
-  {
-    id: 'light',
-    name: '明亮主题',
-    description: '清新明亮的热带风格',
-    preview: {
-      primary: '#4ADEDB',
-      secondary: '#F472B6',
-      accent: '#A3E635',
-      background: '#FEFEFE',
-    },
-  },
-  {
-    id: 'dark',
-    name: '暗色主题',
-    description: '优雅深邃的夜间模式',
-    preview: {
-      primary: '#67E8F9',
-      secondary: '#FB7185',
-      accent: '#BEF264',
-      background: '#1F2937',
-    },
-  },
-];
+import { Palette } from 'lucide-react';
 
 interface ThemeSelectorProps {
   className?: string;
-  onThemeChange?: (theme: string) => void;
+  showLabel?: boolean;
 }
 
+// DaisyUI 官方主题列表
+const DAISYUI_THEMES = [
+  { value: 'light', label: '明亮', category: '浅色' },
+  { value: 'dark', label: '暗黑', category: '深色' },
+  { value: 'cupcake', label: '纸杯蛋糕', category: '浅色' },
+  { value: 'bumblebee', label: '大黄蜂', category: '浅色' },
+  { value: 'emerald', label: '翡翠', category: '浅色' },
+  { value: 'corporate', label: '企业', category: '浅色' },
+  { value: 'synthwave', label: '合成波', category: '深色' },
+  { value: 'retro', label: '复古', category: '浅色' },
+  { value: 'cyberpunk', label: '赛博朋克', category: '浅色' },
+  { value: 'valentine', label: '情人节', category: '浅色' },
+  { value: 'halloween', label: '万圣节', category: '深色' },
+  { value: 'garden', label: '花园', category: '浅色' },
+  { value: 'forest', label: '森林', category: '深色' },
+  { value: 'aqua', label: '水族', category: '深色' },
+  { value: 'lofi', label: 'Lo-Fi', category: '浅色' },
+  { value: 'pastel', label: '粉彩', category: '浅色' },
+  { value: 'fantasy', label: '幻想', category: '浅色' },
+  { value: 'wireframe', label: '线框', category: '浅色' },
+  { value: 'black', label: '纯黑', category: '深色' },
+  { value: 'luxury', label: '奢华', category: '深色' },
+  { value: 'dracula', label: '德古拉', category: '深色' },
+  { value: 'cmyk', label: 'CMYK', category: '浅色' },
+  { value: 'autumn', label: '秋天', category: '浅色' },
+  { value: 'business', label: '商务', category: '深色' },
+  { value: 'acid', label: '酸性', category: '浅色' },
+  { value: 'lemonade', label: '柠檬水', category: '浅色' },
+  { value: 'night', label: '夜晚', category: '深色' },
+  { value: 'coffee', label: '咖啡', category: '深色' },
+  { value: 'winter', label: '冬天', category: '浅色' },
+  { value: 'dim', label: '暗淡', category: '深色' },
+  { value: 'nord', label: 'Nord', category: '浅色' },
+  { value: 'sunset', label: '日落', category: '深色' },
+];
+
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({ 
-  className = '',
-  onThemeChange 
+  className = '', 
+  showLabel = true 
 }) => {
   const [currentTheme, setCurrentTheme] = useState('light');
-  const [isOpen, setIsOpen] = useState(false);
 
   // 初始化主题
   useEffect(() => {
+    // 检查本地存储的主题偏好
     const savedTheme = localStorage.getItem('theme');
+    // 检查系统偏好
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
     
-    setCurrentTheme(initialTheme);
-    applyTheme(initialTheme);
+    const defaultTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    setCurrentTheme(defaultTheme);
+    applyTheme(defaultTheme);
   }, []);
 
-  const applyTheme = (themeId: string) => {
+  const applyTheme = (theme: string) => {
     const html = document.documentElement;
-    html.setAttribute('data-theme', themeId);
+    html.setAttribute('data-theme', theme);
     
-    // 兼容性设置
-    if (themeId === 'dark') {
+    // 判断是否为深色主题，用于某些组件的兼容性
+    const isDarkTheme = DAISYUI_THEMES.find(t => t.value === theme)?.category === '深色';
+    if (isDarkTheme) {
       html.classList.add('dark');
     } else {
       html.classList.remove('dark');
     }
   };
 
-  const handleThemeChange = (themeId: string) => {
-    setCurrentTheme(themeId);
-    applyTheme(themeId);
-    localStorage.setItem('theme', themeId);
-    setIsOpen(false);
-    onThemeChange?.(themeId);
+  const selectTheme = (theme: string) => {
+    setCurrentTheme(theme);
+    applyTheme(theme);
+    localStorage.setItem('theme', theme);
   };
 
-  const currentThemeData = themes.find(t => t.id === currentTheme) || themes[0];
+  const currentThemeData = DAISYUI_THEMES.find(t => t.value === currentTheme);
 
   return (
-    <div className={`relative ${className}`}>
-      {/* 主题选择按钮 */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="btn btn-ghost btn-sm gap-2 normal-case"
-        aria-label="选择主题"
+    <div className={`dropdown dropdown-end ${className}`}>
+      <div 
+        tabIndex={0} 
+        role="button"
+        className="btn btn-ghost btn-sm gap-2"
       >
-        {/* 当前主题预览 */}
-        <div className="flex items-center gap-2">
-          <div 
-            className="w-4 h-4 rounded-full border border-base-content/20"
-            style={{ backgroundColor: currentThemeData.preview.primary }}
-          />
-          <span className="hidden sm:inline text-sm">
-            {currentThemeData.name}
-          </span>
-        </div>
-        
-        {/* 下拉箭头 */}
-        <svg 
-          className={`w-4 h-4 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M19 9l-7 7-7-7" 
-          />
+        <Palette className="w-4 h-4" />
+        {showLabel && (
+          <span className="hidden sm:inline">{currentThemeData?.label || '主题'}</span>
+        )}
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
-      </button>
-
-      {/* 主题选择下拉菜单 */}
-      {isOpen && (
-        <>
-          {/* 背景遮罩 */}
-          <div 
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* 下拉菜单 */}
-          <div className="absolute right-0 top-full mt-2 z-20 min-w-64 bg-base-100 rounded-box shadow-lg border border-base-300 p-2">
-            <div className="text-sm font-medium text-base-content/70 px-3 py-2 border-b border-base-300 mb-2">
-              选择主题
-            </div>
-            
-            {themes.map((theme) => (
+      </div>
+      
+      <div 
+        tabIndex={0} 
+        className="dropdown-content z-[1] shadow-xl bg-base-100 rounded-box mt-3 border border-base-300 p-0 w-auto max-h-[70vh] overflow-y-auto"
+      >
+        {/* 浅色主题组 */}
+        <div className="sticky top-0 bg-base-200/90 backdrop-blur-sm px-2 py-1 border-b border-base-300">
+          <span className="text-xs font-semibold uppercase tracking-wider text-base-content/60">浅色主题</span>
+        </div>
+        <ul className="menu menu-xs p-0">
+          {DAISYUI_THEMES.filter(theme => theme.category === '浅色').map((theme) => (
+            <li key={theme.value}>
               <button
-                key={theme.id}
-                onClick={() => handleThemeChange(theme.id)}
-                className={`w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-base-200 ${
-                  currentTheme === theme.id ? 'bg-primary/10 border border-primary/20' : ''
+                onClick={() => selectTheme(theme.value)}
+                className={`justify-start gap-2 py-1.5 ${
+                  currentTheme === theme.value ? 'active' : ''
                 }`}
+                data-theme={theme.value}
               >
-                <div className="flex items-center gap-3">
-                  {/* 主题颜色预览 */}
-                  <div className="flex gap-1">
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: theme.preview.primary }}
-                    />
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: theme.preview.secondary }}
-                    />
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: theme.preview.accent }}
-                    />
-                  </div>
-                  
-                  {/* 主题信息 */}
-                  <div className="flex-1">
-                    <div className="font-medium text-base-content">
-                      {theme.name}
-                    </div>
-                    <div className="text-xs text-base-content/60">
-                      {theme.description}
-                    </div>
-                  </div>
-                  
-                  {/* 选中状态 */}
-                  {currentTheme === theme.id && (
-                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                      <svg 
-                        className="w-3 h-3 text-primary-content" 
-                        fill="currentColor" 
-                        viewBox="0 0 20 20"
-                      >
-                        <path 
-                          fillRule="evenodd" 
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                          clipRule="evenodd" 
-                        />
-                      </svg>
-                    </div>
-                  )}
+                <div className="flex gap-0.5">
+                  <div className="w-1.5 h-3 rounded-sm bg-primary"></div>
+                  <div className="w-1.5 h-3 rounded-sm bg-secondary"></div>
+                  <div className="w-1.5 h-3 rounded-sm bg-accent"></div>
                 </div>
+                <span className="text-xs">{theme.label}</span>
               </button>
-            ))}
-            
-            {/* 系统设置选项 */}
-            <div className="border-t border-base-300 mt-2 pt-2">
+            </li>
+          ))}
+        </ul>
+
+        {/* 深色主题组 */}
+        <div className="sticky top-0 bg-base-200/90 backdrop-blur-sm px-2 py-1 border-y border-base-300 mt-1">
+          <span className="text-xs font-semibold uppercase tracking-wider text-base-content/60">深色主题</span>
+        </div>
+        <ul className="menu menu-xs p-0">
+          {DAISYUI_THEMES.filter(theme => theme.category === '深色').map((theme) => (
+            <li key={theme.value}>
               <button
-                onClick={() => {
-                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const systemTheme = prefersDark ? 'dark' : 'light';
-                  handleThemeChange(systemTheme);
-                  localStorage.removeItem('theme'); // 移除手动设置，跟随系统
-                }}
-                className="w-full text-left p-2 rounded-lg text-sm text-base-content/70 hover:bg-base-200 transition-colors duration-200"
+                onClick={() => selectTheme(theme.value)}
+                className={`justify-start gap-2 py-1.5 ${
+                  currentTheme === theme.value ? 'active' : ''
+                }`}
+                data-theme={theme.value}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  跟随系统设置
+                <div className="flex gap-0.5">
+                  <div className="w-1.5 h-3 rounded-sm bg-primary"></div>
+                  <div className="w-1.5 h-3 rounded-sm bg-secondary"></div>
+                  <div className="w-1.5 h-3 rounded-sm bg-accent"></div>
                 </div>
+                <span className="text-xs">{theme.label}</span>
               </button>
-            </div>
-          </div>
-        </>
-      )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

@@ -128,13 +128,29 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
 
         // 显示处理结果
         const successCount = results.filter((r: any) => r.status === 'success').length
+        const partialCount = results.filter((r: any) => r.status === 'partial').length
         const failedCount = results.filter((r: any) => r.status === 'failed').length
         
         if (successCount > 0) {
           toast.success(`成功处理 ${successCount} 封邮件`)
         }
+        if (partialCount > 0) {
+          toast.warning(`${partialCount} 封邮件部分处理成功，请查看详细结果`)
+        }
         if (failedCount > 0) {
-          toast.error(`${failedCount} 封邮件处理失败`)
+          // 收集详细的失败信息
+          const failedEmails = results.filter((r: any) => r.status === 'failed')
+          const failureDetails = failedEmails.map((email: any) => {
+            const emailError = email.error || '未知错误'
+            const pdfErrors = email.pdfs?.filter((pdf: any) => pdf.status === 'failed')
+              .map((pdf: any) => `${pdf.name}: ${pdf.error}`)
+              .join('; ') || ''
+            
+            return `${email.subject}: ${emailError}${pdfErrors ? ` | PDF错误: ${pdfErrors}` : ''}`
+          }).join('\n')
+          
+          console.log('处理失败详情:', failureDetails)
+          toast.error(`${failedCount} 封邮件处理失败，请查看详细结果`)
         }
 
         // 通知父组件处理完成
@@ -149,12 +165,32 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
       
       // 更详细的错误处理
       let errorMessage = '批量处理失败'
+      let detailedError = ''
+      
       if (error.code === 'ECONNABORTED') {
         errorMessage = '处理超时，请稍后重试或减少选择的邮件数量'
+      } else if (error.response?.data?.detail) {
+        // FastAPI 错误格式
+        errorMessage = error.response.data.detail
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail.map((err: any) => err.msg || err).join('; ')
+        }
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message
+      } else if (error.response?.data) {
+        // 尝试从响应数据中提取错误信息
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data
+        } else {
+          detailedError = JSON.stringify(error.response.data)
+        }
       } else if (error.message) {
         errorMessage = error.message
+      }
+      
+      // 记录详细错误信息到控制台
+      if (detailedError) {
+        console.error('详细错误信息:', detailedError)
       }
       
       toast.error(errorMessage)
@@ -166,7 +202,7 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
 
   return (
     <div className="modal modal-open">
-      <div className="modal-box max-w-6xl">
+      <div className="modal-box max-w-7xl max-h-[90vh] overflow-y-auto">
         <h3 className="font-bold text-lg mb-4">
           扫描结果 - {scanJob.scan_results?.matched_emails || 0} 封匹配的邮件
         </h3>
@@ -287,13 +323,13 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
         {processingStatus.results.length > 0 && !processingStatus.isProcessing && (
           <div className="mt-4">
             <h4 className="font-semibold mb-2">处理结果</h4>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <div className="space-y-3 max-h-80 overflow-y-auto">
               {processingStatus.results.map((result: any, index: number) => (
                 <div 
                   key={index} 
-                  className={`p-2 rounded-lg text-sm ${
-                    result.status === 'success' ? 'bg-success/10' : 
-                    result.status === 'partial' ? 'bg-warning/10' : 'bg-error/10'
+                  className={`p-3 rounded-lg text-sm border-l-4 ${
+                    result.status === 'success' ? 'bg-success/10 border-success' : 
+                    result.status === 'partial' ? 'bg-warning/10 border-warning' : 'bg-error/10 border-error'
                   }`}
                 >
                   <div className="flex justify-between">
@@ -312,7 +348,56 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                     </div>
                   )}
                   {result.error && (
-                    <div className="text-xs text-error mt-1">{result.error}</div>
+                    <div className="text-xs text-error mt-1">
+                      <strong>错误原因:</strong> {result.error}
+                    </div>
+                  )}
+                  
+                  {/* 显示PDF处理详情 */}
+                  {result.pdfs && result.pdfs.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <div className="text-xs font-medium text-base-content/80">PDF处理详情:</div>
+                      {result.pdfs.map((pdf: any, pdfIndex: number) => (
+                        <div key={pdfIndex} className="text-xs bg-base-100 rounded p-2 border">
+                          <div className="flex justify-between items-start">
+                            <span className="font-medium truncate max-w-32" title={pdf.name}>
+                              {pdf.name}
+                            </span>
+                            <span className={`badge badge-xs ${
+                              pdf.status === 'success' ? 'badge-success' : 'badge-error'
+                            }`}>
+                              {pdf.status === 'success' ? '成功' : '失败'}
+                            </span>
+                          </div>
+                          
+                          {pdf.status === 'success' && pdf.invoice_data && (
+                            <div className="mt-1 text-xs text-success">
+                              {pdf.invoice_type && (
+                                <div>类型: {pdf.invoice_type}</div>
+                              )}
+                              {pdf.invoice_data['发票号码'] && (
+                                <div>发票号: {pdf.invoice_data['发票号码']}</div>
+                              )}
+                              {pdf.invoice_data['价税合计'] && (
+                                <div>金额: ¥{pdf.invoice_data['价税合计']}</div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {pdf.status === 'failed' && pdf.error && (
+                            <div className="mt-1 text-xs text-error">
+                              <strong>失败原因:</strong> {pdf.error}
+                            </div>
+                          )}
+                          
+                          {pdf.source && (
+                            <div className="mt-1 text-xs text-base-content/50">
+                              来源: {pdf.source === 'attachment' ? '附件' : '邮件正文链接'}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}

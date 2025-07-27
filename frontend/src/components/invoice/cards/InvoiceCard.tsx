@@ -8,9 +8,10 @@ import {
   Trash2,
   MoreVertical,
   Building2,
-  User
+  User,
+  Download
 } from 'lucide-react';
-import { getInvoiceTypeName, getInvoiceTypeIcon } from '../../../config/invoiceFieldsConfig';
+import { getCategoryIcon } from '../../../utils/categoryUtils';
 
 interface Invoice {
   id: string;
@@ -26,6 +27,10 @@ interface Invoice {
   invoice_type?: string;
   created_at: string;
   tags: string[];
+  secondary_category_name?: string;
+  primary_category_name?: string;
+  expense_category?: string;
+  category_icon?: string;
   extracted_data?: {
     structured_data?: {
       total_amount?: string;
@@ -80,21 +85,29 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
       <div className="card-body p-4">
         {/* 顶部：选择框和发票类型 */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
             <input 
               type="checkbox" 
-              className="checkbox checkbox-sm"
+              className="checkbox checkbox-sm flex-shrink-0 mt-0.5"
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
             />
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">{invoice.invoice_number}</span>
-              {invoice.invoice_type && (
-                <span className="badge badge-sm badge-ghost">
-                  {getInvoiceTypeIcon(invoice.invoice_type)} {getInvoiceTypeName(invoice.invoice_type)}
-                </span>
-              )}
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="font-medium text-sm truncate">{invoice.invoice_number}</span>
+              </div>
+              {/* 状态和分类标签在同一行 */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className={`badge ${getStatusBadge(invoice.status)} badge-sm`}>
+                  {invoice.status.toUpperCase()}
+                </div>
+                {invoice.expense_category && (
+                  <span className="badge badge-sm badge-primary">
+                    {getCategoryIcon(invoice)} {invoice.expense_category}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
@@ -113,8 +126,8 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                 </li>
                 <li>
                   <button onClick={() => onEdit(invoice)} className="text-sm">
-                    <Edit className="w-3 h-3" />
-                    编辑
+                    <Download className="w-3 h-3" />
+                    下载
                   </button>
                 </li>
                 <li>
@@ -132,15 +145,19 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
         <div className="space-y-3">
           {/* 销售方和购买方 */}
           <div className="grid grid-cols-1 gap-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Building2 className="w-3 h-3 text-base-content/60" />
-              <span className="text-base-content/60">销售方:</span>
-              <span className="font-medium truncate">{invoice.seller_name}</span>
+            <div className="flex items-start gap-2 text-sm">
+              <Building2 className="w-3 h-3 text-base-content/60 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <span className="text-base-content/60">销售方: </span>
+                <span className="font-medium break-all">{invoice.seller_name}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <User className="w-3 h-3 text-base-content/60" />
-              <span className="text-base-content/60">购买方:</span>
-              <span className="truncate">{invoice.buyer_name}</span>
+            <div className="flex items-start gap-2 text-sm">
+              <User className="w-3 h-3 text-base-content/60 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <span className="text-base-content/60">购买方: </span>
+                <span className="break-all">{invoice.buyer_name}</span>
+              </div>
             </div>
           </div>
 
@@ -174,15 +191,6 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             </div>
           </div>
 
-          {/* 状态 */}
-          <div className="flex items-center justify-between">
-            <div className={`badge ${getStatusBadge(invoice.status)} badge-sm`}>
-              {invoice.status}
-            </div>
-            <span className="text-xs text-base-content/50">
-              {formatDate(invoice.created_at)}
-            </span>
-          </div>
         </div>
       </div>
     </div>

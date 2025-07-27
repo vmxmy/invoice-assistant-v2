@@ -235,6 +235,43 @@ export interface VATInvoiceItem {
   tax_amount: number               // 税额
 }
 
+// 费用分类枚举
+export enum ExpenseCategory {
+  TRANSPORT = '交通',
+  ACCOMMODATION = '住宿', 
+  DINING = '餐饮',
+  OFFICE = '办公',
+  OTHER = '其他'
+}
+
+export enum ExpenseSubcategory {
+  // 交通子分类
+  HIGH_SPEED_RAIL = '高铁',
+  FLIGHT = '飞机', 
+  TAXI = '出租车',
+  // 住宿子分类
+  HOTEL = '酒店',
+  HOMESTAY = '民宿',
+  // 餐饮子分类 - 目前没有具体子分类
+  // 办公子分类
+  CONSULTATION = '咨询',
+  SEAL = '印章',
+  // 其他子分类 - 目前没有具体子分类
+}
+
+// 分类信息接口（与 v_invoice_detail 视图字段匹配）
+export interface CategoryInfo {
+  primary_category_name?: string   // 一级分类名称
+  secondary_category_name?: string // 二级分类名称
+  category_full_path?: string      // 完整分类路径
+  category_level?: string          // 分类级别
+  category_icon?: string           // 分类图标
+  category_color?: string          // 分类颜色
+  parent_category_name?: string    // 父分类名称
+  parent_category_icon?: string    // 父分类图标
+  parent_category_color?: string   // 父分类颜色
+}
+
 // 发票相关类型
 export interface Invoice {
   id: string
@@ -264,7 +301,17 @@ export interface Invoice {
   ocr_confidence_score?: number    // OCR置信度分数
   is_verified?: boolean            // 是否已验证
   verified_at?: string             // 验证时间
-  category?: string                // 分类
+  category?: string                // 分类（已废弃，使用 expense_category）
+  expense_category?: string        // 费用分类（枚举值）
+  expense_category_code?: string   // 分类代码
+  primary_category_name?: string   // 一级分类名称
+  secondary_category_name?: string // 二级分类名称
+  category_full_path?: string      // 完整分类路径
+  category_level?: string          // 分类级别
+  category_icon?: string           // 分类图标
+  category_color?: string          // 分类颜色
+  parent_category_name?: string    // 父分类名称
+  category_info?: any              // 分类详细信息（JSON字段）
   currency?: string                // 币种
   source_metadata?: Record<string, any>  // 来源元数据
   extracted_data?: Record<string, any>   // OCR提取的完整数据

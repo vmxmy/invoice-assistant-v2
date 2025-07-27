@@ -115,8 +115,11 @@ class InvoiceStatisticsResponse(BaseModel):
 # ... (rest of the file)
 
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, Request, UploadFile, File
+
 @router.get("/", response_model=InvoiceListResponse)
 async def list_invoices(
+    request: Request,
     query: Optional[str] = Query(None, description="搜索关键词"),
     seller_name: Optional[str] = Query(None, description="销售方名称"),
     invoice_number: Optional[str] = Query(None, description="发票号码"),
@@ -133,7 +136,7 @@ async def list_invoices(
 ):
     """
     获取发票列表
-    支持多种筛选条件和分页
+    支持多种筛选条件和分页，包括动态字段搜索
     """
     try:
         file_service = FileService()
@@ -142,7 +145,24 @@ async def list_invoices(
         # 计算偏移量
         offset = (page - 1) * page_size
 
-        # 使用参数化查询
+        # 提取动态搜索字段
+        dynamic_filters = {}
+        for key, value in request.query_params.items():
+            # 跳过已知的固定参数
+            if key not in [
+                'query', 'seller_name', 'invoice_number', 'date_from', 'date_to',
+                'amount_min', 'amount_max', 'status', 'source', 'page', 'page_size'
+            ] and value:
+                # 尝试解析JSON字符串（用于复杂过滤器如范围）
+                try:
+                    import json
+                    parsed_value = json.loads(value)
+                    dynamic_filters[key] = parsed_value
+                except (json.JSONDecodeError, ValueError):
+                    # 如果不是JSON，直接使用原值
+                    dynamic_filters[key] = value
+
+        # 使用增强的搜索方法
         invoices, total = await invoice_service.search_invoices(
             user_id=current_user.id,
             query=query,
@@ -155,7 +175,8 @@ async def list_invoices(
             status=status,
             source=source,
             limit=page_size,
-            offset=offset
+            offset=offset,
+            dynamic_filters=dynamic_filters  # 新增动态过滤器参数
         )
 
         # 构造响应
@@ -183,10 +204,16 @@ async def get_invoice_statistics(
     包括总数、金额统计、状态分布等
     """
     try:
+        logger.info(f"获取用户 {current_user.id} 的发票统计")
+        
         file_service = FileService()
         invoice_service = InvoiceService(db, file_service)
 
         stats = await invoice_service.get_invoice_statistics(current_user.id)
+        
+        logger.info(f"统计结果: total_count={stats.get('total_count', 0)}, "
+                   f"monthly_data_count={len(stats.get('monthly_data', []))}, "
+                   f"category_data_count={len(stats.get('category_data', []))}")
 
         # 添加最近活动信息 - 使用简单查询避免重复
         recent_query = select(Invoice).where(

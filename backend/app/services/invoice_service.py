@@ -8,13 +8,14 @@ import hashlib
 from typing import Optional, List, Dict, Any, Tuple
 from uuid import UUID
 from datetime import datetime, timezone, date
+from dateutil.relativedelta import relativedelta
 from pathlib import Path
 import json
 import logging
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, text
+from sqlalchemy import select, func, and_, or_, text, String
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
@@ -649,7 +650,8 @@ class InvoiceService:
         status: Optional[InvoiceStatus] = None,
         source: Optional[InvoiceSource] = None,
         limit: int = 20,
-        offset: int = 0
+        offset: int = 0,
+        dynamic_filters: Optional[Dict[str, Any]] = None
     ) -> Tuple[List[Invoice], int]:
         """
         搜索发票
@@ -715,6 +717,10 @@ class InvoiceService:
         if source:
             base_query = base_query.where(Invoice.source == source)
         
+        # 处理动态字段过滤器
+        if dynamic_filters:
+            base_query = self._apply_dynamic_filters(base_query, dynamic_filters)
+        
         # 使用优化的分页查询
         invoices, total = await QueryOptimizer.paginate_with_window_function(
             session=self.db,
@@ -726,6 +732,85 @@ class InvoiceService:
         )
         
         return invoices, total
+    
+    def _apply_dynamic_filters(self, base_query, dynamic_filters: Dict[str, Any]):
+        """
+        应用动态字段过滤器
+        
+        Args:
+            base_query: 基础查询对象
+            dynamic_filters: 动态过滤器字典
+            
+        Returns:
+            修改后的查询对象
+        """
+        for field_name, filter_value in dynamic_filters.items():
+            if not filter_value:
+                continue
+                
+            # 检查字段是否存在于Invoice模型中
+            if hasattr(Invoice, field_name):
+                column = getattr(Invoice, field_name)
+                
+                # 处理不同类型的过滤器值
+                if isinstance(filter_value, dict):
+                    # 范围过滤器 (如: {"min": 100, "max": 500} 或 {"from": "2023-01-01", "to": "2023-12-31"})
+                    if 'min' in filter_value and filter_value['min'] is not None:
+                        try:
+                            base_query = base_query.where(column >= float(filter_value['min']))
+                        except (ValueError, TypeError):
+                            pass
+                    if 'max' in filter_value and filter_value['max'] is not None:
+                        try:
+                            base_query = base_query.where(column <= float(filter_value['max']))
+                        except (ValueError, TypeError):
+                            pass
+                    if 'from' in filter_value and filter_value['from']:
+                        try:
+                            from_date = datetime.strptime(filter_value['from'], '%Y-%m-%d').date()
+                            base_query = base_query.where(column >= from_date)
+                        except (ValueError, TypeError):
+                            pass
+                    if 'to' in filter_value and filter_value['to']:
+                        try:
+                            to_date = datetime.strptime(filter_value['to'], '%Y-%m-%d').date()
+                            base_query = base_query.where(column <= to_date)
+                        except (ValueError, TypeError):
+                            pass
+                elif isinstance(filter_value, bool):
+                    # 布尔值过滤器
+                    base_query = base_query.where(column == filter_value)
+                elif isinstance(filter_value, (list, tuple)):
+                    # 多值过滤器 (如状态、来源等)
+                    if filter_value:  # 只有非空列表才应用过滤
+                        base_query = base_query.where(column.in_(filter_value))
+                else:
+                    # 文本过滤器 - 使用模糊匹配
+                    base_query = base_query.where(column.ilike(f"%{filter_value}%"))
+            
+            else:
+                # 对于不存在的字段，尝试在extracted_data中搜索
+                try:
+                    if isinstance(filter_value, dict):
+                        # 对JSON字段的范围搜索比较复杂，暂时跳过
+                        continue
+                    else:
+                        # 在extracted_data JSON字段中搜索
+                        base_query = base_query.where(
+                            or_(
+                                # 尝试作为键值对搜索
+                                Invoice.extracted_data[field_name].astext.ilike(f"%{filter_value}%"),
+                                # 在整个JSON中搜索值
+                                text(f"extracted_data::text ILIKE :dynamic_pattern_{field_name}").bindparams(
+                                    **{f"dynamic_pattern_{field_name}": f"%{filter_value}%"}
+                                )
+                            )
+                        )
+                except Exception:
+                    # 如果JSON搜索失败，跳过该字段
+                    continue
+                    
+        return base_query
     
     @monitor_query_performance("invoice_by_id", params={"query_type": "single_record"})
     async def get_invoice_by_id(self, invoice_id: UUID, user_id: Optional[UUID] = None) -> Optional[Invoice]:
@@ -776,6 +861,8 @@ class InvoiceService:
     @monitor_query_performance("invoice_statistics", params={"query_type": "aggregation"})
     async def get_invoice_statistics(self, user_id: UUID) -> Dict[str, Any]:
         """获取发票统计信息 - 优化版本，合并查询减少数据库往返"""
+        
+        logger.info(f"InvoiceService: 开始获取用户 {user_id} 的统计数据")
         
         # 基础条件
         base_conditions = and_(
@@ -833,7 +920,15 @@ class InvoiceService:
             if row.source:
                 source_stats[row.source] = source_stats.get(row.source, 0) + row.count
         
-        return {
+        # 获取月度统计数据 - 过去12个月
+        monthly_data = await self._get_monthly_statistics(user_id, base_conditions)
+        logger.info(f"获取到的月度数据: {monthly_data}")
+        
+        # 获取分类统计数据
+        category_data = await self._get_category_statistics(user_id, base_conditions)
+        logger.info(f"获取到的分类数据: {category_data}")
+        
+        result = {
             "total_count": stats.total_count,
             "amount_stats": {
                 "total": float(stats.total_amount),
@@ -842,9 +937,90 @@ class InvoiceService:
                 "min": float(stats.min_amount) if stats.total_count > 0 else 0.0
             },
             "status_distribution": status_stats,
-            "source_distribution": source_stats
+            "source_distribution": source_stats,
+            "monthly_data": monthly_data,
+            "category_data": category_data
         }
+        
+        logger.info(f"最终返回的统计结果: total_count={result['total_count']}, "
+                   f"monthly_data数量={len(result['monthly_data'])}, "
+                   f"category_data数量={len(result['category_data'])}")
+        
+        return result
     
+    async def _get_monthly_statistics(self, user_id: UUID, base_conditions) -> List[Dict[str, Any]]:
+        """获取月度统计数据 - 获取所有发票并返回最近12个月的数据"""
+        
+        # 获取所有发票（不限制日期范围）
+        invoices_query = select(
+            Invoice.invoice_date,
+            Invoice.total_amount
+        ).where(base_conditions)
+        
+        result = await self.db.execute(invoices_query)
+        invoice_rows = result.all()
+        
+        logger.info(f"月度统计 - 查询到 {len(invoice_rows)} 条发票")
+        
+        # 在Python中按月分组统计
+        monthly_stats = {}
+        for row in invoice_rows:
+            if row.invoice_date:
+                month_key = row.invoice_date.strftime('%Y-%m')
+                if month_key not in monthly_stats:
+                    monthly_stats[month_key] = {
+                        'count': 0,
+                        'amount': 0.0
+                    }
+                monthly_stats[month_key]['count'] += 1
+                monthly_stats[month_key]['amount'] += float(row.total_amount or 0)
+        
+        # 构建月度数据，按月份排序
+        monthly_data = []
+        for month_key in sorted(monthly_stats.keys()):
+            monthly_data.append({
+                'month': month_key,
+                'invoices': monthly_stats[month_key]['count'],
+                'amount': monthly_stats[month_key]['amount']
+            })
+        
+        # 如果有数据，只返回最近12个月
+        if monthly_data:
+            monthly_data = monthly_data[-12:]  # 取最近12个月
+            logger.info(f"月度统计 - 返回 {len(monthly_data)} 个月的数据")
+        
+        return monthly_data
+    
+    async def _get_category_statistics(self, user_id: UUID, base_conditions) -> List[Dict[str, Any]]:
+        """获取分类统计数据"""
+        # 按发票类型统计
+        category_query = select(
+            Invoice.invoice_type,
+            func.count(Invoice.id).label('count'),
+            func.coalesce(func.sum(Invoice.total_amount), 0).label('amount')
+        ).where(base_conditions).group_by(
+            Invoice.invoice_type
+        ).order_by(
+            func.count(Invoice.id).desc()
+        )
+        
+        result = await self.db.execute(category_query)
+        category_rows = result.all()
+        
+        # 构建分类数据
+        category_data = []
+        colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
+        
+        for idx, row in enumerate(category_rows):
+            category_data.append({
+                'name': row.invoice_type or '未知类型',
+                'value': int(row.count),
+                'amount': float(row.amount),
+                'color': colors[idx % len(colors)]
+            })
+        
+        return category_data
+
     # 私有辅助方法
     
     async def _generate_invoice_number(self, file_hash: str, user_id: UUID) -> str:

@@ -40,9 +40,11 @@ import {
   getInvoiceAmount,
   getInvoiceDisplayDate
 } from '../../../utils/tableHelpers';
-import { getColumnDefinitions } from './columnDefinitions';
+import { getDynamicColumnDefinitions, getDefaultVisibleColumns, getColumnSizing } from './dynamicColumnDefinitions';
 import TablePagination from './TablePagination';
-import ColumnVisibilityManager from './ColumnVisibilityManager';
+import FieldSelector from './FieldSelector';
+import { fieldMetadataService } from '../../../services/fieldMetadata.service';
+import type { FieldMetadata } from '../../../services/fieldMetadata.service';
 
 interface InvoiceTableViewProps {
   invoices: Invoice[];
@@ -50,7 +52,7 @@ interface InvoiceTableViewProps {
   onSelectInvoice: (invoiceId: string) => void;
   onSelectAll: (invoiceIds: string[]) => void;
   onViewInvoice: (invoiceId: string) => void;
-  onEditInvoice: (invoice: Invoice) => void;
+  onDownloadInvoice: (invoice: Invoice) => void;
   onDeleteInvoice: (invoice: Invoice) => void;
   onBulkAction: (action: string, invoiceIds: string[]) => void;
   isLoading?: boolean;
@@ -67,7 +69,7 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
   onSelectInvoice,
   onSelectAll,
   onViewInvoice,
-  onEditInvoice,
+  onDownloadInvoice,
   onDeleteInvoice,
   onBulkAction,
   isLoading = false,
@@ -88,8 +90,42 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => loadColumnVisibility());
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [isColumnManagerOpen, setIsColumnManagerOpen] = useState(false);
+  
+  // 动态字段元数据状态
+  const [fieldMetadata, setFieldMetadata] = useState<FieldMetadata[]>([]);
+  const [isFieldMetadataLoading, setIsFieldMetadataLoading] = useState(true);
 
+  // 加载字段元数据
+  useEffect(() => {
+    const loadFieldMetadata = async () => {
+      setIsFieldMetadataLoading(true);
+      try {
+        const metadata = await fieldMetadataService.getFieldMetadata();
+        setFieldMetadata(metadata);
+        
+        // 如果没有保存的列可见性设置，使用默认可见列
+        const savedVisibility = loadColumnVisibility();
+        if (Object.keys(savedVisibility).length === 0) {
+          const defaultVisible = getDefaultVisibleColumns(metadata);
+          const defaultVisibility: VisibilityState = {};
+          
+          metadata.forEach(field => {
+            defaultVisibility[field.column_name] = defaultVisible.includes(field.column_name);
+          });
+          
+          setColumnVisibility(defaultVisibility);
+          saveColumnVisibility(defaultVisibility);
+        }
+      } catch (error) {
+        console.error('Failed to load field metadata:', error);
+      } finally {
+        setIsFieldMetadataLoading(false);
+      }
+    };
+    
+    loadFieldMetadata();
+  }, []);
+  
   // 同步外部选中状态到内部行选择状态
   useEffect(() => {
     const newRowSelection: RowSelectionState = {};
@@ -111,15 +147,47 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
     saveColumnVisibility(columnVisibility);
   }, [columnVisibility]);
 
-  // 获取列定义
-  const columns = useMemo<ColumnDef<Invoice>[]>(() => 
-    getColumnDefinitions({
+  // 重置列设置
+  const handleResetColumns = () => {
+    // 清除本地存储的列设置
+    localStorage.removeItem('invoiceTableColumnVisibility');
+    localStorage.removeItem('invoiceTableColumnOrder');
+    
+    // 重新加载默认设置
+    const defaultVisible = getDefaultVisibleColumns(fieldMetadata);
+    const defaultVisibility: VisibilityState = {};
+    
+    table.getAllLeafColumns().forEach(column => {
+      defaultVisibility[column.id] = defaultVisible.includes(column.id);
+    });
+    
+    setColumnVisibility(defaultVisibility);
+    
+    // 重置列顺序 - 强制刷新以确保顺序正确
+    window.location.reload();
+  };
+
+  // 获取动态列定义
+  const columns = useMemo<ColumnDef<Invoice>[]>(() => {
+    if (fieldMetadata.length === 0) {
+      return [];
+    }
+    
+    return getDynamicColumnDefinitions({
+      fieldMetadata,
       onViewInvoice,
-      onEditInvoice,
+      onDownloadInvoice,
       onDeleteInvoice,
-    }), 
-    [onViewInvoice, onEditInvoice, onDeleteInvoice]
-  );
+    });
+  }, [fieldMetadata, onViewInvoice, onDownloadInvoice, onDeleteInvoice]);
+  
+  // 获取列宽度映射
+  const columnSizing = useMemo(() => {
+    if (fieldMetadata.length === 0) {
+      return {};
+    }
+    return getColumnSizing(fieldMetadata);
+  }, [fieldMetadata]);
 
   // 创建表格实例
   const table = useReactTable({
@@ -134,6 +202,10 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
         pageIndex: currentPage - 1,
         pageSize,
       },
+      columnSizing,
+    },
+    initialState: {
+      columnSizing,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -142,23 +214,12 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
       setRowSelection(newSelection);
       
-      // 通知父组件选中变化
+      // 获取所有选中的ID
       const selectedIds = Object.keys(newSelection)
         .filter(key => newSelection[key]);
       
-      if (selectedIds.length === invoices.length && invoices.length > 0) {
-        onSelectAll(selectedIds);
-      } else {
-        // 处理单个选择的情况
-        const prevSelectedIds = Object.keys(rowSelection)
-          .filter(key => rowSelection[key]);
-        
-        const added = selectedIds.filter(id => !prevSelectedIds.includes(id));
-        const removed = prevSelectedIds.filter(id => !selectedIds.includes(id));
-        
-        added.forEach(id => onSelectInvoice(id));
-        removed.forEach(id => onSelectInvoice(id));
-      }
+      // 通知父组件
+      onSelectAll(selectedIds);
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -201,14 +262,39 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
     onBulkAction('delete', selectedIds);
   };
 
-  if (isLoading) {
+  if (isLoading || isFieldMetadataLoading) {
     return (
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
           <div className="animate-pulse space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="loading loading-spinner loading-sm"></span>
+              <span className="text-sm text-base-content/60">
+                {isFieldMetadataLoading ? '正在加载字段配置...' : '正在加载数据...'}
+              </span>
+            </div>
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-16 bg-base-300 rounded"></div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // 如果字段元数据为空，显示错误状态
+  if (fieldMetadata.length === 0) {
+    return (
+      <div className="card bg-base-100 shadow-sm">
+        <div className="card-body text-center">
+          <div className="text-base-content/60">
+            <p className="mb-2">无法加载表格配置</p>
+            <button 
+              className="btn btn-sm btn-outline"
+              onClick={() => window.location.reload()}
+            >
+              重新加载
+            </button>
           </div>
         </div>
       </div>
@@ -262,13 +348,12 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
                 </>
               )}
               
-              <button
-                className="btn btn-sm btn-ghost"
-                onClick={() => setIsColumnManagerOpen(!isColumnManagerOpen)}
-              >
-                <Settings className="w-4 h-4" />
-                列设置
-              </button>
+              <FieldSelector
+                table={table}
+                fields={fieldMetadata}
+                onReset={handleResetColumns}
+                className="ml-2"
+              />
             </div>
           </div>
         </div>
@@ -403,12 +488,6 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
           onPageSizeChange={onPageSizeChange}
         />
 
-        {/* 列可见性管理器 */}
-        <ColumnVisibilityManager
-          table={table}
-          isOpen={isColumnManagerOpen}
-          onClose={() => setIsColumnManagerOpen(false)}
-        />
       </div>
     </div>
   );

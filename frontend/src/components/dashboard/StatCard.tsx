@@ -13,6 +13,7 @@ interface StatCardProps {
   };
   variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info';
   loading?: boolean;
+  formatValue?: (value: string | number) => string;
 }
 
 export const StatCard: React.FC<StatCardProps> = memo(({
@@ -23,6 +24,7 @@ export const StatCard: React.FC<StatCardProps> = memo(({
   trend,
   variant = 'primary',
   loading = false,
+  formatValue: customFormatValue,
 }) => {
   const getVariantClasses = () => {
     const variants = {
@@ -49,16 +51,12 @@ export const StatCard: React.FC<StatCardProps> = memo(({
   };
 
   const formatValue = (val: string | number) => {
+    if (customFormatValue) {
+      return customFormatValue(val);
+    }
+    
     if (typeof val === 'number') {
-      // 如果是金额，格式化为货币格式
-      if (val > 1000) {
-        return new Intl.NumberFormat('zh-CN', {
-          style: 'currency',
-          currency: 'CNY',
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(val);
-      }
+      // 默认数字格式化
       return val.toLocaleString();
     }
     return val;

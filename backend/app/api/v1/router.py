@@ -8,7 +8,8 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth, users, profiles, invoices, files, tasks, monitoring, invoices_enhanced,
-    parser, validator, ocr, ocr_combined, config, email_accounts, email_scan, email_processing
+    parser, validator, ocr, ocr_combined, config, email_accounts, email_scan, email_processing,
+    invoice_stats
 )
 
 # 创建 v1 API 路由器
@@ -31,6 +32,7 @@ api_router.include_router(config.router, prefix="/config", tags=["配置管理"]
 api_router.include_router(email_accounts.router, prefix="/email-accounts", tags=["邮箱管理"])
 api_router.include_router(email_scan.router, prefix="/email-scan", tags=["邮箱扫描"])
 api_router.include_router(email_processing.router, prefix="/email-processing", tags=["邮件处理"])
+api_router.include_router(invoice_stats.router, prefix="/invoice-stats", tags=["发票统计"])
 
 # 可选：添加版本信息端点
 @api_router.get("/version", tags=["系统"])

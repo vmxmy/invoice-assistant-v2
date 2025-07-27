@@ -219,6 +219,17 @@ export const saveColumnVisibility = (visibility: Record<string, boolean>): void 
   localStorage.setItem('invoiceTableColumnVisibility', JSON.stringify(visibility));
 };
 
+// 保存列顺序到本地存储
+export const saveColumnOrder = (order: Record<string, number>): void => {
+  localStorage.setItem('invoiceTableColumnOrder', JSON.stringify(order));
+};
+
+// 从本地存储加载列顺序
+export const loadColumnOrder = (): Record<string, number> => {
+  const saved = localStorage.getItem('invoiceTableColumnOrder');
+  return saved ? JSON.parse(saved) : {};
+};
+
 // 从本地存储加载列可见性
 export const loadColumnVisibility = (): Record<string, boolean> => {
   const saved = localStorage.getItem('invoiceTableColumnVisibility');
@@ -230,9 +241,11 @@ export const loadColumnVisibility = (): Record<string, boolean> => {
     seller_name: true,
     consumption_date: true,
     total_amount: true,
+    expense_category: true,  // 费用分类默认显示
+    primary_category_name: true,  // 一级分类默认显示
     status: true,
     source: true,
-    invoice_details: true,  // 发票明细列默认显示
+    invoice_details: false,  // 发票明细列默认隐藏
     created_at: false,  // 创建时间默认隐藏
     actions: true,
   };

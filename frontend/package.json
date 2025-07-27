@@ -1,7 +1,15 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "name": "invoice-assist-frontend",
+  "private": false,
+  "version": "2.0.0",
+  "description": "智能发票管理系统前端应用",
+  "author": "Invoice Assist Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/invoice-assist-v2.git"
+  },
+  "keywords": ["invoice", "management", "react", "typescript", "supabase"],
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +24,9 @@
     "analyze": "npm run build && npx vite-bundle-analyzer dist"
   },
   "dependencies": {
+    "@alicloud/ocr-api20210707": "^1.0.1",
+    "@alicloud/openapi-client": "^0.4.15",
+    "@alicloud/tea-util": "^1.4.10",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.50.3",
     "@tailwindcss/postcss": "^4.1.11",

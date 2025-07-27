@@ -15,6 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { api } from '../services/apiClient';
+import { invoiceService } from '../services/invoice';
 import Layout from '../components/layout/Layout';
 import UnifiedInvoiceModal, { type ModalMode } from '../components/invoice/modals/UnifiedInvoiceModal';
 import DeleteConfirmModal from '../components/invoice/modals/DeleteConfirmModal';
@@ -27,7 +28,6 @@ import ErrorBoundary from '../components/ui/ErrorBoundary';
 import { notify } from '../utils/notifications';
 import { useDebounce } from '../hooks/useDebounce';
 import InvoiceListView from '../components/invoice/cards/InvoiceListView';
-import InvoiceListTableView from '../components/invoice/list/InvoiceListTableView';
 import InvoiceTableView from '../components/invoice/table/InvoiceTableView';
 import { useExport } from '../hooks/useExport';
 import DownloadProgressModal from '../components/ui/DownloadProgressModal';
@@ -36,7 +36,6 @@ import type { Invoice as InvoiceType } from '../types/table';
 // 视图模式枚举
 enum ViewMode {
   TABLE = 'table',      // 表格视图（TanStack Table）
-  LIST = 'list',        // 列表视图（简单表格）
   GRID = 'grid'         // 网格视图（卡片）
 }
 
@@ -97,6 +96,7 @@ const InvoiceListPage: React.FC = () => {
   
   // 导出功能
   const {
+    downloadSingle,
     downloadBatch,
     isExporting,
     isProgressModalOpen,
@@ -145,7 +145,7 @@ const InvoiceListPage: React.FC = () => {
         params.query = debouncedSearchQuery;
       }
       
-      // 处理高级搜索参数
+      // 处理高级搜索参数 - 兼容传统字段
       if (searchFilters.invoiceNumber) {
         params.invoice_number = searchFilters.invoiceNumber;
       }
@@ -182,13 +182,48 @@ const InvoiceListPage: React.FC = () => {
         params.source = searchFilters.source[0];
       }
       
+      // 处理动态字段搜索参数
+      Object.keys(searchFilters).forEach(key => {
+        // 跳过已处理的传统字段
+        if (!['invoiceNumber', 'sellerName', 'buyerName', 'amountMin', 'amountMax', 
+              'dateFrom', 'dateTo', 'status', 'source'].includes(key)) {
+          const value = searchFilters[key];
+          if (value !== undefined && value !== '' && 
+              !(Array.isArray(value) && value.length === 0) &&
+              !(typeof value === 'object' && value !== null && Object.keys(value).length === 0)) {
+            // 对于复杂对象（如范围过滤器），序列化为JSON字符串
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+              params[key] = JSON.stringify(value);
+            } else {
+              params[key] = value;
+            }
+          }
+        }
+      });
+      
       console.log('API调用参数:', params);
-      const response = await api.invoices.list(params);
+      const response = await invoiceService.list(params);
+      
+      console.log('📊 [InvoiceListPage] API响应:', response.data);
       
       // 数据去重保护
       const uniqueInvoices = Array.from(
         new Map(response.data.items.map(item => [item.id, item])).values()
       );
+      
+      // 调试：检查发票分类数据
+      if (uniqueInvoices.length > 0) {
+        console.log('🏷️ [InvoiceListPage] 第一条发票分类信息:', {
+          id: uniqueInvoices[0].id,
+          invoice_number: uniqueInvoices[0].invoice_number,
+          expense_category: uniqueInvoices[0].expense_category,
+          primary_category_name: uniqueInvoices[0].primary_category_name,
+          secondary_category_name: uniqueInvoices[0].secondary_category_name,
+          category_full_path: uniqueInvoices[0].category_full_path,
+          全部字段: Object.keys(uniqueInvoices[0])
+        });
+        
+      }
       
       return {
         ...response.data,
@@ -271,6 +306,11 @@ const InvoiceListPage: React.FC = () => {
     setSelectedInvoiceId(invoice.id);
     setModalMode('edit');
     setIsModalOpen(true);
+  };
+
+  // 下载发票
+  const handleDownloadInvoice = (invoice: Invoice) => {
+    downloadSingle(invoice);
   };
 
   // 关闭模态框
@@ -422,12 +462,6 @@ const InvoiceListPage: React.FC = () => {
               )}
             </p>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <button className="btn btn-primary btn-sm sm:btn-md">
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">新建发票</span>
-            </button>
-          </div>
         </div>
 
         {/* 搜索和筛选 */}
@@ -490,18 +524,6 @@ const InvoiceListPage: React.FC = () => {
                       <rect x="14" y="14" width="7" height="7" strokeWidth="2" rx="1"/>
                     </svg>
                     <span className="hidden xl:inline ml-1">网格</span>
-                  </button>
-                  <button
-                    className={`btn btn-sm ${viewMode === ViewMode.LIST ? 'btn-primary' : 'btn-ghost'}`}
-                    onClick={() => setViewMode(ViewMode.LIST)}
-                    title="列表视图"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/>
-                      <line x1="3" y1="8" x2="21" y2="8" strokeWidth="2"/>
-                      <line x1="3" y1="13" x2="21" y2="13" strokeWidth="2"/>
-                    </svg>
-                    <span className="hidden xl:inline ml-1">列表</span>
                   </button>
                   <button
                     className={`btn btn-sm ${viewMode === ViewMode.TABLE ? 'btn-primary' : 'btn-ghost'}`}
@@ -597,35 +619,25 @@ const InvoiceListPage: React.FC = () => {
                 </div>
               </div>
             ) : viewMode === ViewMode.TABLE ? (
-              // TanStack Table 视图
-              <InvoiceTableView
-                invoices={invoicesData?.items || []}
-                selectedInvoices={selectedInvoices}
-                onSelectInvoice={handleSelectInvoice}
-                onSelectAll={handleSelectAll}
-                onViewInvoice={handleViewInvoice}
-                onEditInvoice={handleEditInvoice}
-                onDeleteInvoice={handleDeleteInvoice}
-                onBulkAction={handleBulkAction}
-                isLoading={isLoading}
-                totalCount={invoicesData?.total || 0}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={setPageSize}
-              />
-            ) : viewMode === ViewMode.LIST ? (
-              // 简单列表视图
-              <InvoiceListTableView
-                invoices={invoicesData?.items || []}
-                selectedInvoices={selectedInvoices}
-                onSelectInvoice={handleSelectInvoice}
-                onSelectAll={handleSelectAll}
-                onViewInvoice={handleViewInvoice}
-                onEditInvoice={handleEditInvoice}
-                onDeleteInvoice={handleDeleteInvoice}
-                isLoading={isLoading}
-              />
+              // TanStack Table 视图（动态列配置）
+              <ErrorBoundary>
+                <InvoiceTableView
+                  invoices={invoicesData?.items || []}
+                  selectedInvoices={selectedInvoices}
+                  onSelectInvoice={handleSelectInvoice}
+                  onSelectAll={handleSelectAll}
+                  onViewInvoice={handleViewInvoice}
+                  onDownloadInvoice={handleDownloadInvoice}
+                  onDeleteInvoice={handleDeleteInvoice}
+                  onBulkAction={handleBulkAction}
+                  isLoading={isLoading}
+                  totalCount={invoicesData?.total || 0}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+              </ErrorBoundary>
             ) : (
               // 网格卡片视图
               <InvoiceListView
@@ -633,7 +645,7 @@ const InvoiceListPage: React.FC = () => {
                 selectedInvoices={selectedInvoices}
                 onSelectInvoice={handleSelectInvoice}
                 onViewInvoice={handleViewInvoice}
-                onEditInvoice={handleEditInvoice}
+                onDownloadInvoice={handleDownloadInvoice}
                 onDeleteInvoice={handleDeleteInvoice}
                 isLoading={isLoading}
               />
@@ -746,10 +758,6 @@ const InvoiceListPage: React.FC = () => {
                 <p className="text-sm sm:text-base text-base-content/40 mb-4 max-w-md mx-auto">
                   {searchQuery ? '未找到匹配的发票，请尝试其他搜索条件' : '开始上传您的第一张发票吧'}
                 </p>
-                <button className="btn btn-primary btn-sm sm:btn-md">
-                  <Plus className="w-4 h-4" />
-                  新建发票
-                </button>
               </div>
             )}
           </div>

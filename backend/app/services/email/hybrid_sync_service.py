@@ -96,27 +96,82 @@ class HybridEmailSyncService:
                 logger.info(f"全量同步 - 传入的扫描参数: {scan_params}")
                 search_criteria = self._build_search_criteria(scan_params)
                 logger.info(f"使用搜索条件: {search_criteria}")
+                logger.info(f"搜索条件类型: {type(search_criteria)}")
+                
+                # 如果是 A 对象，尝试显示其内部结构
+                if hasattr(search_criteria, '__dict__'):
+                    logger.info(f"搜索条件内部结构: {search_criteria.__dict__}")
+                elif hasattr(search_criteria, '_field_value_map'):
+                    logger.info(f"搜索条件字段映射: {search_criteria._field_value_map}")
                 
                 # 根据条件搜索邮件 - 使用 imap-tools 的方式
                 # 使用 fetch 获取消息，然后提取 UIDs，指定 charset='UTF-8' 支持中文
-                messages = list(mailbox.fetch(search_criteria, mark_seen=False, charset='UTF-8'))
+                try:
+                    logger.info(f"开始IMAP搜索，条件: {search_criteria}")
+                    messages = list(mailbox.fetch(search_criteria, mark_seen=False, charset='UTF-8'))
+                    logger.info(f"IMAP服务器端搜索成功，找到 {len(messages)} 封邮件")
+                    
+                    # 如果搜索条件不是 'ALL' 但返回了大量邮件，可能是搜索条件没有生效
+                    if search_criteria != 'ALL' and len(messages) > 200:
+                        logger.warning(f"搜索条件 {search_criteria} 返回了 {len(messages)} 封邮件，可能搜索条件未生效")
+                        
+                        # 尝试使用简单的日期搜索进行验证
+                        if scan_params and scan_params.get('date_from'):
+                            try:
+                                from imap_tools import A
+                                test_criteria = A(date_gte=scan_params['date_from'])
+                                test_messages = list(mailbox.fetch(test_criteria, mark_seen=False, charset='UTF-8'))
+                                logger.info(f"验证：仅使用日期条件 {scan_params['date_from']} 搜索到 {len(test_messages)} 封邮件")
+                                
+                                if len(test_messages) < len(messages):
+                                    logger.warning("服务器端日期过滤可能失效，将在客户端进行过滤")
+                                    # 使用测试搜索的结果，它应该更准确
+                                    messages = test_messages
+                                    logger.info(f"使用简化日期搜索结果：{len(messages)} 封邮件")
+                            except Exception as test_e:
+                                logger.warning(f"日期搜索验证失败: {test_e}")
+                    
+                except Exception as e:
+                    logger.error(f"使用搜索条件失败: {e}")
+                    logger.error(f"失败的搜索条件: {search_criteria}")
+                    
+                    # 尝试使用更简单的搜索条件
+                    if scan_params and scan_params.get('date_from'):
+                        try:
+                            logger.info("尝试使用简化的日期搜索")
+                            from imap_tools import A
+                            simple_criteria = A(date_gte=scan_params['date_from'])
+                            messages = list(mailbox.fetch(simple_criteria, mark_seen=False, charset='UTF-8'))
+                            logger.info(f"简化搜索成功，找到 {len(messages)} 封邮件")
+                        except Exception as simple_e:
+                            logger.error(f"简化搜索也失败: {simple_e}")
+                            # 最后回退到 ALL 搜索
+                            logger.warning("回退到 'ALL' 搜索，将在客户端进行所有过滤")
+                            messages = list(mailbox.fetch('ALL', mark_seen=False, charset='UTF-8'))
+                            logger.info(f"获取到 {len(messages)} 封邮件，将在客户端进行过滤")
+                    else:
+                        # 回退到简单搜索，然后在客户端过滤
+                        logger.warning("回退到 'ALL' 搜索，将在客户端进行过滤")
+                        messages = list(mailbox.fetch('ALL', mark_seen=False, charset='UTF-8'))
+                        logger.info(f"获取到 {len(messages)} 封邮件，准备进行客户端过滤")
                 all_uids = [int(msg.uid) for msg in messages]
                 result['total_emails'] = len(all_uids)
                 logger.info(f"找到 {len(all_uids)} 封符合条件的邮件")
                 
-                # 分批处理
+                # 批量处理，解决N+1查询问题
                 batch_size = 50
                 processed_count = 0
                 
                 for i in range(0, len(messages), batch_size):
                     batch_messages = messages[i:i+batch_size]
+                    batch_email_infos = []
                     
+                    # 先处理和过滤这批邮件
                     for msg in batch_messages:
                         try:
                             email_info = self._parse_imap_tools_message(msg)
                             
                             # 检查日期是否在同步范围内
-                            # 处理不同的日期类型
                             email_date = email_info['email_date']
                             if isinstance(email_date, datetime):
                                 email_date = email_date.date()
@@ -133,22 +188,38 @@ class HybridEmailSyncService:
                                 sync_start_date = sync_start_date.date()
                             
                             if email_date >= sync_start_date:
-                                # 保存到本地索引
-                                is_new = await self._save_email_index(account_id, email_info)
-                                if is_new:
-                                    result['new_emails'] += 1
-                                else:
-                                    result['updated_emails'] += 1
+                                batch_email_infos.append(email_info)
                             
                             processed_count += 1
-                            
-                            # 更新进度
-                            if processed_count % 100 == 0:
-                                logger.info(f"已处理 {processed_count}/{len(all_uids)} 封邮件")
                                 
                         except Exception as e:
                             logger.error(f"处理邮件 UID {msg.uid} 失败: {e}")
                             result['errors'].append(f"UID {msg.uid}: {str(e)}")
+                    
+                    # 批量保存这批有效的邮件
+                    if batch_email_infos:
+                        try:
+                            batch_result = await self._save_email_index_batch(account_id, batch_email_infos)
+                            result['new_emails'] += batch_result['new']
+                            result['updated_emails'] += batch_result['updated']
+                            logger.info(f"批次处理完成：新增 {batch_result['new']}，更新 {batch_result['updated']} 封邮件")
+                        except Exception as e:
+                            logger.error(f"批量保存邮件失败: {e}")
+                            # 回退到单个处理
+                            for email_info in batch_email_infos:
+                                try:
+                                    is_new = await self._save_email_index(account_id, email_info)
+                                    if is_new:
+                                        result['new_emails'] += 1
+                                    else:
+                                        result['updated_emails'] += 1
+                                except Exception as single_error:
+                                    logger.error(f"单个邮件保存失败 UID {email_info['uid']}: {single_error}")
+                                    result['errors'].append(f"UID {email_info['uid']}: {str(single_error)}")
+                    
+                    # 更新进度
+                    if processed_count % 100 == 0:
+                        logger.info(f"已处理 {processed_count}/{len(all_uids)} 封邮件")
                 
                 # 更新同步状态
                 if all_uids:
@@ -250,25 +321,41 @@ class HybridEmailSyncService:
                     uid_list_str = ','.join(str(uid) for uid in all_uids)
                     all_messages = list(mailbox.fetch(AND(uid=uid_list_str), mark_seen=False, charset='UTF-8'))
                     
-                    # 分批处理
+                    # 批量处理，解决N+1查询问题
                     batch_size = 50
                     for i in range(0, len(all_messages), batch_size):
                         batch_messages = all_messages[i:i+batch_size]
+                        batch_email_infos = []
                         
+                        # 先处理这批邮件
                         for msg in batch_messages:
                             try:
                                 email_info = self._parse_imap_tools_message(msg)
-                                
-                                # 保存到本地索引
-                                is_new = await self._save_email_index(account_id, email_info)
-                                if is_new:
-                                    result['new_emails'] += 1
-                                else:
-                                    result['updated_emails'] += 1
-                                    
+                                batch_email_infos.append(email_info)
                             except Exception as e:
                                 logger.error(f"处理邮件 UID {msg.uid} 失败: {e}")
                                 result['errors'].append(f"UID {msg.uid}: {str(e)}")
+                        
+                        # 批量保存这批邮件
+                        if batch_email_infos:
+                            try:
+                                batch_result = await self._save_email_index_batch(account_id, batch_email_infos)
+                                result['new_emails'] += batch_result['new']
+                                result['updated_emails'] += batch_result['updated']
+                                logger.info(f"增量同步批次处理完成：新增 {batch_result['new']}，更新 {batch_result['updated']} 封邮件")
+                            except Exception as e:
+                                logger.error(f"批量保存邮件失败: {e}")
+                                # 回退到单个处理
+                                for email_info in batch_email_infos:
+                                    try:
+                                        is_new = await self._save_email_index(account_id, email_info)
+                                        if is_new:
+                                            result['new_emails'] += 1
+                                        else:
+                                            result['updated_emails'] += 1
+                                    except Exception as single_error:
+                                        logger.error(f"单个邮件保存失败 UID {email_info['uid']}: {single_error}")
+                                        result['errors'].append(f"UID {email_info['uid']}: {str(single_error)}")
                     
                     # 更新最后同步的UID
                     sync_state.last_sync_uid = max(all_uids)
@@ -462,59 +549,96 @@ class HybridEmailSyncService:
         await self.db.execute(stmt)
         await self.db.commit()
     
-    async def _save_email_index(self, account_id: str, email_info: Dict) -> bool:
-        """保存邮件到索引
+    async def _save_email_index_batch(self, account_id: str, email_infos: List[Dict]) -> Dict[str, int]:
+        """批量保存邮件到索引，解决N+1查询问题
         
-        返回是否为新邮件
+        Args:
+            account_id: 账户ID
+            email_infos: 邮件信息列表
+            
+        Returns:
+            包含新增和更新数量的字典
         """
-        # 检查是否已存在
+        if not email_infos:
+            return {'new': 0, 'updated': 0}
+        
+        # 提取所有 UIDs 进行批量查询
+        uids = [email_info['uid'] for email_info in email_infos]
+        folder_name = email_infos[0]['folder_name']  # 假设所有邮件在同一文件夹
+        
+        # 批量查询现有记录
         query = select(EmailIndex).where(
             and_(
                 EmailIndex.account_id == account_id,
-                EmailIndex.folder_name == email_info['folder_name'],
-                EmailIndex.uid == email_info['uid']
+                EmailIndex.folder_name == folder_name,
+                EmailIndex.uid.in_(uids)
             )
         )
         result = await self.db.execute(query)
-        existing = result.scalar_one_or_none()
+        existing_emails = {email.uid: email for email in result.scalars().all()}
         
-        # 确保 email_date 是 datetime 对象
-        email_date = email_info['email_date']
-        if isinstance(email_date, date) and not isinstance(email_date, datetime):
-            # 如果是 date 对象，转换为 datetime（使用当天开始时间）
-            email_date = datetime.combine(email_date, datetime.min.time())
-        elif not isinstance(email_date, (date, datetime)):
-            # 如果既不是 date 也不是 datetime，记录警告并使用当前时间
-            logger.warning(f"未知的日期类型: {type(email_date)}，使用当前时间")
-            email_date = datetime.now()
+        logger.info(f"批量查询完成：找到 {len(existing_emails)} 个现有邮件，待处理 {len(email_infos)} 个邮件")
         
-        if existing:
-            # 更新现有记录
-            existing.subject = email_info['subject']
-            existing.flags = email_info['flags']
-            existing.email_date = email_date  # 更新日期
-            await self.db.commit()
-            return False
-        else:
-            # 创建新记录
-            email_index = EmailIndex(
-                account_id=account_id,
-                uid=email_info['uid'],
-                folder_name=email_info['folder_name'],
-                subject=email_info['subject'],
-                from_address=email_info['from_address'],
-                to_address=email_info['to_address'],
-                email_date=email_date,  # 使用转换后的日期
-                message_id=email_info['message_id'],
-                has_attachments=email_info['has_attachments'],
-                attachment_count=email_info['attachment_count'],
-                attachment_names=email_info['attachment_names'],
-                flags=email_info['flags']
-            )
+        new_count = 0
+        updated_count = 0
+        new_records = []
+        
+        # 处理每个邮件
+        for email_info in email_infos:
+            uid = email_info['uid']
             
-            self.db.add(email_index)
-            await self.db.commit()
-            return True
+            # 确保 email_date 是 datetime 对象
+            email_date = email_info['email_date']
+            if isinstance(email_date, date) and not isinstance(email_date, datetime):
+                email_date = datetime.combine(email_date, datetime.min.time())
+            elif not isinstance(email_date, (date, datetime)):
+                logger.warning(f"未知的日期类型: {type(email_date)}，使用当前时间")
+                email_date = datetime.now()
+            
+            existing = existing_emails.get(uid)
+            if existing:
+                # 更新现有记录
+                existing.subject = email_info['subject']
+                existing.flags = email_info['flags']
+                existing.email_date = email_date
+                updated_count += 1
+            else:
+                # 准备新记录
+                email_index = EmailIndex(
+                    account_id=account_id,
+                    uid=uid,
+                    folder_name=email_info['folder_name'],
+                    subject=email_info['subject'],
+                    from_address=email_info['from_address'],
+                    to_address=email_info['to_address'],
+                    email_date=email_date,
+                    message_id=email_info['message_id'],
+                    has_attachments=email_info['has_attachments'],
+                    attachment_count=email_info['attachment_count'],
+                    attachment_names=email_info['attachment_names'],
+                    flags=email_info['flags']
+                )
+                new_records.append(email_index)
+                new_count += 1
+        
+        # 批量插入新记录
+        if new_records:
+            self.db.add_all(new_records)
+        
+        # 一次性提交所有更改
+        await self.db.commit()
+        
+        logger.info(f"批量处理完成：新增 {new_count} 个，更新 {updated_count} 个邮件")
+        return {'new': new_count, 'updated': updated_count}
+
+    async def _save_email_index(self, account_id: str, email_info: Dict) -> bool:
+        """保存邮件到索引（保留用于向后兼容）
+        
+        返回是否为新邮件
+        """
+        # 使用批量方法处理单个邮件
+        result = await self._save_email_index_batch(account_id, [email_info])
+        return result['new'] > 0
     
     @asynccontextmanager
     async def _get_imap_client(self, account_id: str):
@@ -599,11 +723,36 @@ class HybridEmailSyncService:
             imap-tools 搜索条件对象
         """
         if not scan_params:
+            logger.info("没有扫描参数，使用 'ALL' 搜索")
             return 'ALL'
+        
+        logger.info(f"构建搜索条件，输入参数: {scan_params}")
+        
+        try:
+            # 使用 SearchBuilder 构建条件
+            builder = SearchBuilder.from_params(scan_params)
+            criteria = builder.build()
             
-        # 使用 SearchBuilder 构建条件
-        builder = SearchBuilder.from_params(scan_params)
-        return builder.build()
+            # 记录构建的条件详情
+            logger.info(f"SearchBuilder 构建完成，条件类型: {type(criteria)}")
+            if hasattr(criteria, '__dict__'):
+                logger.info(f"搜索条件详情: {criteria.__dict__}")
+            else:
+                logger.info(f"搜索条件: {criteria}")
+            
+            # 记录人类可读的条件描述
+            try:
+                description = builder.to_string()
+                logger.info(f"搜索条件描述: {description}")
+            except Exception as desc_e:
+                logger.warning(f"获取搜索条件描述失败: {desc_e}")
+            
+            return criteria
+            
+        except Exception as e:
+            logger.error(f"构建搜索条件失败: {e}", exc_info=True)
+            logger.warning("回退到 'ALL' 搜索")
+            return 'ALL'
     
     async def _get_email_account(self, account_id: str) -> EmailAccount:
         """获取邮箱账户"""

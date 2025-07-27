@@ -1,12 +1,12 @@
 [
   {
     "query_name": "endpoint_GET _api_v1_profiles_me",
-    "avg_time_ms": 2052.4634112381354,
-    "p95_time_ms": 3544.132947921753,
-    "p99_time_ms": 5789.989948272705,
+    "avg_time_ms": 1861.1779709029615,
+    "p95_time_ms": 3333.6822986602783,
+    "p99_time_ms": 5356.549978256226,
     "max_time_ms": 269780.3342342377,
-    "sample_count": 2050,
-    "created_at": "2025-07-23T02:20:07.095766"
+    "sample_count": 2850,
+    "created_at": "2025-07-27T23:08:38.498051"
   },
   {
     "query_name": "invoice_search",
@@ -28,30 +28,30 @@
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
-    "avg_time_ms": 4.152802258003049,
-    "p95_time_ms": 5.956888198852539,
-    "p99_time_ms": 76.24197006225586,
+    "avg_time_ms": 3.787818048514572,
+    "p95_time_ms": 5.571842193603516,
+    "p99_time_ms": 76.25889778137207,
     "max_time_ms": 2789.8290157318115,
-    "sample_count": 2050,
-    "created_at": "2025-07-22T18:17:17.884747"
+    "sample_count": 2550,
+    "created_at": "2025-07-27T20:23:06.339311"
   },
   {
     "query_name": "invoice_by_id",
-    "avg_time_ms": 1370.1728681723278,
-    "p95_time_ms": 3400.2721309661865,
-    "p99_time_ms": 4523.361921310425,
+    "avg_time_ms": 1339.3803043365479,
+    "p95_time_ms": 3312.9799365997314,
+    "p99_time_ms": 4464.95795249939,
     "max_time_ms": 7268.131971359253,
-    "sample_count": 600,
-    "created_at": "2025-07-22T14:54:17.773151"
+    "sample_count": 750,
+    "created_at": "2025-07-27T11:10:46.419998"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_invoices_",
-    "avg_time_ms": 0.8128070831298828,
-    "p95_time_ms": 2.276897430419922,
-    "p99_time_ms": 5.9719085693359375,
-    "max_time_ms": 46.13518714904785,
-    "sample_count": 250,
-    "created_at": "2025-07-22T14:04:21.625726"
+    "avg_time_ms": 1.1097335815429688,
+    "p95_time_ms": 2.542257308959961,
+    "p99_time_ms": 9.412288665771484,
+    "max_time_ms": 88.6390209197998,
+    "sample_count": 300,
+    "created_at": "2025-07-27T07:52:25.046540"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_files_upload-invoice",
@@ -109,57 +109,57 @@
   },
   {
     "query_name": "endpoint_POST _api_v1_invoices_create-with-file",
-    "avg_time_ms": 3777.9416728019714,
-    "p95_time_ms": 8187.567234039307,
-    "p99_time_ms": 11661.362886428833,
-    "max_time_ms": 11661.362886428833,
-    "sample_count": 100,
-    "created_at": "2025-07-21T11:58:05.790965"
+    "avg_time_ms": 7812.033895254135,
+    "p95_time_ms": 46754.16922569275,
+    "p99_time_ms": 59539.20888900757,
+    "max_time_ms": 61666.68915748596,
+    "sample_count": 200,
+    "created_at": "2025-07-27T18:29:25.688322"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_invoices_create-with-file",
-    "avg_time_ms": 1.8307852745056152,
-    "p95_time_ms": 5.451679229736328,
-    "p99_time_ms": 53.4968376159668,
-    "max_time_ms": 53.4968376159668,
-    "sample_count": 100,
-    "created_at": "2025-07-21T11:58:02.522130"
+    "avg_time_ms": 232.0664632320404,
+    "p95_time_ms": 90.72208404541016,
+    "p99_time_ms": 3078.925848007202,
+    "max_time_ms": 37173.593044281006,
+    "sample_count": 200,
+    "created_at": "2025-07-27T18:29:16.889681"
   },
   {
     "query_name": "endpoint_POST _api_v1_ocr_combined_full",
-    "avg_time_ms": 1426.4750146865845,
-    "p95_time_ms": 3728.7049293518066,
-    "p99_time_ms": 4515.218019485474,
-    "max_time_ms": 4515.218019485474,
-    "sample_count": 100,
-    "created_at": "2025-07-19T13:44:37.461215"
+    "avg_time_ms": 1913.4009528160095,
+    "p95_time_ms": 4761.419057846069,
+    "p99_time_ms": 9273.27585220337,
+    "max_time_ms": 14092.34595298767,
+    "sample_count": 200,
+    "created_at": "2025-07-27T16:35:21.807960"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_ocr_combined_full",
-    "avg_time_ms": 5.8689188957214355,
-    "p95_time_ms": 64.68772888183594,
-    "p99_time_ms": 84.9459171295166,
-    "max_time_ms": 84.9459171295166,
-    "sample_count": 100,
-    "created_at": "2025-07-22T11:34:57.329963"
+    "avg_time_ms": 68.7897276878357,
+    "p95_time_ms": 127.72202491760254,
+    "p99_time_ms": 2809.079647064209,
+    "max_time_ms": 3172.1510887145996,
+    "sample_count": 200,
+    "created_at": "2025-07-27T16:35:26.239889"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_email-scan_jobs",
-    "avg_time_ms": 1.899111821101262,
-    "p95_time_ms": 3.960132598876953,
-    "p99_time_ms": 27.469158172607422,
+    "avg_time_ms": 2.1206852793693542,
+    "p95_time_ms": 4.065990447998047,
+    "p99_time_ms": 65.37294387817383,
     "max_time_ms": 176.55277252197266,
-    "sample_count": 650,
-    "created_at": "2025-07-22T13:06:04.037750"
+    "sample_count": 800,
+    "created_at": "2025-07-27T20:41:09.186524"
   },
   {
     "query_name": "endpoint_GET _api_v1_email-scan_jobs",
-    "avg_time_ms": 1464.4200666134175,
-    "p95_time_ms": 2771.8920707702637,
-    "p99_time_ms": 7370.15700340271,
+    "avg_time_ms": 1550.9262000813203,
+    "p95_time_ms": 3272.486925125122,
+    "p99_time_ms": 7051.875829696655,
     "max_time_ms": 11772.499084472656,
-    "sample_count": 650,
-    "created_at": "2025-07-23T02:21:49.784360"
+    "sample_count": 850,
+    "created_at": "2025-07-27T17:49:51.229379"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_email-accounts_",
@@ -217,20 +217,47 @@
   },
   {
     "query_name": "endpoint_GET _api_v1_email-accounts",
-    "avg_time_ms": 5351.741094589233,
-    "p95_time_ms": 1711.035966873169,
-    "p99_time_ms": 418313.63797187805,
+    "avg_time_ms": 3457.3805928230286,
+    "p95_time_ms": 2523.0510234832764,
+    "p99_time_ms": 10101.115226745605,
     "max_time_ms": 418313.63797187805,
-    "sample_count": 100,
-    "created_at": "2025-07-22T04:32:31.747436"
+    "sample_count": 200,
+    "created_at": "2025-07-27T22:41:12.380257"
   },
   {
     "query_name": "endpoint_OPTIONS _api_v1_email-accounts",
-    "avg_time_ms": 1.7524456977844238,
-    "p95_time_ms": 5.422115325927734,
-    "p99_time_ms": 29.740095138549805,
+    "avg_time_ms": 1.6999276479085286,
+    "p95_time_ms": 5.322933197021484,
+    "p99_time_ms": 9.929180145263672,
     "max_time_ms": 29.740095138549805,
-    "sample_count": 100,
-    "created_at": "2025-07-22T05:17:48.928576"
+    "sample_count": 150,
+    "created_at": "2025-07-27T05:00:05.651982"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_monitoring_health-check",
+    "avg_time_ms": 3.5589170455932617,
+    "p95_time_ms": 8.658170700073242,
+    "p99_time_ms": 12.042045593261719,
+    "max_time_ms": 12.042045593261719,
+    "sample_count": 50,
+    "created_at": "2025-07-27T09:32:59.074404"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_monitoring_health-check",
+    "avg_time_ms": 7.574529647827148,
+    "p95_time_ms": 3.9560794830322266,
+    "p99_time_ms": 254.41980361938477,
+    "max_time_ms": 254.41980361938477,
+    "sample_count": 50,
+    "created_at": "2025-07-27T20:26:17.131229"
+  },
+  {
+    "query_name": "endpoint_GET _api_v1_monitoring_performance-report",
+    "avg_time_ms": 5.143594741821289,
+    "p95_time_ms": 10.336875915527344,
+    "p99_time_ms": 14.552831649780273,
+    "max_time_ms": 14.552831649780273,
+    "sample_count": 50,
+    "created_at": "2025-07-27T22:46:21.029531"
   }
 ]
