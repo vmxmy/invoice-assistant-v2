@@ -372,7 +372,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
               <div className="text-xs text-base-content/40">
                 <p>• 输入发票号快速查找</p>
                 <p>• 输入商家名称查看所有相关发票</p>
-                <p>• 输入金额范围如：>1000 或 100-500</p>
+                <p>• 输入金额范围如：&gt;1000 或 100-500</p>
               </div>
             </div>
           )}
