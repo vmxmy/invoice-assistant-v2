@@ -84,10 +84,10 @@ const NewAppNavbar: React.FC = () => {
       hotkey: 'Ctrl+K'
     },
     {
-      name: '数据统计',
+      name: '数据分析',
       icon: BarChart3,
-      href: '/dashboard',
-      description: '查看发票统计分析'
+      href: '/analytics',
+      description: '查看详细图表和统计分析'
     }
   ];
 
