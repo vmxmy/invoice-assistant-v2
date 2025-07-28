@@ -1,426 +1,549 @@
-// React Query hooks for email account management
+/**
+ * 邮箱账户和扫描任务相关的 React hooks
+ * 基于 React Query 和 Edge Function 服务
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '../services/apiClient'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { supabase } from '../lib/supabase'
+import { edgeFunctionEmail } from '../services/edgeFunctionEmail'
 import { logger } from '../utils/logger'
-import { 
-  EmailAccount,
+import type { 
+  EmailAccount, 
   EmailAccountCreate, 
-  EmailAccountUpdate, 
+  EmailAccountUpdate,
   EmailAccountTestResult,
-  EmailScanJob,
-  EmailScanJobCreate,
-  EmailScanProgress
+  EmailScanJob, 
+  EmailScanParams,
+  SmartScanRequest
 } from '../types/email'
 
-// 查询键常量
-export const EMAIL_ACCOUNT_KEYS = {
-  all: ['emailAccounts'] as const,
-  lists: () => [...EMAIL_ACCOUNT_KEYS.all, 'list'] as const,
-  list: (params?: any) => [...EMAIL_ACCOUNT_KEYS.lists(), params] as const,
-  details: () => [...EMAIL_ACCOUNT_KEYS.all, 'detail'] as const,
-  detail: (id: string) => [...EMAIL_ACCOUNT_KEYS.details(), id] as const,
+// Query Keys
+const QUERY_KEYS = {
+  emailAccounts: ['emailAccounts'] as const,
+  emailScanJobs: ['emailScanJobs'] as const,
+  emailFolders: (accountId: string) => ['emailFolders', accountId] as const,
 }
 
-export const EMAIL_SCAN_KEYS = {
-  all: ['emailScan'] as const,
-  jobs: () => [...EMAIL_SCAN_KEYS.all, 'jobs'] as const,
-  job: (jobId: string) => [...EMAIL_SCAN_KEYS.all, 'job', jobId] as const,
-  progress: (jobId: string) => [...EMAIL_SCAN_KEYS.all, 'progress', jobId] as const,
+/**
+ * 获取用户的邮箱账户列表
+ */
+export function useEmailAccounts(filters?: { is_active?: boolean }) {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.emailAccounts, filters],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
+
+      let query = supabase
+        .from('email_accounts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (filters?.is_active !== undefined) {
+        query = query.eq('is_active', filters.is_active)
+      }
+
+      const { data, error, count } = await query
+
+      if (error) {
+        logger.error('获取邮箱账户失败:', error)
+        throw new Error(error.message)
+      }
+
+      return {
+        items: data || [],
+        total: count || data?.length || 0
+      }
+    },
+    staleTime: 30000, // 30秒内不重新获取
+  })
 }
 
-// 获取邮箱账户列表
-export const useEmailAccounts = (params?: { 
-  skip?: number
+/**
+ * 获取邮箱扫描任务列表
+ */
+export function useEmailScanJobs(filters?: { 
   limit?: number
-  is_active?: boolean
-}) => {
-  return useQuery({
-    queryKey: EMAIL_ACCOUNT_KEYS.list(params),
-    queryFn: async () => {
-      const response = await api.emailAccounts.list(params)
-      logger.log('📧 Email accounts response:', response.data)
-      return response.data
-    },
-    staleTime: 2 * 60 * 1000, // 2分钟内不重新获取
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-  })
-}
-
-// 获取单个邮箱账户
-export const useEmailAccount = (id: string) => {
-  return useQuery({
-    queryKey: EMAIL_ACCOUNT_KEYS.detail(id),
-    queryFn: async () => {
-      const response = await api.emailAccounts.get(id)
-      return response.data
-    },
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-  })
-}
-
-// 创建邮箱账户
-export const useCreateEmailAccount = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (data: EmailAccountCreate) => {
-      const response = await api.emailAccounts.create(data)
-      return response.data
-    },
-    onSuccess: (data) => {
-      // 更新邮箱账户列表缓存
-      queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.all })
-      logger.log('✅ 邮箱账户创建成功:', data.email_address)
-    },
-    onError: (error: any) => {
-      let errorMessage = '创建邮箱账户失败'
-      
-      if (error.status === 400) {
-        errorMessage = '邮箱配置不正确或邮箱已存在'
-      } else if (error.status === 401) {
-        errorMessage = '邮箱认证失败，请检查密码'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '创建邮箱账户失败'
-      }
-      
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
-}
-
-// 更新邮箱账户
-export const useUpdateEmailAccount = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: EmailAccountUpdate }) => {
-      const response = await api.emailAccounts.update(id, data)
-      return response.data
-    },
-    onSuccess: (data) => {
-      // 更新相关缓存
-      queryClient.setQueryData(EMAIL_ACCOUNT_KEYS.detail(data.id), data)
-      queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      logger.log('✅ 邮箱账户更新成功:', data.email_address)
-    },
-    onError: (error: any) => {
-      let errorMessage = '更新邮箱账户失败'
-      
-      if (error.status === 404) {
-        errorMessage = '邮箱账户不存在'
-      } else if (error.status === 403) {
-        errorMessage = '没有权限修改此账户'
-      } else if (error.status === 400) {
-        errorMessage = '配置信息不正确'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '更新邮箱账户失败'
-      }
-      
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
-}
-
-// 删除邮箱账户
-export const useDeleteEmailAccount = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await api.emailAccounts.delete(id)
-      return response.data
-    },
-    onSuccess: (_, id) => {
-      // 移除特定账户的缓存
-      queryClient.removeQueries({ queryKey: EMAIL_ACCOUNT_KEYS.detail(id) })
-      
-      // 立即更新列表缓存，移除已删除的账户
-      queryClient.setQueriesData(
-        { queryKey: EMAIL_ACCOUNT_KEYS.lists() },
-        (oldData: any) => {
-          if (!oldData) return oldData
-          
-          return {
-            ...oldData,
-            items: oldData.items?.filter((item: EmailAccount) => item.id !== id) || [],
-            total: Math.max(0, (oldData.total || 1) - 1)
-          }
-        }
-      )
-      
-      queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      logger.log('✅ 邮箱账户删除成功:', id)
-    },
-    onError: (error: any, id) => {
-      let errorMessage = '删除邮箱账户失败'
-      
-      if (error.status === 404) {
-        errorMessage = '邮箱账户不存在'
-        // 如果账户不存在，也从缓存中移除
-        queryClient.removeQueries({ queryKey: EMAIL_ACCOUNT_KEYS.detail(id) })
-        queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      } else if (error.status === 403) {
-        errorMessage = '没有权限删除此账户'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '删除邮箱账户失败'
-      }
-      
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
-}
-
-// 测试邮箱连接
-export const useTestEmailConnection = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ id, testData }: { id: string; testData?: { password?: string } }) => {
-      const response = await api.emailAccounts.testConnection(id, testData)
-      return { ...response.data, accountId: id } as EmailAccountTestResult & { accountId: string }
-    },
-    onMutate: async ({ id }) => {
-      // 取消正在进行的查询
-      await queryClient.cancelQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      
-      // 保存当前数据作为备份
-      const previousData = queryClient.getQueryData(EMAIL_ACCOUNT_KEYS.lists())
-      
-      return { previousData, accountId: id }
-    },
-    onSuccess: async (data, _, context) => {
-      if (data.success) {
-        logger.log('✅ 邮箱连接测试成功')
-      } else {
-        logger.warn('⚠️ 邮箱连接测试失败:', data.message)
-      }
-      
-      // 刷新邮箱账户列表
-      await queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-    },
-    onError: (error: any) => {
-      logger.error('❌ 邮箱连接测试错误:', error.message)
-    },
-  })
-}
-
-// 检测IMAP配置
-export const useDetectImapConfig = () => {
-  return useMutation({
-    mutationFn: async (email: string) => {
-      const response = await api.emailAccounts.detectConfig(email)
-      return response.data
-    },
-    onSuccess: (data) => {
-      logger.log('✅ IMAP配置检测成功:', data.imap_host)
-    },
-    onError: (error: any) => {
-      logger.warn('⚠️ 无法自动检测IMAP配置:', error.message)
-    },
-  })
-}
-
-// 重置同步状态
-export const useResetSyncState = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (accountId: string) => {
-      const response = await api.emailAccounts.resetSync(accountId)
-      return response.data
-    },
-    onSuccess: async (data, accountId) => {
-      logger.log('✅ 同步状态已重置:', data.message)
-      // 刷新邮箱账户列表以更新同步状态
-      await queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      await queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.detail(accountId) })
-    },
-    onError: (error: any) => {
-      logger.error('❌ 重置同步状态失败:', error.message || '未知错误')
-    },
-  })
-}
-
-// 完全重置账户数据
-export const useResetAccountData = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (accountId: string) => {
-      const response = await api.emailAccounts.resetAll(accountId)
-      return response.data
-    },
-    onSuccess: async (data, accountId) => {
-      logger.log('✅ 账户数据已完全重置:', data)
-      logger.log(`  邮件索引: ${data.deleted_counts?.email_index || 0} 条`)
-      logger.log(`  扫描任务: ${data.deleted_counts?.scan_jobs || 0} 条`)
-      logger.log(`  处理任务: ${data.deleted_counts?.processing_tasks || 0} 条`)
-      logger.log(`  同步状态: ${data.deleted_counts?.sync_state || 0} 条`)
-      
-      // 刷新相关查询
-      await queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.lists() })
-      await queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.detail(accountId) })
-      await queryClient.invalidateQueries({ queryKey: EMAIL_SCAN_KEYS.jobs() })
-    },
-    onError: (error: any) => {
-      logger.error('❌ 重置账户数据失败:', error.message || '未知错误')
-    },
-  })
-}
-
-// 获取扫描任务列表
-export const useEmailScanJobs = (params?: { 
   skip?: number
-  limit?: number 
-  status?: string 
-}) => {
+  status?: string
+}) {
   return useQuery({
-    queryKey: [...EMAIL_SCAN_KEYS.jobs(), params],
+    queryKey: [...QUERY_KEYS.emailScanJobs, filters],
     queryFn: async () => {
-      const response = await api.emailScan.listJobs(params)
-      return response.data
-    },
-    staleTime: 30 * 1000, // 30秒内不重新获取（扫描任务状态变化较快）
-    refetchInterval: 5000, // 每5秒自动刷新
-    refetchOnWindowFocus: true,
-  })
-}
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
 
-// 获取扫描任务详情
-export const useEmailScanJob = (jobId: string) => {
-  return useQuery({
-    queryKey: EMAIL_SCAN_KEYS.job(jobId),
-    queryFn: async () => {
-      const response = await api.emailScan.getJob(jobId)
-      return response.data
-    },
-    enabled: !!jobId,
-    staleTime: 30 * 1000,
-    refetchInterval: 2000, // 任务详情更频繁刷新
-  })
-}
+      let query = supabase
+        .from('email_scan_jobs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
 
-// 获取扫描进度
-export const useEmailScanProgress = (jobId: string) => {
-  return useQuery({
-    queryKey: EMAIL_SCAN_KEYS.progress(jobId),
-    queryFn: async () => {
-      const response = await api.emailScan.getProgress(jobId)
-      return response.data as EmailScanProgress
-    },
-    enabled: !!jobId,
-    staleTime: 10 * 1000,
-    refetchInterval: 1000, // 进度每秒刷新
-  })
-}
-
-// 创建扫描任务
-export const useCreateEmailScanJob = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (data: EmailScanJobCreate) => {
-      const response = await api.emailScan.createJob(data)
-      return response.data
-    },
-    onSuccess: (data) => {
-      // 刷新扫描任务列表
-      queryClient.invalidateQueries({ queryKey: EMAIL_SCAN_KEYS.jobs() })
-      logger.log('✅ 邮箱扫描任务创建成功:', data.job_id)
-    },
-    onError: (error: any) => {
-      let errorMessage = '创建扫描任务失败'
-      
-      if (error.status === 400) {
-        errorMessage = '扫描参数不正确'
-      } else if (error.status === 404) {
-        errorMessage = '邮箱账户不存在'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '创建扫描任务失败'
+      if (filters?.status) {
+        query = query.eq('status', filters.status)
       }
+
+      if (filters?.limit) {
+        const from = filters.skip || 0
+        const to = from + filters.limit - 1
+        query = query.range(from, to)
+      }
+
+      const { data, error, count } = await query
+
+      if (error) {
+        logger.error('获取扫描任务失败:', error)
+        throw new Error(error.message)
+      }
+
+      return {
+        items: data || [],
+        total: count || data?.length || 0
+      }
+    },
+    staleTime: 10000, // 10秒内不重新获取
+    refetchInterval: (data) => {
+      // 如果有正在运行的任务，每5秒刷新一次
+      const hasRunningJobs = data?.items?.some(job => 
+        job.status === 'running' || job.status === 'pending'
+      )
+      return hasRunningJobs ? 5000 : false
+    }
+  })
+}
+
+/**
+ * 创建邮箱账户
+ */
+export function useCreateEmailAccount() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (accountData: EmailAccountCreate) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
+
+      // 先测试连接
+      logger.log('测试邮箱连接...')
       
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
-}
+      // 准备IMAP配置
+      const imapConfig = {
+        email_address: accountData.email_address,
+        password: accountData.password,
+        imap_host: accountData.imap_host || getDefaultImapConfig(accountData.email_address).imap_host,
+        imap_port: accountData.imap_port || getDefaultImapConfig(accountData.email_address).imap_port,
+        imap_use_ssl: accountData.imap_use_ssl ?? getDefaultImapConfig(accountData.email_address).imap_use_ssl,
+        display_name: accountData.display_name,
+        smtp_host: accountData.smtp_host,
+        smtp_port: accountData.smtp_port,
+        smtp_use_tls: accountData.smtp_use_tls,
+        scan_config: accountData.scan_config
+      }
 
-// 取消扫描任务
-export const useCancelEmailScanJob = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ jobId, force = false }: { jobId: string; force?: boolean }) => {
-      const response = await api.emailScan.cancelJob(jobId, force)
-      return response.data
+      // 插入数据库
+      const { data, error } = await supabase
+        .from('email_accounts')
+        .insert([{
+          ...imapConfig,
+          user_id: user.id,
+          is_active: true,
+          is_verified: false, // 初始状态为未验证
+          sync_state: {
+            sync_mode: 'never_synced',
+            total_emails_indexed: 0,
+            is_synced: false
+          }
+        }])
+        .select()
+        .single()
+
+      if (error) {
+        logger.error('创建邮箱账户失败:', error)
+        throw new Error(error.message)
+      }
+
+      return data
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: EMAIL_SCAN_KEYS.all })
-      logger.log('✅ 扫描任务已取消:', data.job_id)
+      toast.success('邮箱账户创建成功')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailAccounts })
+      
+      // 自动测试连接
+      edgeFunctionEmail.testEmailConnection(data.id)
+        .then(result => {
+          if (result.success) {
+            toast.success('邮箱连接测试成功')
+            // 更新验证状态
+            supabase
+              .from('email_accounts')
+              .update({ is_verified: true })
+              .eq('id', data.id)
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailAccounts })
+              })
+          } else {
+            toast.error(`邮箱连接测试失败: ${result.message}`)
+          }
+        })
+        .catch(error => {
+          logger.error('测试邮箱连接失败:', error)
+          toast.error('邮箱连接测试失败')
+        })
     },
-    onError: (error: any) => {
-      logger.error('❌ 取消扫描任务失败:', error.message)
-    },
+    onError: (error) => {
+      logger.error('创建邮箱账户失败:', error)
+      toast.error(error instanceof Error ? error.message : '创建邮箱账户失败')
+    }
   })
 }
 
-// 重试扫描任务
-export const useRetryEmailScanJob = () => {
+/**
+ * 更新邮箱账户
+ */
+export function useUpdateEmailAccount() {
   const queryClient = useQueryClient()
-  
+
+  return useMutation({
+    mutationFn: async ({ accountId, updates }: { accountId: string, updates: EmailAccountUpdate }) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
+
+      const { data, error } = await supabase
+        .from('email_accounts')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', accountId)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        logger.error('更新邮箱账户失败:', error)
+        throw new Error(error.message)
+      }
+
+      return data
+    },
+    onSuccess: () => {
+      toast.success('邮箱账户更新成功')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailAccounts })
+    },
+    onError: (error) => {
+      logger.error('更新邮箱账户失败:', error)
+      toast.error(error instanceof Error ? error.message : '更新邮箱账户失败')
+    }
+  })
+}
+
+/**
+ * 删除邮箱账户
+ */
+export function useDeleteEmailAccount() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (accountId: string) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
+
+      const { error } = await supabase
+        .from('email_accounts')
+        .delete()
+        .eq('id', accountId)
+        .eq('user_id', user.id)
+
+      if (error) {
+        logger.error('删除邮箱账户失败:', error)
+        throw new Error(error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success('邮箱账户删除成功')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailAccounts })
+    },
+    onError: (error) => {
+      logger.error('删除邮箱账户失败:', error)
+      toast.error(error instanceof Error ? error.message : '删除邮箱账户失败')
+    }
+  })
+}
+
+/**
+ * 测试邮箱连接
+ */
+export function useTestEmailConnection() {
+  return useMutation({
+    mutationFn: async (accountId: string): Promise<EmailAccountTestResult> => {
+      const result = await edgeFunctionEmail.testEmailConnection(accountId)
+      
+      return {
+        success: result.success,
+        message: result.message,
+        connection_details: result.connectionDetails ? {
+          imap_status: result.connectionDetails.imapStatus,
+          smtp_status: result.connectionDetails.smtpStatus,
+          folders: result.connectionDetails.folders,
+          total_emails: result.connectionDetails.totalEmails
+        } : undefined,
+        error_details: result.errorDetails ? {
+          error_type: result.errorDetails.errorType,
+          error_message: result.errorDetails.errorMessage
+        } : undefined
+      }
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success('邮箱连接测试成功')
+      } else {
+        toast.error(`连接测试失败: ${result.message}`)
+      }
+    },
+    onError: (error) => {
+      logger.error('测试邮箱连接失败:', error)
+      toast.error('测试邮箱连接失败')
+    }
+  })
+}
+
+/**
+ * 启动邮箱扫描
+ */
+export function useStartEmailScan() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ accountId, scanParams }: { accountId: string, scanParams: EmailScanParams }) => {
+      return await edgeFunctionEmail.startEmailScan(accountId, scanParams)
+    },
+    onSuccess: (result) => {
+      toast.success('邮箱扫描已启动')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailScanJobs })
+    },
+    onError: (error) => {
+      logger.error('启动邮箱扫描失败:', error)
+      toast.error(error instanceof Error ? error.message : '启动邮箱扫描失败')
+    }
+  })
+}
+
+/**
+ * 启动智能扫描
+ */
+export function useStartSmartScan() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (request: SmartScanRequest) => {
+      return await edgeFunctionEmail.startSmartScan(request)
+    },
+    onSuccess: () => {
+      toast.success('智能扫描已启动')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailScanJobs })
+    },
+    onError: (error) => {
+      logger.error('启动智能扫描失败:', error)
+      toast.error(error instanceof Error ? error.message : '启动智能扫描失败')
+    }
+  })
+}
+
+/**
+ * 取消扫描任务
+ */
+export function useCancelEmailScanJob() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ jobId, force }: { jobId: string, force?: boolean }) => {
+      return await edgeFunctionEmail.cancelScan(jobId, force)
+    },
+    onSuccess: () => {
+      toast.success('扫描任务已取消')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailScanJobs })
+    },
+    onError: (error) => {
+      logger.error('取消扫描任务失败:', error)
+      toast.error(error instanceof Error ? error.message : '取消扫描任务失败')
+    }
+  })
+}
+
+/**
+ * 重试扫描任务
+ */
+export function useRetryEmailScanJob() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const response = await api.emailScan.retryJob(jobId)
-      return response.data
+      return await edgeFunctionEmail.retryScan(jobId)
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: EMAIL_SCAN_KEYS.all })
-      logger.log('✅ 扫描任务重试成功:', data.job_id)
+    onSuccess: () => {
+      toast.success('扫描任务已重新启动')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailScanJobs })
     },
-    onError: (error: any) => {
-      logger.error('❌ 重试扫描任务失败:', error.message)
-    },
+    onError: (error) => {
+      logger.error('重试扫描任务失败:', error)
+      toast.error(error instanceof Error ? error.message : '重试扫描任务失败')
+    }
   })
 }
 
-// 删除扫描任务
-export const useDeleteEmailScanJob = () => {
+/**
+ * 删除扫描任务
+ */
+export function useDeleteEmailScanJob() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const response = await api.emailScan.deleteJob(jobId)
-      return response.data
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('用户未登录')
+
+      const { error } = await supabase
+        .from('email_scan_jobs')
+        .delete()
+        .eq('job_id', jobId)
+        .eq('user_id', user.id)
+
+      if (error) {
+        logger.error('删除扫描任务失败:', error)
+        throw new Error(error.message)
+      }
     },
-    onSuccess: (_, jobId) => {
-      queryClient.removeQueries({ queryKey: EMAIL_SCAN_KEYS.job(jobId) })
-      queryClient.invalidateQueries({ queryKey: EMAIL_SCAN_KEYS.jobs() })
-      logger.log('✅ 扫描任务已删除:', jobId)
+    onSuccess: () => {
+      toast.success('扫描任务已删除')
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.emailScanJobs })
     },
-    onError: (error: any) => {
-      logger.error('❌ 删除扫描任务失败:', error.message)
-    },
+    onError: (error) => {
+      logger.error('删除扫描任务失败:', error)
+      toast.error(error instanceof Error ? error.message : '删除扫描任务失败')
+    }
   })
 }
 
-// 手动刷新邮箱账户列表
-export const useRefreshEmailAccounts = () => {
-  const queryClient = useQueryClient()
+/**
+ * 获取邮箱文件夹
+ */
+export function useEmailFolders(accountId: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.emailFolders(accountId),
+    queryFn: async () => {
+      return await edgeFunctionEmail.getEmailFolders(accountId)
+    },
+    enabled: !!accountId,
+    staleTime: 300000, // 5分钟内不重新获取
+  })
+}
+
+/**
+ * 扫描进度监听 Hook
+ */
+export function useEmailScanProgress(jobId: string | null) {
+  const [progress, setProgress] = useState<any>(null)
+  const [isConnected, setIsConnected] = useState(false)
+
+  useEffect(() => {
+    if (!jobId) return
+
+    logger.log('📡 开始监听扫描进度:', jobId)
+    
+    const unsubscribe = edgeFunctionEmail.subscribeToScanProgress(jobId, (newProgress) => {
+      setProgress(newProgress)
+      setIsConnected(true)
+    })
+
+    // 立即获取一次当前进度
+    edgeFunctionEmail.getScanProgress(jobId)
+      .then(setProgress)
+      .catch(error => {
+        logger.error('获取初始进度失败:', error)
+      })
+
+    return () => {
+      logger.log('📡 停止监听扫描进度:', jobId)
+      unsubscribe()
+    }
+  }, [jobId])
+
+  return { progress, isConnected }
+}
+
+/**
+ * 根据邮箱地址获取默认IMAP配置
+ */
+function getDefaultImapConfig(email: string) {
+  const domain = email.split('@')[1]?.toLowerCase()
   
-  return () => {
-    // 清除所有邮箱账户相关缓存
-    queryClient.removeQueries({ queryKey: EMAIL_ACCOUNT_KEYS.all })
-    // 重新获取数据
-    queryClient.invalidateQueries({ queryKey: EMAIL_ACCOUNT_KEYS.all })
-    logger.log('🔄 手动刷新邮箱账户数据')
+  const configs = {
+    'gmail.com': {
+      imap_host: 'imap.gmail.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.gmail.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: 'Gmail'
+    },
+    'qq.com': {
+      imap_host: 'imap.qq.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.qq.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: 'QQ邮箱'
+    },
+    '163.com': {
+      imap_host: 'imap.163.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.163.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: '163邮箱'
+    },
+    '126.com': {
+      imap_host: 'imap.126.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.126.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: '126邮箱'
+    },
+    'outlook.com': {
+      imap_host: 'outlook.office365.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.office365.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: 'Outlook'
+    },
+    'hotmail.com': {
+      imap_host: 'outlook.office365.com',
+      imap_port: 993,
+      imap_use_ssl: true,
+      smtp_host: 'smtp.office365.com',
+      smtp_port: 587,
+      smtp_use_tls: true,
+      provider_name: 'Hotmail'
+    }
+  }
+
+  return configs[domain as keyof typeof configs] || {
+    imap_host: '',
+    imap_port: 993,
+    imap_use_ssl: true,
+    smtp_host: '',
+    smtp_port: 587,
+    smtp_use_tls: true,
+    provider_name: '其他'
   }
 }

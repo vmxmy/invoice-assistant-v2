@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, Search, Filter, Calendar, DollarSign, Tag, FileText, AlertCircle, CheckCircle2, Info } from 'lucide-react';
+import { X, Search, Filter, Calendar, DollarSign, Tag, FileText, AlertCircle, CheckCircle2, Info, ChevronDown } from 'lucide-react';
 import { fieldMetadataService, type FieldMetadata } from '../../../services/fieldMetadata.service';
+import { fieldOptionsService, type FieldOption } from '../../../services/fieldOptions.service';
 
 // 通用搜索过滤器接口 - 与后端数据结构对齐
 export interface SearchFilters {
@@ -35,6 +36,11 @@ export interface SearchFilters {
   status?: string[];
   processing_status?: string[];
   source?: string[];
+  
+  // 开票区域字段
+  issuer_region?: string;
+  issuer_region_name?: string;
+  issuer_region_code?: string;
   
   // 布尔字段
   is_verified?: boolean;
@@ -80,6 +86,33 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     temporal: false,
     metadata: false
   });
+  const [fieldOptions, setFieldOptions] = useState<Record<string, FieldOption[]>>({});
+  const [loadingOptions, setLoadingOptions] = useState<Record<string, boolean>>({});
+
+  // 加载字段选项
+  const loadFieldOptions = useCallback(async (fieldName: string) => {
+    console.log(`🔄 [AdvancedSearch] 开始加载字段选项: ${fieldName}`, {
+      hasCache: !!fieldOptions[fieldName],
+      isLoading: !!loadingOptions[fieldName]
+    });
+    
+    if (fieldOptions[fieldName] || loadingOptions[fieldName]) {
+      console.log(`⏭️ [AdvancedSearch] 跳过加载 ${fieldName}: 已有缓存或正在加载`);
+      return; // 已有缓存或正在加载
+    }
+
+    setLoadingOptions(prev => ({ ...prev, [fieldName]: true }));
+    try {
+      console.log(`📡 [AdvancedSearch] 调用服务获取选项: ${fieldName}`);
+      const options = await fieldOptionsService.getFieldOptions(fieldName, 50);
+      console.log(`✅ [AdvancedSearch] 成功获取选项: ${fieldName}`, options);
+      setFieldOptions(prev => ({ ...prev, [fieldName]: options }));
+    } catch (error) {
+      console.error(`❌ [AdvancedSearch] 加载字段选项失败: ${fieldName}`, error);
+    } finally {
+      setLoadingOptions(prev => ({ ...prev, [fieldName]: false }));
+    }
+  }, [fieldOptions, loadingOptions]);
 
   // 加载可搜索字段
   useEffect(() => {
@@ -100,6 +133,12 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
           return (a.display_order || 999) - (b.display_order || 999);
         });
         setSearchableFields(sortedFields);
+
+        // 预加载select类型字段的选项
+        const selectFields = sortedFields.filter(field => field.filter_type === 'select');
+        selectFields.forEach(field => {
+          loadFieldOptions(field.column_name);
+        });
       } catch (error) {
         console.error('Failed to load searchable fields:', error);
       } finally {
@@ -110,7 +149,7 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     if (isOpen) {
       loadSearchableFields();
     }
-  }, [isOpen]);
+  }, [isOpen, loadFieldOptions]);
 
   useEffect(() => {
     setFilters(currentFilters);
@@ -269,8 +308,8 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     if (!error) return null;
     
     return (
-      <div className="flex items-center gap-1 mt-1 text-error text-xs">
-        <AlertCircle className="w-3 h-3" />
+      <div className="flex items-center gap-1 mt-0.5 text-error text-xs">
+        <AlertCircle className="w-2.5 h-2.5" />
         <span>{error}</span>
       </div>
     );
@@ -346,19 +385,19 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
       case 'text':
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">{field.display_name}</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
               {field.description && (
-                <span className="label-text-alt text-base-content/60">
-                  <Info className="w-3 h-3 inline mr-1" />
+                <span className="label-text-alt text-xs text-base-content/50">
+                  <Info className="w-2.5 h-2.5 inline mr-0.5" />
                   {field.description}
                 </span>
               )}
             </label>
             <input
               type="text"
-              placeholder={`搜索${field.display_name}...`}
-              className={`input input-bordered input-sm sm:input-md transition-colors ${
+              placeholder={`${field.display_name}...`}
+              className={`input input-bordered input-xs h-8 text-sm transition-colors ${
                 hasError ? 'input-error' : 'focus:input-primary'
               }`}
               value={fieldValue || ''}
@@ -371,14 +410,14 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
       case 'number_range':
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text">{field.display_name}范围</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
             </label>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1.5 items-center">
               <input
                 type="number"
-                placeholder="最小值"
-                className="input input-bordered input-sm sm:input-md flex-1"
+                placeholder="最小"
+                className="input input-bordered input-xs h-8 text-sm flex-1"
                 value={fieldValue?.min || ''}
                 onChange={(e) => handleInputChange(field.column_name, {
                   ...fieldValue,
@@ -386,11 +425,11 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                 })}
                 step={field.format_type === 'currency' ? '0.01' : '1'}
               />
-              <span className="text-sm">-</span>
+              <span className="text-xs text-base-content/60">-</span>
               <input
                 type="number"
-                placeholder="最大值"
-                className="input input-bordered input-sm sm:input-md flex-1"
+                placeholder="最大"
+                className="input input-bordered input-xs h-8 text-sm flex-1"
                 value={fieldValue?.max || ''}
                 onChange={(e) => handleInputChange(field.column_name, {
                   ...fieldValue,
@@ -405,13 +444,13 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
       case 'date_range':
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text">{field.display_name}范围</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
             </label>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1.5 items-center">
               <input
                 type="date"
-                className="input input-bordered input-sm sm:input-md flex-1"
+                className="input input-bordered input-xs h-8 text-sm flex-1"
                 value={fieldValue?.from || ''}
                 onChange={(e) => handleInputChange(field.column_name, {
                   ...fieldValue,
@@ -419,10 +458,10 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                 })}
                 max={new Date().toISOString().split('T')[0]}
               />
-              <span className="text-sm">-</span>
+              <span className="text-xs text-base-content/60">至</span>
               <input
                 type="date"
-                className="input input-bordered input-sm sm:input-md flex-1"
+                className="input input-bordered input-xs h-8 text-sm flex-1"
                 value={fieldValue?.to || ''}
                 onChange={(e) => handleInputChange(field.column_name, {
                   ...fieldValue,
@@ -435,33 +474,63 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         );
 
       case 'select':
-        // 这里可以扩展为动态获取选项，目前使用简单文本输入
+        const options = fieldOptions[field.column_name] || [];
+        const isLoading = loadingOptions[field.column_name];
+        
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">{field.display_name}</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
+              {field.description && (
+                <span className="label-text-alt text-xs text-base-content/50">
+                  <Info className="w-2.5 h-2.5 inline mr-0.5" />
+                  {field.description}
+                </span>
+              )}
             </label>
-            <input
-              type="text"
-              placeholder={`选择${field.display_name}...`}
-              className={`input input-bordered input-sm sm:input-md transition-colors ${
-                hasError ? 'input-error' : 'focus:input-primary'
-              }`}
-              value={fieldValue || ''}
-              onChange={(e) => handleInputChange(field.column_name, e.target.value)}
-            />
+            <div className="relative">
+              <select
+                className={`select select-bordered select-xs h-8 text-sm w-full transition-colors ${
+                  hasError ? 'select-error' : 'focus:select-primary'
+                } ${isLoading ? 'opacity-50' : ''}`}
+                value={fieldValue || ''}
+                onChange={(e) => handleInputChange(field.column_name, e.target.value || undefined)}
+                disabled={isLoading}
+              >
+                <option value="">全部</option>
+                {options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                    {option.count && ` (${option.count})`}
+                  </option>
+                ))}
+              </select>
+              {isLoading && (
+                <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
+                  <span className="loading loading-spinner loading-xs"></span>
+                </div>
+              )}
+              <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-base-content/40" />
+            </div>
             {renderValidationError(field.column_name)}
+            
+            {/* 显示选项统计信息 */}
+            {options.length > 0 && !isLoading && (
+              <div className="text-xs text-base-content/50 mt-0.5">
+                {options.length} 项
+              </div>
+            )}
           </div>
         );
 
       case 'boolean':
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">{field.display_name}</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
             </label>
             <select
-              className={`select select-bordered select-sm sm:select-md transition-colors ${
+              className={`select select-bordered select-xs h-8 text-sm transition-colors ${
                 hasError ? 'select-error' : 'focus:select-primary'
               }`}
               value={fieldValue !== undefined ? String(fieldValue) : ''}
@@ -483,13 +552,13 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
       default:
         return (
           <div key={field.column_name} className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">{field.display_name}</span>
+            <label className="label py-1">
+              <span className="label-text text-xs font-medium">{field.display_name}</span>
             </label>
             <input
               type="text"
-              placeholder={`搜索${field.display_name}...`}
-              className={`input input-bordered input-sm sm:input-md transition-colors ${
+              placeholder={`${field.display_name}...`}
+              className={`input input-bordered input-xs h-8 text-sm transition-colors ${
                 hasError ? 'input-error' : 'focus:input-primary'
               }`}
               value={fieldValue || ''}
@@ -512,84 +581,92 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
       />
 
       {/* 抽屉 */}
-      <div className={`fixed right-0 top-0 h-full w-full sm:w-96 max-w-md bg-base-100 shadow-xl transform transition-transform z-50 ${
+      <div className={`fixed right-0 top-0 h-full w-full sm:w-80 max-w-sm bg-base-100 shadow-xl transform transition-transform z-50 ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="h-full flex flex-col">
           {/* 头部 */}
-          <div className="flex items-center justify-between p-4 border-b border-base-300">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Filter className="w-5 h-5" />
+          <div className="flex items-center justify-between p-3 border-b border-base-300">
+            <h3 className="text-base font-medium flex items-center gap-1.5">
+              <Filter className="w-4 h-4" />
               高级搜索
             </h3>
             <button 
               onClick={onClose}
-              className="btn btn-sm btn-circle btn-ghost"
+              className="btn btn-xs btn-circle btn-ghost"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* 搜索表单 */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 sm:space-y-6">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {isLoadingFields ? (
-              <div className="flex items-center justify-center py-8">
-                <span className="loading loading-spinner loading-sm"></span>
-                <span className="ml-2 text-sm text-base-content/60">正在加载搜索字段...</span>
+              <div className="flex items-center justify-center py-6">
+                <span className="loading loading-spinner loading-xs"></span>
+                <span className="ml-2 text-xs text-base-content/60">正在加载...</span>
               </div>
             ) : (
               <>
                 {/* 基础信息字段 */}
                 {getFieldsByCategory('basic').length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium flex items-center gap-1.5 text-base-content/80">
+                      <FileText className="w-3.5 h-3.5" />
                       基础信息
                     </h4>
-                    {getFieldsByCategory('basic').map(field => renderFieldInput(field))}
+                    <div className="space-y-2">
+                      {getFieldsByCategory('basic').map(field => renderFieldInput(field))}
+                    </div>
                   </div>
                 )}
 
-                {/* 财务信息字段 */}
-                {getFieldsByCategory('financial').length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      财务信息
+                {/* 分类信息字段 */}
+                {getFieldsByCategory('metadata').length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium flex items-center gap-1.5 text-base-content/80">
+                      <Tag className="w-3.5 h-3.5" />
+                      分类信息
                     </h4>
-                    {getFieldsByCategory('financial').map(field => renderFieldInput(field))}
+                    <div className="space-y-2">
+                      {getFieldsByCategory('metadata').map(field => renderFieldInput(field))}
+                    </div>
                   </div>
                 )}
 
                 {/* 时间信息字段 */}
                 {getFieldsByCategory('temporal').length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium flex items-center gap-1.5 text-base-content/80">
+                      <Calendar className="w-3.5 h-3.5" />
                       时间信息
                     </h4>
-                    {getFieldsByCategory('temporal').map(field => renderFieldInput(field))}
+                    <div className="space-y-2">
+                      {getFieldsByCategory('temporal').map(field => renderFieldInput(field))}
+                    </div>
                   </div>
                 )}
 
-                {/* 分类和元数据字段 */}
-                {getFieldsByCategory('metadata').length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Tag className="w-4 h-4" />
-                      分类和标签
+                {/* 财务信息字段 */}
+                {getFieldsByCategory('financial').length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium flex items-center gap-1.5 text-base-content/80">
+                      <DollarSign className="w-3.5 h-3.5" />
+                      财务信息
                     </h4>
-                    {getFieldsByCategory('metadata').map(field => renderFieldInput(field))}
+                    <div className="space-y-2">
+                      {getFieldsByCategory('financial').map(field => renderFieldInput(field))}
+                    </div>
                   </div>
                 )}
 
                 {/* 快捷日期选择 */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-secondary" />
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium flex items-center gap-1.5 text-base-content/80">
+                    <Calendar className="w-3.5 h-3.5" />
                     快捷日期
                   </h4>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {[
                       { key: 'thisMonth', label: '本月', variant: 'btn-primary' },
                       { key: 'lastMonth', label: '上月', variant: 'btn-secondary' },
@@ -598,7 +675,7 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                     ].map(preset => (
                       <button
                         key={preset.key}
-                        className={`btn btn-xs sm:btn-sm ${preset.variant} btn-outline hover:shadow-sm transition-all`}
+                        className={`btn btn-xs ${preset.variant} btn-outline hover:shadow-sm transition-all h-7`}
                         onClick={() => handleQuickPreset(preset.key as any)}
                       >
                         {preset.label}
@@ -683,28 +760,26 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
           </div>
 
           {/* 底部操作栏 */}
-          <div className="p-3 sm:p-4 border-t border-base-300 space-y-2">
+          <div className="p-3 border-t border-base-300 space-y-2">
             <div className="flex gap-2">
               <button 
-                className="btn btn-primary btn-sm sm:btn-md flex-1"
+                className="btn btn-primary btn-xs h-8 flex-1 text-sm"
                 onClick={handleSearch}
               >
-                <Search className="w-4 h-4" />
-                <span className="hidden sm:inline">应用搜索</span>
-                <span className="sm:hidden">搜索</span>
+                <Search className="w-3.5 h-3.5" />
+                搜索
               </button>
               <button 
-                className="btn btn-ghost btn-sm sm:btn-md flex-1"
+                className="btn btn-ghost btn-xs h-8 flex-1 text-sm"
                 onClick={handleClear}
                 disabled={!hasActiveFilters}
               >
-                <span className="hidden sm:inline">清除条件</span>
-                <span className="sm:hidden">清除</span>
+                清除
               </button>
             </div>
-            <div className="text-xs sm:text-sm text-base-content/60 text-center">
+            <div className="text-xs text-base-content/50 text-center">
               {hasActiveFilters && (
-                <span>已设置 {Object.values(filters).filter(v => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)).length} 个筛选条件</span>
+                <span>已设置 {Object.values(filters).filter(v => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)).length} 个条件</span>
               )}
             </div>
           </div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Lock, Shield, Trash2, Camera } from 'lucide-react';
-import { useProfile, useUpdateProfile, useSession } from '../hooks/useAuth';
-import { supabase } from '../services/supabase';
+import { useProfile, useUpdateProfile, useSession } from "../contexts/SupabaseAuthContext"
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 import Layout from '../components/layout/Layout';
 

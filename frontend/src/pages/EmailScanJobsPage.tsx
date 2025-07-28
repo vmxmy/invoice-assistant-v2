@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuthContext } from '../contexts/AuthContext'
 import { 
   useEmailScanJobs, 
   useCancelEmailScanJob, 
@@ -14,7 +14,7 @@ import { toast } from 'react-hot-toast'
 
 const EmailScanJobsPage: React.FC = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user } = useAuthContext()
   
   // 状态管理
   const [showResultsModal, setShowResultsModal] = useState(false)

@@ -1,5 +1,5 @@
 import React from 'react';
-import NewAppNavbar from './NewAppNavbar';
+import AppNavbar from './AppNavbar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, useNewNavbar = true }) => {
   return (
     <div className="min-h-screen bg-base-200">
-      {useNewNavbar ? <NewAppNavbar /> : null}
+      {useNewNavbar ? <AppNavbar /> : null}
       <main className={useNewNavbar ? '' : 'pt-0'}>
         {children}
       </main>

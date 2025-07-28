@@ -3,11 +3,9 @@ import {
   useDeleteEmailAccount,
   useTestEmailConnection,
   useUpdateEmailAccount,
-  useCreateEmailScanJob,
-  useResetSyncState,
-  useResetAccountData
+  useStartEmailScan
 } from '../../hooks/useEmailAccounts'
-import { EmailAccount, EmailScanJobCreate } from '../../types/email'
+import { EmailAccount } from '../../types/email'
 import LoadingButton from '../ui/LoadingButton'
 import AccountStatusBadge from '../ui/AccountStatusBadge'
 
@@ -24,9 +22,7 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
   const deleteMutation = useDeleteEmailAccount()
   const testMutation = useTestEmailConnection()
   const updateMutation = useUpdateEmailAccount()
-  const createScanJobMutation = useCreateEmailScanJob()
-  const resetSyncMutation = useResetSyncState()
-  const resetAccountMutation = useResetAccountData()
+  const startEmailScanMutation = useStartEmailScan()
 
   // 删除账户
   const handleDelete = async () => {
@@ -63,41 +59,30 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
 
   // 初始化同步
   const handleInitSync = async () => {
-    if (!window.confirm('确定要重置同步状态吗？这将删除所有已同步的邮件记录（不影响实际邮箱），并重新开始初次同步。')) {
+    if (!window.confirm('确定要开始初始化同步吗？这将扫描邮箱中的发票邮件。')) {
       return
     }
 
     try {
-      // 先重置同步状态
-      await resetSyncMutation.mutateAsync(account.id)
-
-      // 等待一下，确保状态已重置
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      // 然后开始初次同步
+      // 开始初次同步
       const dateFrom = new Date()
       dateFrom.setMonth(0) // 1月
       dateFrom.setDate(1)  // 1日
       dateFrom.setHours(0, 0, 0, 0) // 清零时间
 
-      const scanData: EmailScanJobCreate = {
-        email_account_id: account.id,
-        job_type: 'manual',
-        scan_params: {
-          folders: ['INBOX'],
-          date_from: dateFrom.toISOString().split('T')[0], // YYYY-MM-DD 格式
-          subject_keywords: ['发票'], // 只检测中文"发票"
-          exclude_keywords: [],
-          sender_filters: [],
-          max_emails: undefined, // 首次同步不限制数量
-          download_attachments: true,
-          attachment_types: ['.pdf', '.jpg', '.jpeg', '.png'],
-          max_attachment_size: 10485760, // 10MB
-        },
-        description: '初始化同步'
+      const scanParams = {
+        folders: ['INBOX'],
+        date_from: dateFrom.toISOString().split('T')[0], // YYYY-MM-DD 格式
+        subject_keywords: ['发票'], // 只检测中文"发票"
+        exclude_keywords: [],
+        sender_filters: [],
+        max_emails: undefined, // 首次同步不限制数量
+        download_attachments: true,
+        attachment_types: ['.pdf', '.jpg', '.jpeg', '.png'],
+        max_attachment_size: 10485760, // 10MB
       }
 
-      await createScanJobMutation.mutateAsync(scanData)
+      await startEmailScanMutation.mutateAsync({ accountId: account.id, scanParams })
       setShowScanOptions(false)
     } catch (error) {
       // 错误已在hook中处理
@@ -118,11 +103,8 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
 
     if (!confirmed) return
 
-    try {
-      await resetAccountMutation.mutateAsync(account.id)
-    } catch (error) {
-      // 错误已在hook中处理
-    }
+    // 暂时用删除替代重置功能
+    handleDelete()
   }
 
   // 获取连接状态显示
@@ -215,14 +197,12 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
                 </button>
               </li>
               <li className="border-t pt-1 mt-1">
-                <LoadingButton
-                  variant="ghost"
+                <button
                   className="justify-start w-full text-left text-error"
-                  isLoading={resetAccountMutation.isPending}
                   onClick={handleResetAccount}
                 >
                   重置账户
-                </LoadingButton>
+                </button>
               </li>
               <li>
                 <button
@@ -289,7 +269,7 @@ const EmailAccountCard: React.FC<EmailAccountCardProps> = ({ account, onEdit, on
                   </button>
                   <LoadingButton
                     className="btn btn-sm btn-outline btn-secondary"
-                    isLoading={createScanJobMutation.isPending || resetSyncMutation.isPending}
+                    isLoading={startEmailScanMutation.isPending}
                     onClick={handleInitSync}
                   >
                     初始化同步

@@ -7,34 +7,35 @@ import {
   Settings, 
   LogOut,
   User,
-  Mail
+  Mail,
+  Trash2,
+  Search
 } from 'lucide-react';
-import { useSession, useProfile, useSignOut } from '../../hooks/useAuth';
+import { useAuthContext } from "../../contexts/AuthContext"
 import ThemeSelector from '../ui/ThemeSelector';
 
 const AppNavbar: React.FC = () => {
   const location = useLocation();
-  const { data: session } = useSession();
-  const { data: profile } = useProfile();
-  const signOutMutation = useSignOut();
-  
-  const user = session?.user;
+  const { user, signOut } = useAuthContext();
 
   const navigation = [
     { name: '仪表盘', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
+    { name: '回收站', href: '/trash', icon: Trash2 },
     { name: '邮箱配置', href: '/settings/email-accounts', icon: Mail },
+    { name: '扫描任务', href: '/settings/email-scan-jobs', icon: Search },
   ];
 
   const isActive = (href: string) => {
     return location.pathname === href || 
            (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload') ||
-           (href === '/settings/email-accounts' && location.pathname.startsWith('/settings/email-accounts'));
+           (href === '/settings/email-accounts' && location.pathname.startsWith('/settings/email-accounts')) ||
+           (href === '/settings/email-scan-jobs' && location.pathname.startsWith('/settings/email-scan-jobs'));
   };
 
   const handleSignOut = async () => {
-    signOutMutation.mutate();
+    await signOut();
   };
 
   return (
@@ -137,7 +138,7 @@ const AppNavbar: React.FC = () => {
         <div className="hidden lg:flex items-center gap-3 mr-3">
           <div className="text-right min-w-0 flex-shrink">
             <div className="font-medium text-sm text-base-content truncate max-w-32">
-              {profile?.display_name || user?.email?.split('@')[0]}
+              {user?.email?.split('@')[0]}
             </div>
             <div className="text-xs text-base-content/60 leading-tight truncate max-w-32">
               {user?.email}
@@ -148,12 +149,10 @@ const AppNavbar: React.FC = () => {
         {/* 用户头像下拉菜单 */}
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar hover:bg-base-200">
-            <div className="w-10 rounded-full ring ring-primary/20 ring-offset-base-100 ring-offset-1 hover:ring-primary/40 transition-all">
-              <img
-                alt="用户头像"
-                src={profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email}&backgroundColor=3b82f6&textColor=ffffff`}
-                className="rounded-full object-cover"
-              />
+            <div className="w-10 rounded-full ring ring-primary/20 ring-offset-base-100 ring-offset-1 hover:ring-primary/40 transition-all bg-primary-content text-primary flex items-center justify-center">
+              <span className="text-sm font-bold">
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
+              </span>
             </div>
           </div>
           <ul
@@ -164,16 +163,15 @@ const AppNavbar: React.FC = () => {
             <li className="p-3 hover:bg-transparent">
               <div className="flex items-center gap-3">
                 <div className="avatar">
-                  <div className="w-12 rounded-full">
-                    <img 
-                      src={profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.email}&backgroundColor=3b82f6&textColor=ffffff`}
-                      alt="用户头像"
-                    />
+                  <div className="w-12 rounded-full bg-primary-content text-primary flex items-center justify-center">
+                    <span className="text-lg font-bold">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </span>
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-base truncate">
-                    {profile?.display_name || user?.email?.split('@')[0]}
+                    {user?.email?.split('@')[0]}
                   </div>
                   <div className="text-xs text-base-content/60 truncate">
                     {user?.email}
@@ -207,10 +205,9 @@ const AppNavbar: React.FC = () => {
               <button 
                 onClick={handleSignOut}
                 className="flex items-center gap-2 py-2 text-error hover:bg-error/10"
-                disabled={signOutMutation.isLoading}
               >
                 <LogOut className="w-4 h-4" />
-                <span>{signOutMutation.isLoading ? '退出中...' : '退出登录'}</span>
+                <span>退出登录</span>
               </button>
             </li>
           </ul>
