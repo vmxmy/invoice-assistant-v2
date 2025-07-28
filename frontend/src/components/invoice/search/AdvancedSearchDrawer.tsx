@@ -118,9 +118,44 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     onClose();
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setFilters({});
-  };
+    setValidationErrors({});
+  }, []);
+
+  // 快捷操作
+  const handleQuickPreset = useCallback((preset: 'thisMonth' | 'lastMonth' | 'thisYear' | 'lastWeek') => {
+    const now = new Date();
+    let dateFrom: string, dateTo: string;
+    
+    switch (preset) {
+      case 'thisMonth':
+        dateFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        dateTo = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+        break;
+      case 'lastMonth':
+        dateFrom = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0];
+        dateTo = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+        break;
+      case 'thisYear':
+        dateFrom = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+        dateTo = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0];
+        break;
+      case 'lastWeek':
+        const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        dateFrom = new Date(lastWeek.getFullYear(), lastWeek.getMonth(), lastWeek.getDate()).toISOString().split('T')[0];
+        dateTo = now.toISOString().split('T')[0];
+        break;
+      default:
+        return;
+    }
+    
+    setFilters(prev => ({
+      ...prev,
+      dateFrom,
+      dateTo
+    }));
+  }, []);
 
   const hasActiveFilters = Object.values(filters).some(value => 
     value !== undefined && value !== '' && 
@@ -141,15 +176,24 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         return (
           <div key={field.column_name} className="form-control">
             <label className="label">
-              <span className="label-text">{field.display_name}</span>
+              <span className="label-text font-medium">{field.display_name}</span>
+              {field.description && (
+                <span className="label-text-alt text-base-content/60">
+                  <Info className="w-3 h-3 inline mr-1" />
+                  {field.description}
+                </span>
+              )}
             </label>
             <input
               type="text"
               placeholder={`搜索${field.display_name}...`}
-              className="input input-bordered input-sm sm:input-md"
+              className={`input input-bordered input-sm sm:input-md transition-colors ${
+                hasError ? 'input-error' : 'focus:input-primary'
+              }`}
               value={fieldValue || ''}
               onChange={(e) => handleInputChange(field.column_name, e.target.value)}
             />
+            {renderValidationError(field.column_name)}
           </div>
         );
 
@@ -224,15 +268,18 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         return (
           <div key={field.column_name} className="form-control">
             <label className="label">
-              <span className="label-text">{field.display_name}</span>
+              <span className="label-text font-medium">{field.display_name}</span>
             </label>
             <input
               type="text"
               placeholder={`选择${field.display_name}...`}
-              className="input input-bordered input-sm sm:input-md"
+              className={`input input-bordered input-sm sm:input-md transition-colors ${
+                hasError ? 'input-error' : 'focus:input-primary'
+              }`}
               value={fieldValue || ''}
               onChange={(e) => handleInputChange(field.column_name, e.target.value)}
             />
+            {renderValidationError(field.column_name)}
           </div>
         );
 
@@ -263,15 +310,18 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         return (
           <div key={field.column_name} className="form-control">
             <label className="label">
-              <span className="label-text">{field.display_name}</span>
+              <span className="label-text font-medium">{field.display_name}</span>
             </label>
             <input
               type="text"
               placeholder={`搜索${field.display_name}...`}
-              className="input input-bordered input-sm sm:input-md"
+              className={`input input-bordered input-sm sm:input-md transition-colors ${
+                hasError ? 'input-error' : 'focus:input-primary'
+              }`}
               value={fieldValue || ''}
               onChange={(e) => handleInputChange(field.column_name, e.target.value)}
             />
+            {renderValidationError(field.column_name)}
           </div>
         );
     }
@@ -359,55 +409,98 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                   </div>
                 )}
 
+                {/* 快捷日期选择 */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-secondary" />
+                    快捷日期
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { key: 'thisMonth', label: '本月', variant: 'btn-primary' },
+                      { key: 'lastMonth', label: '上月', variant: 'btn-secondary' },
+                      { key: 'thisYear', label: '今年', variant: 'btn-accent' },
+                      { key: 'lastWeek', label: '近七天', variant: 'btn-info' }
+                    ].map(preset => (
+                      <button
+                        key={preset.key}
+                        className={`btn btn-xs sm:btn-sm ${preset.variant} btn-outline hover:shadow-sm transition-all`}
+                        onClick={() => handleQuickPreset(preset.key as any)}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* 传统的状态筛选（保持向后兼容） */}
                 <div className="space-y-4">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Tag className="w-4 h-4" />
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-warning" />
                     快捷筛选
                   </h4>
 
                   {/* 处理状态 */}
                   <div className="space-y-2">
                     <label className="label">
-                      <span className="label-text">处理状态</span>
+                      <span className="label-text font-medium">处理状态</span>
+                      <span className="label-text-alt text-base-content/60">可多选</span>
                     </label>
-                    <div className="flex flex-wrap gap-2">
-                      {['pending', 'processing', 'completed', 'failed'].map(status => (
-                        <button
-                          key={status}
-                          className={`btn btn-xs sm:btn-sm ${
-                            filters.status?.includes(status) ? 'btn-primary' : 'btn-ghost'
-                          }`}
-                          onClick={() => handleStatusToggle(status)}
-                        >
-                          {status === 'pending' && '待处理'}
-                          {status === 'processing' && '处理中'}
-                          {status === 'completed' && '已完成'}
-                          {status === 'failed' && '失败'}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: 'pending', label: '待处理', color: 'warning' },
+                        { value: 'processing', label: '处理中', color: 'info' },
+                        { value: 'completed', label: '已完成', color: 'success' },
+                        { value: 'failed', label: '失败', color: 'error' }
+                      ].map(status => {
+                        const isSelected = filters.status?.includes(status.value);
+                        return (
+                          <button
+                            key={status.value}
+                            className={`btn btn-xs sm:btn-sm transition-all ${
+                              isSelected 
+                                ? `btn-${status.color} shadow-sm` 
+                                : 'btn-ghost hover:bg-base-200'
+                            }`}
+                            onClick={() => handleStatusToggle(status.value)}
+                          >
+                            {status.label}
+                            {isSelected && <CheckCircle2 className="w-3 h-3 ml-1" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* 来源类型 */}
                   <div className="space-y-2">
                     <label className="label">
-                      <span className="label-text">来源类型</span>
+                      <span className="label-text font-medium">来源类型</span>
+                      <span className="label-text-alt text-base-content/60">可多选</span>
                     </label>
-                    <div className="flex flex-wrap gap-2">
-                      {['email', 'upload', 'api'].map(source => (
-                        <button
-                          key={source}
-                          className={`btn btn-xs sm:btn-sm ${
-                            filters.source?.includes(source) ? 'btn-primary' : 'btn-ghost'
-                          }`}
-                          onClick={() => handleSourceToggle(source)}
-                        >
-                          {source === 'email' && '邮件'}
-                          {source === 'upload' && '上传'}
-                          {source === 'api' && 'API'}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: 'email', label: '邮件', icon: '📧' },
+                        { value: 'upload', label: '上传', icon: '📎' },
+                        { value: 'api', label: 'API', icon: '🔗' }
+                      ].map(source => {
+                        const isSelected = filters.source?.includes(source.value);
+                        return (
+                          <button
+                            key={source.value}
+                            className={`btn btn-xs sm:btn-sm transition-all ${
+                              isSelected 
+                                ? 'btn-primary shadow-sm' 
+                                : 'btn-ghost hover:bg-base-200'
+                            }`}
+                            onClick={() => handleSourceToggle(source.value)}
+                          >
+                            <span className="mr-1">{source.icon}</span>
+                            {source.label}
+                            {isSelected && <CheckCircle2 className="w-3 h-3 ml-1" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
