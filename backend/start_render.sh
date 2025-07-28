@@ -11,4 +11,13 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 
 # 启动应用
-exec gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 300
+exec gunicorn app.main:app \
+    --workers 2 \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:$PORT \
+    --timeout 300 \
+    --keep-alive 2 \
+    --worker-connections 1000 \
+    --max-requests 500 \
+    --max-requests-jitter 50 \
+    --preload
