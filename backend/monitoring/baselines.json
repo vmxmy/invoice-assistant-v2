@@ -1,12 +1,12 @@
 [
   {
     "query_name": "endpoint_GET _api_v1_profiles_me",
-    "avg_time_ms": 1861.1779709029615,
-    "p95_time_ms": 3333.6822986602783,
+    "avg_time_ms": 1853.1339559883907,
+    "p95_time_ms": 3325.7439136505127,
     "p99_time_ms": 5356.549978256226,
     "max_time_ms": 269780.3342342377,
-    "sample_count": 2850,
-    "created_at": "2025-07-27T23:08:38.498051"
+    "sample_count": 2900,
+    "created_at": "2025-07-28T11:36:45.910279"
   },
   {
     "query_name": "invoice_search",
