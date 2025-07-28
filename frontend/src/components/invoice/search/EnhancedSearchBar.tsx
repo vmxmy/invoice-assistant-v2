@@ -210,115 +210,138 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   return (
     <div ref={searchRef} className={`relative ${className}`}>
-      {/* 主搜索框 */}
-      <div className={`form-control w-full transition-all duration-200 ${isExpanded ? 'transform scale-105' : ''}`}>
-        <div className="input-group">
-          <div className="relative flex-1">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder={placeholder}
-              className="input input-bordered w-full pr-12 focus:ring-2 focus:ring-primary/20"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onFocus={() => {
-                setShowSuggestions(true);
-                setIsExpanded(true);
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch();
-                }
-              }}
-            />
-            
-            {/* 搜索状态指示器 */}
-            <div className="absolute right-12 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-              {value && (
-                <button
-                  className="btn btn-ghost btn-xs"
-                  onClick={() => {
-                    onChange('');
-                    inputRef.current?.focus();
-                  }}
-                  title="清除搜索"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+      {/* 主搜索框 - 现代化设计 */}
+      <div className={`relative w-full transition-all duration-300 ease-out ${
+        isExpanded ? 'transform scale-[1.02] shadow-lg' : 'shadow-sm'
+      }`}>
+        <div className="relative bg-base-100 rounded-xl border border-base-300 hover:border-primary/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200">
+          {/* 搜索图标 */}
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+            <Search className="w-5 h-5 text-base-content/40" />
           </div>
           
-          {/* 搜索按钮 */}
-          <button 
-            className="btn btn-primary"
-            onClick={() => handleSearch()}
-          >
-            <Search className="w-4 h-4" />
-          </button>
+          {/* 输入框 */}
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={placeholder}
+            className="w-full pl-12 pr-24 py-4 bg-transparent border-0 text-base placeholder:text-base-content/50 focus:outline-none rounded-xl"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => {
+              setShowSuggestions(true);
+              setIsExpanded(true);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
+          />
           
-          {/* 高级搜索按钮 */}
-          {onAdvancedSearch && (
+          {/* 右侧操作区 */}
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+            {/* 清除按钮 */}
+            {value && (
+              <button
+                className="btn btn-ghost btn-sm btn-circle hover:bg-base-200 transition-colors"
+                onClick={() => {
+                  onChange('');
+                  inputRef.current?.focus();
+                }}
+                title="清除搜索"
+              >
+                <X className="w-4 h-4 text-base-content/60" />
+              </button>
+            )}
+            
+            {/* 高级搜索按钮 - 移动端优化 */}
+            {onAdvancedSearch && (
+              <button 
+                className="btn btn-ghost btn-sm btn-circle hover:bg-primary/10 hover:text-primary transition-colors lg:btn-sm lg:px-3 lg:rounded-lg"
+                onClick={onAdvancedSearch}
+                title="高级搜索"
+              >
+                <Filter className="w-4 h-4" />
+                <span className="hidden lg:inline ml-1 text-xs">筛选</span>
+              </button>
+            )}
+            
+            {/* 搜索按钮 - 响应式设计 */}
             <button 
-              className="btn btn-outline"
-              onClick={onAdvancedSearch}
+              className="btn btn-primary btn-sm px-4 rounded-lg hover:shadow-md transition-all duration-200"
+              onClick={() => handleSearch()}
             >
-              <Filter className="w-4 h-4" />
-              <ChevronDown className="w-3 h-3" />
+              <span className="hidden sm:inline mr-1 text-sm">搜索</span>
+              <Search className="w-4 h-4 sm:hidden" />
             </button>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* 活跃筛选条件显示 */}
+      {/* 活跃筛选条件显示 - 优化移动端 */}
       {Object.keys(activeFilters).length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {Object.entries(activeFilters).map(([key, value]) => (
-            <div key={key} className="badge badge-primary gap-2">
-              <span className="text-xs">{`${key}: ${value}`}</span>
-              <button 
-                className="btn btn-ghost btn-xs"
-                onClick={() => removeFilter(key)}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-          <button 
-            className="btn btn-ghost btn-xs"
-            onClick={() => {
-              setActiveFilters({});
-              handleSearch(value, {});
-            }}
-          >
-            清除全部
-          </button>
+        <div className="mt-3">
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(activeFilters).map(([key, value]) => (
+              <div key={key} className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm border border-primary/20">
+                <span className="font-medium">{key}:</span>
+                <span className="truncate max-w-24">{String(value)}</span>
+                <button 
+                  className="ml-1 hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                  onClick={() => removeFilter(key)}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <button 
+              className="inline-flex items-center gap-1 px-3 py-1 text-xs text-base-content/60 hover:text-base-content hover:bg-base-200 rounded-full transition-colors"
+              onClick={() => {
+                setActiveFilters({});
+                handleSearch(value, {});
+              }}
+            >
+              <X className="w-3 h-3" />
+              清除全部
+            </button>
+          </div>
         </div>
       )}
 
-      {/* 搜索建议和快速筛选 */}
+      {/* 搜索建议和快速筛选 - 现代化设计 */}
       {showSuggestions && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-base-100 border border-base-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-3 bg-base-100 border border-base-200 rounded-2xl shadow-xl z-50 max-h-96 overflow-hidden">
           {/* 快速筛选 */}
-          <div className="p-4 border-b border-base-200">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">快速筛选</span>
+          <div className="p-4 sm:p-6 border-b border-base-200">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                <Zap className="w-3 h-3 text-primary" />
+              </div>
+              <span className="font-semibold text-base text-base-content">快速筛选</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+            
+            {/* 移动端优化的筛选按钮 */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
               {quickFilters.map((filter) => {
                 const Icon = filter.icon;
                 return (
                   <button
                     key={filter.id}
-                    className="btn btn-sm btn-outline gap-2 hover:btn-primary transition-all duration-200 text-left justify-start"
+                    className="group relative flex flex-col items-center gap-2 p-3 sm:p-4 bg-base-50 hover:bg-primary/5 border border-base-200 hover:border-primary/30 rounded-xl transition-all duration-200 hover:shadow-md text-center"
                     onClick={() => handleQuickFilter(filter)}
                     title={filter.description}
                   >
-                    <Icon className="w-3 h-3 flex-shrink-0" />
-                    <span className="truncate">{filter.label}</span>
+                    <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-medium text-base-content group-hover:text-primary transition-colors">
+                      {filter.label}
+                    </span>
                     {filter.count && (
-                      <span className="badge badge-xs ml-auto">{filter.count}</span>
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-content text-xs rounded-full flex items-center justify-center">
+                        {filter.count}
+                      </span>
                     )}
                   </button>
                 );
@@ -326,57 +349,90 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
             </div>
           </div>
 
-          {/* 搜索建议 */}
+          {/* 搜索建议 - 优雅设计 */}
           {smartSuggestions.length > 0 && (
-            <div className="p-2">
-              <div className="px-2 py-1 text-xs font-medium text-base-content/60 uppercase tracking-wider">
-                建议搜索
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Clock className="w-3 h-3 text-secondary" />
+                </div>
+                <span className="font-semibold text-base text-base-content">搜索建议</span>
               </div>
-              {smartSuggestions.map((suggestion) => {
-                const Icon = suggestion.icon || Search;
-                const isRecent = suggestion.type === 'recent';
-                return (
-                  <button
-                    key={suggestion.id}
-                    className={`w-full flex items-center justify-between px-3 py-2 hover:bg-base-200 rounded transition-colors text-left ${
-                      isRecent ? 'bg-primary/5' : ''
-                    }`}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${
-                        isRecent ? 'text-primary' : 'text-base-content/60'
-                      }`} />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm">{suggestion.text}</span>
-                        {isRecent && (
-                          <span className="text-xs text-base-content/40">最近搜索</span>
-                        )}
+              
+              <div className="space-y-1">
+                {smartSuggestions.map((suggestion) => {
+                  const Icon = suggestion.icon || Search;
+                  const isRecent = suggestion.type === 'recent';
+                  return (
+                    <button
+                      key={suggestion.id}
+                      className={`w-full flex items-center justify-between px-3 py-3 hover:bg-base-100 rounded-xl transition-all duration-200 text-left group ${
+                        isRecent ? 'bg-primary/5 border border-primary/10' : 'hover:shadow-sm'
+                      }`}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          isRecent ? 'bg-primary/10' : 'bg-base-200 group-hover:bg-base-300'
+                        } transition-colors`}>
+                          <Icon className={`w-4 h-4 ${
+                            isRecent ? 'text-primary' : 'text-base-content/60 group-hover:text-base-content'
+                          }`} />
+                        </div>
+                        <div className="flex flex-col items-start min-w-0 flex-1">
+                          <span className="text-sm font-medium text-base-content truncate">{suggestion.text}</span>
+                          {isRecent && (
+                            <span className="text-xs text-primary/60">最近搜索</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    {suggestion.count && (
-                      <span className="badge badge-sm badge-ghost">{suggestion.count}</span>
-                    )}
-                  </button>
-                );
-              })}
+                      {suggestion.count && (
+                        <span className="badge badge-sm bg-base-200 text-base-content/70 border-0">{suggestion.count}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* 搜索提示 */}
+          {/* 搜索提示 - 精美设计 */}
           {value.length === 0 && smartSuggestions.length === 0 && (
-            <div className="p-6 text-center text-base-content/60">
-              <Search className="w-8 h-8 mx-auto mb-3 opacity-30" />
-              <h3 className="font-medium mb-2">开始搜索发票</h3>
-              <p className="text-sm mb-3">支持搜索发票号、商家名称、金额等</p>
-              <div className="text-xs text-base-content/40">
-                <p>• 输入发票号快速查找</p>
-                <p>• 输入商家名称查看所有相关发票</p>
-                <p>• 输入金额范围如：&gt;1000 或 100-500</p>
+            <div className="p-6 sm:p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-primary/60" />
+              </div>
+              <h3 className="font-semibold text-lg text-base-content mb-2">开始搜索发票</h3>
+              <p className="text-base-content/60 mb-4">支持搜索发票号、商家名称、金额等信息</p>
+              
+              <div className="bg-base-100 rounded-xl p-4 space-y-2 text-left max-w-sm mx-auto">
+                <div className="flex items-center gap-2 text-sm text-base-content/70">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  <span>输入发票号快速查找</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-base-content/70">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  <span>输入商家名称查看相关发票</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-base-content/70">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  <span>输入金额范围如：&gt;1000 或 100-500</span>
+                </div>
               </div>
             </div>
           )}
         </div>
+      )}
+      
+      {/* 移动端遮罩层 */}
+      {showSuggestions && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 sm:hidden"
+          onClick={() => {
+            setShowSuggestions(false);
+            setIsExpanded(false);
+          }}
+        />
       )}
     </div>
   );
