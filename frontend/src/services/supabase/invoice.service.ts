@@ -4,22 +4,38 @@ import { Invoice, InvoiceStatus, InvoiceSource } from '../../types/invoice'
 
 export interface SearchParams {
   query?: string
+  limit?: number
+  offset?: number
+  page?: number
+  page_size?: number
+  orderBy?: string
+  order?: 'asc' | 'desc'
+  
+  // 新字段名（与数据库对齐）
+  invoice_date_from?: string
+  invoice_date_to?: string
+  total_amount_min?: number
+  total_amount_max?: number
+  invoice_type?: string
+  invoice_number?: string
+  seller_name?: string
+  buyer_name?: string
+  status?: InvoiceStatus[]
+  source?: string[]
+  expense_category?: string
+  primary_category_name?: string
+  secondary_category_name?: string
+  is_verified?: boolean
+  notes?: string
+  remarks?: string
+  tags?: string
+  
+  // 兼容旧字段名
   dateFrom?: string
   dateTo?: string
   amountMin?: number
   amountMax?: number
-  status?: InvoiceStatus[]
   invoiceType?: string[]
-  limit?: number
-  offset?: number
-  // 支持传统分页参数
-  page?: number
-  page_size?: number
-  // 其他筛选参数
-  seller_name?: string
-  buyer_name?: string
-  invoice_number?: string
-  source?: string[]
 }
 
 export interface InvoiceStats {
@@ -59,12 +75,12 @@ export class InvoiceSupabaseService extends BaseSupabaseService<Invoice> {
       .rpc('search_invoices', {
         p_user_id: session.session.user.id,
         p_query: params.query || params.invoice_number || params.seller_name || params.buyer_name || null,
-        p_date_from: params.dateFrom || null,
-        p_date_to: params.dateTo || null,
-        p_amount_min: params.amountMin || null,
-        p_amount_max: params.amountMax || null,
+        p_date_from: params.invoice_date_from || params.dateFrom || null,
+        p_date_to: params.invoice_date_to || params.dateTo || null,
+        p_amount_min: params.total_amount_min || params.amountMin || null,
+        p_amount_max: params.total_amount_max || params.amountMax || null,
         p_status: params.status || null,
-        p_invoice_type: params.invoiceType || null,
+        p_invoice_type: params.invoice_type || params.invoiceType || null,
         p_limit: limit,
         p_offset: offset
       })
