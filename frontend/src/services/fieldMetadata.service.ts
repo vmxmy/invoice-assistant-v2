@@ -278,204 +278,92 @@ class FieldMetadataService {
         width: 120
       },
 
-      // 基础信息
+      // 基础信息 - 只保留用户关心的核心字段
       'invoice_number': {
-        display_name: '发票信息',
+        display_name: '发票号码',
         display_order: 1,
         format_type: 'text',
         filter_type: 'text',
         category: 'basic',
-        icon: '📄',
+        is_searchable: true,
         width: 200
       },
-      'invoice_code': {
-        display_name: '发票代码',
+      'seller_name': {
+        display_name: '商家名称',
         display_order: 2,
         format_type: 'text',
         filter_type: 'text',
         category: 'basic',
-        width: 120
-      },
-      'invoice_type': {
-        display_name: '发票类型',
-        display_order: 3,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'basic',
-        width: 100
-      },
-      'seller_name': {
-        display_name: '销售方',
-        display_order: 4,
-        format_type: 'text',
-        filter_type: 'text',
-        category: 'basic',
-        width: 150
-      },
-      'buyer_name': {
-        display_name: '购买方',
-        display_order: 5,
-        format_type: 'text',
-        filter_type: 'text',
-        category: 'basic',
+        is_searchable: true,
         width: 150
       },
 
-      // 财务信息
+      // 财务信息 - 只保留总金额
       'total_amount': {
-        display_name: '金额',
+        display_name: '发票金额',
         display_order: 10,
         format_type: 'currency',
         filter_type: 'number_range',
         category: 'financial',
-        icon: '💰',
+        is_searchable: true,
+        description: '可按金额范围筛选',
         width: 120
-      },
-      'amount_without_tax': {
-        display_name: '不含税金额',
-        display_order: 11,
-        format_type: 'currency',
-        filter_type: 'number_range',
-        category: 'financial',
-        width: 120
-      },
-      'tax_amount': {
-        display_name: '税额',
-        display_order: 12,
-        format_type: 'currency',
-        filter_type: 'number_range',
-        category: 'financial',
-        width: 100
-      },
-      'currency': {
-        display_name: '币种',
-        display_order: 13,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'financial',
-        width: 80
       },
 
-      // 时间信息
+      // 时间信息 - 只保留开票日期
       'invoice_date': {
         display_name: '开票日期',
         display_order: 20,
         format_type: 'date',
         filter_type: 'date_range',
         category: 'temporal',
-        icon: '📅',
+        is_searchable: true,
+        description: '可按日期范围筛选',
         width: 120
-      },
-      'consumption_date': {
-        display_name: '消费日期',
-        display_order: 21,
-        format_type: 'date',
-        filter_type: 'date_range',
-        category: 'temporal',
-        icon: '📅',
-        width: 120
-      },
-      'created_at': {
-        display_name: '创建时间',
-        display_order: 30,
-        format_type: 'date',
-        filter_type: 'date_range',
-        category: 'temporal',
-        width: 140
-      },
-      'updated_at': {
-        display_name: '更新时间',
-        display_order: 31,
-        format_type: 'date',
-        filter_type: 'date_range',
-        category: 'temporal',
-        width: 140
       },
 
-      // 分类和元数据
+      // 分类信息 - 只保留费用分类
       'expense_category': {
         display_name: '费用分类',
-        display_order: 40,
+        display_order: 30,
         format_type: 'text',
         filter_type: 'select',
         category: 'metadata',
-        icon: '🏷️',
+        is_searchable: true,
+        description: '如餐饮、交通、办公用品等',
         width: 120
       },
-      'primary_category_name': {
-        display_name: '一级分类',
-        display_order: 41,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'metadata',
-        width: 100
-      },
-      'secondary_category_name': {
-        display_name: '二级分类',
-        display_order: 42,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'metadata',
-        width: 100
-      },
-      'category_full_path': {
-        display_name: '分类路径',
-        display_order: 43,
-        format_type: 'text',
-        filter_type: 'text',
-        category: 'metadata',
-        width: 150
-      },
-      'tags': {
-        display_name: '标签',
-        display_order: 50,
-        format_type: 'array',
-        filter_type: 'text',
-        category: 'metadata',
-        width: 120
-      },
-      'status': {
-        display_name: '状态',
-        display_order: 51,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'metadata',
-        width: 100
-      },
-      'source': {
-        display_name: '来源',
-        display_order: 52,
-        format_type: 'text',
-        filter_type: 'select',
-        category: 'metadata',
-        width: 100
-      },
 
-      // 其他字段
-      'remarks': {
-        display_name: '备注',
-        display_order: 60,
-        format_type: 'text',
-        filter_type: 'text',
-        category: 'basic',
-        width: 200
-      },
-      'notes': {
-        display_name: '笔记',
-        display_order: 61,
-        format_type: 'text',
-        filter_type: 'text',
-        category: 'basic',
-        width: 200
-      },
-
-      // 系统字段（通常不显示）
-      'id': { is_visible: false, category: 'system' },
-      'user_id': { is_visible: false, category: 'system' },
-      'created_by': { is_visible: false, category: 'system' },
-      'updated_by': { is_visible: false, category: 'system' },
-      'deleted_at': { is_visible: false, category: 'system' },
-      'version': { is_visible: false, category: 'system' }
+      // 系统字段（不显示，不可搜索）
+      'id': { is_visible: false, is_searchable: false, category: 'system' },
+      'user_id': { is_visible: false, is_searchable: false, category: 'system' },
+      'created_by': { is_visible: false, is_searchable: false, category: 'system' },
+      'updated_by': { is_visible: false, is_searchable: false, category: 'system' },
+      'deleted_at': { is_visible: false, is_searchable: false, category: 'system' },
+      'version': { is_visible: false, is_searchable: false, category: 'system' },
+      'file_name': { is_visible: false, is_searchable: false, category: 'system' },
+      'file_path': { is_visible: false, is_searchable: false, category: 'system' },
+      'file_url': { is_visible: false, is_searchable: false, category: 'system' },
+      'file_size': { is_visible: false, is_searchable: false, category: 'system' },
+      'invoice_code': { is_visible: false, is_searchable: false, category: 'system' },
+      'invoice_type': { is_visible: false, is_searchable: false, category: 'system' },
+      'buyer_name': { is_visible: false, is_searchable: false, category: 'system' },
+      'currency': { is_visible: false, is_searchable: false, category: 'system' },
+      'amount_without_tax': { is_visible: false, is_searchable: false, category: 'system' },
+      'tax_amount': { is_visible: false, is_searchable: false, category: 'system' },
+      'consumption_date': { is_visible: false, is_searchable: false, category: 'system' },
+      'created_at': { is_visible: false, is_searchable: false, category: 'system' },
+      'updated_at': { is_visible: false, is_searchable: false, category: 'system' },
+      'primary_category_name': { is_visible: false, is_searchable: false, category: 'system' },
+      'secondary_category_name': { is_visible: false, is_searchable: false, category: 'system' },
+      'category_full_path': { is_visible: false, is_searchable: false, category: 'system' },
+      'tags': { is_visible: false, is_searchable: false, category: 'system' },
+      'status': { is_visible: false, is_searchable: false, category: 'system' },
+      'source': { is_visible: false, is_searchable: false, category: 'system' },
+      'remarks': { is_visible: false, is_searchable: false, category: 'system' },
+      'notes': { is_visible: false, is_searchable: false, category: 'system' },
+      'is_verified': { is_visible: false, is_searchable: false, category: 'system' },
+      'verified_at': { is_visible: false, is_searchable: false, category: 'system' }
     }
   }
 
