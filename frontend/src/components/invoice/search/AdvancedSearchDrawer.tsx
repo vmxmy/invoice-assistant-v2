@@ -109,12 +109,62 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     setFilters(currentFilters);
   }, [currentFilters]);
 
-  const handleInputChange = (field: keyof SearchFilters, value: any) => {
+  // 验证筛选条件
+  const validateFilters = useCallback((filtersToValidate: SearchFilters): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    
+    // 验证数值范围 - 支持新旧字段名
+    const amountMin = filtersToValidate.total_amount_min || filtersToValidate.amountMin;
+    const amountMax = filtersToValidate.total_amount_max || filtersToValidate.amountMax;
+    if (amountMin !== undefined && amountMax !== undefined) {
+      if (amountMin > amountMax) {
+        errors.total_amount_min = '最小金额不能大于最大金额';
+        errors.amountMin = '最小金额不能大于最大金额';
+      }
+    }
+    
+    // 验证日期范围 - 支持新旧字段名
+    const dateFrom = filtersToValidate.invoice_date_from || filtersToValidate.dateFrom;
+    const dateTo = filtersToValidate.invoice_date_to || filtersToValidate.dateTo;
+    if (dateFrom && dateTo) {
+      if (new Date(dateFrom) > new Date(dateTo)) {
+        errors.invoice_date_from = '开始日期不能晚于结束日期';
+        errors.dateFrom = '开始日期不能晚于结束日期';
+      }
+    }
+    
+    // 验证动态字段的数值范围
+    Object.entries(filtersToValidate).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null && 'min' in value && 'max' in value) {
+        if (value.min !== undefined && value.max !== undefined && value.min > value.max) {
+          errors[key] = '最小值不能大于最大值';
+        }
+      }
+      if (typeof value === 'object' && value !== null && 'from' in value && 'to' in value) {
+        if (value.from && value.to && new Date(value.from) > new Date(value.to)) {
+          errors[key] = '开始日期不能晚于结束日期';
+        }
+      }
+    });
+    
+    return errors;
+  }, []);
+
+  const handleInputChange = useCallback((field: keyof SearchFilters, value: any) => {
     setFilters(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+    
+    // 清除该字段的验证错误
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  }, [validationErrors]);
 
   const handleStatusToggle = (status: string) => {
     setFilters(prev => {
