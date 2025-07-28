@@ -19,7 +19,9 @@ import {
   CheckCircle,
   AlertTriangle,
   Activity,
-  Target
+  Target,
+  Mail,
+  Settings
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
@@ -296,17 +298,17 @@ const NewInvoiceCentricDashboard: React.FC = () => {
                 </h2>
                 <div className="grid grid-cols-1 gap-3">
                   <QuickActionCard
-                    title="拍照上传"
-                    description="快速添加发票"
+                    title="上传发票"
+                    description="添加新发票文件"
                     icon={Upload}
-                    onClick={() => navigate('/invoices/upload', { state: { mode: 'camera' } })}
+                    onClick={() => navigate('/invoices/upload')}
                     variant="primary"
                   />
                   <QuickActionCard
-                    title="批量导入"
-                    description="上传多个文件"
-                    icon={Plus}
-                    onClick={() => navigate('/invoices/upload', { state: { mode: 'batch' } })}
+                    title="邮箱配置"
+                    description="设置邮箱扫描"
+                    icon={Mail}
+                    onClick={() => navigate('/settings/email-accounts')}
                     variant="success"
                   />
                   <QuickActionCard
