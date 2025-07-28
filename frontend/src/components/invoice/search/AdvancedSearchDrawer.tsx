@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Search, Filter, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { X, Search, Filter, Calendar, DollarSign, Tag, FileText, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { fieldMetadataService, type FieldMetadata } from '../../../services/fieldMetadata.service';
 
 // 通用搜索过滤器接口 - 与后端数据结构对齐
@@ -73,6 +73,13 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
   const [filters, setFilters] = useState<SearchFilters>(currentFilters);
   const [searchableFields, setSearchableFields] = useState<FieldMetadata[]>([]);
   const [isLoadingFields, setIsLoadingFields] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    basic: true,
+    financial: false,
+    temporal: false,
+    metadata: false
+  });
 
   // 加载可搜索字段
   useEffect(() => {
@@ -247,6 +254,27 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     setFilters({});
     setValidationErrors({});
   }, []);
+
+  // 切换分类展开状态
+  const toggleSection = useCallback((category: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  }, []);
+
+  // 渲染验证错误
+  const renderValidationError = useCallback((fieldName: string) => {
+    const error = validationErrors[fieldName];
+    if (!error) return null;
+    
+    return (
+      <div className="flex items-center gap-1 mt-1 text-error text-xs">
+        <AlertCircle className="w-3 h-3" />
+        <span>{error}</span>
+      </div>
+    );
+  }, [validationErrors]);
 
   // 快捷操作
   const handleQuickPreset = useCallback((preset: 'thisMonth' | 'lastMonth' | 'thisYear' | 'lastWeek') => {
