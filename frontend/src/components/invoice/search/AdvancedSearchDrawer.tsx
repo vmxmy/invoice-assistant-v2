@@ -338,8 +338,9 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
   };
 
   // 渲染字段输入组件
-  const renderFieldInput = (field: FieldMetadata) => {
+  const renderFieldInput = useCallback((field: FieldMetadata) => {
     const fieldValue = filters[field.column_name];
+    const hasError = !!validationErrors[field.column_name];
 
     switch (field.filter_type) {
       case 'text':
@@ -457,10 +458,12 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         return (
           <div key={field.column_name} className="form-control">
             <label className="label">
-              <span className="label-text">{field.display_name}</span>
+              <span className="label-text font-medium">{field.display_name}</span>
             </label>
             <select
-              className="select select-bordered select-sm sm:select-md"
+              className={`select select-bordered select-sm sm:select-md transition-colors ${
+                hasError ? 'select-error' : 'focus:select-primary'
+              }`}
               value={fieldValue !== undefined ? String(fieldValue) : ''}
               onChange={(e) => {
                 const value = e.target.value;
@@ -473,6 +476,7 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
               <option value="true">是</option>
               <option value="false">否</option>
             </select>
+            {renderValidationError(field.column_name)}
           </div>
         );
 
@@ -495,7 +499,7 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
           </div>
         );
     }
-  };
+  }, [filters, validationErrors, handleInputChange, renderValidationError]);
 
   return (
     <>
