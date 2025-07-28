@@ -447,9 +447,18 @@ export const getDynamicColumnDefinitions = ({
  * 获取默认可见列
  */
 export const getDefaultVisibleColumns = (fieldMetadata: FieldMetadata[]): string[] => {
-  return fieldMetadata
+  const defaultColumns = fieldMetadata
     .filter(field => field.is_visible !== false && (field.display_order || 999) <= 50)
     .map(field => field.column_name);
+  
+  // 确保 actions 列总是包含在默认可见列中
+  if (!defaultColumns.includes('actions')) {
+    defaultColumns.push('actions');
+  }
+  
+  console.log('🔍 [getDefaultVisibleColumns] 默认可见列:', defaultColumns);
+  
+  return defaultColumns;
 };
 
 /**

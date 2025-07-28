@@ -113,8 +113,22 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
             defaultVisibility[field.column_name] = defaultVisible.includes(field.column_name);
           });
           
+          // 确保操作列始终可见
+          defaultVisibility['actions'] = true;
+          
+          console.log('🔍 [InvoiceTableView] 初始化列可见性:', defaultVisibility);
+          
           setColumnVisibility(defaultVisibility);
           saveColumnVisibility(defaultVisibility);
+        } else {
+          // 如果有保存的设置，确保操作列可见
+          const updatedVisibility = { ...savedVisibility };
+          if (updatedVisibility['actions'] !== true) {
+            updatedVisibility['actions'] = true;
+            setColumnVisibility(updatedVisibility);
+            saveColumnVisibility(updatedVisibility);
+            console.log('🔧 [InvoiceTableView] 修正操作列可见性');
+          }
         }
       } catch (error) {
         console.error('Failed to load field metadata:', error);
@@ -173,12 +187,20 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
       return [];
     }
     
-    return getDynamicColumnDefinitions({
+    const cols = getDynamicColumnDefinitions({
       fieldMetadata,
       onViewInvoice,
       onDownloadInvoice,
       onDeleteInvoice,
     });
+    
+    console.log('🔍 [InvoiceTableView] 生成的列定义:', {
+      totalColumns: cols.length,
+      columnIds: cols.map(col => 'id' in col ? col.id : 'accessorKey' in col ? col.accessorKey : 'unknown'),
+      hasActionsColumn: cols.some(col => 'id' in col && col.id === 'actions')
+    });
+    
+    return cols;
   }, [fieldMetadata, onViewInvoice, onDownloadInvoice, onDeleteInvoice]);
   
   // 获取列宽度映射
@@ -426,9 +448,9 @@ const InvoiceTableView: React.FC<InvoiceTableViewProps> = ({
                         </button>
                         <button
                           className="btn btn-ghost btn-xs"
-                          onClick={() => onEditInvoice(invoice)}
+                          onClick={() => onDownloadInvoice(invoice)}
                         >
-                          <Edit className="w-4 h-4" />
+                          <Download className="w-4 h-4" />
                         </button>
                         <button
                           className="btn btn-ghost btn-xs text-error"
