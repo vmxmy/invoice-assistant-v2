@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package, Tag } from 'lucide-react';
+import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package, Tag, Plane, Navigation } from 'lucide-react';
 import type { Invoice } from '../types/index';
 
 // Lucide 图标组件类型
@@ -55,6 +55,58 @@ export const getNestedValue = (obj: any, path: string): any => {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 };
 
+// 从机票 remarks 字段解析特定信息
+export const parseFlightInfoFromRemarks = (remarks: string, field: string): string => {
+  if (!remarks || typeof remarks !== 'string') return '';
+  
+  try {
+    // 解析航班号：CZ3418, EU2204 等
+    if (field === 'flight_number') {
+      const flightMatch = remarks.match(/航班号:([A-Z0-9]+)/);
+      return flightMatch ? flightMatch[1] : '';
+    }
+    
+    // 解析出发地和到达地：成都-广州, 杭州-成都 等
+    if (field === 'departure_airport' || field === 'arrival_airport') {
+      const routeMatch = remarks.match(/(\d{4}-\d{1,2}-\d{1,2})\s*(\d{1,2}:\d{2})\s*([^-;]+)-([^;]+)/);
+      if (routeMatch) {
+        return field === 'departure_airport' ? routeMatch[3].trim() : routeMatch[4].trim();
+      }
+    }
+    
+    // 解析日期：2025-06-13
+    if (field === 'flight_date') {
+      const dateMatch = remarks.match(/(\d{4}-\d{1,2}-\d{1,2})/);
+      return dateMatch ? dateMatch[1] : '';
+    }
+    
+    // 解析时间：21:00, 13:05 等 - 支持起飞时间和航班时间
+    if (field === 'flight_time' || field === 'departure_time') {
+      // 优化正则表达式，从完整的行程信息中精确提取时间
+      // 匹配格式：行程信息:2025-06-0912:10厦门-成都
+      const timeMatch = remarks.match(/行程信息:\d{4}-\d{1,2}-\d{1,2}(\d{1,2}:\d{2})/);
+      if (timeMatch) {
+        return timeMatch[1];
+      }
+      
+      // 备用匹配：直接查找时间格式
+      const fallbackTimeMatch = remarks.match(/(\d{1,2}:\d{2})/);
+      return fallbackTimeMatch ? fallbackTimeMatch[1] : '';
+    }
+    
+    // 解析乘客姓名：乘客信息:徐明扬
+    if (field === 'passenger_name') {
+      const passengerMatch = remarks.match(/乘客信息?:([^;]+)/);
+      return passengerMatch ? passengerMatch[1].trim() : '';
+    }
+    
+  } catch (e) {
+    console.warn('解析机票信息失败:', e, 'remarks:', remarks, 'field:', field);
+  }
+  
+  return '';
+};
+
 // 从多个路径中获取第一个非空值
 export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
   // 调试发票明细字段的路径解析
@@ -67,6 +119,11 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
     });
   }
   
+  // 检查是否为机票特定字段
+  const isFlightField = ['flight_number', 'departure_airport', 'arrival_airport', 'flight_date', 'flight_time', 'departure_time', 'passenger_name'].some(field => 
+    paths.some(p => p.includes(field))
+  );
+  
   for (const path of paths) {
     const value = getNestedValue(invoice, path);
     
@@ -78,6 +135,27 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
         isArray: Array.isArray(value),
         hasValue: value !== undefined && value !== null && value !== ''
       });
+    }
+    
+    // 如果是机票字段且当前路径是 remarks，尝试解析
+    if (isFlightField && path.includes('remarks') && value && typeof value === 'string') {
+      // 从当前paths数组中推断字段名
+      let fieldName = '';
+      if (paths.some(p => p.includes('flight_number'))) fieldName = 'flight_number';
+      else if (paths.some(p => p.includes('departure_airport'))) fieldName = 'departure_airport';
+      else if (paths.some(p => p.includes('arrival_airport'))) fieldName = 'arrival_airport';
+      else if (paths.some(p => p.includes('flight_date'))) fieldName = 'flight_date';
+      else if (paths.some(p => p.includes('flight_time'))) fieldName = 'flight_time';
+      else if (paths.some(p => p.includes('departure_time'))) fieldName = 'departure_time';
+      else if (paths.some(p => p.includes('passenger_name'))) fieldName = 'passenger_name';
+      
+      if (fieldName) {
+        const parsedValue = parseFlightInfoFromRemarks(value, fieldName);
+        if (parsedValue) {
+          console.log(`🔍 [getValueFromPaths] 从机票 remarks 解析 ${fieldName}:`, parsedValue);
+          return parsedValue;
+        }
+      }
     }
     
     if (value !== undefined && value !== null && value !== '') {
@@ -140,11 +218,7 @@ const trainTicketConfig: InvoiceTypeConfig = {
   type: 'train_ticket',
   displayName: '火车票',
   matcher: (invoice: Invoice) => {
-    return (
-      invoice.invoice_type === '火车票' ||
-      invoice.extracted_data?.title?.includes('铁路电子客票') ||
-      invoice.extracted_data?.title?.includes('电子发票(铁路电子客票)')
-    );
+    return invoice.invoice_type === '火车票';
   },
   groups: [
     {
@@ -159,7 +233,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: Train,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.trainNumber',
+            'extracted_data.processed_fields.train_number',
+            'extracted_data.original_ocr_fields.train_number',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.trainNumber',
             'extracted_data.structured_data.train_number',
             'extracted_data.structured_data.trainNumber', 
             'extracted_data.trainNumber', 
@@ -178,7 +254,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: MapPin,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.departureStation',
+            'extracted_data.processed_fields.departure_station',
+            'extracted_data.original_ocr_fields.departure_station',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.departureStation',
             'extracted_data.structured_data.departure_station',
             'extracted_data.structured_data.departureStation', 
             'extracted_data.departureStation', 
@@ -193,7 +271,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: MapPin,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.arrivalStation',
+            'extracted_data.processed_fields.arrival_station',
+            'extracted_data.original_ocr_fields.arrival_station',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.arrivalStation',
             'extracted_data.structured_data.arrival_station',
             'extracted_data.structured_data.arrivalStation', 
             'extracted_data.arrivalStation', 
@@ -207,7 +287,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Clock,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.departureTime',
+            'extracted_data.processed_fields.departure_time',
+            'extracted_data.original_ocr_fields.departure_time',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.departureTime',
             'extracted_data.structured_data.departure_time',
             'extracted_data.structured_data.departureTime', 
             'extracted_data.departureTime', 
@@ -222,7 +304,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Ticket,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.seatType',
+            'extracted_data.processed_fields.seat_type',
+            'extracted_data.original_ocr_fields.seat_type',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.seatType',
             'extracted_data.structured_data.seat_type',
             'extracted_data.structured_data.seatType', 
             'extracted_data.seatType', 
@@ -237,7 +321,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Hash,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.seatNumber',
+            'extracted_data.processed_fields.seat_number',
+            'extracted_data.original_ocr_fields.seat_number',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.seatNumber',
             'extracted_data.structured_data.seat_number',
             'extracted_data.structured_data.seatNumber', 
             'extracted_data.seatNumber', 
@@ -259,7 +345,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: User,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.passengerName',
+            'extracted_data.processed_fields.passenger_name',
+            'extracted_data.original_ocr_fields.passenger_name',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.passengerName',
             'extracted_data.structured_data.passenger_name',
             'extracted_data.structured_data.passengerName', 
             'extracted_data.passengerName', 
@@ -273,7 +361,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: CreditCard,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.passengerInfo',
+            'extracted_data.processed_fields.passenger_info',
+            'extracted_data.original_ocr_fields.passenger_info',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.passengerInfo',
             'extracted_data.structured_data.passenger_info',
             'extracted_data.structured_data.passengerInfo', 
             'extracted_data.passengerInfo', 
@@ -295,7 +385,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: Hash,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.ticketNumber',
+            'extracted_data.processed_fields.invoice_number',
+            'extracted_data.original_ocr_fields.invoice_number',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.ticketNumber',
             'extracted_data.structured_data.ticket_number',
             'extracted_data.structured_data.ticketNumber', 
             'extracted_data.ticketNumber', 
@@ -309,7 +401,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: FileText,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.electronicTicketNumber',
+            'extracted_data.processed_fields.electronic_ticket_number',
+            'extracted_data.original_ocr_fields.electronic_ticket_number',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.electronicTicketNumber',
             'extracted_data.structured_data.electronic_ticket_number',
             'extracted_data.structured_data.electronicTicketNumber', 
             'extracted_data.electronicTicketNumber', 
@@ -322,16 +416,14 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'date',
           icon: Calendar,
           required: true,
-          valuePaths: ['extracted_data.structured_data.invoiceDate', 'extracted_data.invoiceDate', 'extracted_data.invoice_date', 'invoice_date']
-        },
-        {
-          key: 'consumption_date',
-          label: '发车日期',
-          type: 'date',
-          icon: Calendar,
-          required: false,
-          valuePaths: ['consumption_date'],
-          description: '实际发车日期'
+          valuePaths: [
+            'extracted_data.processed_fields.invoice_date',
+            'extracted_data.original_ocr_fields.invoice_date',
+            'extracted_data.structured_data.invoiceDate', 
+            'extracted_data.invoiceDate', 
+            'extracted_data.invoice_date', 
+            'invoice_date'
+          ]
         },
         {
           key: 'fare',
@@ -340,7 +432,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: DollarSign,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.fare',
+            'extracted_data.processed_fields.total_amount',
+            'extracted_data.original_ocr_fields.total_amount',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.fare',
             'extracted_data.structured_data.total_amount',
             'extracted_data.structured_data.fare', 
             'total_amount', 
@@ -366,7 +460,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           icon: Building2,
           required: true,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.buyerName',
+            'extracted_data.processed_fields.buyer_name',
+            'extracted_data.original_ocr_fields.buyer_name',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.buyerName',
             'extracted_data.structured_data.buyer_name',
             'extracted_data.structured_data.buyerName', 
             'extracted_data.buyerName', 
@@ -379,7 +475,9 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'text',
           icon: Hash,
           valuePaths: [
-            'extracted_data.raw_result.Data.subMsgs.0.result.data.buyerCreditCode',
+            'extracted_data.processed_fields.buyer_tax_number',
+            'extracted_data.original_ocr_fields.buyer_tax_number',
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.buyerCreditCode',
             'extracted_data.structured_data.buyer_credit_code',
             'extracted_data.structured_data.buyerCreditCode', 
             'extracted_data.buyerCreditCode', 
@@ -407,6 +505,329 @@ const trainTicketConfig: InvoiceTypeConfig = {
           type: 'readonly',
           icon: Info,
           valuePaths: ['extracted_data.structured_data.isCopy', 'extracted_data.isCopy']
+        }
+      ]
+    }
+  ]
+};
+
+// 机票字段配置
+const flightTicketConfig: InvoiceTypeConfig = {
+  type: 'flight_ticket',
+  displayName: '机票',
+  matcher: (invoice: Invoice) => {
+    return (
+      invoice.seller_name?.includes('航空') ||
+      invoice.seller_name?.includes('airline') ||
+      invoice.extracted_data?.structured_data?.invoice_type?.includes('机票') ||
+      invoice.extracted_data?.structured_data?.remarks?.includes('航班') ||
+      invoice.invoice_type?.includes('机票') ||
+      invoice.invoice_type?.includes('航空') ||
+      // 根据 remarks 字段中的航班信息识别
+      invoice.extracted_data?.processed_fields?.remarks?.includes('航班号') ||
+      invoice.extracted_data?.original_ocr_fields?.remarks?.includes('航班号') ||
+      invoice.extracted_data?.structured_data?.remarks?.includes('航班号')
+    );
+  },
+  groups: [
+    {
+      key: 'flight_info',
+      title: '航班信息',
+      icon: Plane,
+      fields: [
+        {
+          key: 'flight_number',
+          label: '航班号',
+          type: 'text',
+          icon: Plane,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.flight_number',
+            'extracted_data.original_ocr_fields.flight_number',
+            'extracted_data.structured_data.flight_number',
+            'flight_details.flight_number',
+            // 从 remarks 中提取航班号
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks'
+          ],
+          description: '从航班信息中提取航班号'
+        },
+        {
+          key: 'departure_airport',
+          label: '出发机场',
+          type: 'text',
+          icon: Navigation,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.departure_airport',
+            'extracted_data.original_ocr_fields.departure_airport',
+            'extracted_data.structured_data.departure_airport',
+            'flight_details.departure_airport',
+            // 从 remarks 中提取出发地
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks'
+          ],
+          description: '从行程信息中提取出发机场'
+        },
+        {
+          key: 'arrival_airport',
+          label: '到达机场',
+          type: 'text',
+          icon: Navigation,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.arrival_airport',
+            'extracted_data.original_ocr_fields.arrival_airport',
+            'extracted_data.structured_data.arrival_airport',
+            'flight_details.arrival_airport',
+            // 从 remarks 中提取到达地
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks'
+          ],
+          description: '从行程信息中提取到达机场'
+        },
+        {
+          key: 'flight_date',
+          label: '航班日期',
+          type: 'date',
+          icon: Calendar,
+          required: true,
+          valuePaths: [
+            'consumption_date',
+            'extracted_data.processed_fields.flight_date',
+            'extracted_data.original_ocr_fields.flight_date',
+            'extracted_data.structured_data.flight_date',
+            'flight_details.departure_time',
+            // 从 remarks 中提取日期
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks'
+          ],
+          description: '实际航班起飞日期（消费日期）'
+        },
+        {
+          key: 'flight_time',
+          label: '起飞时间',
+          type: 'text',
+          icon: Clock,
+          valuePaths: [
+            'extracted_data.processed_fields.departure_time',
+            'extracted_data.original_ocr_fields.departure_time',
+            'extracted_data.structured_data.departure_time',
+            'flight_details.departure_time',
+            // 从 remarks 中提取时间
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks'
+          ],
+          description: '从行程信息中提取起飞时间'
+        },
+        {
+          key: 'cabin_class',
+          label: '舱位等级',
+          type: 'text',
+          icon: Ticket,
+          valuePaths: [
+            'extracted_data.processed_fields.cabin_class',
+            'extracted_data.original_ocr_fields.cabin_class',
+            'extracted_data.structured_data.cabin_class',
+            'flight_details.cabin_class'
+          ],
+          placeholder: '经济舱/商务舱/头等舱'
+        },
+        {
+          key: 'seat_number',
+          label: '座位号',
+          type: 'text',
+          icon: Hash,
+          valuePaths: [
+            'extracted_data.processed_fields.seat_number',
+            'extracted_data.original_ocr_fields.seat_number',
+            'extracted_data.structured_data.seat_number',
+            'flight_details.seat_number'
+          ]
+        }
+      ]
+    },
+    {
+      key: 'passenger_info',
+      title: '乘客信息',
+      icon: User,
+      fields: [
+        {
+          key: 'passenger_name',
+          label: '乘客姓名',
+          type: 'text',
+          icon: User,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.passenger_name',
+            'extracted_data.original_ocr_fields.passenger_name',
+            'extracted_data.structured_data.passenger_name',
+            'flight_details.passenger_name',
+            // 从 remarks 中提取乘客信息
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks',
+            'buyer_name'
+          ],
+          description: '从乘客信息中提取姓名'
+        },
+        {
+          key: 'passenger_id',
+          label: '证件号码',
+          type: 'text',
+          icon: CreditCard,
+          valuePaths: [
+            'extracted_data.processed_fields.passenger_id',
+            'extracted_data.original_ocr_fields.passenger_id',
+            'extracted_data.structured_data.passenger_id',
+            'flight_details.passenger_id'
+          ]
+        }
+      ]
+    },
+    {
+      key: 'ticket_info',
+      title: '票据信息',
+      icon: FileText,
+      fields: [
+        {
+          key: 'ticket_number',
+          label: '电子客票号',
+          type: 'text',
+          icon: Hash,
+          valuePaths: [
+            'extracted_data.processed_fields.ticket_number',
+            'extracted_data.original_ocr_fields.ticket_number',
+            'extracted_data.structured_data.ticket_number',
+            'flight_details.ticket_number',
+            'invoice_number'
+          ]
+        },
+        {
+          key: 'invoice_date',
+          label: '开票日期',
+          type: 'date',
+          icon: Calendar,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.invoice_date',
+            'extracted_data.original_ocr_fields.invoice_date',
+            'extracted_data.structured_data.invoice_date',
+            'invoice_date'
+          ]
+        },
+        {
+          key: 'ticket_price',
+          label: '票价',
+          type: 'currency',
+          icon: DollarSign,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.total_amount',
+            'extracted_data.original_ocr_fields.total_amount',
+            'extracted_data.structured_data.total_amount',
+            'flight_details.ticket_price',
+            'total_amount'
+          ],
+          validation: {
+            min: 0,
+            message: '票价必须大于0'
+          }
+        }
+      ]
+    },
+    {
+      key: 'service_info',
+      title: '服务信息',
+      icon: Building2,
+      fields: [
+        {
+          key: 'airline',
+          label: '航空公司',
+          type: 'text',
+          icon: Building2,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.airline',
+            'extracted_data.original_ocr_fields.airline',
+            'extracted_data.structured_data.airline',
+            'flight_details.airline',
+            'seller_name'
+          ]
+        },
+        {
+          key: 'service_type',
+          label: '服务类型',
+          type: 'readonly',
+          icon: Info,
+          valuePaths: [
+            'extracted_data.processed_fields.invoicedetails',
+            'extracted_data.original_ocr_fields.invoicedetails',
+            'extracted_data.structured_data.service_type'
+          ],
+          description: '代订机票费/退票费等服务类型'
+        }
+      ]
+    },
+    {
+      key: 'buyer_info',
+      title: '购买方信息',
+      icon: Building2,
+      fields: [
+        {
+          key: 'buyer_name',
+          label: '购买方名称',
+          type: 'text',
+          icon: Building2,
+          required: true,
+          valuePaths: [
+            'extracted_data.processed_fields.buyer_name',
+            'extracted_data.original_ocr_fields.buyer_name',
+            'extracted_data.structured_data.buyer_name',
+            'buyer_name'
+          ]
+        },
+        {
+          key: 'buyer_tax_number',
+          label: '统一社会信用代码',
+          type: 'text',
+          icon: Hash,
+          valuePaths: [
+            'extracted_data.processed_fields.buyer_tax_number',
+            'extracted_data.original_ocr_fields.buyer_tax_number',
+            'extracted_data.structured_data.buyer_tax_number',
+            'buyer_tax_number'
+          ]
+        }
+      ]
+    },
+    {
+      key: 'other_info',
+      title: '其他信息',
+      icon: Info,
+      fields: [
+        {
+          key: 'travel_info',
+          label: '行程信息',
+          type: 'readonly',
+          icon: Info,
+          valuePaths: [
+            'extracted_data.processed_fields.remarks',
+            'extracted_data.original_ocr_fields.remarks',
+            'extracted_data.structured_data.remarks',
+            'remarks'
+          ],
+          description: '完整的行程信息，包含日期、时间、航班号、乘客信息'
+        },
+        {
+          key: 'drawer',
+          label: '开票人',
+          type: 'readonly',
+          icon: User,
+          valuePaths: [
+            'extracted_data.processed_fields.drawer',
+            'extracted_data.original_ocr_fields.drawer',
+            'extracted_data.structured_data.drawer'
+          ]
         }
       ]
     }
@@ -456,7 +877,14 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           label: '发票类型',
           type: 'readonly',
           icon: FileText,
-          valuePaths: ['extracted_data.structured_data.invoiceType', 'extracted_data.invoiceType', 'invoice_type']
+          valuePaths: [
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.invoiceType',
+            'extracted_data.processed_fields.invoicetype',
+            'extracted_data.original_ocr_fields.invoicetype',
+            'extracted_data.structured_data.invoiceType', 
+            'extracted_data.invoiceType', 
+            'invoice_type'
+          ]
         },
         {
           key: 'invoice_date',
@@ -550,7 +978,18 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           type: 'currency',
           icon: DollarSign,
           required: true,
-          valuePaths: ['extracted_data.structured_data.totalAmount', 'extracted_data.totalAmount', 'extracted_data.total_amount', 'total_amount'],
+          valuePaths: [
+            'extracted_data.total_amount',  // 前端临时编辑时的路径
+            'fields.total_amount',  // 前端OCR数据中fields对象的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.totalAmount',
+            'extracted_data.processed_fields.total_amount',
+            'extracted_data.original_ocr_fields.total_amount',
+            'extracted_data.structured_data.fields.total_amount',
+            'extracted_data.fields.total_amount',
+            'extracted_data.structured_data.totalAmount', 
+            'extracted_data.totalAmount',
+            'total_amount'
+          ],
           validation: {
             min: 0.01,
             max: 9999999.99,
@@ -562,21 +1001,64 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           label: '不含税金额',
           type: 'currency',
           icon: DollarSign,
-          valuePaths: ['invoice_amount_pre_tax', 'amount_without_tax', 'extracted_data.invoice_amount_pre_tax', 'extracted_data.structured_data.invoice_amount_pre_tax', 'extracted_data.structured_data.invoiceAmountPreTax', 'extracted_data.invoiceAmountPreTax', 'extracted_data.amount_without_tax']
+          valuePaths: [
+            'extracted_data.amount_without_tax',  // 前端临时编辑时的路径
+            'fields.amount_without_tax',  // 前端OCR数据中fields对象的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.invoiceAmountPreTax',
+            'extracted_data.processed_fields.amount_without_tax',
+            'extracted_data.original_ocr_fields.amount_without_tax',
+            'extracted_data.structured_data.fields.amount_without_tax', 
+            'extracted_data.fields.amount_without_tax',
+            'invoice_amount_pre_tax', 
+            'amount_without_tax', 
+            'extracted_data.invoice_amount_pre_tax', 
+            'extracted_data.structured_data.invoice_amount_pre_tax', 
+            'extracted_data.structured_data.invoiceAmountPreTax', 
+            'extracted_data.invoiceAmountPreTax'
+          ]
         },
         {
           key: 'tax_amount',
           label: '税额',
           type: 'currency',
           icon: DollarSign,
-          valuePaths: ['invoice_tax', 'tax_amount', 'extracted_data.invoice_tax', 'extracted_data.structured_data.invoice_tax', 'extracted_data.structured_data.invoiceTax', 'extracted_data.invoiceTax', 'extracted_data.tax_amount']
+          valuePaths: [
+            'extracted_data.tax_amount',  // 前端临时编辑时的路径
+            'fields.tax_amount',  // 前端OCR数据中fields对象的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.invoiceTax',
+            'extracted_data.processed_fields.tax_amount',
+            'extracted_data.original_ocr_fields.tax_amount',
+            'extracted_data.structured_data.fields.tax_amount', 
+            'extracted_data.fields.tax_amount',
+            'invoice_tax', 
+            'tax_amount', 
+            'extracted_data.invoice_tax', 
+            'extracted_data.structured_data.invoice_tax', 
+            'extracted_data.structured_data.invoiceTax', 
+            'extracted_data.invoiceTax'
+          ]
         },
         {
           key: 'total_amount_in_words',
           label: '价税合计（大写）',
           type: 'readonly',
           icon: Info,
-          valuePaths: ['extracted_data.structured_data.totalAmountInWords', 'extracted_data.totalAmountInWords']
+          valuePaths: [
+            'fields.total_amount_chinese',  // 前端OCR数据中的路径
+            'fields.total_amount_in_words',  // 前端OCR数据中的路径  
+            'fields.totalamountinwords',  // 前端OCR数据中的路径(备选)
+            'extracted_data.total_amount_chinese',  // 前端临时编辑时的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.totalAmountInWords',
+            'extracted_data.processed_fields.totalamountinwords',
+            'extracted_data.original_ocr_fields.totalamountinwords',
+            'extracted_data.structured_data.fields.total_amount_in_words',
+            'extracted_data.structured_data.fields.total_amount_chinese',
+            'extracted_data.fields.total_amount_in_words',
+            'extracted_data.fields.total_amount_chinese',
+            'extracted_data.structured_data.totalAmountInWords', 
+            'extracted_data.totalAmountInWords',
+            'total_amount_chinese'
+          ]
         },
         {
           key: 'password_area',
@@ -670,21 +1152,29 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
       showWhen: (invoice) => {
         // 使用与字段valuePaths相同的检查逻辑
         const details = 
+          (invoice as any).fields?.invoice_details ||  // 前端OCR数据中fields对象的路径
+          (invoice as any).fields?.invoicedetails ||  // 前端OCR数据中fields对象的路径(备选名称)
+          invoice.extracted_data?.invoice_details ||  // 前端临时编辑时的路径
+          invoice.extracted_data?.raw_ocr_data?.subMsgs?.[0]?.result?.data?.invoiceDetails ||
+          invoice.extracted_data?.processed_fields?.invoicedetails ||
+          invoice.extracted_data?.original_ocr_fields?.invoicedetails ||
           invoice.extracted_data?.raw_result?.Data?.subMsgs?.[0]?.result?.data?.invoiceDetails ||
           invoice.extracted_data?.structured_data?.invoice_details || 
-          invoice.extracted_data?.invoice_details || 
           invoice.extracted_data?.structured_data?.invoiceDetails || 
           invoice.invoice_details;
         
         console.log('🔍 [details_info showWhen] 检查商品明细分组显示条件:', {
           invoice_type: invoice.invoice_type,
           details,
+          detailsType: typeof details,
           isArray: Array.isArray(details),
+          isString: typeof details === 'string',
           length: Array.isArray(details) ? details.length : 'N/A',
-          shouldShow: Array.isArray(details) && details.length > 0
+          shouldShow: Array.isArray(details) ? details.length > 0 : (typeof details === 'string' && details.length > 0)
         });
         
-        return Array.isArray(details) && details.length > 0;
+        // 支持数组格式和字符串格式的明细数据
+        return Array.isArray(details) ? details.length > 0 : (typeof details === 'string' && details.length > 0);
       },
       fields: [
         {
@@ -693,9 +1183,16 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           type: 'readonly',
           icon: Package,
           valuePaths: [
+            'fields.invoice_details',  // 前端OCR数据中fields对象的路径
+            'fields.invoicedetails',  // 前端OCR数据中fields对象的路径(备选名称)
+            'extracted_data.invoice_details',  // 前端临时编辑时的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.invoiceDetails',
+            'extracted_data.processed_fields.invoicedetails',
+            'extracted_data.original_ocr_fields.invoicedetails',
+            'extracted_data.structured_data.fields.invoice_details',
+            'extracted_data.fields.invoice_details',
             'extracted_data.raw_result.Data.subMsgs.0.result.data.invoiceDetails',
             'extracted_data.structured_data.invoice_details',
-            'extracted_data.invoice_details',
             'extracted_data.structured_data.invoiceDetails',
             'invoice_details'
           ],
@@ -721,14 +1218,32 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           label: '开票人',
           type: 'readonly',
           icon: User,
-          valuePaths: ['extracted_data.structured_data.drawer', 'extracted_data.drawer']
+          valuePaths: [
+            'fields.drawer',  // 前端OCR数据中fields对象的路径
+            'extracted_data.drawer',  // 前端临时编辑时的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.drawer',
+            'extracted_data.processed_fields.drawer',
+            'extracted_data.original_ocr_fields.drawer',
+            'extracted_data.structured_data.fields.drawer', 
+            'extracted_data.fields.drawer',
+            'extracted_data.structured_data.drawer'
+          ]
         },
         {
           key: 'reviewer',
           label: '审核人',
           type: 'readonly',
           icon: User,
-          valuePaths: ['extracted_data.structured_data.reviewer', 'extracted_data.reviewer']
+          valuePaths: [
+            'extracted_data.reviewer',  // 前端临时编辑时的路径
+            'fields.reviewer',  // 前端OCR数据中fields对象的路径
+            'extracted_data.raw_ocr_data.subMsgs.0.result.data.reviewer',
+            'extracted_data.processed_fields.reviewer',
+            'extracted_data.original_ocr_fields.reviewer',
+            'extracted_data.structured_data.fields.reviewer', 
+            'extracted_data.fields.reviewer',
+            'extracted_data.structured_data.reviewer'
+          ]
         },
         {
           key: 'recipient',
@@ -759,6 +1274,7 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
 // 导出所有配置
 export const invoiceTypeConfigs: InvoiceTypeConfig[] = [
   trainTicketConfig,
+  flightTicketConfig,
   vatInvoiceConfig
 ];
 

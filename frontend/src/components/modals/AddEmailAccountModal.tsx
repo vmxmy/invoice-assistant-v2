@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useCreateEmailAccount, useDetectImapConfig } from '../../hooks/useEmailAccounts'
+import { useCreateEmailAccount } from '../../hooks/useEmailAccounts'
 import { EmailAccountCreate, ImapConfig } from '../../types/email'
 import LoadingButton from '../ui/LoadingButton'
 
@@ -36,7 +36,6 @@ const AddEmailAccountModal: React.FC<AddEmailAccountModalProps> = ({
   const [autoDetectError, setAutoDetectError] = useState<string | null>(null)
 
   const createMutation = useCreateEmailAccount()
-  const detectConfigMutation = useDetectImapConfig()
 
   // 重置表单
   const resetForm = () => {
@@ -66,13 +65,68 @@ const AddEmailAccountModal: React.FC<AddEmailAccountModalProps> = ({
     if (formData.email_address && !showAdvanced) {
       try {
         setAutoDetectError(null)
-        const config = await detectConfigMutation.mutateAsync(formData.email_address)
+        
+        // 简化的邮箱配置自动检测逻辑
+        const email = formData.email_address.toLowerCase()
+        let config: Partial<ImapConfig> = {}
+        
+        if (email.includes('@gmail.com')) {
+          config = {
+            imap_host: 'imap.gmail.com',
+            imap_port: 993,
+            imap_use_ssl: true,
+            smtp_host: 'smtp.gmail.com',
+            smtp_port: 587,
+            smtp_use_tls: true
+          }
+        } else if (email.includes('@qq.com')) {
+          config = {
+            imap_host: 'imap.qq.com',
+            imap_port: 993,
+            imap_use_ssl: true,
+            smtp_host: 'smtp.qq.com',
+            smtp_port: 587,
+            smtp_use_tls: true
+          }
+        } else if (email.includes('@163.com')) {
+          config = {
+            imap_host: 'imap.163.com',
+            imap_port: 993,
+            imap_use_ssl: true,
+            smtp_host: 'smtp.163.com',
+            smtp_port: 465,
+            smtp_use_tls: true
+          }
+        } else if (email.includes('@126.com')) {
+          config = {
+            imap_host: 'imap.126.com',
+            imap_port: 993,
+            imap_use_ssl: true,
+            smtp_host: 'smtp.126.com',
+            smtp_port: 465,
+            smtp_use_tls: true
+          }
+        } else if (email.includes('@outlook.com') || email.includes('@hotmail.com')) {
+          config = {
+            imap_host: 'outlook.office365.com',
+            imap_port: 993,
+            imap_use_ssl: true,
+            smtp_host: 'smtp-mail.outlook.com',
+            smtp_port: 587,
+            smtp_use_tls: true
+          }
+        } else {
+          // 未知邮箱服务商，显示手动配置
+          setAutoDetectError('无法自动检测邮箱配置，请手动配置')
+          setShowAdvanced(true)
+          return
+        }
         
         setFormData(prev => ({
           ...prev,
-          imap_host: config.imap_host,
-          imap_port: config.imap_port,
-          imap_use_ssl: config.imap_use_ssl,
+          imap_host: config.imap_host || '',
+          imap_port: config.imap_port || 993,
+          imap_use_ssl: config.imap_use_ssl ?? true,
           smtp_host: config.smtp_host || '',
           smtp_port: config.smtp_port || 587,
           smtp_use_tls: config.smtp_use_tls ?? true
