@@ -1,13 +1,10 @@
-// Dashboard 组件 - 主页面
+// Dashboard 组件 - 主页面（使用新的C端优化界面）
 import React from 'react'
-import { DashboardMain } from './dashboard/DashboardMain'
-import Layout from './layout/Layout'
+import NewInvoiceCentricDashboard from './dashboard/NewInvoiceCentricDashboard'
 
 const Dashboard: React.FC = () => {
   return (
-    <Layout>
-      <DashboardMain />
-    </Layout>
+    <NewInvoiceCentricDashboard />
   )
 }
 

@@ -1,0 +1,37 @@
+# 核心依赖
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Supabase 客户端
+supabase==2.3.4
+httpx==0.25.2
+
+# 认证
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# 文件处理
+aiofiles==23.2.1
+python-multipart==0.0.6
+PyMuPDF==1.23.8
+
+# 工具库
+email-validator==2.1.0
+python-dateutil==2.8.2
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# OCR 相关
+alibabacloud_ocr_api20210707==1.0.1
+alibabacloud_tea_openapi==0.3.9
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# 生产部署
+gunicorn==21.2.0
