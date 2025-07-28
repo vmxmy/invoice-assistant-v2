@@ -194,7 +194,7 @@ const NewInvoiceCentricDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen">
       {/* 页面头部 - 简化版 */}
       <div className="bg-base-100 border-b border-base-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -212,7 +212,7 @@ const NewInvoiceCentricDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 bg-base-200">
         {/* 智能搜索栏 */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body p-4">
