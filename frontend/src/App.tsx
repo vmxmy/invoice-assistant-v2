@@ -9,6 +9,8 @@ import SignUp from './components/auth/SignUp'
 import SignIn from './components/auth/SignIn'
 import Dashboard from './components/Dashboard'
 import SetupProfile from './components/SetupProfile'
+import { DashboardMain } from './components/dashboard/DashboardMain'
+import Layout from './components/layout/Layout'
 import InvoiceListPage from './pages/InvoiceListPage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import EmailAccountsPage from './pages/EmailAccountsPage'
@@ -59,6 +61,16 @@ function App() {
               element={
                 <ProtectedRoute requireProfile={true}>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analytics" 
+              element={
+                <ProtectedRoute requireProfile={true}>
+                  <Layout>
+                    <DashboardMain />
+                  </Layout>
                 </ProtectedRoute>
               } 
             />

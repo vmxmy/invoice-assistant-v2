@@ -313,9 +313,9 @@ const NewInvoiceCentricDashboard: React.FC = () => {
                   />
                   <QuickActionCard
                     title="数据分析"
-                    description="查看统计报告"
+                    description="查看详细图表分析"
                     icon={BarChart3}
-                    onClick={() => navigate('/invoices', { state: { showAnalysis: true } })}
+                    onClick={() => navigate('/analytics')}
                     variant="info"
                   />
                 </div>
