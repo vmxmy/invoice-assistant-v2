@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -31,6 +32,8 @@ import InvoiceListView from '../components/invoice/cards/InvoiceListView';
 import InvoiceTableView from '../components/invoice/table/InvoiceTableView';
 import { useExport } from '../hooks/useExport';
 import DownloadProgressModal from '../components/ui/DownloadProgressModal';
+import EnhancedSearchBar from '../components/invoice/search/EnhancedSearchBar';
+import InvoiceQuickView from '../components/invoice/view/InvoiceQuickView';
 import type { Invoice as InvoiceType } from '../types/table';
 
 // 视图模式枚举
@@ -72,6 +75,7 @@ interface InvoiceListResponse {
 }
 
 const InvoiceListPage: React.FC = () => {
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms 防抖
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,10 +83,51 @@ const InvoiceListPage: React.FC = () => {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TABLE); // 新增：控制视图模式
   const [isMobile, setIsMobile] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   
   // 高级搜索状态
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  
+  // 处理来自路由状态的参数
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.searchQuery) {
+      setSearchQuery(state.searchQuery);
+    }
+    if (state?.searchFilters) {
+      setSearchFilters(state.searchFilters);
+    }
+    if (state?.showAdvancedSearch) {
+      setIsAdvancedSearchOpen(true);
+    }
+    if (state?.viewInvoiceId) {
+      setSelectedInvoiceId(state.viewInvoiceId);
+      setIsQuickViewOpen(true);
+    }
+    if (state?.editInvoiceId) {
+      setSelectedInvoiceId(state.editInvoiceId);
+      setModalMode('edit');
+      setIsModalOpen(true);
+    }
+    // 清除路由状态避免重复处理
+    if (state) {
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
+  
+  // 加载最近搜索记录
+  useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved).slice(0, 5));
+      } catch (e) {
+        console.warn('Failed to parse recent searches:', e);
+      }
+    }
+  }, []);
   
   // 统一模态框状态
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);

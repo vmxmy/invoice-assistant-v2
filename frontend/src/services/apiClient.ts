@@ -13,6 +13,55 @@ const apiClient = axios.create({
   },
 })
 
+// 创建专门用于 OCR 的 Axios 实例（更长的超时时间）
+const ocrClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8090',
+  timeout: 60000, // OCR 需要 60 秒超时
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+})
+
+// 为 OCR 客户端添加请求拦截器
+ocrClient.interceptors.request.use(
+  async (config) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.access_token) {
+        config.headers.Authorization = `Bearer ${session.access_token}`
+      }
+      logger.log('🔍 OCR Request:', config.method?.toUpperCase(), config.url)
+      return config
+    } catch (error) {
+      logger.error('❌ OCR 获取认证token失败:', error)
+      return config
+    }
+  },
+  (error) => {
+    logger.error('❌ OCR 请求拦截器错误:', error)
+    return Promise.reject(error)
+  }
+)
+
+// OCR 响应拦截器
+ocrClient.interceptors.response.use(
+  (response) => {
+    logger.log('✅ OCR Response:', response.status, '耗时:', response.config.metadata?.endTime - response.config.metadata?.startTime, 'ms')
+    return response
+  },
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      logger.error('❌ OCR 请求超时，请检查文件大小或网络连接')
+      return Promise.reject({
+        ...error,
+        message: 'OCR 识别超时，请稍后重试或联系管理员'
+      })
+    }
+    logger.error('❌ OCR Error:', error)
+    return Promise.reject(error)
+  }
+)
+
 // 请求拦截器 - 自动添加 JWT Token
 apiClient.interceptors.request.use(
   async (config) => {
@@ -48,300 +97,170 @@ apiClient.interceptors.response.use(
     
     // 对OCR相关接口添加详细日志
     if (response.config.url?.includes('/ocr/')) {
-      logger.log('📊 OCR响应详情:', {
-        url: response.config.url,
-        status: response.status,
-        success: response.data?.success,
-        invoice_type: response.data?.invoice_type,
-        fields_count: response.data?.fields ? Object.keys(response.data.fields).length : 0,
-        fields: response.data?.fields ? Object.keys(response.data.fields) : [],
-        has_raw_ocr: !!response.data?.raw_ocr_data,
-        has_validation: !!response.data?.validation,
-        has_confidence: !!response.data?.confidence,
-        processing_time: response.data?.processing_time
+      logger.log('📊 OCR响应数据结构:', {
+        原始格式: originalData,
+        转换后格式: response.data,
+        字段映射: {
+          'code -> invoice_code': originalData.code,
+          'number -> invoice_number': originalData.number,
+          'total -> total_amount': originalData.total,
+          'seller -> seller_name': originalData.seller
+        }
       })
     }
     
     return response
   },
-  async (error) => {
-    const originalRequest = error.config
-    
-    logger.error('❌ API Error:', error.response?.status, JSON.stringify(error.response?.data, null, 2))
-    
-    // 处理 401 未授权错误
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+  (error) => {
+    // 统一错误处理
+    if (error.response) {
+      // 服务器返回错误响应
+      logger.error('❌ API Error Response:', error.response.status, error.response.data)
       
-      try {
-        // 尝试刷新 token
-        const { error: refreshError } = await supabase.auth.refreshSession()
-        
-        if (!refreshError) {
-          // Token 刷新成功，重试原请求
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.access_token) {
-            originalRequest.headers.Authorization = `Bearer ${session.access_token}`
-            return apiClient(originalRequest)
-          }
-        }
-      } catch (refreshError) {
-        logger.error('❌ Token刷新失败:', refreshError)
+      const errorMessage = extractErrorMessage(error.response.data)
+      
+      // 特殊处理401错误
+      if (error.response.status === 401) {
+        logger.warn('🔑 认证失败，需要重新登录')
+        // 可以在这里触发重新登录逻辑
       }
       
-      // Token 刷新失败，重定向到登录页
-      window.location.href = '/login'
-      return Promise.reject(error)
+      return Promise.reject({
+        status: error.response.status,
+        message: errorMessage,
+        data: error.response.data
+      })
+    } else if (error.request) {
+      // 请求已发送但没有收到响应
+      logger.error('❌ No Response:', error.request)
+      return Promise.reject({
+        message: '网络错误，请检查网络连接',
+        code: error.code
+      })
+    } else {
+      // 请求配置出错
+      logger.error('❌ Request Error:', error.message)
+      return Promise.reject({
+        message: error.message || '请求失败',
+        code: error.code
+      })
     }
-    
-    // 处理其他错误 - 使用统一错误提取器
-    const errorMessage = extractErrorMessage(error.response?.data) || 
-                        error.message || 
-                        '网络请求失败'
-    
-    return Promise.reject({
-      ...error,
-      message: errorMessage,
-      status: error.response?.status,
-      data: error.response?.data
-    })
   }
 )
 
 // API 接口定义
 export const api = {
-  // Profile 相关接口
-  profile: {
-    // 获取当前用户 Profile
-    getMe: () => apiClient.get('/api/v1/profiles/me'),
-    
-    // 创建用户 Profile
-    createMe: (data: { display_name: string; bio?: string }) => 
-      apiClient.post('/api/v1/profiles/me', data),
-    
-    // 更新用户 Profile
-    updateMe: (data: Partial<{ display_name: string; bio: string; avatar_url: string }>) => 
-      apiClient.put('/api/v1/profiles/me', data),
-  },
-  
-  // Invoice 相关接口
+  // 发票相关接口
   invoices: {
-    // 获取发票列表
-    list: (params?: { 
-      page?: number; 
-      page_size?: number; 
-      seller_name?: string; 
-      buyer_name?: string;
-      invoice_number?: string;
-      amountMin?: number;
-      amountMax?: number;
-      dateFrom?: string;
-      dateTo?: string;
-      status?: string[];
-      source?: string[];
-    }) => apiClient.get('/api/v1/invoices/', { params }),
-    
-    // 获取单个发票
+    list: (params?: any) => apiClient.get('/api/v1/invoices', { params }),
     get: (id: string) => apiClient.get(`/api/v1/invoices/${id}`),
-    
-    // create 方法已删除 - 使用 createWithFile 替代
-    
-    // 创建发票（含文件和OCR数据）
-    createWithFile: (data: FormData) => apiClient.post('/api/v1/invoices/create-with-file', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
-    
-    // 更新发票
+    create: (data: any) => apiClient.post('/api/v1/invoices', data),
     update: (id: string, data: any) => apiClient.put(`/api/v1/invoices/${id}`, data),
-    
-    // 删除发票
     delete: (id: string) => apiClient.delete(`/api/v1/invoices/${id}`),
-    
-    // 获取发票统计
-    stats: () => apiClient.get('/api/v1/invoices/statistics'),
-    
-    // 导出相关接口
-    getDownloadUrl: (id: string, signal?: AbortSignal) => 
-      apiClient.get(`/api/v1/invoices/${id}/download`, { signal }),
-    
-    getBatchDownloadUrls: (data: { invoice_ids: string[] }, signal?: AbortSignal) => 
-      apiClient.post('/api/v1/invoices/batch-download', data, { 
-        signal,
-        timeout: 60000  // 批量操作使用60秒超时
-      }),
-  },
-  
-  // Task 相关接口
-  tasks: {
-    // 获取任务列表
-    list: (params?: { skip?: number; limit?: number; status?: string }) => 
-      apiClient.get('/api/v1/tasks/', { params }),
-    
-    // 获取单个任务
-    get: (id: string) => apiClient.get(`/api/v1/tasks/${id}`),
-    
-    // 创建任务
-    create: (data: { title: string; description?: string }) => 
-      apiClient.post('/api/v1/tasks/', data),
-    
-    // 更新任务
-    update: (id: string, data: any) => apiClient.put(`/api/v1/tasks/${id}`, data),
-    
-    // 删除任务
-    delete: (id: string) => apiClient.delete(`/api/v1/tasks/${id}`),
-  },
-  
-  // 认证相关接口
-  auth: {
-    // 验证 Token
-    verify: () => apiClient.get('/api/v1/auth/verify'),
-    
-    // 获取当前用户信息
-    me: () => apiClient.get('/api/v1/auth/me'),
-  },
-  
-  // OCR相关接口
-  ocr: {
-    // 完整OCR处理（包含识别、解析、验证）
-    full: (data: FormData) => apiClient.post('/api/v1/ocr/combined/full', data, {
+    batchDelete: (ids: string[]) => apiClient.post('/api/v1/invoices/batch-delete', { ids }),
+    download: (id: string) => apiClient.get(`/api/v1/invoices/${id}/download`, {
+      responseType: 'blob'
+    }),
+    batchDownload: (ids: string[]) => apiClient.post('/api/v1/invoices/batch-download', { ids }, {
+      responseType: 'blob'
+    }),
+    search: (params: any) => apiClient.post('/api/v1/invoices/search', params),
+    upload: (formData: FormData) => apiClient.post('/api/v1/invoices/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    
-    // 快速OCR处理（无验证）
-    quick: (data: FormData) => apiClient.post('/api/v1/ocr/combined/quick', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    listDetails: (params?: any) => apiClient.get('/api/v1/invoices/details', { params }),
+    // 新增：统计接口 
+    stats: {
+      overview: () => apiClient.get('/api/v1/invoices/stats/overview'),
+      monthly: () => apiClient.get('/api/v1/invoices/stats/monthly'),
+      category: () => apiClient.get('/api/v1/invoices/stats/category'),
+      type: () => apiClient.get('/api/v1/invoices/stats/type')
+    }
   },
-
+  
   // 邮箱账户相关接口
   emailAccounts: {
-    // 获取邮箱账户列表
-    list: (params?: { skip?: number; limit?: number; is_active?: boolean }) => 
-      apiClient.get('/api/v1/email-accounts', { params }),
-    
-    // 获取单个邮箱账户
+    list: () => apiClient.get('/api/v1/email-accounts'),
     get: (id: string) => apiClient.get(`/api/v1/email-accounts/${id}`),
-    
-    // 创建邮箱账户
     create: (data: any) => apiClient.post('/api/v1/email-accounts', data),
-    
-    // 更新邮箱账户
     update: (id: string, data: any) => apiClient.put(`/api/v1/email-accounts/${id}`, data),
-    
-    // 删除邮箱账户
     delete: (id: string) => apiClient.delete(`/api/v1/email-accounts/${id}`),
-    
-    // 测试邮箱连接
-    testConnection: (id: string, testData?: { password?: string }) => 
-      apiClient.post(`/api/v1/email-accounts/${id}/test`, testData || {}),
-    
-    // 重置同步状态
-    resetSync: (id: string) => apiClient.post(`/api/v1/email-accounts/${id}/reset-sync`),
-    
-    // 完全重置账户数据
-    resetAll: (id: string) => apiClient.post(`/api/v1/email-accounts/${id}/reset-all`),
-    
-    // 检测IMAP配置
-    detectConfig: (email: string) => 
-      apiClient.post('/api/v1/email-accounts/detect-config', { email_address: email }),
+    testConnection: (id: string) => apiClient.post(`/api/v1/email-accounts/${id}/test`),
+    // 扫描相关
+    scanInvoices: (id: string, params?: any) => apiClient.post(`/api/v1/email-accounts/${id}/scan`, params || {}),
+    getScanStatus: (taskId: string) => apiClient.get(`/api/v1/email-scan/tasks/${taskId}/status`),
+    getScanHistory: (id: string) => apiClient.get(`/api/v1/email-accounts/${id}/scan-history`),
   },
-
-  // 邮箱扫描相关接口
+  
+  // 邮件扫描接口 - 新增
   emailScan: {
-    // 创建扫描任务
-    createJob: (data: any) => apiClient.post('/api/v1/email-scan/jobs', data),
-    
-    // 获取扫描任务列表
-    listJobs: (params?: { skip?: number; limit?: number; status?: string }) => 
-      apiClient.get('/api/v1/email-scan/jobs', { params }),
-    
-    // 获取扫描任务详情
-    getJob: (jobId: string) => apiClient.get(`/api/v1/email-scan/jobs/${jobId}`),
-    
-    // 获取扫描进度
-    getProgress: (jobId: string) => apiClient.get(`/api/v1/email-scan/jobs/${jobId}/progress`),
-    
-    // 取消扫描任务
-    cancelJob: (jobId: string, force?: boolean) => 
-      apiClient.post(`/api/v1/email-scan/jobs/${jobId}/cancel`, { force: force || false }),
-    
-    // 重试扫描任务
-    retryJob: (jobId: string) => apiClient.post(`/api/v1/email-scan/jobs/${jobId}/retry`),
-    
-    // 删除扫描任务
-    deleteJob: (jobId: string) => apiClient.delete(`/api/v1/email-scan/jobs/${jobId}`),
-    
-    // 智能扫描
-    createSmartScan: (data: any) => apiClient.post('/api/v1/email-scan/jobs/smart-scan', data),
-  },
-  
-  // Config 相关接口
-  config: {
-    // 获取分类配置
-    getCategoryConfig: (category: string, params?: { environment: string }, headers?: Record<string, string>) =>
-      apiClient.get(`/config/categories/${category}`, { params, headers }),
-    
-    // 获取单个配置
-    getConfig: (category: string, key: string, params?: { environment: string }) =>
-      apiClient.get(`/config/categories/${category}/${key}`, { params }),
-    
-    // 更新配置
-    updateConfig: (category: string, key: string, data: { value: any; reason: string; environment: string }) =>
-      apiClient.put(`/config/categories/${category}/${key}`, data),
-    
-    // 获取发票类型
-    getInvoiceTypes: () => apiClient.get('/config/invoice-types'),
-    
-    // 获取指定发票类型配置
-    getInvoiceTypeConfig: (code: string) => apiClient.get(`/config/invoice-types/${code}`),
-    
-    // 获取功能开关
-    getFeatureFlags: () => apiClient.get('/config/feature-flags'),
-    
-    // 检查功能是否启用
-    getFeatureFlag: (featureName: string) => apiClient.get(`/config/feature-flags/${featureName}`),
-  },
-  
-  // Email Processing 相关接口
-  emailProcessing: {
-    // 批量处理邮件
-    batchProcess: (data: {
-      emails: Array<{
-        account_id: string;
-        uid: number;
-        subject: string;
-      }>;
-      auto_create_invoice: boolean;
-      continue_on_error: boolean;
-    }) => apiClient.post('/api/v1/email-processing/batch-process', data, {
-      timeout: 300000, // 5分钟超时，批量处理需要更长时间
+    // 启动扫描任务
+    start: (accountId: string, options?: any) => apiClient.post(`/api/v1/email-scan/start`, {
+      account_id: accountId,
+      ...options
     }),
-    
-    // 获取处理状态
-    getStatus: (jobId: string) => apiClient.get(`/api/v1/email-processing/processing-status/${jobId}`),
+    // 获取任务状态
+    status: (taskId: string) => apiClient.get(`/api/v1/email-scan/tasks/${taskId}/status`),
+    // 获取任务列表
+    tasks: (params?: any) => apiClient.get('/api/v1/email-scan/tasks', { params }),
+    // 获取任务详情 
+    task: (taskId: string) => apiClient.get(`/api/v1/email-scan/tasks/${taskId}`),
+    // 取消任务
+    cancel: (taskId: string) => apiClient.post(`/api/v1/email-scan/tasks/${taskId}/cancel`),
+    // 重试任务
+    retry: (taskId: string) => apiClient.post(`/api/v1/email-scan/tasks/${taskId}/retry`),
+    // 获取任务结果
+    results: (taskId: string) => apiClient.get(`/api/v1/email-scan/tasks/${taskId}/results`),
   },
-
-  // Monitoring 相关接口
+  
+  // OCR相关接口 - 使用专门的 OCR 客户端
+  ocr: {
+    // 完整OCR处理（包含识别、解析、验证）
+    full: (data: FormData) => {
+      // 添加时间戳用于计算耗时
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        metadata: { startTime: Date.now() }
+      };
+      
+      return ocrClient.post('/api/v1/ocr/combined/full', data, config).then(response => {
+        response.config.metadata.endTime = Date.now();
+        return response;
+      });
+    },
+    
+    // 快速OCR处理（无验证）
+    quick: (data: FormData) => ocrClient.post('/api/v1/ocr/combined/quick', data),
+    
+    // 仅识别文本
+    recognize: (data: FormData) => ocrClient.post('/api/v1/ocr/recognize', data),
+    
+    // 仅解析发票数据
+    parse: (data: { text: string; invoice_type?: string }) => apiClient.post('/api/v1/ocr/parse', data),
+    
+    // 分析发票类型
+    analyzeType: (data: FormData) => ocrClient.post('/api/v1/ocr/analyze-type', data),
+  },
+  
+  // 监控相关接口 - 新增
   monitoring: {
-    // 获取性能报告
-    getPerformanceReport: () => apiClient.get('/api/v1/monitoring/performance-report'),
-    
-    // 获取健康检查
-    getHealthCheck: () => apiClient.get('/api/v1/monitoring/health-check'),
-    
-    // 获取回归警告
-    getRegressionAlerts: () => apiClient.get('/api/v1/monitoring/regression-alerts'),
-    
-    // 获取查询统计
-    getQueryStats: () => apiClient.get('/api/v1/monitoring/query-stats'),
-    
-    // 获取慢查询
-    getSlowQueries: () => apiClient.get('/api/v1/monitoring/slow-queries'),
-    
-    // 重置监控
-    resetMonitoring: () => apiClient.post('/api/v1/monitoring/reset'),
+    // 健康检查
+    getHealthCheck: () => apiClient.get('/api/v1/monitoring/health'),
+    // 性能报告
+    getPerformanceReport: () => apiClient.get('/api/v1/monitoring/performance'),
+    // 回归检查
+    getRegressionCheck: () => apiClient.get('/api/v1/monitoring/regression'),
+    // 系统日志
+    getLogs: (params?: any) => apiClient.get('/api/v1/monitoring/logs', { params }),
+    // 指标统计
+    getMetrics: () => apiClient.get('/api/v1/monitoring/metrics'),
+  },
+  
+  // 配置相关接口
+  config: {
+    getFieldsConfig: () => apiClient.get('/api/v1/config/fields'),
+    updateFieldsConfig: (data: any) => apiClient.put('/api/v1/config/fields', data),
   }
 }
 
-// 不再导出 apiClient，只导出 api 对象
-// export default apiClient
+export default apiClient
