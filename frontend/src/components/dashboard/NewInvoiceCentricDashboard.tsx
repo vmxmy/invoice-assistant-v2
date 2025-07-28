@@ -208,23 +208,6 @@ const NewInvoiceCentricDashboard: React.FC = () => {
               </p>
             </div>
             
-            {/* 快速操作按钮 */}
-            <div className="flex gap-2">
-              <Link 
-                to="/invoices/upload" 
-                className="btn btn-primary gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">添加发票</span>
-              </Link>
-              <button 
-                onClick={() => navigate('/invoices')}
-                className="btn btn-outline gap-2"
-              >
-                <FileText className="w-4 h-4" />
-                <span className="hidden sm:inline">查看全部</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
