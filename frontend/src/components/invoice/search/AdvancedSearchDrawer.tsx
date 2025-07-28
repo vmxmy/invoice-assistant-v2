@@ -1,10 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Search, Filter, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
 import { fieldMetadataService, type FieldMetadata } from '../../../services/fieldMetadata.service';
 
-// 通用搜索过滤器接口 - 支持所有字段
+// 通用搜索过滤器接口 - 与后端数据结构对齐
 export interface SearchFilters {
-  // 传统支持的字段（保持向后兼容）
+  // 基础字段（使用数据库字段名）
+  invoice_number?: string;
+  seller_name?: string;
+  buyer_name?: string;
+  invoice_type?: string;
+  invoice_code?: string;
+  
+  // 财务字段
+  total_amount_min?: number;
+  total_amount_max?: number;
+  amount_without_tax_min?: number;
+  amount_without_tax_max?: number;
+  tax_amount_min?: number;
+  tax_amount_max?: number;
+  currency?: string;
+  
+  // 时间字段
+  invoice_date_from?: string;
+  invoice_date_to?: string;
+  consumption_date_from?: string;
+  consumption_date_to?: string;
+  created_at_from?: string;
+  created_at_to?: string;
+  
+  // 分类和状态字段
+  expense_category?: string;
+  primary_category_name?: string;
+  secondary_category_name?: string;
+  status?: string[];
+  processing_status?: string[];
+  source?: string[];
+  
+  // 布尔字段
+  is_verified?: boolean;
+  
+  // 文本搜索字段
+  notes?: string;
+  remarks?: string;
+  tags?: string;
+  
+  // 兼容旧字段名（保持向后兼容）
   invoiceNumber?: string;
   sellerName?: string;
   buyerName?: string;
@@ -12,8 +52,6 @@ export interface SearchFilters {
   amountMax?: number;
   dateFrom?: string;
   dateTo?: string;
-  status?: string[];
-  source?: string[];
   
   // 动态字段搜索 - 键为字段名，值为搜索条件
   [fieldName: string]: any;
@@ -104,19 +142,56 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     });
   };
 
-  const handleSearch = () => {
+  // 字段名映射：前端界面名 -> 数据库字段名
+  const mapFieldNames = useCallback((frontendFilters: SearchFilters): SearchFilters => {
+    const mappedFilters = { ...frontendFilters };
+    
+    // 映射兼容字段名
+    const fieldMapping: Record<string, string> = {
+      invoiceNumber: 'invoice_number',
+      sellerName: 'seller_name',
+      buyerName: 'buyer_name',
+      amountMin: 'total_amount_min',
+      amountMax: 'total_amount_max',
+      dateFrom: 'invoice_date_from',
+      dateTo: 'invoice_date_to'
+    };
+    
+    Object.entries(fieldMapping).forEach(([oldKey, newKey]) => {
+      if (mappedFilters[oldKey] !== undefined) {
+        mappedFilters[newKey] = mappedFilters[oldKey];
+        delete mappedFilters[oldKey];
+      }
+    });
+    
+    return mappedFilters;
+  }, []);
+
+  const handleSearch = useCallback(() => {
     // 清理空值
     const cleanedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== '' && 
-          !(Array.isArray(value) && value.length === 0)) {
+          !(Array.isArray(value) && value.length === 0) &&
+          !(typeof value === 'object' && value !== null && 
+            Object.values(value).every(v => v === undefined || v === ''))) {
         acc[key as keyof SearchFilters] = value;
       }
       return acc;
     }, {} as SearchFilters);
     
-    onSearch(cleanedFilters);
+    // 验证筛选条件
+    const errors = validateFilters(cleanedFilters);
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    
+    // 映射字段名
+    const mappedFilters = mapFieldNames(cleanedFilters);
+    
+    onSearch(mappedFilters);
     onClose();
-  };
+  }, [filters, validateFilters, mapFieldNames, onSearch, onClose]);
 
   const handleClear = useCallback(() => {
     setFilters({});
@@ -152,15 +227,32 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
     
     setFilters(prev => ({
       ...prev,
-      dateFrom,
-      dateTo
+      invoice_date_from: dateFrom,
+      invoice_date_to: dateTo
     }));
   }, []);
 
-  const hasActiveFilters = Object.values(filters).some(value => 
-    value !== undefined && value !== '' && 
-    !(Array.isArray(value) && value.length === 0)
-  );
+  const hasActiveFilters = useMemo(() => 
+    Object.values(filters).some(value => 
+      value !== undefined && value !== '' && 
+      !(Array.isArray(value) && value.length === 0) &&
+      !(typeof value === 'object' && value !== null && 
+        Object.values(value).every(v => v === undefined || v === ''))
+    )
+  , [filters]);
+  
+  const hasValidationErrors = useMemo(() => 
+    Object.keys(validationErrors).length > 0
+  , [validationErrors]);
+  
+  const activeFilterCount = useMemo(() => 
+    Object.values(filters).filter(value => 
+      value !== undefined && value !== '' && 
+      !(Array.isArray(value) && value.length === 0) &&
+      !(typeof value === 'object' && value !== null && 
+        Object.values(value).every(v => v === undefined || v === ''))
+    ).length
+  , [filters]);
 
   // 获取字段分类
   const getFieldsByCategory = (category: string) => {
