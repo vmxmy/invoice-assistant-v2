@@ -155,8 +155,16 @@ export const useRestoreInvoice = () => {
       }
       
       toast.success('发票恢复成功')
+      // 同时刷新已删除发票列表和普通发票列表的缓存
+      queryClient.invalidateQueries({
+        queryKey: ['deletedInvoices', user?.id || '']
+      })
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.invoices(user?.id || '', undefined)
+      })
+      // 也刷新统计数据
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardStats', user?.id]
       })
     },
     onError: (error: Error) => {

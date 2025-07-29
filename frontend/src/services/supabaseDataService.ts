@@ -318,12 +318,17 @@ export class InvoiceService {
       // 删除哈希记录（如果存在）
       if (invoice.file_hash) {
         try {
-          await supabase.rpc('delete_file_hash', {
-            p_file_hash: invoice.file_hash,
-            p_user_id: userId
-          })
+          const { error: hashError } = await supabase
+            .from('file_hashes')
+            .delete()
+            .eq('file_hash', invoice.file_hash)
+            .eq('user_id', userId)
+          
+          if (hashError) {
+            console.warn('删除哈希记录失败:', hashError)
+          }
         } catch (hashError) {
-          console.warn('删除哈希记录失败:', hashError)
+          console.warn('删除哈希记录异常:', hashError)
           // 不返回错误，因为数据库已删除成功
         }
       }

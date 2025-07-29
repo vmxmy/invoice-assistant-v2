@@ -31,6 +31,7 @@ import { useTableColumns } from '../hooks/useTableColumns'
 import { useDynamicTableColumns } from '../hooks/useDynamicTableColumns'
 // import { useTableState } from '../hooks/useTableState' // 不使用localStorage持久化
 import { FieldSelector } from '../components/invoice/table/FieldSelector'
+import { InvoiceListView } from '../components/invoice/cards/InvoiceListView'
 import Layout from '../components/layout/Layout'
 
 // 发票数据类型
@@ -1443,83 +1444,15 @@ export function InvoiceManagePage() {
               {/* 发票列表 - 网格视图 */}
               {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && viewMode === ViewMode.GRID && (
                 <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredInvoices.map((invoice) => (
-                      <div key={invoice.id} className="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow">
-                        <div className="card-body p-4">
-                          <div className="flex items-start justify-between mb-4">
-                            <input
-                              type="checkbox"
-                              className="checkbox"
-                              checked={selectedInvoices.includes(invoice.id)}
-                              onChange={() => handleSelectInvoice(invoice.id)}
-                            />
-                            <div className="flex gap-1">
-                              <button
-                                className="btn btn-ghost btn-xs"
-                                onClick={() => handleViewInvoice(invoice.id)}
-                                title="查看详情"
-                              >
-                                👁️
-                              </button>
-                              <button
-                                className="btn btn-ghost btn-xs"
-                                onClick={() => handleEditInvoice(invoice.id)}
-                                title="编辑发票"
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                className="btn btn-ghost btn-xs"
-                                onClick={() => handleExportInvoice(invoice)}
-                                disabled={isExporting}
-                                title="导出发票"
-                              >
-                                📥
-                              </button>
-                              <button
-                                className="btn btn-ghost btn-xs text-error"
-                                onClick={() => handleDeleteInvoice(invoice.id)}
-                                title="删除发票"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <h3 className="card-title text-sm mb-2">
-                            {invoice.invoice_number}
-                          </h3>
-                          
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <span className="text-base-content/60">销售方：</span>
-                              <span className="font-medium">{invoice.seller_name}</span>
-                            </div>
-                            <div>
-                              <span className="text-base-content/60">日期：</span>
-                              <span>{formatDate(invoice.invoice_date)}</span>
-                            </div>
-                            <div>
-                              <span className="text-base-content/60">金额：</span>
-                              <span className="font-bold text-primary">
-                                {formatCurrency(invoice.total_amount)}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="card-actions justify-between mt-4">
-                            <span className={`badge ${getStatusBadge(invoice.status)}`}>
-                              {invoice.status}
-                            </span>
-                            <span className="badge badge-outline text-xs">
-                              {invoice.source}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <InvoiceListView
+                    invoices={filteredInvoices}
+                    selectedInvoices={selectedInvoices}
+                    onSelectInvoice={handleSelectInvoice}
+                    onViewInvoice={handleViewInvoice}
+                    onDownloadInvoice={handleExportInvoice}
+                    onDeleteInvoice={(invoice) => handleDeleteInvoice(invoice.id)}
+                    isLoading={false}
+                  />
                 </div>
               )}
 

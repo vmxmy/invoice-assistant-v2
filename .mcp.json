@@ -1,5 +1,8 @@
 {
   "mcpServers": {
+    "zen": {
+      "command": "/Users/xumingyang/app/zen-mcp-server/zen-mcp-server"
+    },
     "supabase": {
       "command": "npx",
       "args": [
@@ -16,19 +19,6 @@
       "args": [
         "@playwright/mcp@latest",
         "--headless"
-      ]
-    },
-    "mem0-memory-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@mem0ai/mem0-memory-mcp",
-        "--key",
-        "2d559e73-c95e-4c88-94f5-b0ba7ebeb2ce",
-        "--profile",
-        "fit-aphid-EDV9NM"
       ]
     }
   }

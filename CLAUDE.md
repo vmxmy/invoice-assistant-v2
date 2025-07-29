@@ -10,6 +10,7 @@
 ## Server Configuration
 - 后端已在 8090 端口启动
 - 前端已经在 5174 端口启动
+- 你不要启动前端服务器,当前是热加载状态,端口 5174
   
 ## Python Development Environment
 - python 环境：backend/venv/
@@ -20,8 +21,7 @@
 - 认证请求文件路径（避免特殊字符转义问题
 - test_output/results/auth_request.json
 - curl -X POST "https://sfenhhtvcyslxplvewmt.supabase.co/auth/v1/token?grant_type=password" \
-        -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2
-      Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE" \
+        -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE" \
         -H "Content-Type: application/json" \
         -d @test_output/results/auth_request.json | jq -r '.access_token'
 
@@ -41,3 +41,9 @@
 - **TypeScript**: 5.8.3
 - **Vite**: 7.0.0
 - **React Query**: 5.81.5
+
+## Migration Design Docs
+- Supabase OCR迁移设计文档已添加：docs/supabase-ocr-migration-design.md
+
+## Frontend Technology Notes
+- 使用 Heroicons（Tailwind CSS 官方图标库）
