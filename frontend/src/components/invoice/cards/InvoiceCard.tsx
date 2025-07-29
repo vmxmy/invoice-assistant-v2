@@ -11,7 +11,7 @@ import {
   User,
   Download
 } from 'lucide-react';
-import { getCategoryIcon } from '../../../utils/categoryUtils';
+import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
 
 interface Invoice {
   id: string;
@@ -81,7 +81,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
   };
 
   return (
-    <div className="card bg-base-100 border border-base-300 hover:border-primary/30 transition-all duration-200">
+    <div className="card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg transition-all duration-200">
       <div className="card-body p-4">
         {/* 顶部：选择框和发票类型 */}
         <div className="flex items-start justify-between mb-3">
@@ -92,20 +92,45 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
             />
-            <div className="flex flex-col gap-1 min-w-0 flex-1">
+            <div className="flex flex-col gap-2 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="font-medium text-sm truncate">{invoice.invoice_number}</span>
               </div>
-              {/* 状态和分类标签在同一行 */}
+              
+              {/* 统一徽章行 - 状态、分类、类型统一样式 */}
               <div className="flex items-center gap-2 flex-wrap">
-                <div className={`badge ${getStatusBadge(invoice.status)} badge-sm`}>
+                {/* 状态徽章 - 统一使用 badge-sm 尺寸 */}
+                <div className={`badge ${getStatusBadge(invoice.status)} badge-sm font-medium h-5`}>
                   {invoice.status.toUpperCase()}
                 </div>
-                {invoice.expense_category && (
-                  <span className="badge badge-sm badge-primary">
-                    {getCategoryIcon(invoice)} {invoice.expense_category}
-                  </span>
+                
+                {/* 分类徽章 - 根据分类值使用不同背景颜色 */}
+                {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
+                  <div 
+                    className={getCategoryBadgeStyle(invoice).className}
+                    style={getCategoryBadgeStyle(invoice).style}
+                  >
+                    <span className="text-xs">{getCategoryIcon(invoice)}</span>
+                    <span className="truncate max-w-20">{getCategoryDisplayName(invoice)}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="badge badge-ghost badge-sm font-medium h-5 gap-1">
+                      <span className="text-xs">📄</span>
+                      <span>未分类</span>
+                    </div>
+                    <div className="badge badge-warning badge-outline badge-sm font-medium h-5">
+                      待分类
+                    </div>
+                  </>
+                )}
+                
+                {/* 发票类型徽章 - 统一尺寸 */}
+                {invoice.invoice_type && (
+                  <div className="badge badge-outline badge-sm font-medium h-5">
+                    <span className="truncate max-w-16">{invoice.invoice_type}</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -141,6 +166,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
           )}
         </div>
 
+
         {/* 主要信息 */}
         <div className="space-y-3">
           {/* 销售方和购买方 */}
@@ -161,33 +187,58 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             </div>
           </div>
 
-          {/* 金额和日期 */}
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
+          {/* 费用类别显示区域 */}
+          {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) && (
+            <div className="bg-base-50 border border-base-200 rounded-lg p-3 mb-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-base-content/60" />
-                <span className="text-sm">
-                  {invoice.invoice_type === '火车票' ? '发车' : '消费'}：
-                  {invoice.consumption_date ? formatDate(invoice.consumption_date) : formatDate(invoice.invoice_date)}
-                </span>
+                <span className="text-sm text-base-content/60">费用类别：</span>
+                <div 
+                  className={getCategoryBadgeStyle(invoice).className}
+                  style={getCategoryBadgeStyle(invoice).style}
+                >
+                  <span className="text-xs">{getCategoryIcon(invoice)}</span>
+                  <span className="font-medium">{getCategoryDisplayName(invoice)}</span>
+                </div>
               </div>
-              {invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
-                <div className="flex items-center gap-2 ml-6">
-                  <span className="text-xs text-base-content/50">
-                    开票：{formatDate(invoice.invoice_date)}
+            </div>
+          )}
+
+          {/* 金额和日期 */}
+          <div className="bg-base-100 border border-base-200 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-base-content/60" />
+                  <span className="text-sm font-medium">
+                    {invoice.invoice_type === '火车票' ? '发车' : '消费'}：
+                    {invoice.consumption_date ? formatDate(invoice.consumption_date) : formatDate(invoice.invoice_date)}
                   </span>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-success" />
-              <span className="font-semibold text-success">
-                {formatCurrency(
-                  invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
-                    ? parseFloat(invoice.extracted_data.structured_data.total_amount)
-                    : invoice.total_amount
+                {invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
+                  <div className="flex items-center gap-2 ml-6">
+                    <span className="text-xs text-base-content/50">
+                      开票：{formatDate(invoice.invoice_date)}
+                    </span>
+                  </div>
                 )}
-              </span>
+              </div>
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-success" />
+                  <span className="font-bold text-lg text-success">
+                    {formatCurrency(
+                      invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
+                        ? parseFloat(invoice.extracted_data.structured_data.total_amount)
+                        : invoice.total_amount
+                    )}
+                  </span>
+                </div>
+                {invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount && (
+                  <span className="text-xs text-base-content/50">
+                    实际金额
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

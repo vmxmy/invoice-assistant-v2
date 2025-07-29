@@ -14,18 +14,55 @@ export const categoryIcons: Record<string, string> = {
   '办公': '💼',
   '其他': '📁',
   
-  // 二级分类图标
+  // 交通类图标
   '高铁': '🚄',
   '飞机': '✈️',
   '出租车': '🚕',
+  '火车票': '🚄',
+  '机票': '✈️',
+  '客运车票': '🚌',
+  '地铁票': '🚇',
+  
+  // 住宿类图标
   '酒店': '🏨',
   '民宿': '🏠',
+  '住宿服务': '🏨',
+  '酒店发票': '🏨',
+  
+  // 餐饮类图标
+  '餐饮服务': '🍽️',
+  '食品': '🍕',
+  '外卖': '🛵',
+  
+  // 办公类图标
   '咨询': '💭',
   '印章': '🔖',
+  '办公用品': '📎',
+  '服务费': '💼',
   
-  // 特殊分类（数据库中的分类值）
-  '餐饮服务': '🍽️',
-  '住宿服务': '🏨'
+  // 医疗健康类图标
+  '医疗': '🏥',
+  '药品': '💊',
+  '体检': '🩺',
+  
+  // 教育培训类图标
+  '教育': '📚',
+  '培训': '🎓',
+  '学费': '📖',
+  
+  // 娱乐消费类图标
+  '娱乐': '🎮',
+  '购物': '🛍️',
+  '电影': '🎬',
+  
+  // 通讯网络类图标
+  '通讯': '📱',
+  '网络': '🌐',
+  '电话费': '☎️',
+  
+  // 其他类图标
+  '未知类型': '❓',
+  '杂费': '📋'
 }
 
 // 分类颜色映射
@@ -122,21 +159,90 @@ export function getCategoryColor(invoice: Invoice): string {
 }
 
 /**
- * 获取分类徽章样式
+ * 获取分类徽章的自定义样式（背景颜色和文字颜色）
  */
-export function getCategoryBadgeClass(invoice: Invoice): string {
-  const color = getCategoryColor(invoice)
-  
-  // 根据颜色返回对应的CSS类
-  const colorMap: Record<string, string> = {
-    '#8b5cf6': 'badge-primary',
-    '#10b981': 'badge-success', 
-    '#f59e0b': 'badge-warning',
-    '#3b82f6': 'badge-info',
-    '#6b7280': 'badge-ghost'
+export function getCategoryBadgeStyle(invoice: Invoice): { className: string; style?: React.CSSProperties } {
+  if (invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) {
+    const categoryName = invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name
+    
+    // 根据分类名称返回对应的自定义颜色
+    const categoryStyleMap: Record<string, { backgroundColor: string; color: string }> = {
+      // 交通类 - 蓝紫色系
+      '交通': { backgroundColor: '#8b5cf6', color: '#ffffff' },
+      '高铁': { backgroundColor: '#7c3aed', color: '#ffffff' },
+      '飞机': { backgroundColor: '#6366f1', color: '#ffffff' },
+      '出租车': { backgroundColor: '#3b82f6', color: '#ffffff' },
+      '火车票': { backgroundColor: '#7c3aed', color: '#ffffff' },
+      '机票': { backgroundColor: '#6366f1', color: '#ffffff' },
+      '客运车票': { backgroundColor: '#5b21b6', color: '#ffffff' },
+      '地铁票': { backgroundColor: '#4c1d95', color: '#ffffff' },
+      
+      // 住宿类 - 绿色系
+      '住宿': { backgroundColor: '#10b981', color: '#ffffff' },
+      '酒店': { backgroundColor: '#059669', color: '#ffffff' },
+      '民宿': { backgroundColor: '#16a34a', color: '#ffffff' },
+      '住宿服务': { backgroundColor: '#15803d', color: '#ffffff' },
+      '酒店发票': { backgroundColor: '#059669', color: '#ffffff' },
+      
+      // 餐饮类 - 橙黄色系
+      '餐饮': { backgroundColor: '#f59e0b', color: '#ffffff' },
+      '餐饮服务': { backgroundColor: '#d97706', color: '#ffffff' },
+      '食品': { backgroundColor: '#ea580c', color: '#ffffff' },
+      '外卖': { backgroundColor: '#dc2626', color: '#ffffff' },
+      
+      // 办公类 - 蓝色系
+      '办公': { backgroundColor: '#0ea5e9', color: '#ffffff' },
+      '咨询': { backgroundColor: '#0284c7', color: '#ffffff' },
+      '印章': { backgroundColor: '#0369a1', color: '#ffffff' },
+      '办公用品': { backgroundColor: '#0891b2', color: '#ffffff' },
+      '服务费': { backgroundColor: '#075985', color: '#ffffff' },
+      
+      // 医疗健康类 - 红色系
+      '医疗': { backgroundColor: '#dc2626', color: '#ffffff' },
+      '药品': { backgroundColor: '#b91c1c', color: '#ffffff' },
+      '体检': { backgroundColor: '#991b1b', color: '#ffffff' },
+      
+      // 教育培训类 - 紫色系
+      '教育': { backgroundColor: '#9333ea', color: '#ffffff' },
+      '培训': { backgroundColor: '#7e22ce', color: '#ffffff' },
+      '学费': { backgroundColor: '#6b21a8', color: '#ffffff' },
+      
+      // 娱乐消费类 - 粉色系
+      '娱乐': { backgroundColor: '#ec4899', color: '#ffffff' },
+      '购物': { backgroundColor: '#db2777', color: '#ffffff' },
+      '电影': { backgroundColor: '#be185d', color: '#ffffff' },
+      
+      // 通讯网络类 - 青色系
+      '通讯': { backgroundColor: '#06b6d4', color: '#ffffff' },
+      '网络': { backgroundColor: '#0891b2', color: '#ffffff' },
+      '电话费': { backgroundColor: '#0e7490', color: '#ffffff' },
+      
+      // 其他类 - 灰色系
+      '其他': { backgroundColor: '#6b7280', color: '#ffffff' },
+      '未知类型': { backgroundColor: '#6b7280', color: '#ffffff' },
+      '杂费': { backgroundColor: '#52525b', color: '#ffffff' }
+    }
+    
+    const style = categoryStyleMap[categoryName]
+    if (style) {
+      return {
+        className: 'badge badge-sm font-medium h-5 gap-1',
+        style: style
+      }
+    }
+    
+    // 默认使用 accent 色
+    return { className: 'badge badge-accent badge-sm font-medium h-5 gap-1' }
   }
   
-  return colorMap[color] || 'badge-ghost'
+  return { className: 'badge badge-ghost badge-sm font-medium h-5 gap-1' }
+}
+
+/**
+ * 获取分类徽章样式（保持向后兼容）
+ */
+export function getCategoryBadgeClass(invoice: Invoice): string {
+  return getCategoryBadgeStyle(invoice).className
 }
 
 /**

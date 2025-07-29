@@ -7,5 +7,158 @@
     "threshold": 2.0,
     "severity": "warning",
     "timestamp": "2025-07-28T11:38:27.964541"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 72.44205474853516,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 13.00145485665383,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T11:39:12.399340"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 13.401985168457031,
+    "baseline_p95_ms": 5.571842193603516,
+    "regression_ratio": 2.40530594779632,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T11:50:38.798651"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 13.42320442199707,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 2.3558875219683655,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:03:10.453213"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 17.732858657836914,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 3.1122688091053643,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:08:07.598448"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 37.14609146118164,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 6.519457695204619,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:28:00.637739"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 31.88610076904297,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 5.596284207883505,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:31:40.502877"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 16.089200973510742,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 2.823792786007197,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:39:40.884289"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 21.822214126586914,
+    "baseline_p95_ms": 5.697727203369141,
+    "regression_ratio": 3.829985772868022,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:44:47.155265"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 21.716833114624023,
+    "baseline_p95_ms": 6.127834320068359,
+    "regression_ratio": 3.543965450159521,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T12:53:14.698010"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 26.790142059326172,
+    "baseline_p95_ms": 6.127834320068359,
+    "regression_ratio": 4.371877674889114,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:08:17.328897"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 25.72798728942871,
+    "baseline_p95_ms": 6.127834320068359,
+    "regression_ratio": 4.198544860322154,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:10:11.676435"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 27.248144149780273,
+    "baseline_p95_ms": 6.222248077392578,
+    "regression_ratio": 4.379147827419725,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:35:08.458491"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 18.2492733001709,
+    "baseline_p95_ms": 6.222248077392578,
+    "regression_ratio": 2.932906736148364,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:40:15.873277"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 21.01898193359375,
+    "baseline_p95_ms": 6.222248077392578,
+    "regression_ratio": 3.3780366311594756,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:44:18.588010"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 15.056133270263672,
+    "baseline_p95_ms": 6.222248077392578,
+    "regression_ratio": 2.4197256494750556,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:50:05.241743"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 14.913082122802734,
+    "baseline_p95_ms": 6.222248077392578,
+    "regression_ratio": 2.396735382021611,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T13:57:11.106705"
+  },
+  {
+    "query_name": "endpoint_OPTIONS _api_v1_profiles_me",
+    "current_time_ms": 18.18537712097168,
+    "baseline_p95_ms": 6.552696228027344,
+    "regression_ratio": 2.7752510551593654,
+    "threshold": 2.0,
+    "severity": "warning",
+    "timestamp": "2025-07-28T14:05:36.312358"
   }
 ]

@@ -172,18 +172,24 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
         </span>
       </button>
 
-      {/* 下拉面板 */}
+      {/* 右抽屉面板 */}
       {isOpen && (
         <>
           {/* 遮罩层 */}
           <div 
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 transition-opacity duration-300"
             onClick={() => setIsOpen(false)}
           />
           
-          {/* 面板内容 */}
-          <div className="absolute right-0 mt-2 w-96 bg-base-100 shadow-xl rounded-lg border border-base-300 z-50">
-            <div className="p-4">
+          {/* 抽屉面板内容 */}
+          <div className={`
+            fixed top-0 right-0 h-full bg-base-100 shadow-2xl z-50
+            w-full sm:w-96 max-w-md
+            transform transition-transform duration-300 ease-in-out
+            ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+            flex flex-col
+          `}>
+            <div className="flex flex-col h-full p-4">
               {/* 头部 */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium text-lg text-base-content">字段设置</h3>
@@ -233,7 +239,7 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
               </div>
 
               {/* 字段列表 */}
-              <div className="max-h-96 overflow-y-auto space-y-1 pr-1">
+              <div className="flex-1 overflow-y-auto space-y-1 pr-1">
                 {filteredFields.map((field, fieldIndex) => {
                   const config = columnConfigs.find(col => col.field === field.field);
                   if (!config) return null;
@@ -345,7 +351,7 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
               )}
 
               {/* 提示信息 */}
-              <div className="mt-4 pt-4 border-t border-base-300">
+              <div className="mt-4 pt-4 border-t border-base-300 flex-shrink-0">
                 <p className="text-xs text-base-content/60">
                   <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
