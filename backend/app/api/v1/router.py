@@ -9,7 +9,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, users, profiles, invoices, files, tasks, monitoring, invoices_enhanced,
     parser, validator, ocr, ocr_combined, config, email_accounts, email_scan, email_processing,
-    invoice_stats
+    invoice_stats, email_scan_enhanced
 )
 
 # 创建 v1 API 路由器
@@ -31,6 +31,7 @@ api_router.include_router(ocr_combined.router, prefix="/ocr/combined", tags=["�
 api_router.include_router(config.router, prefix="/config", tags=["配置管理"])
 api_router.include_router(email_accounts.router, prefix="/email-accounts", tags=["邮箱管理"])
 api_router.include_router(email_scan.router, prefix="/email-scan", tags=["邮箱扫描"])
+api_router.include_router(email_scan_enhanced.router, prefix="/email-scan-enhanced", tags=["增强邮箱扫描"])
 api_router.include_router(email_processing.router, prefix="/email-processing", tags=["邮件处理"])
 api_router.include_router(invoice_stats.router, prefix="/invoice-stats", tags=["发票统计"])
 
@@ -56,6 +57,7 @@ async def get_api_version():
             "config": "/config",
             "email_accounts": "/email-accounts",
             "email_scan": "/email-scan",
+            "email_scan_enhanced": "/email-scan-enhanced",
             "email_processing": "/email-processing"
         }
     }

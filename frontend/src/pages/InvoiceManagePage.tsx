@@ -209,7 +209,7 @@ export function InvoiceManagePage() {
   
   // 选择和视图状态
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TABLE)
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.GRID)
   
   // 实时订阅状态
   const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
@@ -1445,7 +1445,7 @@ export function InvoiceManagePage() {
               {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && viewMode === ViewMode.GRID && (
                 <div className="p-6">
                   <InvoiceListView
-                    invoices={filteredInvoices}
+                    invoices={table.getPaginationRowModel().rows.map(row => row.original)}
                     selectedInvoices={selectedInvoices}
                     onSelectInvoice={handleSelectInvoice}
                     onViewInvoice={handleViewInvoice}

@@ -124,7 +124,15 @@
       "Bash(true)",
       "mcp__playwright__browser_evaluate",
       "Bash(supabase functions deploy:*)",
-      "Bash(npx supabase functions deploy:*)"
+      "Bash(npx supabase functions deploy:*)",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_install",
+      "mcp__playwright__browser_navigate_back",
+      "Bash(/Users/xumingyang/.deno/bin/deno --version)",
+      "Bash(/Users/xumingyang/.deno/bin/deno run --allow-net --allow-env test_deno_imap_strict.ts)",
+      "WebFetch(domain:jsr.io)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(export:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

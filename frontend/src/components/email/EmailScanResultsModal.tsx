@@ -3,6 +3,7 @@ import { EmailScanJob } from '../../types/email'
 import { edgeFunctionEmail } from '../../services/edgeFunctionEmail'
 import LoadingButton from '../ui/LoadingButton'
 import { toast } from 'react-hot-toast'
+import { decodeEmailSubject, decodeEmailAddress } from '../../utils/emailDecoder'
 
 interface EmailScanResultsModalProps {
   isOpen: boolean
@@ -19,6 +20,13 @@ interface EmailResult {
   has_attachments: boolean
   attachment_names: string[]
   selected?: boolean
+  // 邮件正文相关字段
+  email_body_text?: string | null
+  email_body_html?: string | null
+  email_body_preview?: string | null
+  email_body_size?: number
+  has_email_body?: boolean
+  body_extraction_method?: string
 }
 
 interface ProcessingStatus {
@@ -150,7 +158,7 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
             .map((pdf: any) => `${pdf.name}: ${pdf.error}`)
             .join('; ') || ''
           
-          return `${email.subject}: ${emailError}${pdfErrors ? ` | PDF错误: ${pdfErrors}` : ''}`
+          return `${decodeEmailSubject(email.subject)}: ${emailError}${pdfErrors ? ` | PDF错误: ${pdfErrors}` : ''}`
         }).join('\n')
         
         console.log('处理失败详情:', failureDetails)
@@ -257,6 +265,7 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                 <th>主题</th>
                 <th>发件人</th>
                 <th>日期</th>
+                <th>正文摘要</th>
                 <th>附件</th>
               </tr>
             </thead>
@@ -271,9 +280,31 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                       onChange={(e) => handleSelectEmail(email.uid, e.target.checked)}
                     />
                   </td>
-                  <td className="max-w-xs truncate">{email.subject}</td>
-                  <td className="max-w-xs truncate">{email.from}</td>
+                  <td className="max-w-xs truncate" title={decodeEmailSubject(email.subject)}>
+                    {decodeEmailSubject(email.subject)}
+                  </td>
+                  <td className="max-w-xs truncate" title={decodeEmailAddress(email.from)}>
+                    {decodeEmailAddress(email.from)}
+                  </td>
                   <td>{new Date(email.date).toLocaleDateString()}</td>
+                  <td className="max-w-sm">
+                    {email.has_email_body && email.email_body_preview ? (
+                      <div className="tooltip" data-tip={email.email_body_preview}>
+                        <div className="text-xs text-base-content/70 truncate">
+                          {email.email_body_preview.substring(0, 80)}
+                          {email.email_body_preview.length > 80 && '...'}
+                        </div>
+                        <div className="text-xs text-base-content/50 mt-1">
+                          {email.email_body_size} 字符 • {email.body_extraction_method}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-base-content/40">
+                        <div>无正文内容</div>
+                        <div className="text-xs opacity-60">未提取</div>
+                      </div>
+                    )}
+                  </td>
                   <td>
                     {email.has_attachments ? (
                       <div className="tooltip" data-tip={email.attachment_names.join(', ')}>
@@ -334,7 +365,9 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                   }`}
                 >
                   <div className="flex justify-between">
-                    <span className="font-medium truncate max-w-md">{result.subject}</span>
+                    <span className="font-medium truncate max-w-md" title={decodeEmailSubject(result.subject)}>
+                      {decodeEmailSubject(result.subject)}
+                    </span>
                     <span className={`badge badge-sm ${
                       result.status === 'success' ? 'badge-success' : 
                       result.status === 'partial' ? 'badge-warning' : 'badge-error'

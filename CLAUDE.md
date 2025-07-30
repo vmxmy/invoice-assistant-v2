@@ -47,3 +47,6 @@
 
 ## Frontend Technology Notes
 - 使用 Heroicons（Tailwind CSS 官方图标库）
+
+## 邮箱账号
+- QQ 邮箱账号: username: 'vmxmy@qq.com'; password: 'lagrezfyfpnobgic'

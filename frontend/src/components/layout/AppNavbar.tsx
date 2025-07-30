@@ -23,14 +23,14 @@ const AppNavbar: React.FC = () => {
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
     { name: '回收站', href: '/trash', icon: Trash2 },
-    { name: '邮箱配置', href: '/settings/email-accounts', icon: Mail },
+    { name: '邮箱配置', href: '/settings/email-config', icon: Mail },
     { name: '扫描任务', href: '/settings/email-scan-jobs', icon: Search },
   ];
 
   const isActive = (href: string) => {
     return location.pathname === href || 
            (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload') ||
-           (href === '/settings/email-accounts' && location.pathname.startsWith('/settings/email-accounts')) ||
+           (href === '/settings/email-config' && location.pathname.startsWith('/settings/email-config')) ||
            (href === '/settings/email-scan-jobs' && location.pathname.startsWith('/settings/email-scan-jobs'));
   };
 
