@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useCreateEmailScanJob } from '../../hooks/useEmailAccounts'
+import { useStartEmailScan } from '../../hooks/useEmailAccounts'
 import { EmailAccount, EmailScanJobCreate, EmailScanParams } from '../../types/email'
 import LoadingButton from '../ui/LoadingButton'
 
@@ -61,7 +61,7 @@ const EmailScanModal: React.FC<EmailScanModalProps> = ({
   const [description, setDescription] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  const createScanJobMutation = useCreateEmailScanJob()
+  const startEmailScan = useStartEmailScan()
   
   // 当账户变化时，更新默认参数
   React.useEffect(() => {
@@ -127,7 +127,7 @@ const EmailScanModal: React.FC<EmailScanModalProps> = ({
     })
 
     try {
-      const result = await createScanJobMutation.mutateAsync(scanData)
+      const result = await startEmailScan.mutateAsync(scanData)
       onSuccess?.(result)
       onClose()
       resetForm()
@@ -455,7 +455,7 @@ const EmailScanModal: React.FC<EmailScanModalProps> = ({
             <LoadingButton
               type="submit"
               className="btn btn-primary"
-              isLoading={createScanJobMutation.isPending}
+              isLoading={startEmailScan.isPending}
             >
               开始扫描
             </LoadingButton>

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import DetailedOCRResults from '../components/DetailedOCRResults';
 import { 
   Upload, 
   FileText, 
@@ -12,14 +13,15 @@ import {
   Camera,
   FolderOpen,
   Edit2,
-  Save,
   Eye,
   Clock
 } from 'lucide-react';
-import { api } from '../services/apiClient';
+import { edgeFunctionOCR } from '../services/edgeFunctionOCR';
+import { InvoiceService } from '../services/supabaseDataService';
+import { useAuthContext } from '../contexts/AuthContext';
 import { notify } from '../utils/notifications';
 import Layout from '../components/layout/Layout';
-import AdaptiveInvoiceFields from '../components/invoice/fields/AdaptiveInvoiceFields';
+import { InvoiceModal } from '../components/invoice/InvoiceModal';
 import type { Invoice } from '../types/index';
 
 interface UploadFile {
@@ -31,6 +33,12 @@ interface UploadFile {
   error?: string;
   ocrData?: any; // OCR识别的数据
   ocrRawResult?: any; // OCR原始响应数据
+  // Edge Function特有字段
+  qualityMessage?: string;
+  processingTime?: number;
+  completenessScore?: number;
+  validationErrors?: string[];
+  validationWarnings?: string[];
   duplicateInfo?: {
     existingInvoiceId: string;
     existingData: any;
@@ -39,17 +47,83 @@ interface UploadFile {
   };
 }
 
+/**
+ * OCR质量评估函数 - 适配Edge Function返回结构
+ */
+function assessOCRQuality(ocrResponse: any): { status: UploadFile['status']; progress: number; message: string } {
+  // 如果没有响应或发生错误
+  if (!ocrResponse || ocrResponse.error) {
+    return {
+      status: 'error',
+      progress: 0,
+      message: ocrResponse?.error || 'OCR处理失败'
+    };
+  }
+
+  // 检查基本数据可用性
+  const hasFields = ocrResponse.fields && Object.keys(ocrResponse.fields).length > 0;
+  const confidence = ocrResponse.confidence?.overall || 0;
+  const completenessScore = ocrResponse.validation?.completeness_score || 0;
+  
+  if (!hasFields || confidence < 0.5) {
+    return {
+      status: 'error',
+      progress: 20,
+      message: '数据提取质量过低'
+    };
+  }
+
+  // 根据完整性评分和置信度评估质量
+  if (ocrResponse.success) {
+    // 完全成功：所有验证通过
+    return {
+      status: 'recognized',
+      progress: 90,
+      message: `识别完成，置信度 ${(confidence * 100).toFixed(1)}%`
+    };
+  } else if (completenessScore >= 70 && confidence >= 0.9) {
+    // 高质量：虽有验证问题但数据质量高
+    return {
+      status: 'recognized',
+      progress: 80,
+      message: `识别基本完成，完整性 ${completenessScore}%`
+    };
+  } else if (completenessScore >= 50 && confidence >= 0.8) {
+    // 中等质量：部分数据可用
+    return {
+      status: 'recognized',
+      progress: 70,
+      message: `识别部分完成，需手动补充`
+    };
+  } else if (completenessScore >= 30 && confidence >= 0.6) {
+    // 低质量：数据不完整但可用
+    return {
+      status: 'recognized',
+      progress: 60,
+      message: `识别质量较低，建议重新处理`
+    };
+  } else {
+    // 质量过低
+    return {
+      status: 'error',
+      progress: 30,
+      message: '数据质量过低，无法使用'
+    };
+  }
+}
+
 const InvoiceUploadPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuthContext();
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [filesToRecognize, setFilesToRecognize] = useState<UploadFile[]>([]);
   
 
-  // OCR识别变异 - 使用新的combined/full API
+  // OCR识别变异 - 使用Supabase Edge Function (OCR去重完整流程)
   const ocrMutation = useMutation({
     mutationFn: async (file: File) => {
-      console.log('🔍 [OCR变异] 开始调用 /api/v1/ocr/combined/full');
+      console.log('🔍 [OCR变异] 开始调用 OCR去重完整流程');
       console.log('📄 [OCR变异] 文件信息:', {
         name: file.name,
         size: file.size,
@@ -57,31 +131,48 @@ const InvoiceUploadPage: React.FC = () => {
         lastModified: new Date(file.lastModified).toISOString()
       });
       
-      const formData = new FormData();
-      formData.append('file', file);
-      
       const startTime = performance.now();
-      const response = await api.ocr.full(formData);
+      const response = await edgeFunctionOCR.processOCRComplete(file);
       const endTime = performance.now();
       
-      console.log('✅ [OCR变异] API调用完成，耗时:', `${(endTime - startTime).toFixed(2)}ms`);
+      console.log('✅ [OCR变异] OCR去重完整流程调用完成，耗时:', `${(endTime - startTime).toFixed(2)}ms`);
       console.log('📊 [OCR变异] 完整响应:', response);
-      console.log('📊 [OCR变异] 响应数据:', response.data);
       
-      return response.data; // axios response.data
+      // 检查是否是重复文件
+      if (response.isDuplicate) {
+        console.log('🔄 [OCR变异] 检测到重复文件:', response.data);
+        // 将重复信息添加到响应中，方便前端处理
+        response.duplicateInfo = {
+          existingInvoiceId: response.data?.id || '',
+          existingData: response.data || {},
+          uploadCount: response.data?.upload_count || 1,
+          message: response.message || '文件重复，已跳过OCR处理'
+        };
+      }
+      
+      return response;
     }
   });
 
-  // 文件上传变异（包含OCR数据）
+  // 文件上传变异（包含OCR数据）- 使用Supabase服务
   const uploadMutation = useMutation({
     mutationFn: async ({ file, ocrData, ocrRawResult }: { file: File; ocrData: any; ocrRawResult?: any }) => {
-      const formData = new FormData();
-      formData.append('file', file);
+      console.log('🚀 [uploadMutation] 开始上传发票到Supabase');
+      
+      if (!user?.id) {
+        throw new Error('用户未登录');
+      }
+      
+      // 从OCR数据中提取字段
+      const fields = ocrData.fields || {};
       
       // 根据发票类型构建不同的数据结构
       let invoiceData: any = {
         invoice_type: ocrData.invoice_type || ocrData.invoiceType || 'VAT_INVOICE',
-        ocr_confidence: ocrData.confidence || 0,
+        ocr_confidence: ocrData.confidence?.overall || 0,
+        filename: file.name,
+        file_size: file.size,
+        processing_status: 'completed'
       };
       
       if (ocrData.invoice_type === '火车票' || 
@@ -91,186 +182,108 @@ const InvoiceUploadPage: React.FC = () => {
         // 火车票数据 - 映射到发票字段
         invoiceData = {
           ...invoiceData,
-          invoice_number: ocrData.ticketNumber || ocrData.ticket_number || 'UNKNOWN',
-          invoice_code: ocrData.electronicTicketNumber || '',
-          invoice_date: convertChineseDateToISO(ocrData.invoiceDate || ocrData.invoice_date),
-          consumption_date: null,  // 消费日期由后端触发器自动计算
+          invoice_number: fields.ticket_number || fields.invoice_number || 'UNKNOWN',
+          invoice_code: fields.electronic_ticket_number || '',
+          invoice_date: convertChineseDateToISO(fields.invoice_date),
           seller_name: '中国铁路',
-          buyer_name: ocrData.buyerName || ocrData.buyer_name || ocrData.passengerName || ocrData.passenger_name || 'UNKNOWN',
-          buyer_tax_number: ocrData.buyerCreditCode || '',
-          total_amount: ocrData.fare || ocrData.ticket_price || '0',
-          tax_amount: '0',
+          buyer_name: fields.passenger_name || fields.buyer_name || 'UNKNOWN',
+          buyer_tax_number: fields.buyer_credit_code || '',
+          total_amount: parseFloat(fields.ticket_price || fields.total_amount || fields.fare || '0'),
+          tax_amount: 0,
+          amount_without_tax: parseFloat(fields.ticket_price || fields.total_amount || fields.fare || '0'),
           remarks: JSON.stringify({
             // 基本信息
-            trainNumber: ocrData.trainNumber || ocrData.train_number,
-            departureStation: ocrData.departureStation || ocrData.departure_station,
-            arrivalStation: ocrData.arrivalStation || ocrData.arrival_station,
-            departureTime: ocrData.departureTime || ocrData.departure_time,
+            train_number: fields.train_number,
+            departure_station: fields.departure_station,
+            arrival_station: fields.arrival_station,
+            departure_time: fields.departure_time,
             
             // 座位信息
-            seatNumber: ocrData.seatNumber || ocrData.seat_number,
-            seatType: ocrData.seatType || ocrData.seat_type,
-            ticketGate: ocrData.ticketGate,
+            seat_number: fields.seat_number,
+            seat_type: fields.seat_type,
             
             // 乘客信息
-            passengerName: ocrData.passengerName || ocrData.passenger_name,
-            passengerInfo: ocrData.passengerInfo || ocrData.id_number,
+            passenger_name: fields.passenger_name,
+            id_number: fields.id_number,
             
             // 票务信息
-            ticketCode: ocrData.ticketCode,
-            electronicTicketNumber: ocrData.electronicTicketNumber,
-            saleInfo: ocrData.saleInfo,
-            remarks: ocrData.remarks,
-            isCopy: ocrData.isCopy
+            electronic_ticket_number: fields.electronic_ticket_number
           }),
           // 保存完整的OCR数据到extracted_data字段
           extracted_data: {
             ocr_type: 'train_ticket',
             structured_data: ocrData,
             raw_result: ocrRawResult,
-            confidence_scores: {
-              overall: ocrData.confidence || 0
-            }
+            confidence_scores: ocrData.confidence || { overall: 0 }
           }
         };
       } else {
-        // 增值税发票数据 - 支持新旧字段名，优先从直接字段获取，然后从 fields 对象获取
-        const fields = ocrData.fields || {};
-        
-        // 调试金额字段映射
-        console.log('💰 [uploadMutation] 金额字段映射调试:');
-        console.log('  - ocrData.tax_amount:', ocrData.tax_amount);
-        console.log('  - fields.tax_amount:', fields.tax_amount);
-        console.log('  - ocrData.amount_without_tax:', ocrData.amount_without_tax);
-        console.log('  - fields.amount_without_tax:', fields.amount_without_tax);
-        
-        const tax_amount = ocrData.tax_amount || fields.tax_amount || ocrData.invoiceTax || ocrData.invoice_tax || '0';
-        const amount_without_tax = ocrData.amount_without_tax || fields.amount_without_tax || ocrData.invoiceAmountPreTax || ocrData.invoice_amount_pre_tax || '0';
-        
-        console.log('💰 [uploadMutation] 最终映射结果:');
-        console.log('  - tax_amount:', tax_amount);
-        console.log('  - amount_without_tax:', amount_without_tax);
+        // 增值税发票数据
+        const tax_amount = parseFloat(fields.tax_amount || '0');
+        const amount_without_tax = parseFloat(fields.amount_without_tax || '0');
+        const total_amount = parseFloat(fields.total_amount || '0');
         
         invoiceData = {
           ...invoiceData,
-          invoice_number: ocrData.invoice_number || fields.invoice_number || ocrData.invoiceNumber || 'UNKNOWN',
-          invoice_code: ocrData.invoice_code || fields.invoice_code || ocrData.invoiceCode || '',
-          invoice_date: convertChineseDateToISO(ocrData.invoice_date || fields.invoice_date || ocrData.invoiceDate),
-          consumption_date: null,  // 消费日期由后端触发器自动计算
-          seller_name: ocrData.seller_name || fields.seller_name || ocrData.sellerName || 'UNKNOWN',
-          seller_tax_number: ocrData.seller_tax_number || fields.seller_tax_number || ocrData.sellerTaxNumber || '',
-          buyer_name: ocrData.buyer_name || fields.buyer_name || ocrData.purchaserName || 'UNKNOWN',
-          buyer_tax_number: ocrData.buyer_tax_number || fields.buyer_tax_number || ocrData.purchaserTaxNumber || '',
-          total_amount: ocrData.total_amount || fields.total_amount || ocrData.totalAmount || '0',
+          invoice_number: fields.invoice_number || 'UNKNOWN',
+          invoice_code: fields.invoice_code || '',
+          invoice_date: convertChineseDateToISO(fields.invoice_date),
+          seller_name: fields.seller_name || 'UNKNOWN',
+          seller_tax_number: fields.seller_tax_number || '',
+          buyer_name: fields.buyer_name || 'UNKNOWN',
+          buyer_tax_number: fields.buyer_tax_number || '',
+          total_amount: total_amount,
           tax_amount: tax_amount,
           amount_without_tax: amount_without_tax,
-          remarks: ocrData.remarks || fields.remarks || '',
+          remarks: fields.remarks || '',
           // 保存完整的OCR数据到extracted_data字段
           extracted_data: {
             ocr_type: 'vat_invoice',
             structured_data: ocrData,
             raw_result: ocrRawResult,
-            confidence_scores: {
-              overall: ocrData.confidence || 0
-            },
+            confidence_scores: ocrData.confidence || { overall: 0 },
             // 保存发票明细项目
-            invoice_details: fields.invoice_details || ocrData.invoiceDetails || [],
+            invoice_details: fields.invoice_details || [],
             // 保存其他重要字段
             metadata: {
               title: ocrData.title,
               invoiceType: ocrData.invoiceType,
-              totalAmountInWords: ocrData.totalAmountInWords,
-              drawer: ocrData.drawer,
-              recipient: ocrData.recipient,
-              reviewer: ocrData.reviewer,
-              checkCode: ocrData.checkCode,
-              machineCode: ocrData.machineCode,
-              printedInvoiceCode: ocrData.printedInvoiceCode,
-              printedInvoiceNumber: ocrData.printedInvoiceNumber,
-              specialTag: ocrData.specialTag,
-              formType: ocrData.formType,
-              sellerContactInfo: ocrData.sellerContactInfo,
-              sellerBankAccountInfo: ocrData.sellerBankAccountInfo,
-              purchaserContactInfo: ocrData.purchaserContactInfo,
-              purchaserBankAccountInfo: ocrData.purchaserBankAccountInfo
+              check_code: fields.check_code,
+              machine_code: fields.machine_code,
+              drawer: fields.drawer,
+              reviewer: fields.reviewer,
+              recipient: fields.recipient
             }
           }
         };
       }
       
       console.log('📤 [uploadMutation] 构建的发票数据:', invoiceData);
-      console.log('📤 [uploadMutation] 发票数据详细检查:');
-      console.log('  - invoice_type:', invoiceData.invoice_type);
-      console.log('  - invoice_date:', invoiceData.invoice_date);
-      console.log('  - consumption_date:', invoiceData.consumption_date);
-      console.log('  - total_amount:', invoiceData.total_amount);
-      console.log('  - tax_amount:', invoiceData.tax_amount);
-      console.log('  - amount_without_tax:', invoiceData.amount_without_tax);
-      console.log('  - extracted_data:', invoiceData.extracted_data);
-      console.log('  - extracted_data.structured_data:', invoiceData.extracted_data?.structured_data);
       
-      // 特别追踪金额字段的传递
-      console.log('💰 [uploadMutation] 金额字段追踪:');
-      console.log('  - 原始OCR数据中的金额字段:', {
-        'ocrData.fields.tax_amount': ocrData.fields?.tax_amount,
-        'ocrData.fields.amount_without_tax': ocrData.fields?.amount_without_tax,
-        'ocrData.fields.invoice_tax': ocrData.fields?.invoice_tax,
-        'ocrData.fields.invoice_amount_pre_tax': ocrData.fields?.invoice_amount_pre_tax
-      });
-      console.log('  - 构建后的发票数据中的金额字段:', {
-        'invoiceData.tax_amount': invoiceData.tax_amount,
-        'invoiceData.amount_without_tax': invoiceData.amount_without_tax,
-        'invoiceData.total_amount': invoiceData.total_amount
-      });
+      // 使用Supabase创建发票记录
+      const response = await InvoiceService.createInvoice(user.id, invoiceData);
       
-      formData.append('invoice_data', JSON.stringify(invoiceData));
-      
-      console.log('📤 [uploadMutation] FormData内容:');
-      for (let [key, value] of formData.entries()) {
-        if (key === 'file') {
-          console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
-        } else {
-          console.log(`  ${key}:`, value);
-          // 解析并验证JSON数据
-          if (key === 'invoice_data') {
-            try {
-              const parsed = JSON.parse(value);
-              console.log('📤 [uploadMutation] 解析后的invoice_data:', parsed);
-              
-              // 特别检查金额字段
-              console.log('💰 [uploadMutation] 解析后的金额字段验证:');
-              console.log('  - parsed.tax_amount:', parsed.tax_amount, '(类型:', typeof parsed.tax_amount, ')');
-              console.log('  - parsed.amount_without_tax:', parsed.amount_without_tax, '(类型:', typeof parsed.amount_without_tax, ')');
-              console.log('  - parsed.total_amount:', parsed.total_amount, '(类型:', typeof parsed.total_amount, ')');
-              
-              // 检查extracted_data中的金额字段
-              if (parsed.extracted_data && parsed.extracted_data.structured_data) {
-                console.log('💰 [uploadMutation] extracted_data.structured_data中的金额字段:');
-                console.log('  - structured_data.tax_amount:', parsed.extracted_data.structured_data.tax_amount);
-                console.log('  - structured_data.amount_without_tax:', parsed.extracted_data.structured_data.amount_without_tax);
-                console.log('  - structured_data.fields.tax_amount:', parsed.extracted_data.structured_data.fields?.tax_amount);
-                console.log('  - structured_data.fields.amount_without_tax:', parsed.extracted_data.structured_data.fields?.amount_without_tax);
-              }
-              
-            } catch (e) {
-              console.error('❌ [uploadMutation] 解析invoice_data失败:', e);
-            }
-          }
-        }
+      if (response.error) {
+        throw new Error(response.error);
       }
       
-      return api.invoices.createWithFile(formData);
+      console.log('✅ [uploadMutation] 发票创建成功:', response.data);
+      return response.data;
     },
     onSuccess: (response) => {
       console.log('✅ [uploadMutation] 上传成功:', response);
-      // 刷新发票列表
+      // 刷新发票列表和仪表板统计
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['supabase-invoices'] });
     },
     onError: (error: any) => {
       console.error('❌ [uploadMutation] 上传失败:', error);
-      console.error('❌ [uploadMutation] 错误详情:', error.response?.data || error.data || error);
-      // 不在这里处理错误状态，让错误传播到调用方的 catch 块
+      // Supabase错误处理
+      if (error.message?.includes('duplicate_invoice') || error.message?.includes('重复')) {
+        console.log('⚠️ [uploadMutation] 检测到重复发票错误');
+        // 重复发票错误会在上传函数的catch块中处理
+      }
     }
   });
 
@@ -299,6 +312,43 @@ const InvoiceUploadPage: React.FC = () => {
       const ocrResponse = await ocrMutation.mutateAsync(currentFile);
       console.log('✅ [recognizeFile] OCR API 响应:', ocrResponse);
       
+      // 检查响应结构
+      if (!ocrResponse) {
+        throw new Error('OCR服务无响应');
+      }
+      
+      // 处理重复文件情况
+      if (ocrResponse.isDuplicate) {
+        console.log('🔄 [recognizeFile] 检测到重复文件:', ocrResponse.data);
+        console.log('🔍 [recognizeFile] 重复文件ID检查:', {
+          'ocrResponse.data?.id': ocrResponse.data?.id,
+          'ocrResponse.duplicateInfo?.existingInvoiceId': ocrResponse.duplicateInfo?.existingInvoiceId,
+          'ocrResponse完整结构': ocrResponse
+        });
+        
+        // 优先使用duplicateInfo中的existingInvoiceId，然后是data.id
+        const existingInvoiceId = ocrResponse.duplicateInfo?.existingInvoiceId || 
+                                  ocrResponse.data?.id || 
+                                  '';
+        
+        setUploadFiles(prev => prev.map(f => 
+          f.id === fileId ? { 
+            ...f, 
+            status: 'duplicate',
+            progress: 100,
+            duplicateInfo: {
+              existingInvoiceId: existingInvoiceId,
+              existingData: ocrResponse.data || {},
+              options: ['view', 'cancel'],
+              note: `文件已上传 ${ocrResponse.data?.upload_count || 1} 次`
+            },
+            error: ocrResponse.message || '发票重复',
+            processingTime: ocrResponse.processingTime
+          } : f
+        ));
+        return; // 重复文件不需要进一步处理
+      }
+      
       // 数据完整性检查
       console.log('🔍 [recognizeFile] 数据完整性检查:');
       console.log('  - success:', ocrResponse?.success);
@@ -308,18 +358,60 @@ const InvoiceUploadPage: React.FC = () => {
       console.log('  - validation 存在:', !!ocrResponse?.validation);
       console.log('  - raw_ocr_data 存在:', !!ocrResponse?.raw_ocr_data);
       
-      // 检查响应结构 - 适配新的combined/full API
-      if (!ocrResponse || !ocrResponse.success) {
-        throw new Error(ocrResponse?.message || 'OCR识别失败');
+      // Edge Function数据可用性检查
+      const hasValidData = ocrResponse.fields && 
+                          Object.keys(ocrResponse.fields).length > 0 && 
+                          ocrResponse.confidence?.overall > 0.5;
+      
+      if (!hasValidData) {
+        throw new Error(ocrResponse.error || 'OCR数据提取失败');
       }
       
-      // 从新API格式提取数据
+      // 记录验证状态和警告
+      if (!ocrResponse.success) {
+        console.warn('⚠️ [OCR] 字段验证未完全通过，但数据可用:', {
+          completeness_score: ocrResponse.validation?.completeness_score,
+          errors: ocrResponse.validation?.overall_errors,
+          warnings: ocrResponse.validation?.overall_warnings
+        });
+      }
+      
+      // 保持Edge Function的完整响应结构
       const ocrData = {
+        // 基础信息
         invoice_type: ocrResponse.invoice_type,
-        ...ocrResponse.fields,  // 展开所有字段
-        confidence: ocrResponse.confidence?.overall || 0,
-        validation: ocrResponse.validation,
-        processing_steps: ocrResponse.processing_steps
+        success: ocrResponse.success,
+        
+        // 保留完整的字段结构
+        fields: ocrResponse.fields || {},
+        
+        // 置信度信息
+        confidence: ocrResponse.confidence || { overall: 0, fields: {} },
+        
+        // 验证信息
+        validation: ocrResponse.validation || {
+          is_valid: false,
+          field_results: {},
+          overall_errors: [],
+          overall_warnings: [],
+          completeness_score: 0
+        },
+        
+        // 原始OCR数据
+        raw_ocr_data: ocrResponse.raw_ocr_data || {},
+        
+        // 处理步骤
+        processing_steps: ocrResponse.processing_steps || [],
+        
+        // 元数据
+        metadata: ocrResponse.metadata || {
+          total_processing_time: 0,
+          step_timings: {},
+          timestamp: new Date().toISOString()
+        },
+        
+        // 存储发票ID (从Edge Function响应中获取)
+        invoice_id: ocrResponse.data?.id || null
       };
       
       const ocrRawResult = ocrResponse.raw_ocr_data; // 保存原始OCR结果
@@ -342,13 +434,23 @@ const InvoiceUploadPage: React.FC = () => {
       console.log('  - consumption_date:', ocrData.consumption_date);
       console.log('  - departure_time:', ocrData.departure_time);
       
+      // 智能判断OCR结果质量
+      const ocrQuality = assessOCRQuality(ocrResponse);
+      console.log('📈 [OCR质量评估]:', ocrQuality);
+      
       setUploadFiles(prev => prev.map(f => 
         f.id === fileId ? { 
           ...f, 
-          status: 'recognized', 
-          progress: 60,
+          status: ocrQuality.status, 
+          progress: ocrQuality.progress,
           ocrData: ocrData,
-          ocrRawResult: ocrRawResult // 保存原始结果
+          ocrRawResult: ocrRawResult,
+          // Edge Function特有信息
+          qualityMessage: ocrQuality.message,
+          processingTime: ocrResponse.metadata?.total_processing_time,
+          completenessScore: ocrResponse.validation?.completeness_score,
+          validationErrors: ocrResponse.validation?.overall_errors || [],
+          validationWarnings: ocrResponse.validation?.overall_warnings || []
         } : f
       ));
 
@@ -411,7 +513,7 @@ const InvoiceUploadPage: React.FC = () => {
       return {
         file,
         id: fileId,
-        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+        preview: undefined, // 只支持PDF，无需预览
         status: 'pending' as const,
         progress: 0
       };
@@ -434,8 +536,7 @@ const InvoiceUploadPage: React.FC = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg', '.webp']
+      'application/pdf': ['.pdf']
     },
     multiple: true,
     maxSize: 10 * 1024 * 1024 // 10MB
@@ -512,12 +613,11 @@ const InvoiceUploadPage: React.FC = () => {
   //   return invoiceDate;
   // };
 
-  // OCR 编辑状态
-  const [editingOcrData, setEditingOcrData] = useState<any>(null);
+  // OCR 编辑状态 - 改用InvoiceModal
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
-  const [isOcrEditModalOpen, setIsOcrEditModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState<Record<string, any>>({});
-  const [editFormErrors, setEditFormErrors] = useState<Record<string, string>>({});
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  
 
   // 将OCR数据转换为发票对象供AdaptiveInvoiceFields使用
   const createInvoiceFromOcrData = (ocrData: any): Invoice => {
@@ -649,513 +749,56 @@ const InvoiceUploadPage: React.FC = () => {
     };
   };
 
-  // 编辑OCR数据 - 使用自适应字段组件
-  const editOcrData = (fileId: string) => {
+  
+  // 简化的编辑函数 - 直接使用已存在的发票ID
+  const editOcrDataSimple = (fileId: string) => {
     const fileItem = uploadFiles.find(f => f.id === fileId);
     if (!fileItem || !fileItem.ocrData) return;
     
-    console.log('🔧 [editOcrData] 开始编辑OCR数据:', fileItem.ocrData);
+    console.log('🔧 [editOcrDataSimple] 开始编辑OCR数据:', fileItem.ocrData);
     
-    // 设置编辑状态
-    setEditingOcrData({ ...fileItem.ocrData });
+    // 获取已存在的发票ID
+    const invoiceId = fileItem.ocrData.invoice_id;
+    
+    if (!invoiceId) {
+      console.error('OCR数据中没有发票ID');
+      notify.error('无法编辑：发票ID缺失');
+      return;
+    }
+    
+    console.log('✅ [editOcrDataSimple] 使用现有发票ID:', invoiceId);
+    
+    // 设置编辑状态并打开模态框
     setEditingFileId(fileId);
+    setEditingInvoiceId(invoiceId);
+    setIsInvoiceModalOpen(true);
     
-    // 预填充表单数据，从 OCR 数据映射到字段键名
-    const tempInvoice = createInvoiceFromOcrData(fileItem.ocrData);
-    const initialFormData: Record<string, any> = {};
-    
-    console.log('🔧 [editOcrData] 创建的临时发票对象:', tempInvoice);
-    console.log('🔧 [editOcrData] OCR数据的发票类型:', fileItem.ocrData.invoice_type);
-    
-    // 新API格式：所有字段都在 fields 对象下，使用 snake_case
-    const fields = fileItem.ocrData.fields || fileItem.ocrData;
-    
-    console.log('🔧 [editOcrData] 提取的字段数据:', fields);
-    console.log('🔧 [editOcrData] 字段列表:', Object.keys(fields));
-    
-    // 根据发票类型预填充对应字段
-    if (fileItem.ocrData.invoice_type === '火车票' || 
-        fileItem.ocrData.invoice_type === 'TrainTicket') {
-      // 火车票字段映射
-      initialFormData.train_number = fields.train_number || '';
-      initialFormData.departure_station = fields.departure_station || '';
-      initialFormData.arrival_station = fields.arrival_station || '';
-      initialFormData.departure_time = fields.departure_time || '';
-      initialFormData.seat_type = fields.seat_type || '';
-      initialFormData.seat_number = fields.seat_number || '';
-      initialFormData.passenger_name = fields.passenger_name || '';
-      initialFormData.passenger_info = fields.passenger_info || fields.id_number || '';
-      initialFormData.ticket_number = fields.ticket_number || '';
-      initialFormData.electronic_ticket_number = fields.electronic_ticket_number || '';
-      initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
-      // 消费日期由后端触发器自动计算
-      // initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
-      initialFormData.consumption_date = fields.consumption_date || null;
-      initialFormData.fare = fields.total_amount || fields.ticket_price || fields.fare || '0';
-      initialFormData.buyer_name = fields.buyer_name || fields.passenger_name || '';
-      initialFormData.buyer_credit_code = fields.buyer_credit_code || '';
-      initialFormData.remarks = fields.remarks || fields.notes || '';
-    } else {
-      // 增值税发票字段映射
-      initialFormData.invoice_type = fileItem.ocrData.invoice_type || '增值税发票';
-      initialFormData.invoice_number = fields.invoice_number || '';
-      initialFormData.invoice_code = fields.invoice_code || '';
-      initialFormData.invoice_date = convertChineseDateToISO(fields.invoice_date || '');
-      // 消费日期由后端触发器自动计算
-      // initialFormData.consumption_date = getConsumptionDate(fileItem.ocrData);
-      initialFormData.consumption_date = fields.consumption_date || null;
-      initialFormData.seller_name = fields.seller_name || '';
-      initialFormData.seller_tax_number = fields.seller_tax_number || '';
-      initialFormData.buyer_name = fields.buyer_name || '';
-      initialFormData.buyer_tax_number = fields.buyer_tax_number || '';
-      initialFormData.total_amount = fields.total_amount || '0';
-      
-      // 处理税额和不含税金额的字段映射
-      initialFormData.tax_amount = fields.tax_amount || '0';
-      initialFormData.amount_without_tax = fields.amount_without_tax || '0';
-      
-      console.log('🔧 [editOcrData] 金额字段映射调试:');
-      console.log('  - total_amount:', initialFormData.total_amount);
-      console.log('  - tax_amount:', initialFormData.tax_amount, '(来源: tax_amount=', fields.tax_amount, ')');
-      console.log('  - amount_without_tax:', initialFormData.amount_without_tax, '(来源: amount_without_tax=', fields.amount_without_tax, ')');
-      
-      // 发票明细字段映射
-      initialFormData.invoice_details = (() => {
-        // 尝试从多个路径获取发票明细
-        const detailsData = fields.invoice_details || fileItem.ocrData.invoice_details || fileItem.ocrData.invoiceDetails;
-        
-        console.log('🔧 [editOcrData] 处理invoice_details:');
-        console.log('  - 原始detailsData:', detailsData);
-        console.log('  - detailsData类型:', typeof detailsData);
-        console.log('  - 是否为数组:', Array.isArray(detailsData));
-        
-        // 如果是字符串，尝试解析为JSON
-        if (typeof detailsData === 'string') {
-          try {
-            // 先尝试标准JSON解析
-            const parsed = JSON.parse(detailsData);
-            return Array.isArray(parsed) ? parsed : [];
-          } catch (e) {
-            try {
-              // 尝试将Python字典格式转换为JSON格式
-              const jsonStr = detailsData
-                .replace(/'/g, '"')  // 单引号替换为双引号
-                .replace(/None/g, 'null')  // Python None 替换为 null
-                .replace(/True/g, 'true')  // Python True 替换为 true
-                .replace(/False/g, 'false'); // Python False 替换为 false
-              
-              const parsed = JSON.parse(jsonStr);
-              return Array.isArray(parsed) ? parsed : [];
-            } catch (e2) {
-              console.warn('解析发票明细失败:', e2);
-              return [];
-            }
-          }
-        }
-        
-        // 如果已经是数组，直接返回
-        return Array.isArray(detailsData) ? detailsData : [];
-      })();
-      
-      // 其他增值税发票特定字段
-      initialFormData.check_code = fields.check_code || '';
-      initialFormData.printed_invoice_code = fields.printed_invoice_code || '';
-      initialFormData.printed_invoice_number = fields.printed_invoice_number || '';
-      initialFormData.machine_code = fields.machine_code || '';
-      initialFormData.form_type = fields.form_type || '';
-      initialFormData.drawer = fields.drawer || '';
-      initialFormData.reviewer = fields.reviewer || '';
-      initialFormData.recipient = fields.recipient || '';
-      
-      initialFormData.remarks = fields.remarks || fields.notes || '';
-    }
-    
-    console.log('🔧 [editOcrData] 初始表单数据:', initialFormData);
-    
-    setEditFormData(initialFormData);
-    setEditFormErrors({});
-    setIsOcrEditModalOpen(true);
+    console.log('📝 [editOcrDataSimple] 已打开编辑模态框');
   };
 
-  // 处理字段变化
-  const handleFieldChange = (key: string, value: any) => {
-    setEditFormData(prev => ({
-      ...prev,
-      [key]: value
-    }));
-    
-    // 清除该字段的错误
-    if (editFormErrors[key]) {
-      setEditFormErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[key];
-        return newErrors;
-      });
-    }
-  };
 
-  // 保存OCR编辑结果
-  const saveOcrEdit = () => {
-    if (!editingFileId || !editingOcrData) return;
+  // 已移除旧的OCR编辑函数
     
-    console.log('💾 [saveOcrEdit] 开始保存编辑结果');
-    console.log('💾 [saveOcrEdit] 编辑的文件ID:', editingFileId);
-    console.log('💾 [saveOcrEdit] 原始OCR数据:', editingOcrData);
-    console.log('💾 [saveOcrEdit] 表单数据:', editFormData);
-    console.log('💾 [saveOcrEdit] 表单数据键:', Object.keys(editFormData));
-    
-    // 将表单数据合并回OCR数据
-    const updatedOcrData = { ...editingOcrData };
-    
-    // 确保有 fields 对象（新API格式）
-    if (!updatedOcrData.fields) {
-      updatedOcrData.fields = {};
-    }
-    
-    // 映射表单字段回OCR数据结构（直接更新 fields 对象）
-    Object.keys(editFormData).forEach(key => {
-      const value = editFormData[key];
-      
-      // 新API格式：所有字段都在 fields 对象下
-      switch (key) {
-        // 基本发票字段
-        case 'invoice_number':
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            updatedOcrData.fields.ticket_number = value;
-          } else {
-            updatedOcrData.fields.invoice_number = value;
-          }
-          break;
-        case 'invoice_code':
-          updatedOcrData.fields.invoice_code = value;
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            updatedOcrData.fields.electronic_ticket_number = value;
-          }
-          break;
-        case 'invoice_date':
-          updatedOcrData.fields.invoice_date = value;
-          break;
-        case 'consumption_date':
-          // 对于火车票，更新 departure_time 以便重新计算消费日期
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            // 如果用户编辑了发车日期，更新 departure_time
-            const existingDepartureTime = updatedOcrData.fields.departure_time || '';
-            if (existingDepartureTime && value) {
-              // 保留时间部分，只更新日期
-              const timeMatch = existingDepartureTime.match(/(\d{1,2}:\d{2})/);
-              const timePart = timeMatch ? ` ${timeMatch[1]}` : '';
-              
-              // 将 ISO 日期转换为中文格式
-              const [year, month, day] = value.split('-');
-              updatedOcrData.fields.departure_time = `${year}年${parseInt(month)}月${parseInt(day)}日${timePart}`;
-            }
-          }
-          // 直接保存编辑的消费日期值
-          updatedOcrData.fields.consumption_date = value;
-          break;
-        case 'seller_name':
-          updatedOcrData.fields.seller_name = value;
-          break;
-        case 'seller_tax_number':
-          updatedOcrData.fields.seller_tax_number = value;
-          break;
-        case 'buyer_name':
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            updatedOcrData.fields.passenger_name = value;
-          }
-          updatedOcrData.fields.buyer_name = value;
-          break;
-        case 'buyer_tax_number':
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            updatedOcrData.fields.buyer_credit_code = value;
-          } else {
-            updatedOcrData.fields.buyer_tax_number = value;
-          }
-          break;
-        case 'total_amount':
-          if (updatedOcrData.invoice_type === '火车票' || updatedOcrData.invoice_type === 'TrainTicket') {
-            updatedOcrData.fields.ticket_price = value;
-          } else {
-            updatedOcrData.fields.total_amount = value;
-          }
-          break;
-        case 'tax_amount':
-          console.log('💾 [saveOcrEdit] 处理tax_amount字段:', { key, value, 原始值: updatedOcrData.fields.tax_amount });
-          updatedOcrData.fields.tax_amount = value;
-          updatedOcrData.fields.invoice_tax = value;
-          console.log('💾 [saveOcrEdit] tax_amount字段处理完成:', { 
-            'fields.tax_amount': updatedOcrData.fields.tax_amount,
-            'fields.invoice_tax': updatedOcrData.fields.invoice_tax 
-          });
-          break;
-        case 'amount_without_tax':
-          console.log('💾 [saveOcrEdit] 处理amount_without_tax字段:', { key, value, 原始值: updatedOcrData.fields.amount_without_tax });
-          updatedOcrData.fields.amount_without_tax = value;
-          updatedOcrData.fields.invoice_amount_pre_tax = value;
-          console.log('💾 [saveOcrEdit] amount_without_tax字段处理完成:', { 
-            'fields.amount_without_tax': updatedOcrData.fields.amount_without_tax,
-            'fields.invoice_amount_pre_tax': updatedOcrData.fields.invoice_amount_pre_tax 
-          });
-          break;
-        case 'remarks':
-          updatedOcrData.fields.remarks = value;
-          break;
-        
-        // 火车票特殊字段
-        case 'train_number':
-          updatedOcrData.fields.train_number = value;
-          break;
-        case 'departure_station':
-          updatedOcrData.fields.departure_station = value;
-          break;
-        case 'arrival_station':
-          updatedOcrData.fields.arrival_station = value;
-          break;
-        case 'departure_time':
-          updatedOcrData.fields.departure_time = value;
-          break;
-        case 'seat_type':
-          updatedOcrData.fields.seat_type = value;
-          break;
-        case 'seat_number':
-          updatedOcrData.fields.seat_number = value;
-          break;
-        case 'passenger_name':
-          updatedOcrData.fields.passenger_name = value;
-          break;
-        case 'passenger_info':
-          updatedOcrData.fields.id_number = value;
-          break;
-        case 'ticket_number':
-          updatedOcrData.fields.ticket_number = value;
-          break;
-        case 'electronic_ticket_number':
-          updatedOcrData.fields.electronic_ticket_number = value;
-          break;
-        case 'fare':
-          updatedOcrData.fields.ticket_price = value;
-          break;
-        case 'buyer_credit_code':
-          updatedOcrData.fields.buyer_credit_code = value;
-          break;
-        
-        // 增值税发票特殊字段
-        case 'invoice_type':
-          // invoice_type 保存在顶层，不在 fields 下
-          updatedOcrData.invoice_type = value;
-          break;
-        case 'invoice_details':
-          updatedOcrData.fields.invoice_details = value;
-          break;
-        case 'check_code':
-          updatedOcrData.fields.check_code = value;
-          break;
-        case 'printed_invoice_code':
-          updatedOcrData.fields.printed_invoice_code = value;
-          break;
-        case 'printed_invoice_number':
-          updatedOcrData.fields.printed_invoice_number = value;
-          break;
-        case 'machine_code':
-          updatedOcrData.fields.machine_code = value;
-          break;
-        case 'form_type':
-          updatedOcrData.fields.form_type = value;
-          break;
-        case 'drawer':
-          updatedOcrData.fields.drawer = value;
-          break;
-        case 'reviewer':
-          updatedOcrData.fields.reviewer = value;
-          break;
-        case 'recipient':
-          updatedOcrData.fields.recipient = value;
-          break;
-        
-        default:
-          // 其他字段直接设置到 fields 下
-          updatedOcrData.fields[key] = value;
-          break;
-      }
-    });
-    
-    console.log('💾 [saveOcrEdit] 更新后的OCR数据:', updatedOcrData);
-    console.log('💾 [saveOcrEdit] 更新后的fields对象:', updatedOcrData.fields);
-    console.log('💾 [saveOcrEdit] 消费日期处理:', {
-      原始消费日期: editFormData.consumption_date,
-      更新后消费日期: updatedOcrData.fields?.consumption_date,
-      departure_time: updatedOcrData.fields?.departure_time
-    });
-    
-    // 更新文件的OCR数据
-    setUploadFiles(prev => {
-      const updated = prev.map(f => 
-        f.id === editingFileId ? { ...f, ocrData: updatedOcrData } : f
-      );
-      console.log('💾 [saveOcrEdit] 更新后的文件列表:', updated);
-      return updated;
-    });
-    
-    // 关闭编辑模态框
-    setIsOcrEditModalOpen(false);
-    setEditingOcrData(null);
+  
+  // 关闭InvoiceModal
+  const handleInvoiceModalClose = () => {
+    setIsInvoiceModalOpen(false);
     setEditingFileId(null);
-    setEditFormData({});
-    setEditFormErrors({});
-    
-    // 显示成功提示
-    notify.success('OCR数据已更新');
+    setEditingInvoiceId(null);
   };
-
-  // 取消OCR编辑
-  const cancelOcrEdit = () => {
-    setIsOcrEditModalOpen(false);
-    setEditingOcrData(null);
-    setEditingFileId(null);
-    setEditFormData({});
-    setEditFormErrors({});
+  
+  // InvoiceModal保存成功处理
+  const handleInvoiceModalSuccess = () => {
+    // 刷新数据
+    queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    notify.success('发票信息已更新');
   };
 
 
-  // 上传文件（包含OCR数据）
-  const uploadFile = async (fileId: string) => {
-    const fileItem = uploadFiles.find(f => f.id === fileId);
-    if (!fileItem || !fileItem.ocrData) return;
-
-    setUploadFiles(prev => prev.map(f => 
-      f.id === fileId ? { ...f, status: 'uploading', progress: 80 } : f
-    ));
-
-    try {
-      // 确保日期格式正确转换
-      let processedOcrData = { ...fileItem.ocrData };
-      
-      if (fileItem.ocrData.invoice_type === '火车票' || 
-          fileItem.ocrData.invoice_type === 'TrainTicket' ||
-          fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) {
-        // 火车票：转换日期格式
-        const invoiceDate = fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date;
-        processedOcrData.invoiceDate = convertChineseDateToISO(invoiceDate);
-        processedOcrData.invoice_date = processedOcrData.invoiceDate;
-      } else {
-        // 增值税发票：转换开票日期
-        const invoiceDate = fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date;
-        processedOcrData.invoice_date = convertChineseDateToISO(invoiceDate);
-        processedOcrData.invoiceDate = processedOcrData.invoice_date;
-      }
-      
-      // 消费日期由后端触发器自动计算，前端不再处理
-      // if (!processedOcrData.consumption_date) {
-      //   processedOcrData.consumption_date = getConsumptionDate(processedOcrData);
-      // }
-      
-      console.log('📤 [uploadFile] 处理后的OCR数据:', processedOcrData);
-      
-      await uploadMutation.mutateAsync({ 
-        file: fileItem.file, 
-        ocrData: processedOcrData,
-        ocrRawResult: fileItem.ocrRawResult // 传递原始OCR结果
-      });
-      
-      setUploadFiles(prev => prev.map(f => 
-        f.id === fileId ? { ...f, status: 'success', progress: 100 } : f
-      ));
-
-    } catch (error: any) {
-      console.error('❌ [uploadFile] 上传失败:', error);
-      console.error('❌ [uploadFile] 错误详情:', error.response?.data || error.data || error);
-      
-      // 检查是否是重复发票错误（409状态码）
-      console.log('🔍 [uploadFile] 检查错误状态码 - error.status:', error.status, 'error.response?.status:', error.response?.status);
-      console.log('🔍 [uploadFile] 完整错误对象:', error);
-      
-      if (error.status === 409 || error.response?.status === 409) {
-        // 尝试从多个可能的位置获取错误详情
-        // 由于apiClient拦截器包装了错误，需要从error.data获取
-        const responseData = error.data || error.response?.data;
-        console.log('🔄 [uploadFile] 检测到409错误，原始数据:', responseData);
-        
-        // 检查是否是包装的错误格式
-        let errorDetail;
-        console.log('🔍 [uploadFile] 分析错误响应结构:', JSON.stringify(responseData, null, 2));
-        
-        // 根据实际观察到的结构，错误可能被包装在不同层级
-        if (responseData?.error?.message) {
-          // 如果是 {error: {type: 'http_error', message: {...}}} 格式
-          errorDetail = responseData.error.message;
-          console.log('🔄 [uploadFile] 从error.message解析详情:', errorDetail);
-        } else if (responseData?.detail) {
-          // 如果是直接的 {detail: {...}} 格式
-          errorDetail = responseData.detail;
-          console.log('🔄 [uploadFile] 从detail解析详情:', errorDetail);
-        } else if (responseData?.message) {
-          // 如果错误信息在message字段
-          errorDetail = responseData.message;
-          console.log('🔄 [uploadFile] 从message解析详情:', errorDetail);
-        } else {
-          // 其他格式，使用原始数据
-          errorDetail = responseData;
-          console.log('🔄 [uploadFile] 使用原始数据作为详情:', errorDetail);
-        }
-        
-        console.log('🔍 [uploadFile] 最终解析的errorDetail:', errorDetail);
-        console.log('🔍 [uploadFile] errorDetail类型:', typeof errorDetail);
-        console.log('🔍 [uploadFile] errorDetail.error值:', errorDetail?.error);
-        
-        if (errorDetail?.error === 'duplicate_invoice' || errorDetail?.error === 'duplicate_invoice_constraint') {
-          console.log('✅ [uploadFile] 确认为重复发票，设置状态');
-          setUploadFiles(prev => {
-            const updated = prev.map(f => 
-              f.id === fileId ? { 
-                ...f, 
-                status: 'duplicate', 
-                error: errorDetail.message || '发票重复',
-                progress: 100,
-                duplicateInfo: {
-                  existingInvoiceId: errorDetail.existing_invoice_id,
-                  existingData: errorDetail.existing_data,
-                  options: errorDetail.options || ['cancel'],
-                  note: errorDetail.note
-                }
-              } : f
-            );
-            console.log('📊 [uploadFile] 更新后的文件状态:', updated.find(f => f.id === fileId));
-            return updated;
-          });
-          return; // 不继续执行通用错误处理
-        } else {
-          console.log('❌ [uploadFile] 409错误但不是重复发票类型:', errorDetail?.error);
-        }
-      } else {
-        console.log('❌ [uploadFile] 非409错误，状态码:', error.status || error.response?.status);
-      }
-      
-      const errorMessage = error.data?.detail?.message || 
-                          error.data?.detail || 
-                          error.response?.data?.detail?.message || 
-                          error.response?.data?.detail || 
-                          error.message || 
-                          '上传失败';
-      
-      setUploadFiles(prev => prev.map(f => 
-        f.id === fileId ? { 
-          ...f, 
-          status: 'error', 
-          error: errorMessage,
-          progress: 0 
-        } : f
-      ));
-    }
-  };
 
   const getFileIcon = (file: File) => {
-    if (file.type === 'application/pdf') {
-      return <FileText className="w-8 h-8 text-red-500" />;
-    }
-    if (file.type.startsWith('image/')) {
-      return <Camera className="w-8 h-8 text-blue-500" />;
-    }
-    return <FolderOpen className="w-8 h-8 text-gray-500" />;
+    // 现在只支持PDF文件
+    return <FileText className="w-8 h-8 text-red-500" />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -1214,7 +857,7 @@ const InvoiceUploadPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-base-content">上传发票</h1>
             <p className="text-base-content/60 mt-1">
-              支持 PDF、JPG、PNG 格式，自动识别发票信息
+              支持 PDF 格式，自动识别发票信息
             </p>
           </div>
           <button 
@@ -1246,7 +889,7 @@ const InvoiceUploadPage: React.FC = () => {
                     拖拽文件到此处，或点击选择文件
                   </p>
                   <p className="text-sm text-base-content/60">
-                    支持 PDF、JPG、PNG 格式，自动OCR识别
+                    支持 PDF 格式，自动 OCR 识别
                   </p>
                 </div>
               )}
@@ -1313,17 +956,18 @@ const InvoiceUploadPage: React.FC = () => {
                             </div>
                             <p className="mb-3 text-base-content/80">{fileItem.error}</p>
                             
-                            {fileItem.duplicateInfo.existingData && (
+                            
+                            {fileItem.duplicateInfo.existingData && Object.keys(fileItem.duplicateInfo.existingData).length > 0 && (
                               <div className="mb-3 p-2 bg-base-200 rounded">
                                 <p className="font-medium mb-1">已存在的发票信息：</p>
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                   <div>
                                     <span className="text-base-content/60">发票号：</span>
-                                    <span>{fileItem.duplicateInfo.existingData.invoice_number}</span>
+                                    <span>{fileItem.duplicateInfo.existingData.invoice_number || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">金额：</span>
-                                    <span>¥{fileItem.duplicateInfo.existingData.total_amount}</span>
+                                    <span>¥{fileItem.duplicateInfo.existingData.total_amount || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">销售方：</span>
@@ -1331,7 +975,7 @@ const InvoiceUploadPage: React.FC = () => {
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">开票日期：</span>
-                                    <span>{fileItem.duplicateInfo.existingData.invoice_date || '-'}</span>
+                                    <span>{fileItem.duplicateInfo.existingData.invoice_date ? new Date(fileItem.duplicateInfo.existingData.invoice_date).toLocaleDateString('zh-CN') : '-'}</span>
                                   </div>
                                 </div>
                               </div>
@@ -1346,11 +990,55 @@ const InvoiceUploadPage: React.FC = () => {
                         {/* OCR识别结果预览 */}
                         {fileItem.status === 'recognized' && fileItem.ocrData && (
                           <div className="mt-3 p-3 bg-base-200 rounded-lg text-sm">
-                            <div className="mb-2">
+                            <div className="mb-2 flex items-center justify-between">
                               <span className="badge badge-primary">
                                 {fileItem.ocrData.invoice_type || fileItem.ocrData.invoiceType || fileItem.ocrData.title || '增值税发票'}
                               </span>
+                              {/* Edge Function质量信息 */}
+                              <div className="flex items-center gap-2 text-xs">
+                                {fileItem.completenessScore && (
+                                  <span className={`badge badge-sm ${
+                                    fileItem.completenessScore >= 70 ? 'badge-success' : 
+                                    fileItem.completenessScore >= 50 ? 'badge-warning' : 'badge-error'
+                                  }`}>
+                                    完整性 {fileItem.completenessScore}%
+                                  </span>
+                                )}
+                                {fileItem.processingTime && (
+                                  <span className="badge badge-sm badge-ghost">
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    {fileItem.processingTime}ms
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            {/* 质量消息和警告 */}
+                            {fileItem.qualityMessage && (
+                              <div className="mb-2 text-xs text-base-content/70">
+                                📊 {fileItem.qualityMessage}
+                              </div>
+                            )}
+                            {fileItem.validationErrors && fileItem.validationErrors.length > 0 && (
+                              <div className="mb-2">
+                                {fileItem.validationErrors.map((error, idx) => (
+                                  <div key={idx} className="text-xs text-error bg-error/10 px-2 py-1 rounded mb-1">
+                                    ❌ {error}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {fileItem.validationWarnings && fileItem.validationWarnings.length > 0 && (
+                              <div className="mb-2">
+                                {fileItem.validationWarnings.map((warning, idx) => (
+                                  <div key={idx} className="text-xs text-warning bg-warning/10 px-2 py-1 rounded mb-1">
+                                    ⚠️ {warning}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* 详细OCR结果展示 */}
+                            <DetailedOCRResults fileItem={fileItem} />
                             <div className="grid grid-cols-2 gap-2">
                               {(fileItem.ocrData.invoice_type === '火车票' || 
                                 fileItem.ocrData.invoice_type === 'TrainTicket' ||
@@ -1358,59 +1046,63 @@ const InvoiceUploadPage: React.FC = () => {
                                 <>
                                   <div>
                                     <span className="text-base-content/60">车票号：</span>
-                                    <span className="font-medium">{fileItem.ocrData.ticket_number || fileItem.ocrData.fields?.ticket_number || fileItem.ocrData.ticketNumber || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.ticket_number || fileItem.ocrData.fields?.invoice_number || fileItem.ocrData.ticket_number || fileItem.ocrData.ticketNumber || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">车次：</span>
-                                    <span className="font-medium">{fileItem.ocrData.train_number || fileItem.ocrData.fields?.train_number || fileItem.ocrData.trainNumber || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.train_number || fileItem.ocrData.train_number || fileItem.ocrData.trainNumber || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">乘车人：</span>
-                                    <span className="font-medium">{fileItem.ocrData.passenger_name || fileItem.ocrData.fields?.passenger_name || fileItem.ocrData.passengerName || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.passenger_name || fileItem.ocrData.fields?.buyer_name || fileItem.ocrData.passenger_name || fileItem.ocrData.passengerName || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">开票日期：</span>
-                                    <span className="font-medium">{fileItem.ocrData.invoice_date || fileItem.ocrData.fields?.invoice_date || fileItem.ocrData.invoiceDate || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.invoice_date || fileItem.ocrData.invoice_date || fileItem.ocrData.invoiceDate || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">出发站：</span>
-                                    <span className="font-medium">{fileItem.ocrData.departure_station || fileItem.ocrData.fields?.departure_station || fileItem.ocrData.departureStation || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.departure_station || fileItem.ocrData.departure_station || fileItem.ocrData.departureStation || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">到达站：</span>
-                                    <span className="font-medium">{fileItem.ocrData.arrival_station || fileItem.ocrData.fields?.arrival_station || fileItem.ocrData.arrivalStation || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.arrival_station || fileItem.ocrData.arrival_station || fileItem.ocrData.arrivalStation || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">座位：</span>
-                                    <span className="font-medium">{fileItem.ocrData.seat_number || fileItem.ocrData.fields?.seat_number || fileItem.ocrData.seatNumber || '-'} {fileItem.ocrData.seat_type || fileItem.ocrData.fields?.seat_type || fileItem.ocrData.seatType || ''}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.seat_number || fileItem.ocrData.seat_number || fileItem.ocrData.seatNumber || '-'} {fileItem.ocrData.fields?.seat_type || fileItem.ocrData.seat_type || fileItem.ocrData.seatType || ''}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">票价：</span>
-                                    <span className="font-medium">¥{fileItem.ocrData.total_amount || fileItem.ocrData.fields?.total_amount || fileItem.ocrData.fare || fileItem.ocrData.fields?.fare || fileItem.ocrData.ticket_price || fileItem.ocrData.fields?.ticket_price || '0'}</span>
+                                    <span className="font-medium">¥{fileItem.ocrData.fields?.total_amount || fileItem.ocrData.fields?.fare || fileItem.ocrData.fields?.ticket_price || fileItem.ocrData.total_amount || fileItem.ocrData.fare || fileItem.ocrData.ticket_price || '0'}</span>
                                   </div>
                                 </>
                               ) : (
                                 <>
                                   <div>
                                     <span className="text-base-content/60">发票号码：</span>
-                                    <span className="font-medium">{fileItem.ocrData.invoiceNumber || fileItem.ocrData.invoice_number || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.invoice_number || fileItem.ocrData.invoiceNumber || fileItem.ocrData.invoice_number || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">开票日期：</span>
-                                    <span className="font-medium">{fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.invoice_date || fileItem.ocrData.invoiceDate || fileItem.ocrData.invoice_date || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">销售方：</span>
-                                    <span className="font-medium">{fileItem.ocrData.sellerName || fileItem.ocrData.seller_name || '-'}</span>
+                                    <span className="font-medium">{fileItem.ocrData.fields?.seller_name || fileItem.ocrData.sellerName || fileItem.ocrData.seller_name || '-'}</span>
                                   </div>
                                   <div>
                                     <span className="text-base-content/60">金额：</span>
-                                    <span className="font-medium">¥{fileItem.ocrData.totalAmount || fileItem.ocrData.total_amount || '0'}</span>
+                                    <span className="font-medium">¥{fileItem.ocrData.fields?.total_amount || fileItem.ocrData.totalAmount || fileItem.ocrData.total_amount || '0'}</span>
                                   </div>
-                                  {fileItem.ocrData.invoiceDetails && fileItem.ocrData.invoiceDetails.length > 0 && (
+                                  {(fileItem.ocrData.fields?.invoicedetails || fileItem.ocrData.invoiceDetails) && 
+                                   (fileItem.ocrData.fields?.invoicedetails || fileItem.ocrData.invoiceDetails).length > 0 && (
                                     <div className="col-span-2">
                                       <span className="text-base-content/60">发票明细：</span>
-                                      <span className="font-medium">{fileItem.ocrData.invoiceDetails[0].itemName || '-'}</span>
+                                      <span className="font-medium">
+                                        {(fileItem.ocrData.fields?.invoicedetails?.[0]?.goods_name || 
+                                          fileItem.ocrData.invoiceDetails?.[0]?.itemName || '-')}
+                                      </span>
                                     </div>
                                   )}
                                 </>
@@ -1423,32 +1115,36 @@ const InvoiceUploadPage: React.FC = () => {
                       {/* 操作按钮 */}
                       <div className="flex items-center gap-2">
                         {fileItem.status === 'recognized' && (
-                          <>
-                            <button 
-                              className="btn btn-sm btn-outline"
-                              onClick={() => editOcrData(fileItem.id)}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                              编辑
-                            </button>
-                            <button 
-                              className="btn btn-sm btn-primary"
-                              onClick={() => uploadFile(fileItem.id)}
-                            >
-                              <Save className="w-4 h-4" />
-                              保存
-                            </button>
-                          </>
+                          <button 
+                            className="btn btn-sm btn-outline"
+                            onClick={() => editOcrDataSimple(fileItem.id)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            编辑
+                          </button>
                         )}
                         
                         {fileItem.status === 'duplicate' && (
                           <>
                             <button 
                               className="btn btn-sm btn-outline"
+                              disabled={!fileItem.duplicateInfo?.existingInvoiceId}
+                              title={fileItem.duplicateInfo?.existingInvoiceId ? '查看已存在的发票详情' : '无法获取原发票ID'}
                               onClick={() => {
-                                // 查看已存在的发票
+                                console.log('🔍 [查看原发票] 点击事件触发:', {
+                                  'fileItem.duplicateInfo': fileItem.duplicateInfo,
+                                  'existingInvoiceId': fileItem.duplicateInfo?.existingInvoiceId,
+                                  'existingData': fileItem.duplicateInfo?.existingData
+                                });
+                                
+                                // 使用InvoiceModal查看已存在的发票
                                 if (fileItem.duplicateInfo?.existingInvoiceId) {
-                                  navigate(`/invoices/detail/${fileItem.duplicateInfo.existingInvoiceId}`);
+                                  console.log('✅ [查看原发票] 打开模态框，发票ID:', fileItem.duplicateInfo.existingInvoiceId);
+                                  setEditingInvoiceId(fileItem.duplicateInfo.existingInvoiceId);
+                                  setIsInvoiceModalOpen(true);
+                                } else {
+                                  console.error('❌ [查看原发票] 缺少existingInvoiceId');
+                                  notify.error('无法获取原发票信息');
                                 }
                               }}
                             >
@@ -1458,8 +1154,8 @@ const InvoiceUploadPage: React.FC = () => {
                             <button 
                               className="btn btn-sm btn-warning"
                               onClick={() => {
-                                // TODO: 实现强制覆盖功能
-                                console.log('强制覆盖发票', fileItem.duplicateInfo);
+                                // 强制覆盖：跳过重复检查，重新处理文件
+                                recognizeFile(fileItem, true); // 添加forceOverride参数
                               }}
                             >
                               强制覆盖
@@ -1497,11 +1193,11 @@ const InvoiceUploadPage: React.FC = () => {
             <h3 className="text-lg font-semibold mb-3">使用说明</h3>
             <div className="prose prose-sm max-w-none">
               <ul>
-                <li>支持的文件格式：PDF、JPG、PNG、JPEG、WEBP</li>
+                <li>支持的文件格式：PDF</li>
                 <li>单个文件大小限制：10MB</li>
-                <li>系统会自动使用阿里云OCR识别发票信息</li>
-                <li>识别完成后可以编辑修正信息再保存</li>
-                <li>建议上传清晰的扫描件或照片以提高识别准确率</li>
+                <li>系统会自动使用阿里云OCR识别发票信息并保存到数据库</li>
+                <li>识别完成后可以编辑修正信息</li>
+                <li>建议上传清晰的 PDF 文件以提高识别准确率</li>
               </ul>
             </div>
           </div>
@@ -1509,76 +1205,14 @@ const InvoiceUploadPage: React.FC = () => {
       </div>
       </div>
 
-      {/* OCR 编辑模态框 - 使用自适应字段组件 */}
-      {isOcrEditModalOpen && editingOcrData && (
-        <dialog className="modal modal-bottom sm:modal-middle modal-open">
-          <div className="modal-box w-full max-w-4xl mx-4 sm:mx-auto h-[90vh] sm:h-auto">
-            {/* 关闭按钮 */}
-            <form method="dialog">
-              <button 
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={cancelOcrEdit}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </form>
-
-            {/* 标题 */}
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Edit2 className="w-5 h-5 text-primary" />
-              编辑发票信息
-            </h3>
-
-            {/* 内容区域 */}
-            <div className="py-4 overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(80vh-180px)]">
-              <div className="space-y-4">
-                {/* 状态标签 */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <div className="badge badge-warning gap-2">
-                    <Clock className="w-3 h-3" />
-                    OCR识别
-                  </div>
-                  <div className="badge badge-info gap-2">
-                    <FileText className="w-3 h-3" />
-                    编辑中
-                  </div>
-                </div>
-                
-                {/* 使用自适应字段组件显示发票信息 */}
-                <AdaptiveInvoiceFields
-                  invoice={createInvoiceFromOcrData(editingOcrData)}
-                  mode="edit"
-                  editData={editFormData}
-                  onFieldChange={handleFieldChange}
-                  errors={editFormErrors}
-                />
-              </div>
-            </div>
-
-            {/* 操作按钮 */}
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={cancelOcrEdit}
-              >
-                取消
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={saveOcrEdit}
-              >
-                <Save className="w-4 h-4" />
-                保存修改
-              </button>
-            </div>
-          </div>
-
-          {/* 背景遮罩 */}
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={cancelOcrEdit}>close</button>
-          </form>
-        </dialog>
-      )}
+      {/* 发票编辑模态框 */}
+      <InvoiceModal
+        invoiceId={editingInvoiceId}
+        isOpen={isInvoiceModalOpen}
+        onClose={handleInvoiceModalClose}
+        onSuccess={handleInvoiceModalSuccess}
+        mode="edit"
+      />
     </Layout>
   );
 };

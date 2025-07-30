@@ -136,3 +136,6 @@ backend/monitoring/archive/
 # Edge functions with sensitive info
 supabase/functions/*/index.ts
 supabase/functions/*ocr*
+
+# Claude Code settings
+.claude/settings.local.json
