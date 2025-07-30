@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -9,7 +9,8 @@ import {
   User,
   Mail,
   Trash2,
-  Search
+  Menu,
+  X
 } from 'lucide-react';
 import { useAuthContext } from "../../contexts/AuthContext"
 import ThemeSelector from '../ui/ThemeSelector';
@@ -17,203 +18,200 @@ import ThemeSelector from '../ui/ThemeSelector';
 const AppNavbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuthContext();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
-    { name: '仪表盘', href: '/dashboard', icon: LayoutDashboard },
+    { name: '首页', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
     { name: '回收站', href: '/trash', icon: Trash2 },
     { name: '邮箱配置', href: '/settings/email-config', icon: Mail },
-    { name: '扫描任务', href: '/settings/email-scan-jobs', icon: Search },
   ];
 
   const isActive = (href: string) => {
     return location.pathname === href || 
            (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload') ||
-           (href === '/settings/email-config' && location.pathname.startsWith('/settings/email-config')) ||
-           (href === '/settings/email-scan-jobs' && location.pathname.startsWith('/settings/email-scan-jobs'));
+           (href === '/settings/email-config' && location.pathname.startsWith('/settings/email-config'));
   };
 
   const handleSignOut = async () => {
     await signOut();
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className="navbar bg-base-100 border-b border-base-200 sticky top-0 z-50 shadow-sm">
-      {/* Logo区域 */}
-      <div className="navbar-start">
-        <Link to="/dashboard" className="btn btn-ghost text-xl font-bold text-primary font-serif">
-          📄 发票助手
-        </Link>
-      </div>
-      
-      {/* 导航菜单区域 */}
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-1">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={`flex items-center gap-2 ${isActive(item.href) ? 'active' : ''}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.name}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      
-      {/* 用户区域 */}
-      <div className="navbar-end">
-        {/* 移动端菜单按钮 */}
-        <div className="dropdown lg:hidden">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-square">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg border border-base-200"
+    <>
+      {/* 移动优先的顶部导航栏 */}
+      <div className="bg-base-100 border-b border-base-200 sticky top-0 z-50 shadow-sm">
+        {/* 主导航栏 - 简化移动端设计 */}
+        <div className="flex items-center justify-between px-4 h-16">
+          {/* Logo区域 - 移动端更紧凑 */}
+          <Link 
+            to="/dashboard" 
+            className="flex items-center gap-2 text-primary font-bold text-lg"
+            onClick={closeMobileMenu}
           >
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.name}>
+            <span className="text-xl">📄</span>
+            <span className="hidden sm:block">发票助手</span>
+          </Link>
+          
+          {/* 移动端右侧操作区 */}
+          <div className="flex items-center gap-2">
+            {/* 用户头像 - 移动端更小 */}
+            <div className="dropdown dropdown-end">
+              <div 
+                tabIndex={0} 
+                role="button" 
+                className="btn btn-ghost btn-circle btn-sm avatar hover:bg-base-200"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary-content text-primary flex items-center justify-center text-xs font-bold">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              </div>
+              <ul
+                tabIndex={0}
+                className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-56 border border-base-200"
+              >
+                {/* 用户信息 - 紧凑版 */}
+                <li className="p-2 hover:bg-transparent border-b border-base-200 mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary-content text-primary flex items-center justify-center text-sm font-bold">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">
+                        {user?.email?.split('@')[0]}
+                      </div>
+                      <div className="text-xs text-base-content/60 truncate">
+                        {user?.email}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                
+                {/* 用户中心 */}
+                <li>
+                  <Link to="/settings" className="flex items-center gap-2 px-2 py-2">
+                    <User className="w-4 h-4" />
+                    <span>用户中心</span>
+                  </Link>
+                </li>
+                
+                {/* 主题切换 */}
+                <li>
+                  <div className="flex items-center justify-between px-2 py-2">
+                    <span className="text-sm">主题切换</span>
+                    <ThemeSelector showLabel={false} className="scale-90" />
+                  </div>
+                </li>
+                
+                
+                {/* 退出登录 */}
+                <li>
+                  <button 
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 px-2 py-2 text-error hover:bg-error/10 w-full text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>退出登录</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            
+            {/* 移动端菜单按钮 */}
+            <button
+              onClick={toggleMobileMenu}
+              className="btn btn-ghost btn-square btn-sm md:hidden"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </div>
+        
+        {/* 桌面端水平导航 - 隐藏在移动端 */}
+        <div className="hidden md:flex border-t border-base-200 bg-base-50/50">
+          <div className="flex items-center justify-center w-full max-w-6xl mx-auto px-4">
+            <nav className="flex items-center space-x-1 py-2">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
                   <Link
+                    key={item.name}
                     to={item.href}
-                    className={`flex items-center gap-2 ${isActive(item.href) ? 'active' : ''}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(item.href) 
+                        ? 'bg-primary text-primary-content' 
+                        : 'text-base-content hover:bg-base-200'
+                    }`}
                   >
                     <Icon className="w-4 h-4" />
                     {item.name}
                   </Link>
-                </li>
-              );
-            })}
-            <div className="divider my-1"></div>
-            <li>
-              <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-sm">主题切换</span>
-                <ThemeSelector showLabel={false} className="scale-90" />
-              </div>
-            </li>
-            <li>
-              <Link to="/settings" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                设置
-              </Link>
-            </li>
-            <li>
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 text-error"
-              >
-                <LogOut className="w-4 h-4" />
-                退出登录
-              </button>
-            </li>
-          </ul>
-        </div>
-        
-        {/* 主题切换 - 桌面端 */}
-        <div className="hidden lg:flex mr-4">
-          <ThemeSelector showLabel={false} />
-        </div>
-        
-        {/* 用户信息 - 仅桌面端显示 */}
-        <div className="hidden lg:flex items-center gap-3 mr-3">
-          <div className="text-right min-w-0 flex-shrink">
-            <div className="font-medium text-sm text-base-content truncate max-w-32">
-              {user?.email?.split('@')[0]}
-            </div>
-            <div className="text-xs text-base-content/60 leading-tight truncate max-w-32">
-              {user?.email}
-            </div>
+                );
+              })}
+            </nav>
           </div>
-        </div>
-        
-        {/* 用户头像下拉菜单 */}
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar hover:bg-base-200">
-            <div className="w-10 rounded-full ring ring-primary/20 ring-offset-base-100 ring-offset-1 hover:ring-primary/40 transition-all bg-primary-content text-primary flex items-center justify-center">
-              <span className="text-sm font-bold">
-                {user?.email?.charAt(0).toUpperCase() || 'U'}
-              </span>
-            </div>
-          </div>
-          <ul
-            tabIndex={0}
-            className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-64 border border-base-200"
-          >
-            {/* 用户信息 */}
-            <li className="p-3 hover:bg-transparent">
-              <div className="flex items-center gap-3">
-                <div className="avatar">
-                  <div className="w-12 rounded-full bg-primary-content text-primary flex items-center justify-center">
-                    <span className="text-lg font-bold">
-                      {user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-base truncate">
-                    {user?.email?.split('@')[0]}
-                  </div>
-                  <div className="text-xs text-base-content/60 truncate">
-                    {user?.email}
-                  </div>
-                </div>
-              </div>
-            </li>
-            
-            <div className="divider my-1"></div>
-            
-            {/* 个人资料 */}
-            <li>
-              <Link to="/settings" className="flex items-center gap-2 py-2">
-                <User className="w-4 h-4" />
-                <span>个人资料</span>
-              </Link>
-            </li>
-            
-            {/* 账户设置 */}
-            <li>
-              <Link to="/settings#security" className="flex items-center gap-2 py-2">
-                <Settings className="w-4 h-4" />
-                <span>账户设置</span>
-              </Link>
-            </li>
-            
-            <div className="divider my-1"></div>
-            
-            {/* 退出登录 */}
-            <li>
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 py-2 text-error hover:bg-error/10"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>退出登录</span>
-              </button>
-            </li>
-          </ul>
         </div>
       </div>
-    </div>
+
+      {/* 移动端全屏菜单覆盖层 */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* 背景遮罩 */}
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={closeMobileMenu}
+          />
+          
+          {/* 菜单内容 */}
+          <div className="fixed top-16 left-0 right-0 bottom-0 bg-base-100 overflow-y-auto">
+            <div className="p-4">
+              {/* 移动端导航菜单 */}
+              <nav className="space-y-2 mb-6">
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={closeMobileMenu}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+                        isActive(item.href) 
+                          ? 'bg-primary text-primary-content shadow-lg' 
+                          : 'text-base-content hover:bg-base-200 active:bg-base-300'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-base">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+              
+              {/* 移动端底部信息 */}
+              <div className="border-t border-base-200 pt-4 mt-6">
+                <div className="text-center text-sm text-base-content/60">
+                  发票助手 - 移动版
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

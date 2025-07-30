@@ -174,12 +174,12 @@ export const useFieldOptions = (fieldName: string) => {
   return { options, loading }
 }
 
-// 辅助函数：获取静态列数据
+// 辅助函数：获取静态列数据 - 使用实际数据库schema
 function getStaticColumnsData(): TableColumnsResponse {
-  // 模拟动态 RPC 返回的数据结构
+  // 基于实际数据库schema定义列
   const coreFields: TableColumn[] = [
     { field: 'invoice_number', label: '发票号码', dataType: 'character varying', type: 'text', nullable: false, sortable: true, filterable: true, searchable: true, category: 'core', priority: 1 },
-    { field: 'invoice_date', label: '开票日期', dataType: 'date', type: 'date', nullable: true, sortable: true, filterable: true, searchable: false, category: 'core', priority: 2 },
+    { field: 'invoice_date', label: '开票日期', dataType: 'date', type: 'date', nullable: false, sortable: true, filterable: true, searchable: false, category: 'core', priority: 2 },
     { field: 'seller_name', label: '销售方', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'core', priority: 3 },
     { field: 'buyer_name', label: '购买方', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'core', priority: 4 },
     { field: 'status', label: '状态', dataType: 'character varying', type: 'select', nullable: false, sortable: true, filterable: true, searchable: false, category: 'core', priority: 8 },
@@ -187,16 +187,26 @@ function getStaticColumnsData(): TableColumnsResponse {
   ]
 
   const financialFields: TableColumn[] = [
-    { field: 'total_amount', label: '含税金额', dataType: 'numeric', type: 'number', nullable: true, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 5 },
-    { field: 'amount_without_tax', label: '不含税金额', dataType: 'numeric', type: 'number', nullable: false, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 6 },
+    // 使用实际数据库列名 - amount, total_amount, tax_amount
+    { field: 'amount', label: '发票金额', dataType: 'numeric', type: 'number', nullable: false, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 5 },
+    { field: 'total_amount', label: '价税合计', dataType: 'numeric', type: 'number', nullable: true, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 6 },
     { field: 'tax_amount', label: '税额', dataType: 'numeric', type: 'number', nullable: true, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 7 },
-    { field: 'currency', label: '币种', dataType: 'character varying', type: 'select', nullable: true, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 12 }
+    { field: 'currency', label: '币种', dataType: 'character varying', type: 'select', nullable: false, sortable: true, filterable: true, searchable: false, category: 'financial', priority: 12 }
   ]
 
   const metadataFields: TableColumn[] = [
     { field: 'source', label: '来源', dataType: 'character varying', type: 'select', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 9 },
-    { field: 'file_name', label: '文件名', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 18 },
-    { field: 'file_size', label: '文件大小', dataType: 'integer', type: 'number', nullable: true, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 24 }
+    { field: 'invoice_code', label: '发票代码', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 11 },
+    { field: 'processing_status', label: '处理状态', dataType: 'character varying', type: 'select', nullable: true, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 13 },
+    { field: 'seller_tax_id', label: '销售方税号', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 14 },
+    { field: 'buyer_tax_id', label: '购买方税号', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 15 },
+    { field: 'basic_category', label: '基础分类', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 16 },
+    { field: 'remarks', label: '备注', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 17 },
+    { field: 'expense_category', label: '费用类别', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 18 },
+    { field: 'category_path', label: '分类路径', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 19 },
+    { field: 'file_path', label: '文件路径', dataType: 'character varying', type: 'text', nullable: true, sortable: false, filterable: false, searchable: false, category: 'metadata', priority: 20 },
+    { field: 'created_at', label: '创建时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 21 },
+    { field: 'updated_at', label: '更新时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 22 }
   ]
 
   const allColumns = [...coreFields, ...financialFields, ...metadataFields].sort((a, b) => (a.priority || 999) - (b.priority || 999))
@@ -210,11 +220,12 @@ function getStaticColumnsData(): TableColumnsResponse {
       metadata: metadataFields
     },
     allColumns,
-    defaultVisible: ['invoice_number', 'invoice_date', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source'],
+    // 更新默认可见列，包含视图的重要字段
+    defaultVisible: ['invoice_number', 'invoice_date', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source', 'expense_category', 'remarks'],
     metadata: {
       generatedAt: new Date().toISOString(),
-      version: '1.0',
-      source: 'static_fallback'
+      version: '2.0', // 更新版本号
+      source: 'static_schema_based'
     }
   }
 }

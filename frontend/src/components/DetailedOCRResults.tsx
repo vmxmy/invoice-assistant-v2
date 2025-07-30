@@ -8,6 +8,11 @@ interface DetailedOCRResultsProps {
 const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => {
   const [isExpanded, setIsExpanded] = useState(false); // 默认折叠，点击后展开详细内容
   
+  // 仅在开发模式下显示详细OCR结果
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+  
   // 获取OCR相关数据
   const ocrData = fileItem.ocrData;
   const rawOcrData = ocrData?.raw_ocr_data;
@@ -19,7 +24,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
   if (!ocrData) {
     return (
       <div className="mt-4 border border-gray-200 rounded-lg p-4">
-        <div className="text-sm text-gray-500">暂无OCR数据</div>
+        <div className="text-sm text-gray-500">暂无OCR数据 (开发模式)</div>
       </div>
     );
   }
@@ -47,7 +52,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
         }`}
       >
         <span className="font-medium text-gray-700">
-          📋 详细OCR结果 {isExpanded ? '(点击收起)' : '(点击展开)'}
+          📋 详细OCR结果 (开发模式) {isExpanded ? '(点击收起)' : '(点击展开)'}
         </span>
         <svg
           className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}

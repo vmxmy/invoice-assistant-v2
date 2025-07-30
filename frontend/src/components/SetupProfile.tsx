@@ -1,11 +1,11 @@
 // Profile 设置组件 - 使用Supabase原生认证
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext'
+import { useAuthContext } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
 const SetupProfile: React.FC = () => {
-  const { user, updateProfile } = useSupabaseAuth()
+  const { user } = useAuthContext()
   const [formData, setFormData] = useState({
     display_name: user?.user_metadata?.display_name || '',
     bio: ''
@@ -38,7 +38,11 @@ const SetupProfile: React.FC = () => {
     setIsLoading(true)
     
     try {
-      const { error } = await updateProfile(formData)
+      // 使用 Supabase auth 更新用户元数据
+      const { supabase } = await import('../lib/supabase')
+      const { error } = await supabase.auth.updateUser({
+        data: formData
+      })
       
       if (error) {
         toast.error(`创建配置文件失败: ${error.message}`)
@@ -47,7 +51,7 @@ const SetupProfile: React.FC = () => {
 
       toast.success('配置文件创建成功！')
       navigate('/dashboard')
-    } catch (error) {
+    } catch (error: any) {
       console.error('创建配置文件异常:', error)
       toast.error('创建配置文件时发生异常')
     } finally {

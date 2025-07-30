@@ -8,6 +8,12 @@ import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { StatCardGrid } from '../components/dashboard/StatCard'
 import Layout from '../components/layout/Layout'
+import { 
+  CloudArrowUpIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  CpuChipIcon
+} from '@heroicons/react/24/outline'
 
 export function DashboardPage() {
   const { user } = useAuthContext()
@@ -79,7 +85,9 @@ export function DashboardPage() {
             <div className="card bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 shadow-xl hover:shadow-2xl transition-all duration-300">
               <div className="card-body">
                 <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">📤</div>
+                  <div className="w-12 h-12 mr-4 text-primary">
+                    <CloudArrowUpIcon />
+                  </div>
                   <h3 className="card-title text-primary">上传发票</h3>
                 </div>
                 <p className="text-sm text-base-content/70 mb-6 flex-1">
@@ -100,7 +108,9 @@ export function DashboardPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
               <div className="card-body">
                 <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">📄</div>
+                  <div className="w-12 h-12 mr-4 text-base-content">
+                    <DocumentTextIcon />
+                  </div>
                   <h3 className="card-title">发票管理</h3>
                 </div>
                 <p className="text-sm text-base-content/70 mb-6 flex-1">
@@ -120,22 +130,9 @@ export function DashboardPage() {
             <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
               <div className="card-body">
                 <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">📧</div>
-                  <h3 className="card-title">邮箱导入</h3>
-                </div>
-                <p className="text-sm text-base-content/70 mb-6 flex-1">
-                  配置邮箱自动导入发票附件
-                </p>
-                <div className="card-actions">
-                  <button className="btn btn-secondary btn-block">配置邮箱</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-              <div className="card-body">
-                <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">📊</div>
+                  <div className="w-12 h-12 mr-4 text-accent">
+                    <ChartBarIcon />
+                  </div>
                   <h3 className="card-title">数据统计</h3>
                 </div>
                 <p className="text-sm text-base-content/70 mb-6 flex-1">
@@ -147,32 +144,58 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* 智能助手卡片 - 特殊设计突出AI功能 */}
+            <div className="card bg-gradient-to-br from-secondary/10 to-accent/10 border border-secondary/30 shadow-xl hover:shadow-2xl transition-all duration-300">
               <div className="card-body">
                 <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">🔍</div>
-                  <h3 className="card-title">智能搜索</h3>
+                  <div className="w-12 h-12 mr-4 text-secondary">
+                    <CpuChipIcon />
+                  </div>
+                  <div>
+                    <h3 className="card-title text-secondary">智能助手</h3>
+                    <div className="badge badge-accent badge-xs mt-1">AI 驱动</div>
+                  </div>
                 </div>
                 <p className="text-sm text-base-content/70 mb-6 flex-1">
-                  按供应商、金额、日期等条件搜索
+                  AI助手帮您智能分析发票数据，提供洞察建议和自动化管理
                 </p>
-                <div className="card-actions">
-                  <button className="btn btn-info btn-block">开始搜索</button>
+                
+                {/* 功能预览 */}
+                <div className="flex flex-wrap gap-1 mb-4">
+                  <div className="badge badge-outline badge-xs">智能问答</div>
+                  <div className="badge badge-outline badge-xs">数据分析</div>
+                  <div className="badge badge-outline badge-xs">趋势预测</div>
                 </div>
-              </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-              <div className="card-body">
-                <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">⚙️</div>
-                  <h3 className="card-title">系统设置</h3>
-                </div>
-                <p className="text-sm text-base-content/70 mb-6 flex-1">
-                  个人资料和系统偏好设置
-                </p>
+                
                 <div className="card-actions">
-                  <button className="btn btn-outline btn-block">设置</button>
+                  <button 
+                    className="btn btn-secondary btn-block group"
+                    onClick={() => {
+                      // 暂时显示即将上线的提示
+                      const modal = document.createElement('div');
+                      modal.className = 'modal modal-open';
+                      modal.innerHTML = `
+                        <div class="modal-box">
+                          <h3 class="font-bold text-lg">🤖 智能助手</h3>
+                          <p class="py-4">AI智能助手功能正在开发中，即将为您提供：</p>
+                          <ul class="list-disc list-inside space-y-2 text-sm">
+                            <li>智能发票数据分析和洞察</li>
+                            <li>自然语言查询发票信息</li>
+                            <li>财务趋势预测和建议</li>
+                            <li>自动分类和标签建议</li>
+                          </ul>
+                          <div class="modal-action">
+                            <button class="btn" onclick="this.closest('.modal').remove()">了解更多</button>
+                          </div>
+                        </div>
+                        <div class="modal-backdrop" onclick="this.remove()"></div>
+                      `;
+                      document.body.appendChild(modal);
+                    }}
+                  >
+                    <span className="group-hover:hidden">即将上线</span>
+                    <span className="hidden group-hover:block">🚀 敬请期待</span>
+                  </button>
                 </div>
               </div>
             </div>

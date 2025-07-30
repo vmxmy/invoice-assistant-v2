@@ -181,6 +181,19 @@ export class InvoiceService {
    */
   static async deleteInvoice(invoiceId: string, userId: string): Promise<ServiceResponse<boolean>> {
     try {
+      // 先获取发票信息，包含文件哈希
+      const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('file_hash')
+        .eq('id', invoiceId)
+        .eq('user_id', userId)
+        .single()
+
+      if (fetchError) {
+        return { data: null, error: fetchError.message }
+      }
+
+      // 软删除发票（移至回收站）
       const { error } = await supabase
         .from('invoices')
         .update({ 
@@ -193,6 +206,25 @@ export class InvoiceService {
 
       if (error) {
         return { data: null, error: error.message }
+      }
+
+      // 删除哈希记录（如果存在），允许用户重新上传相同文件
+      if (invoice?.file_hash) {
+        try {
+          const { error: hashError } = await supabase
+            .from('file_hashes')
+            .delete()
+            .eq('file_hash', invoice.file_hash)
+            .eq('user_id', userId)
+          
+          if (hashError) {
+            console.warn('删除哈希记录失败:', hashError)
+            // 不返回错误，因为发票已成功软删除
+          }
+        } catch (hashError) {
+          console.warn('删除哈希记录异常:', hashError)
+          // 不返回错误，因为发票已成功软删除
+        }
       }
 
       return { data: true, error: null }
@@ -210,10 +242,23 @@ export class InvoiceService {
    */
   static async restoreInvoice(invoiceId: string, userId: string): Promise<ServiceResponse<boolean>> {
     try {
+      // 先获取发票信息，包含文件哈希
+      const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('file_hash')
+        .eq('id', invoiceId)
+        .eq('user_id', userId)
+        .single()
+
+      if (fetchError) {
+        return { data: null, error: fetchError.message }
+      }
+
+      // 恢复发票状态
       const { error } = await supabase
         .from('invoices')
         .update({ 
-          status: 'active',
+          status: 'unreimbursed',
           deleted_at: null,
           updated_at: new Date().toISOString()
         })
@@ -222,6 +267,28 @@ export class InvoiceService {
 
       if (error) {
         return { data: null, error: error.message }
+      }
+
+      // 重新创建哈希记录，防止重复上传
+      if (invoice?.file_hash) {
+        try {
+          const { error: hashError } = await supabase
+            .from('file_hashes')
+            .insert([{
+              file_hash: invoice.file_hash,
+              invoice_id: invoiceId,
+              user_id: userId,
+              created_at: new Date().toISOString()
+            }])
+          
+          if (hashError) {
+            console.warn('重新创建哈希记录失败:', hashError)
+            // 不返回错误，因为发票已成功恢复
+          }
+        } catch (hashError) {
+          console.warn('重新创建哈希记录异常:', hashError)
+          // 不返回错误，因为发票已成功恢复
+        }
       }
 
       return { data: true, error: null }
@@ -336,6 +403,68 @@ export class InvoiceService {
       return { data: true, error: null }
     } catch (error) {
       console.error('永久删除发票失败:', error)
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : '未知错误'
+      }
+    }
+  }
+
+  /**
+   * 批量恢复发票
+   */
+  static async batchRestoreInvoices(invoiceIds: string[], userId: string): Promise<ServiceResponse<{ successCount: number; failedIds: string[] }>> {
+    try {
+      let successCount = 0
+      const failedIds: string[] = []
+
+      // 逐个恢复发票
+      for (const invoiceId of invoiceIds) {
+        const result = await this.restoreInvoice(invoiceId, userId)
+        if (result.error) {
+          failedIds.push(invoiceId)
+        } else {
+          successCount++
+        }
+      }
+
+      return { 
+        data: { successCount, failedIds }, 
+        error: failedIds.length > 0 ? `${failedIds.length} 个发票恢复失败` : null 
+      }
+    } catch (error) {
+      console.error('批量恢复发票失败:', error)
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : '未知错误'
+      }
+    }
+  }
+
+  /**
+   * 批量永久删除发票
+   */
+  static async batchPermanentlyDeleteInvoices(invoiceIds: string[], userId: string): Promise<ServiceResponse<{ successCount: number; failedIds: string[] }>> {
+    try {
+      let successCount = 0
+      const failedIds: string[] = []
+
+      // 逐个删除发票
+      for (const invoiceId of invoiceIds) {
+        const result = await this.permanentlyDeleteInvoice(invoiceId, userId)
+        if (result.error) {
+          failedIds.push(invoiceId)
+        } else {
+          successCount++
+        }
+      }
+
+      return { 
+        data: { successCount, failedIds }, 
+        error: failedIds.length > 0 ? `${failedIds.length} 个发票删除失败` : null 
+      }
+    } catch (error) {
+      console.error('批量永久删除发票失败:', error)
       return {
         data: null,
         error: error instanceof Error ? error.message : '未知错误'
