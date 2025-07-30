@@ -12,6 +12,21 @@ import {
   Download
 } from 'lucide-react';
 import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
+import { 
+  extractTrainTicketInfo, 
+  formatTrainRoute, 
+  getSeatTypeStyle, 
+  isValidTrainTicket,
+  isTrainTicketByCategory 
+} from '../../../utils/trainTicketUtils';
+import { 
+  extractFlightTicketInfo, 
+  formatFlightRoute, 
+  getSeatClassStyle, 
+  getAirlineStyle, 
+  isValidFlightTicket,
+  isFlightTicketByCategory 
+} from '../../../utils/flightTicketUtils';
 
 interface Invoice {
   id: string;
@@ -80,6 +95,44 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     return statusMap[status as keyof typeof statusMap] || 'badge-neutral';
   };
 
+  const getInvoiceTypeEmoji = (invoice: Invoice) => {
+    // 优先检查特定的发票类型
+    if (isTrainTicketByCategory(invoice)) {
+      return '🚄';
+    }
+    if (isFlightTicketByCategory(invoice)) {
+      return '✈️';
+    }
+    if (invoice.invoice_type === '餐饮服务') {
+      return '🍽️';
+    }
+    
+    // 根据费用类别返回emoji
+    const category = (invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name || '').toLowerCase();
+    
+    if (category.includes('住宿') || category.includes('酒店')) {
+      return '🏨';
+    }
+    if (category.includes('出租车') || category.includes('网约车') || category.includes('滴滴')) {
+      return '🚕';
+    }
+    if (category.includes('加油') || category.includes('油费')) {
+      return '⛽';
+    }
+    if (category.includes('停车')) {
+      return '🅿️';
+    }
+    if (category.includes('办公') || category.includes('文具')) {
+      return '📄';
+    }
+    if (category.includes('会议') || category.includes('会务')) {
+      return '👥';
+    }
+    
+    // 默认返回文档图标
+    return '📄';
+  };
+
   return (
     <div className="card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg transition-all duration-200">
       <div className="card-body p-4">
@@ -94,18 +147,20 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             />
             <div className="flex flex-col gap-2 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-base flex-shrink-0">{getCategoryIcon(invoice)}</span>
                 <span className="font-medium text-sm truncate">{invoice.invoice_number}</span>
               </div>
               
-              {/* 统一徽章行 - 状态、分类、类型统一样式 */}
+              {/* 统一徽章行 - 发票类型、费用类别、发票状态 */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* 状态徽章 - 统一使用 badge-sm 尺寸 */}
-                <div className={`badge ${getStatusBadge(invoice.status)} badge-sm font-medium h-5`}>
-                  {invoice.status.toUpperCase()}
-                </div>
+                {/* 发票类型徽章 - 第一位显示 */}
+                {invoice.invoice_type && (
+                  <div className="badge badge-outline badge-sm font-medium h-5">
+                    <span className="truncate max-w-16">{invoice.invoice_type}</span>
+                  </div>
+                )}
                 
-                {/* 分类徽章 - 根据分类值使用不同背景颜色 */}
+                {/* 费用类别徽章 - 第二位显示，根据分类值使用不同背景颜色 */}
                 {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
                   <div 
                     className={getCategoryBadgeStyle(invoice).className}
@@ -126,12 +181,10 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                   </>
                 )}
                 
-                {/* 发票类型徽章 - 统一尺寸 */}
-                {invoice.invoice_type && (
-                  <div className="badge badge-outline badge-sm font-medium h-5">
-                    <span className="truncate max-w-16">{invoice.invoice_type}</span>
-                  </div>
-                )}
+                {/* 发票状态徽章 - 第三位显示 */}
+                <div className={`badge ${getStatusBadge(invoice.status)} badge-sm font-medium h-5`}>
+                  {invoice.status.toUpperCase()}
+                </div>
               </div>
             </div>
           </div>
@@ -187,18 +240,131 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             </div>
           </div>
 
-          {/* 费用类别显示区域 */}
-          {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) && (
+          {/* 根据费用类别显示专有信息区域 */}
+          {isTrainTicketByCategory(invoice) && (() => {
+            const trainInfo = extractTrainTicketInfo(invoice);
+            const isValid = isValidTrainTicket(trainInfo);
+            
+            if (!isValid || !trainInfo) {
+              return (
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-warning">⚠️ 火车票信息解析失败</span>
+                  </div>
+                </div>
+              );
+            }
+            
+            const seatStyle = getSeatTypeStyle(trainInfo.seatType);
+            const route = formatTrainRoute(trainInfo.departureStation, trainInfo.arrivalStation);
+            
+            return (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="badge badge-info badge-sm">
+                    <span className="text-xs">🕐</span>
+                    <span className="font-medium">
+                      {trainInfo.departureTime && trainInfo.departureTimeDetail 
+                        ? `${trainInfo.departureTime} ${trainInfo.departureTimeDetail}`
+                        : trainInfo.departureTime || '时间未知'
+                      }
+                    </span>
+                  </div>
+                  <div className="badge badge-outline badge-sm">
+                    <span className="text-xs">🚩</span>
+                    <span className="font-medium">{route}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="badge badge-primary badge-sm">
+                    <span className="text-xs">🚄</span>
+                    <span className="font-medium">{trainInfo.trainNumber}</span>
+                  </div>
+                  <div className={`badge ${seatStyle.className} badge-sm`}>
+                    <span className="text-xs">{seatStyle.icon}</span>
+                    <span className="font-medium">{trainInfo.seatType}</span>
+                  </div>
+                  <div className="badge badge-neutral badge-sm">
+                    <span className="text-xs">💺</span>
+                    <span className="font-medium">{trainInfo.seatNumber}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          
+          {isFlightTicketByCategory(invoice) && (() => {
+            const flightInfo = extractFlightTicketInfo(invoice);
+            const isValid = isValidFlightTicket(flightInfo);
+            
+            if (!isValid || !flightInfo) {
+              return (
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-warning">⚠️ 飞机票信息解析失败</span>
+                  </div>
+                </div>
+              );
+            }
+            
+            const seatClassStyle = getSeatClassStyle(flightInfo.seatClass);
+            const airlineStyle = getAirlineStyle(flightInfo.airline);
+            const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
+            
+            return (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="badge badge-info badge-sm">
+                    <span className="text-xs">🕐</span>
+                    <span className="font-medium">
+                      {flightInfo.departureTime || '时间未知'}
+                    </span>
+                  </div>
+                  <div className="badge badge-outline badge-sm">
+                    <span className="text-xs">✈️</span>
+                    <span className="font-medium">{route}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="badge badge-primary badge-sm">
+                    <span className="text-xs">✈️</span>
+                    <span className="font-medium">{flightInfo.flightNumber}</span>
+                  </div>
+                  {flightInfo.seatClass && flightInfo.seatClass.trim() && (
+                    <div className={`badge ${seatClassStyle.className} badge-sm`}>
+                      <span className="text-xs">{seatClassStyle.icon}</span>
+                      <span className="font-medium">{flightInfo.seatClass}</span>
+                    </div>
+                  )}
+                  {flightInfo.seatNumber && (
+                    <div className="badge badge-neutral badge-sm">
+                      <span className="text-xs">💺</span>
+                      <span className="font-medium">{flightInfo.seatNumber}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+          
+          {invoice.invoice_type === '餐饮服务' && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-base-content/60">用餐信息：</span>
+                <div className="badge badge-warning badge-sm">
+                  <span className="text-xs">🍽️</span>
+                  <span className="font-medium">晚餐</span>
+                </div>
+                <span className="text-xs text-base-content/60">4人用餐</span>
+              </div>
+            </div>
+          )}
+          
+          {!isTrainTicketByCategory(invoice) && !isFlightTicketByCategory(invoice) && invoice.invoice_type !== '餐饮服务' && (
             <div className="bg-base-50 border border-base-200 rounded-lg p-3 mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-base-content/60">费用类别：</span>
-                <div 
-                  className={getCategoryBadgeStyle(invoice).className}
-                  style={getCategoryBadgeStyle(invoice).style}
-                >
-                  <span className="text-xs">{getCategoryIcon(invoice)}</span>
-                  <span className="font-medium">{getCategoryDisplayName(invoice)}</span>
-                </div>
+                <span className="text-sm text-base-content/60">备注信息：</span>
+                <span className="text-sm font-medium">普通发票</span>
               </div>
             </div>
           )}
@@ -210,11 +376,11 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-base-content/60" />
                   <span className="text-sm font-medium">
-                    {invoice.invoice_type === '火车票' ? '发车' : '消费'}：
+                    消费：
                     {invoice.consumption_date ? formatDate(invoice.consumption_date) : formatDate(invoice.invoice_date)}
                   </span>
                 </div>
-                {invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
+                {!isTrainTicketByCategory(invoice) && !isFlightTicketByCategory(invoice) && invoice.consumption_date && invoice.consumption_date !== invoice.invoice_date && (
                   <div className="flex items-center gap-2 ml-6">
                     <span className="text-xs text-base-content/50">
                       开票：{formatDate(invoice.invoice_date)}

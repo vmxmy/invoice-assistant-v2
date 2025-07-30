@@ -324,6 +324,33 @@ const EmailScanJobsPage: React.FC = () => {
                       <div className="font-semibold">{job.processed_invoices.toLocaleString()}</div>
                     </div>
                   )}
+                  
+                  {/* 邮件正文相关统计 */}
+                  {job.scan_results?.emails_with_body !== undefined && (
+                    <div className="stat-item">
+                      <div className="text-base-content/60">含正文邮件</div>
+                      <div className="font-semibold">
+                        {job.scan_results.emails_with_body.toLocaleString()}
+                        {job.matched_emails && (
+                          <span className="text-xs text-base-content/50 ml-1">
+                            ({Math.round(job.scan_results.emails_with_body / job.matched_emails * 100)}%)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {job.scan_results?.total_body_size !== undefined && (
+                    <div className="stat-item">
+                      <div className="text-base-content/60">正文总量</div>
+                      <div className="font-semibold">
+                        {job.scan_results.total_body_size > 1024 * 1024 
+                          ? `${(job.scan_results.total_body_size / 1024 / 1024).toFixed(1)}MB`
+                          : `${Math.round(job.scan_results.total_body_size / 1024)}KB`
+                        }
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 错误信息 */}
