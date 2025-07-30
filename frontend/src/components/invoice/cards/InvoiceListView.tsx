@@ -1,31 +1,88 @@
 import React from 'react';
 import InvoiceCard from './InvoiceCard';
 
+// 视图数据结构 - 来自 invoice_management_view
 interface Invoice {
+  // 基础发票信息
   id: string;
+  user_id: string;
+  email_task_id?: string;
   invoice_number: string;
-  invoice_date: string;
-  consumption_date?: string;
-  seller_name: string;
-  buyer_name: string;
-  total_amount: number;
-  status: string;
-  processing_status: string;
-  source: string;
+  invoice_code?: string;
   invoice_type?: string;
-  created_at: string;
-  tags: string[];
-  secondary_category_name?: string;
+  status: string;
+  processing_status?: string;
+  amount: number;
+  tax_amount?: number;
+  total_amount?: number;
+  currency: string;
+  invoice_date: string;
+  seller_name?: string;
+  seller_tax_id?: string;
+  buyer_name?: string;
+  buyer_tax_id?: string;
+  
+  // 文件信息
+  file_path?: string;
+  file_url?: string;
+  file_size?: number;
+  file_hash?: string;
+  source: string;
+  source_metadata?: Record<string, any>;
+  
+  // 验证信息
+  is_verified: boolean;
+  verified_at?: string;
+  verified_by?: string;
+  verification_notes?: string;
+  
+  // 标签和基础分类
+  tags?: string[];
+  basic_category?: string; // 原来的 category 字段
+  
+  // 分类信息 - 从关联表获取
+  primary_category_id?: string;
   primary_category_name?: string;
-  expense_category?: string;
-  category_icon?: string;
-  extracted_data?: {
-    structured_data?: {
-      total_amount?: string;
-      [key: string]: any;
-    };
-    [key: string]: any;
-  };
+  primary_category_code?: string;
+  primary_category_color?: string;
+  primary_category_icon?: string;
+  secondary_category_id?: string;
+  secondary_category_name?: string;
+  secondary_category_code?: string;
+  
+  // 自动分类信息
+  auto_classified?: boolean;
+  classification_confidence?: number;
+  classification_metadata?: Record<string, any>;
+  
+  // 提取数据
+  extracted_data: Record<string, any>;
+  
+  // 计算字段
+  remarks: string; // 从多个来源提取的备注
+  expense_category: string; // 综合判断的费用类别
+  expense_category_code: string;
+  category_icon: string;
+  category_color: string;
+  display_amount: number; // 显示金额
+  category_path: string; // 分类层级路径
+  status_text: string; // 状态中文显示
+  processing_status_text: string; // 处理状态中文显示
+  source_text: string; // 来源中文显示
+  
+  // 时间信息
+  started_at?: string;
+  completed_at?: string;
+  last_activity_at?: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+  
+  // 元数据和版本
+  metadata: Record<string, any>;
+  created_by?: string;
+  updated_by?: string;
+  version: number;
 }
 
 interface InvoiceListViewProps {
@@ -35,6 +92,7 @@ interface InvoiceListViewProps {
   onViewInvoice: (invoiceId: string) => void;
   onDownloadInvoice: (invoice: Invoice) => void;
   onDeleteInvoice: (invoice: Invoice) => void;
+  onStatusChange?: (invoiceId: string, newStatus: string) => Promise<boolean>;
   isLoading?: boolean;
 }
 
@@ -45,6 +103,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   onViewInvoice,
   onDownloadInvoice,
   onDeleteInvoice,
+  onStatusChange,
   isLoading = false
 }) => {
 
@@ -95,6 +154,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
             onView={onViewInvoice}
             onEdit={onDownloadInvoice}
             onDelete={onDeleteInvoice}
+            onStatusChange={onStatusChange}
           />
         ))}
       </div>

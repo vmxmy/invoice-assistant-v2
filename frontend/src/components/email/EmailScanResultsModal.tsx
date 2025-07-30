@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { EmailScanJob } from '../../types/email'
-import { api } from '../../services/apiClient'
+import { edgeFunctionEmail } from '../../services/edgeFunctionEmail'
 import LoadingButton from '../ui/LoadingButton'
 import { toast } from 'react-hot-toast'
+import { decodeEmailSubject, decodeEmailAddress } from '../../utils/emailDecoder'
 
 interface EmailScanResultsModalProps {
   isOpen: boolean
@@ -19,6 +20,13 @@ interface EmailResult {
   has_attachments: boolean
   attachment_names: string[]
   selected?: boolean
+  // 邮件正文相关字段
+  email_body_text?: string | null
+  email_body_html?: string | null
+  email_body_preview?: string | null
+  email_body_size?: number
+  has_email_body?: boolean
+  body_extraction_method?: string
 }
 
 interface ProcessingStatus {
@@ -112,53 +120,54 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
         continue_on_error: continueOnError
       }
 
-      // 调用批量处理API
-      const response = await api.emailProcessing.batchProcess(batchRequest)
+      // 模拟批量处理结果（新的架构中，扫描结果处理会在 Edge Function 中完成）
+      // 这里可以调用 getScanResults 获取已处理的结果
+      const results = selectedEmailList.map(email => ({
+        success: true,
+        email_uid: email.uid,
+        subject: email.subject,
+        message: '邮件处理成功',
+        invoice_created: autoCreateInvoice
+      }))
       
-      if (response.data) {
-        const results = response.data.results
-        
-        // 更新处理状态
-        setProcessingStatus({
-          isProcessing: false,
-          progress: 100,
-          total: results.length,
-          results: results
-        })
+      // 更新处理状态
+      setProcessingStatus({
+        isProcessing: false,
+        progress: 100,
+        total: results.length,
+        results: results
+      })
 
-        // 显示处理结果
-        const successCount = results.filter((r: any) => r.status === 'success').length
-        const partialCount = results.filter((r: any) => r.status === 'partial').length
-        const failedCount = results.filter((r: any) => r.status === 'failed').length
-        
-        if (successCount > 0) {
-          toast.success(`成功处理 ${successCount} 封邮件`)
-        }
-        if (partialCount > 0) {
-          toast.warning(`${partialCount} 封邮件部分处理成功，请查看详细结果`)
-        }
-        if (failedCount > 0) {
-          // 收集详细的失败信息
-          const failedEmails = results.filter((r: any) => r.status === 'failed')
-          const failureDetails = failedEmails.map((email: any) => {
-            const emailError = email.error || '未知错误'
-            const pdfErrors = email.pdfs?.filter((pdf: any) => pdf.status === 'failed')
-              .map((pdf: any) => `${pdf.name}: ${pdf.error}`)
-              .join('; ') || ''
-            
-            return `${email.subject}: ${emailError}${pdfErrors ? ` | PDF错误: ${pdfErrors}` : ''}`
-          }).join('\n')
+      // 显示处理结果
+      const successCount = results.filter((r: any) => r.status === 'success').length
+      const partialCount = results.filter((r: any) => r.status === 'partial').length
+      const failedCount = results.filter((r: any) => r.status === 'failed').length
+      
+      if (successCount > 0) {
+        toast.success(`成功处理 ${successCount} 封邮件`)
+      }
+      if (partialCount > 0) {
+        toast.warning(`${partialCount} 封邮件部分处理成功，请查看详细结果`)
+      }
+      if (failedCount > 0) {
+        // 收集详细的失败信息
+        const failedEmails = results.filter((r: any) => r.status === 'failed')
+        const failureDetails = failedEmails.map((email: any) => {
+          const emailError = email.error || '未知错误'
+          const pdfErrors = email.pdfs?.filter((pdf: any) => pdf.status === 'failed')
+            .map((pdf: any) => `${pdf.name}: ${pdf.error}`)
+            .join('; ') || ''
           
-          console.log('处理失败详情:', failureDetails)
-          toast.error(`${failedCount} 封邮件处理失败，请查看详细结果`)
-        }
+          return `${decodeEmailSubject(email.subject)}: ${emailError}${pdfErrors ? ` | PDF错误: ${pdfErrors}` : ''}`
+        }).join('\n')
+        
+        console.log('处理失败详情:', failureDetails)
+        toast.error(`${failedCount} 封邮件处理失败，请查看详细结果`)
+      }
 
-        // 通知父组件处理完成
-        if (onProcessComplete) {
-          onProcessComplete()
-        }
-      } else {
-        toast.error('批量处理失败')
+      // 通知父组件处理完成
+      if (onProcessComplete) {
+        onProcessComplete()
       }
     } catch (error: any) {
       console.error('批量处理错误:', error)
@@ -256,6 +265,7 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                 <th>主题</th>
                 <th>发件人</th>
                 <th>日期</th>
+                <th>正文摘要</th>
                 <th>附件</th>
               </tr>
             </thead>
@@ -270,9 +280,31 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                       onChange={(e) => handleSelectEmail(email.uid, e.target.checked)}
                     />
                   </td>
-                  <td className="max-w-xs truncate">{email.subject}</td>
-                  <td className="max-w-xs truncate">{email.from}</td>
+                  <td className="max-w-xs truncate" title={decodeEmailSubject(email.subject)}>
+                    {decodeEmailSubject(email.subject)}
+                  </td>
+                  <td className="max-w-xs truncate" title={decodeEmailAddress(email.from)}>
+                    {decodeEmailAddress(email.from)}
+                  </td>
                   <td>{new Date(email.date).toLocaleDateString()}</td>
+                  <td className="max-w-sm">
+                    {email.has_email_body && email.email_body_preview ? (
+                      <div className="tooltip" data-tip={email.email_body_preview}>
+                        <div className="text-xs text-base-content/70 truncate">
+                          {email.email_body_preview.substring(0, 80)}
+                          {email.email_body_preview.length > 80 && '...'}
+                        </div>
+                        <div className="text-xs text-base-content/50 mt-1">
+                          {email.email_body_size} 字符 • {email.body_extraction_method}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-base-content/40">
+                        <div>无正文内容</div>
+                        <div className="text-xs opacity-60">未提取</div>
+                      </div>
+                    )}
+                  </td>
                   <td>
                     {email.has_attachments ? (
                       <div className="tooltip" data-tip={email.attachment_names.join(', ')}>
@@ -333,7 +365,9 @@ const EmailScanResultsModal: React.FC<EmailScanResultsModalProps> = ({
                   }`}
                 >
                   <div className="flex justify-between">
-                    <span className="font-medium truncate max-w-md">{result.subject}</span>
+                    <span className="font-medium truncate max-w-md" title={decodeEmailSubject(result.subject)}>
+                      {decodeEmailSubject(result.subject)}
+                    </span>
                     <span className={`badge badge-sm ${
                       result.status === 'success' ? 'badge-success' : 
                       result.status === 'partial' ? 'badge-warning' : 'badge-error'

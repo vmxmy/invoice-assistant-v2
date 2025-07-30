@@ -1,132 +1,157 @@
-import React, { memo } from 'react';
-import type { LucideIcon } from 'lucide-react';
+/**
+ * 统计卡片组件
+ * 显示单个统计指标
+ */
+import React from 'react'
+import type { StatCard as StatCardType } from '../../types/dashboard.types'
 
 interface StatCardProps {
-  title: string;
-  value: string | number;
-  subValue?: string;
-  icon?: LucideIcon;
-  trend?: {
-    value: number;
-    direction: 'up' | 'down' | 'neutral';
-    label?: string;
-  };
-  variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info';
-  loading?: boolean;
-  formatValue?: (value: string | number) => string;
+  stat: StatCardType
+  loading?: boolean
+  className?: string
 }
 
-export const StatCard: React.FC<StatCardProps> = memo(({
-  title,
-  value,
-  subValue,
-  icon: Icon,
-  trend,
-  variant = 'primary',
-  loading = false,
-  formatValue: customFormatValue,
-}) => {
-  const getVariantClasses = () => {
-    const variants = {
-      primary: 'border-primary/20 bg-primary/5 text-primary',
-      secondary: 'border-secondary/20 bg-secondary/5 text-secondary',
-      accent: 'border-accent/20 bg-accent/5 text-accent',
-      success: 'border-success/20 bg-success/5 text-success',
-      warning: 'border-warning/20 bg-warning/5 text-warning',
-      error: 'border-error/20 bg-error/5 text-error',
-      info: 'border-info/20 bg-info/5 text-info',
-    };
-    return variants[variant];
-  };
+export function StatCard({ stat, loading = false, className = '' }: StatCardProps) {
+  // 获取趋势图标
+  const getTrendIcon = (trend: 'up' | 'down' | 'neutral') => {
+    switch (trend) {
+      case 'up':
+        return '↗️'
+      case 'down':
+        return '↘️'
+      default:
+        return '→'
+    }
+  }
 
-  const getTrendIcon = () => {
-    if (!trend) return null;
-    
-    if (trend.direction === 'up') {
-      return <span className="text-success">↗</span>;
-    } else if (trend.direction === 'down') {
-      return <span className="text-error">↘</span>;
+  // 获取趋势颜色
+  const getTrendColor = (trend: 'up' | 'down' | 'neutral') => {
+    switch (trend) {
+      case 'up':
+        return 'text-success'
+      case 'down':
+        return 'text-error'
+      default:
+        return 'text-base-content/60'
     }
-    return <span className="text-base-content/50">→</span>;
-  };
+  }
 
-  const formatValue = (val: string | number) => {
-    if (customFormatValue) {
-      return customFormatValue(val);
+  // 获取卡片颜色样式
+  const getCardColorClass = (color?: string) => {
+    switch (color) {
+      case 'primary':
+        return 'bg-primary/10 border-primary/20'
+      case 'secondary':
+        return 'bg-secondary/10 border-secondary/20'
+      case 'accent':
+        return 'bg-accent/10 border-accent/20'
+      case 'info':
+        return 'bg-info/10 border-info/20'
+      case 'success':
+        return 'bg-success/10 border-success/20'
+      case 'warning':
+        return 'bg-warning/10 border-warning/20'
+      case 'error':
+        return 'bg-error/10 border-error/20'
+      default:
+        return 'bg-base-200 border-base-300'
     }
-    
-    if (typeof val === 'number') {
-      // 默认数字格式化
-      return val.toLocaleString();
+  }
+
+  // 获取数字颜色
+  const getValueColor = (color?: string) => {
+    switch (color) {
+      case 'primary':
+        return 'text-primary'
+      case 'secondary':
+        return 'text-secondary'
+      case 'accent':
+        return 'text-accent'
+      case 'info':
+        return 'text-info'
+      case 'success':
+        return 'text-success'
+      case 'warning':
+        return 'text-warning'
+      case 'error':
+        return 'text-error'
+      default:
+        return 'text-base-content'
     }
-    return val;
-  };
+  }
 
   if (loading) {
     return (
-      <div className="card bg-base-100 shadow-lg border border-base-300">
-        <div className="card-body">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="skeleton h-4 w-20 mb-2"></div>
-              <div className="skeleton h-8 w-24 mb-1"></div>
-              <div className="skeleton h-3 w-16"></div>
-            </div>
-            <div className="skeleton w-12 h-12 rounded-lg"></div>
-          </div>
+      <div className={`stat bg-base-200 rounded-box shadow-lg border ${className}`}>
+        <div className="stat-figure">
+          <div className="skeleton w-8 h-8 rounded-full"></div>
+        </div>
+        <div className="stat-title">
+          <div className="skeleton h-4 w-20"></div>
+        </div>
+        <div className="stat-value">
+          <div className="skeleton h-8 w-16"></div>
+        </div>
+        <div className="stat-desc">
+          <div className="skeleton h-3 w-24"></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="card bg-base-100 shadow-lg border border-base-300 hover:shadow-xl transition-shadow duration-200">
-      <div className="card-body">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-base-content/70 mb-1">
-              {title}
-            </h3>
-            <div className="text-2xl font-bold text-base-content mb-1">
-              {formatValue(value)}
-            </div>
-            
-            {subValue && (
-              <div className="text-sm text-base-content/60">
-                {subValue}
-              </div>
-            )}
-            
-            {trend && (
-              <div className="flex items-center gap-1 mt-2">
-                {getTrendIcon()}
-                <span className={`text-sm ${
-                  trend.direction === 'up' ? 'text-success' : 
-                  trend.direction === 'down' ? 'text-error' : 
-                  'text-base-content/60'
-                }`}>
-                  {Math.abs(trend.value)}%
-                </span>
-                {trend.label && (
-                  <span className="text-sm text-base-content/60">
-                    {trend.label}
-                  </span>
-                )}
-              </div>
-            )}
+    <div className={`stat rounded-box shadow-lg border transition-all duration-300 hover:shadow-xl ${getCardColorClass(stat.color)} ${className}`}>
+      {/* 图标 */}
+      <div className="stat-figure text-3xl opacity-80">
+        {stat.icon}
+      </div>
+      
+      {/* 标题 */}
+      <div className="stat-title font-medium text-base-content/70">
+        {stat.title}
+      </div>
+      
+      {/* 数值 */}
+      <div className={`stat-value text-2xl font-bold ${getValueColor(stat.color)}`}>
+        {stat.value}
+      </div>
+      
+      {/* 描述和趋势 */}
+      <div className="stat-desc">
+        {stat.change && (
+          <div className={`flex items-center gap-1 text-sm font-medium ${getTrendColor(stat.change.trend)}`}>
+            <span>{getTrendIcon(stat.change.trend)}</span>
+            <span>{stat.change.value}%</span>
+            <span className="text-base-content/50">({stat.change.period})</span>
           </div>
-          
-          {Icon && (
-            <div className={`p-3 rounded-lg ${getVariantClasses()}`}>
-              <Icon className="w-6 h-6" />
-            </div>
-          )}
-        </div>
+        )}
+        {stat.description && (
+          <div className="text-xs text-base-content/60 mt-1">
+            {stat.description}
+          </div>
+        )}
       </div>
     </div>
-  );
-});
+  )
+}
 
-StatCard.displayName = 'StatCard';
+// 统计卡片网格组件
+interface StatCardGridProps {
+  stats: StatCardType[]
+  loading?: boolean
+  className?: string
+}
 
-export default StatCard;
+export function StatCardGrid({ stats, loading = false, className = '' }: StatCardGridProps) {
+  return (
+    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ${className}`}>
+      {stats.map((stat, index) => (
+        <StatCard 
+          key={stat.title} 
+          stat={stat} 
+          loading={loading}
+        />
+      ))}
+    </div>
+  )
+}

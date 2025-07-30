@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 开发环境
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    profiles:
+      - dev
+
+  # 生产环境
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    restart: unless-stopped
+    profiles:
+      - prod
+
+networks:
+  default:
+    name: invoice-assist-network
