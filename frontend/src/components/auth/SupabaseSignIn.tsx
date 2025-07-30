@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
+import { useAuthContext } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
 const SupabaseSignIn: React.FC = () => {
@@ -12,7 +12,7 @@ const SupabaseSignIn: React.FC = () => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   
-  const { signIn } = useSupabaseAuth()
+  const { signIn } = useAuthContext()
   const navigate = useNavigate()
   const location = useLocation()
   

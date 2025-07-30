@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
+import { useAuthContext } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
 const SupabaseSignUp: React.FC = () => {
@@ -14,7 +14,7 @@ const SupabaseSignUp: React.FC = () => {
   const [displayName, setDisplayName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   
-  const { signUp } = useSupabaseAuth()
+  const { signUp } = useAuthContext()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {

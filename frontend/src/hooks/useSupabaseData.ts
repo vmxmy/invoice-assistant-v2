@@ -245,6 +245,71 @@ export const usePermanentlyDeleteInvoice = () => {
   })
 }
 
+export const useBatchRestoreInvoices = () => {
+  const { user } = useAuthContext()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (invoiceIds: string[]) => {
+      if (!user?.id) throw new Error('用户未登录')
+      return InvoiceService.batchRestoreInvoices(invoiceIds, user.id)
+    },
+    onSuccess: (result) => {
+      if (result.error) {
+        toast.error(`批量恢复失败: ${result.error}`)
+        return
+      }
+      
+      const { successCount, failedIds } = result.data!
+      if (successCount > 0) {
+        toast.success(`成功恢复 ${successCount} 个发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
+      }
+      
+      // 刷新相关查询缓存
+      queryClient.invalidateQueries({
+        queryKey: ['deletedInvoices', user?.id || '']
+      })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.invoices(user?.id || '', undefined)
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(`批量恢复失败: ${error.message}`)
+    }
+  })
+}
+
+export const useBatchPermanentlyDeleteInvoices = () => {
+  const { user } = useAuthContext()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (invoiceIds: string[]) => {
+      if (!user?.id) throw new Error('用户未登录')
+      return InvoiceService.batchPermanentlyDeleteInvoices(invoiceIds, user.id)
+    },
+    onSuccess: (result) => {
+      if (result.error) {
+        toast.error(`批量删除失败: ${result.error}`)
+        return
+      }
+      
+      const { successCount, failedIds } = result.data!
+      if (successCount > 0) {
+        toast.success(`成功删除 ${successCount} 个发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
+      }
+      
+      // 刷新删除发票列表缓存
+      queryClient.invalidateQueries({
+        queryKey: ['deletedInvoices', user?.id || '']
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(`批量删除失败: ${error.message}`)
+    }
+  })
+}
+
 export const useInvoiceOCR = () => {
   return useMutation({
     mutationFn: (request: OCRRequest) => {

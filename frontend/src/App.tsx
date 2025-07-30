@@ -15,6 +15,7 @@ import { TrashPage } from './pages/TrashPage'
 import EmailAccountsPage from './pages/EmailAccountsPage'
 import EmailScanJobsPage from './pages/EmailScanJobsPage'
 import SimpleEmailConfigPage from './pages/SimpleEmailConfigPage'
+import AccountSettingsPage from './pages/AccountSettingsPage'
 import './App.css'
 
 // 创建QueryClient实例
@@ -104,6 +105,14 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <SimpleEmailConfigPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <AccountSettingsPage />
           </ProtectedRoute>
         } 
       />

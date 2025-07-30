@@ -16,7 +16,10 @@ import {
   ExternalLink,
   Image as ImageIcon,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  CheckCircle2,
+  AlertCircle,
+  XCircle
 } from 'lucide-react';
 import type { Invoice } from '../../../types/table';
 
@@ -228,17 +231,21 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
                   <h3 className="font-semibold text-base">基本信息</h3>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                      {invoice.status === 'verified' ? (
+                      {invoice.status === 'unreimbursed' ? (
                         <CheckCircle2 className="w-4 h-4 text-success" />
-                      ) : invoice.status === 'pending' ? (
-                        <AlertCircle className="w-4 h-4 text-warning" />
+                      ) : invoice.status === 'reimbursed' ? (
+                        <AlertCircle className="w-4 h-4 text-info" />
+                      ) : invoice.status === 'voided' ? (
+                        <XCircle className="w-4 h-4 text-error" />
                       ) : null}
                       <span className={`badge ${
-                        invoice.status === 'verified' ? 'badge-success' : 
-                        invoice.status === 'pending' ? 'badge-warning' : 'badge-ghost'
+                        invoice.status === 'unreimbursed' ? 'badge-success' : 
+                        invoice.status === 'reimbursed' ? 'badge-info' :
+                        invoice.status === 'voided' ? 'badge-error' : 'badge-ghost'
                       }`}>
-                        {invoice.status === 'verified' ? '已验证' :
-                         invoice.status === 'pending' ? '待处理' : invoice.status}
+                        {invoice.status === 'unreimbursed' ? '未报销' :
+                         invoice.status === 'reimbursed' ? '已报销' :
+                         invoice.status === 'voided' ? '作废' : invoice.status}
                       </span>
                     </div>
                     {invoice.total_amount && (

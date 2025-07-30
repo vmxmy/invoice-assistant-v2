@@ -7,21 +7,89 @@ import { useMemo } from 'react'
 import { createColumnHelper, type ColumnDef } from '@tanstack/react-table'
 import { useTableColumns, type TableColumn } from './useTableColumns'
 
+// 视图数据结构 - 来自 invoice_management_view
 interface Invoice {
+  // 基础发票信息
   id: string
+  user_id: string
+  email_task_id?: string
   invoice_number: string
-  invoice_date: string
-  seller_name: string
-  buyer_name?: string
-  total_amount: number
-  status: string
-  source: string
+  invoice_code?: string
   invoice_type?: string
+  status: string
+  processing_status?: string
+  amount: number
+  tax_amount?: number
+  total_amount?: number
+  currency: string
+  invoice_date: string
+  seller_name?: string
+  seller_tax_id?: string
+  buyer_name?: string
+  buyer_tax_id?: string
+  
+  // 文件信息
+  file_path?: string
+  file_url?: string
+  file_size?: number
+  file_hash?: string
+  source: string
+  source_metadata?: Record<string, any>
+  
+  // 验证信息
+  is_verified: boolean
+  verified_at?: string
+  verified_by?: string
+  verification_notes?: string
+  
+  // 标签和基础分类
+  tags?: string[]
+  basic_category?: string // 原来的 category 字段
+  
+  // 分类信息 - 从关联表获取
+  primary_category_id?: string
+  primary_category_name?: string
+  primary_category_code?: string
+  primary_category_color?: string
+  primary_category_icon?: string
+  secondary_category_id?: string
+  secondary_category_name?: string
+  secondary_category_code?: string
+  
+  // 自动分类信息
+  auto_classified?: boolean
+  classification_confidence?: number
+  classification_metadata?: Record<string, any>
+  
+  // 提取数据
+  extracted_data: Record<string, any>
+  
+  // 计算字段
+  remarks: string // 从多个来源提取的备注
+  expense_category: string // 综合判断的费用类别
+  expense_category_code: string
+  category_icon: string
+  category_color: string
+  display_amount: number // 显示金额
+  category_path: string // 分类层级路径
+  status_text: string // 状态中文显示
+  processing_status_text: string // 处理状态中文显示
+  source_text: string // 来源中文显示
+  
+  // 时间信息
+  started_at?: string
+  completed_at?: string
+  last_activity_at?: string
   created_at: string
   updated_at: string
-  user_id: string
   deleted_at?: string
-  file_path?: string
+  
+  // 元数据和版本
+  metadata: Record<string, any>
+  created_by?: string
+  updated_by?: string
+  version: number
+  
   [key: string]: any // 允许其他动态字段
 }
 
@@ -242,7 +310,7 @@ function renderFilterInput(field: TableColumn, column: any) {
       if (field.field === 'status') {
         return (
           <div className="space-y-2">
-            {['pending', 'completed', 'failed', 'draft'].map(status => (
+            {['unreimbursed', 'reimbursed', 'voided'].map(status => (
               <label key={status} className="label cursor-pointer justify-start gap-2">
                 <input
                   type="checkbox"
@@ -257,7 +325,11 @@ function renderFilterInput(field: TableColumn, column: any) {
                     }
                   }}
                 />
-                <span className="label-text text-sm">{status}</span>
+                <span className="label-text text-sm">
+                  {status === 'unreimbursed' ? '未报销' : 
+                   status === 'reimbursed' ? '已报销' : 
+                   status === 'voided' ? '作废' : status}
+                </span>
               </label>
             ))}
           </div>
@@ -320,12 +392,17 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
     
     case 'number':
       if (field.field.includes('amount')) {
+        // 对于金额字段，使用 total_amount 优先，否则用 amount
+        let displayAmount = value || 0;
+        if (field.field === 'total_amount' && !value && invoice.amount) {
+          displayAmount = invoice.amount;
+        }
         return (
           <div className="font-bold text-primary">
             {new Intl.NumberFormat('zh-CN', {
               style: 'currency',
               currency: 'CNY'
-            }).format(value || 0)}
+            }).format(displayAmount)}
           </div>
         )
       }
@@ -341,14 +418,18 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
     case 'select':
       if (field.field === 'status') {
         const statusMap: Record<string, string> = {
-          'pending': 'badge-warning',
-          'completed': 'badge-success', 
-          'failed': 'badge-error',
-          'draft': 'badge-info'
+          'unreimbursed': 'badge-success',  // 未报销 - 绿色
+          'reimbursed': 'badge-info',       // 已报销 - 蓝色  
+          'voided': 'badge-error'           // 作废 - 红色
+        }
+        const statusText: Record<string, string> = {
+          'unreimbursed': '未报销',
+          'reimbursed': '已报销',
+          'voided': '作废'
         }
         return (
           <span className={`badge ${statusMap[value] || 'badge-neutral'}`}>
-            {value}
+            {statusText[value] || value}
           </span>
         )
       } else if (field.field === 'source') {
@@ -377,6 +458,36 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
       // 特殊处理销售方，加粗显示
       else if (field.field === 'seller_name') {
         return <div className="font-medium">{value}</div>
+      }
+      // 特殊处理费用类别，显示带颜色和图标
+      else if (field.field === 'expense_category') {
+        return (
+          <div className="flex items-center gap-2">
+            <span 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: invoice.category_color || '#607D8B' }}
+            ></span>
+            <span className="font-medium">{value || '未分类'}</span>
+          </div>
+        )
+      }
+      // 特殊处理分类路径，显示层级关系
+      else if (field.field === 'category_path') {
+        return (
+          <div className="text-sm">
+            <span className="badge badge-outline badge-sm">{value || '未分类'}</span>
+          </div>
+        )
+      }
+      // 特殊处理备注，显示简短版本
+      else if (field.field === 'remarks') {
+        if (!value) return '-'
+        const truncated = value.length > 30 ? value.substring(0, 30) + '...' : value
+        return (
+          <div className="text-sm text-base-content/70" title={value}>
+            {truncated}
+          </div>
+        )
       }
       return value || '-'
   }

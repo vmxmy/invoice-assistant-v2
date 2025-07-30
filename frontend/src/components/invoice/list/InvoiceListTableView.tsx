@@ -59,12 +59,20 @@ export const InvoiceListTableView: React.FC<InvoiceListTableViewProps> = ({
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'draft': 'badge-warning',
-      'pending': 'badge-info', 
-      'completed': 'badge-success',
-      'failed': 'badge-error'
+      'unreimbursed': 'badge-warning',  // 未报销 - 黄色
+      'reimbursed': 'badge-success',    // 已报销 - 绿色  
+      'voided': 'badge-error'           // 作废 - 红色
     };
     return statusMap[status as keyof typeof statusMap] || 'badge-neutral';
+  };
+
+  const getStatusText = (status: string) => {
+    const statusTextMap = {
+      'unreimbursed': '未报销',
+      'reimbursed': '已报销',
+      'voided': '已作废'
+    };
+    return statusTextMap[status as keyof typeof statusTextMap] || status;
   };
 
   if (isLoading) {
@@ -158,10 +166,7 @@ export const InvoiceListTableView: React.FC<InvoiceListTableViewProps> = ({
               <td className="font-semibold">{formatCurrency(invoice.total_amount)}</td>
               <td>
                 <span className={`badge badge-sm ${getStatusBadge(invoice.status)}`}>
-                  {invoice.status === 'pending' && '待处理'}
-                  {invoice.status === 'processing' && '处理中'}
-                  {invoice.status === 'completed' && '已完成'}
-                  {invoice.status === 'failed' && '失败'}
+                  {getStatusText(invoice.status)}
                 </span>
               </td>
               <td>

@@ -132,7 +132,9 @@
       "Bash(/Users/xumingyang/.deno/bin/deno run --allow-net --allow-env test_deno_imap_strict.ts)",
       "WebFetch(domain:jsr.io)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(deno check:*)",
+      "mcp__zen__challenge"
     ]
   },
   "enableAllProjectMcpServers": true,
