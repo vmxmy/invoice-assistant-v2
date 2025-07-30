@@ -120,7 +120,8 @@
       "Bash(./scripts/test_api_limits_simple.sh:*)",
       "mcp__zen-docker__codereview",
       "WebFetch(domain:pypi.org)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(git merge:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
