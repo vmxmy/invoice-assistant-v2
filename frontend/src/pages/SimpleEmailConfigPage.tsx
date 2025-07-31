@@ -116,7 +116,7 @@ const SimpleEmailConfigPage: React.FC = () => {
       </div>
       <h3 className="text-xl font-semibold mb-2">暂无邮箱配置</h3>
       <p className="text-base-content/60 mb-6 max-w-sm text-center">
-        配置转发邮箱地址，用于 Edge Function 身份关联和邮件转发功能
+        设置您的邮箱地址，用于自动处理发票邮件
       </p>
       <button 
         className="btn btn-primary"
@@ -176,7 +176,7 @@ const SimpleEmailConfigPage: React.FC = () => {
             <svg className="w-4 h-4 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>用于 Edge Function 身份关联，无需密码配置</span>
+            <span>自动处理发票邮件，无需密码配置</span>
           </div>
         </div>
       </div>
@@ -198,7 +198,7 @@ const SimpleEmailConfigPage: React.FC = () => {
                       共 {configs.length} 个配置
                     </span>
                   ) : (
-                    '配置转发邮箱地址，用于 Edge Function 身份关联'
+                    '设置您的邮箱地址，用于自动处理发票邮件'
                   )}
                 </p>
               </div>
@@ -237,9 +237,10 @@ const SimpleEmailConfigPage: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-2">配置说明</h3>
                 <div className="text-base-content/70 space-y-2">
-                  <p>• 此模块专门用于 Edge Function 身份关联，无需复杂的IMAP/SMTP配置</p>
-                  <p>• 只需提供用于转发的邮箱地址，系统将自动处理相关逻辑</p>
-                  <p>• 配置完成后，可在发票处理流程中使用此邮箱进行身份验证</p>
+                  <p>• 请输入您用来接收发票邮件的邮箱地址</p>
+                  <p>• 系统会自动识别并处理来自该邮箱的发票邮件</p>
+                  <p>• 无需复杂设置，只需填写邮箱地址即可开始使用</p>
+                  <p>• 配置完成后，系统将自动处理您转发到指定邮箱的发票文件</p>
                 </div>
               </div>
             </div>

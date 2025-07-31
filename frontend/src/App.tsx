@@ -8,6 +8,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuthContext } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
+import EmailConfirmationPage from './pages/EmailConfirmationPage'
+import SupabaseSignIn from './components/auth/SupabaseSignIn'
+import SupabaseSignUp from './components/auth/SupabaseSignUp'
 import { DashboardPage } from './pages/DashboardPage'
 import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
@@ -41,8 +44,14 @@ function AppContent() {
     )
   }
 
-  return user ? (
+  return (
     <Routes>
+      {/* 公开路由 */}
+      <Route path="/login" element={<SupabaseSignIn />} />
+      <Route path="/signup" element={<SupabaseSignUp />} />
+      <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+      
+      {/* 受保护的路由 */}
       <Route 
         path="/" 
         element={
@@ -107,10 +116,10 @@ function AppContent() {
           </ProtectedRoute>
         } 
       />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      
+      {/* 默认重定向 */}
+      <Route path="*" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
     </Routes>
-  ) : (
-    <LoginPage />
   )
 }
 

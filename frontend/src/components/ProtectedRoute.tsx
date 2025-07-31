@@ -1,8 +1,9 @@
 /**
  * 受保护路由组件 - 使用最佳实践
- * 简洁的权限控制
+ * 简洁的权限控制，未登录时重定向到登录页面
  */
 import React from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
 
 interface ProtectedRouteProps {
@@ -11,6 +12,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuthContext()
+  const location = useLocation()
 
   if (loading) {
     return (
@@ -21,16 +23,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-base-100">
-        <div className="card w-96 bg-base-200 shadow-xl">
-          <div className="card-body text-center">
-            <h2 className="card-title justify-center">🔐 需要登录</h2>
-            <p>请先登录以访问此页面</p>
-          </div>
-        </div>
-      </div>
-    )
+    // 保存当前路径，登录后可以重定向回来
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   return <>{children}</>

@@ -1,22 +1,35 @@
 /**
  * 纯Supabase登录组件
- * 使用SupabaseAuthContext
+ * 使用SupabaseAuthContext，支持智能状态处理
  */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthContext } from '../../contexts/AuthContext'
+import { AuthStatus } from '../../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 const SupabaseSignIn: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   
-  const { signIn } = useAuthContext()
+  const { signIn, resendConfirmation, status, message, loading, clearStatus } = useAuthContext()
   const navigate = useNavigate()
   const location = useLocation()
   
   const from = location.state?.from?.pathname || '/dashboard'
+
+  // 监听状态变化，显示相应的toast
+  useEffect(() => {
+    if (status === AuthStatus.SUCCESS && message) {
+      toast.success(message)
+      if (status === AuthStatus.SUCCESS && !loading) {
+        navigate(from, { replace: true })
+      }
+    } else if (status === AuthStatus.ERROR || status === AuthStatus.INVALID_CREDENTIALS || 
+               status === AuthStatus.TOO_MANY_REQUESTS) {
+      toast.error(message)
+    }
+  }, [status, message, loading, navigate, from])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,33 +39,17 @@ const SupabaseSignIn: React.FC = () => {
       return
     }
 
-    setIsLoading(true)
-    
-    try {
-      const { error } = await signIn(email, password)
-      
-      if (error) {
-        console.error('登录失败:', error)
-        
-        // 处理常见错误
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('邮箱或密码错误')
-        } else if (error.message.includes('Email not confirmed')) {
-          toast.error('请先验证邮箱')
-        } else {
-          toast.error(`登录失败: ${error.message}`)
-        }
-        return
-      }
+    clearStatus()
+    await signIn(email, password)
+  }
 
-      toast.success('登录成功！')
-      navigate(from, { replace: true })
-    } catch (error) {
-      console.error('登录异常:', error)
-      toast.error('登录时发生异常，请稍后重试')
-    } finally {
-      setIsLoading(false)
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error('请输入邮箱地址')
+      return
     }
+    
+    await resendConfirmation(email)
   }
 
   return (
@@ -74,7 +71,7 @@ const SupabaseSignIn: React.FC = () => {
                 className="input input-bordered w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
               />
             </div>
@@ -89,17 +86,47 @@ const SupabaseSignIn: React.FC = () => {
                 className="input input-bordered w-full"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
               />
             </div>
+
+            {/* 智能状态显示 */}
+            {status === AuthStatus.EMAIL_NOT_CONFIRMED && (
+              <div className="alert alert-info">
+                <div className="flex-1">
+                  <p>请先确认邮箱</p>
+                  <p className="text-sm opacity-70">没收到邮件？</p>
+                </div>
+                <button 
+                  type="button"
+                  className="btn btn-sm btn-ghost"
+                  onClick={handleResendConfirmation}
+                  disabled={loading}
+                >
+                  重新发送
+                </button>
+              </div>
+            )}
+
+            {status === AuthStatus.INVALID_CREDENTIALS && (
+              <div className="alert alert-error">
+                <p>{message}</p>
+              </div>
+            )}
+
+            {status === AuthStatus.SUCCESS && message && (
+              <div className="alert alert-success">
+                <p>{message}</p>
+              </div>
+            )}
             
             <button
               type="submit"
-              className={`btn btn-primary w-full ${isLoading ? 'loading' : ''}`}
-              disabled={isLoading}
+              className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
+              disabled={loading}
             >
-              {isLoading ? '登录中...' : '登录'}
+              {loading ? message || '登录中...' : '登录'}
             </button>
           </form>
           
