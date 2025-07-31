@@ -35,7 +35,7 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen min-h-[100vh] min-h-[100dvh] flex items-center justify-center mobile-full-container">
         <div className="flex flex-col items-center space-y-4">
           <div className="loading loading-spinner loading-lg"></div>
           <p>正在加载...</p>
