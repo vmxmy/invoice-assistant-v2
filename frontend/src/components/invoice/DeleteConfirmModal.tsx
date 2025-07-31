@@ -58,41 +58,36 @@ export function DeleteConfirmModal({
           userId: user.id
         })
 
-        // 先删除哈希记录（使用file_hash字段，更可靠）
+        // 精准删除哈希记录（RLS策略已修复）
         if (invoice?.file_hash) {
-          console.log(`🔍 准备删除哈希记录 - file_hash: ${invoice.file_hash}, user_id: ${user.id}`)
+          console.log(`🗑️ 删除哈希记录 - file_hash: ${invoice.file_hash}`)
           
-          // 先查询确认记录存在
-          const { data: existingHashes, error: queryError } = await supabase
+          const { data: deletedHashes, error: hashError } = await supabase
             .from('file_hashes')
-            .select('id, file_hash, invoice_id, user_id')
+            .delete()
+            .eq('file_hash', invoice.file_hash)
+            .eq('user_id', user.id)
+            .select('id')
+          
+          if (hashError) {
+            console.error(`❌ 删除哈希记录失败:`, hashError)
+            throw new Error(`删除哈希记录失败: ${hashError.message}`)
+          }
+          
+          console.log(`✅ 成功删除 ${deletedHashes?.length || 0} 条哈希记录`)
+          
+          // 验证删除结果
+          const { data: remainingHashes } = await supabase
+            .from('file_hashes')
+            .select('id')
             .eq('file_hash', invoice.file_hash)
             .eq('user_id', user.id)
           
-          if (queryError) {
-            console.error(`❌ 查询哈希记录失败:`, queryError)
+          if (remainingHashes && remainingHashes.length > 0) {
+            console.warn(`⚠️ 还有 ${remainingHashes.length} 条哈希记录未删除`)
           } else {
-            console.log(`📊 找到 ${existingHashes?.length || 0} 条匹配的哈希记录:`, existingHashes)
+            console.log(`🎯 哈希记录删除验证通过`)
           }
-          
-          try {
-            const { error: hashError, data: deletedHashes } = await supabase
-              .from('file_hashes')
-              .delete()
-              .eq('file_hash', invoice.file_hash)
-              .eq('user_id', user.id)
-              .select()
-            
-            if (hashError) {
-              console.error(`❌ 删除发票 ${invoiceId} 的哈希记录失败:`, hashError)
-            } else {
-              console.log(`✅ 成功删除发票 ${invoiceId} 的哈希记录，删除了 ${deletedHashes?.length || 0} 条记录:`, deletedHashes)
-            }
-          } catch (hashError) {
-            console.error(`❌ 删除发票 ${invoiceId} 的哈希记录异常:`, hashError)
-          }
-        } else {
-          console.warn(`⚠️ 发票 ${invoiceId} 无file_hash，跳过哈希记录删除`)
         }
 
         // 删除数据库记录
