@@ -20,7 +20,7 @@ export default defineConfig({
           router: ['react-router-dom'],
           query: ['@tanstack/react-query'],
           supabase: ['@supabase/supabase-js'],
-          ui: ['clsx', 'lucide-react'],
+          ui: ['lucide-react'],
           charts: ['recharts'],
         },
         // 文件命名规范

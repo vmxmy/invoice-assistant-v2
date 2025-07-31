@@ -32,14 +32,18 @@ const FieldRenderer: React.FC<{
 }> = ({ field, value, mode, error, onChange, onRemoveTag, onAddTag }) => {
   const IconComponent = field.icon;
   
+  // 所有Hooks必须在顶部定义，不能在条件语句中
+  const [tagInput, setTagInput] = React.useState('');
+  
   // 格式化显示值
   const formatDisplayValue = (val: any): string => {
     if (val === undefined || val === null || val === '') return '-';
     
     switch (field.type) {
-      case 'currency':
+      case 'currency': {
         const numVal = parseFloat(val);
         return isNaN(numVal) ? '-' : `¥${numVal.toFixed(2)}`;
+      }
       case 'date':
         if (val.includes('T')) {
           return val.split('T')[0];
@@ -283,7 +287,6 @@ const FieldRenderer: React.FC<{
   // 标签字段
   if (field.type === 'tags') {
     const tags = Array.isArray(value) ? value : [];
-    const [tagInput, setTagInput] = React.useState('');
 
     const handleAddTag = () => {
       const tag = tagInput.trim();

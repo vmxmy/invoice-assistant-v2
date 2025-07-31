@@ -109,11 +109,11 @@ export class DataValidator {
       // ISO格式: 2024-01-15
       { pattern: /(\d{4})[-](\d{1,2})[-](\d{1,2})/, format: 'YYYY-MM-DD' },
       // 斜杠格式: 2024/01/15
-      { pattern: /(\d{4})[\/](\d{1,2})[\/](\d{1,2})/, format: 'YYYY/MM/DD' },
+      { pattern: /(\d{4})\/(\d{1,2})\/(\d{1,2})/, format: 'YYYY/MM/DD' },
       // 美式格式: 01/15/2024
-      { pattern: /(\d{1,2})[\/](\d{1,2})[\/](\d{4})/, format: 'MM/DD/YYYY' },
+      { pattern: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, format: 'MM/DD/YYYY' },
       // 欧式格式: 15/01/2024
-      { pattern: /(\d{1,2})[\/](\d{1,2})[\/](\d{4})/, format: 'DD/MM/YYYY' }
+      { pattern: /(\d{1,2})\/(\d{1,2})\/(\d{4})/, format: 'DD/MM/YYYY' }
     ]
     
     for (const { pattern, format } of datePatterns) {

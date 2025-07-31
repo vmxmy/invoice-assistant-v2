@@ -158,10 +158,17 @@ export class EdgeFunctionOCRService {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
         controller.abort()
-        logger.warn('⏰ [EdgeFunctionOCR] Edge Function请求超时 (30秒)')
-      }, 30000) // 30秒超时（OCR处理需要更长时间）
+        logger.warn('⏰ [EdgeFunctionOCR] Edge Function请求超时 (60秒)')
+      }, 60000) // 60秒超时（OCR处理需要更长时间）
 
       try {
+        console.log('🚀 [DEBUG] 发送Edge Function请求', {
+          url: `${this.supabaseUrl}/functions/v1/ocr-dedup-complete`,
+          hasSession: !!session,
+          userId: session?.user?.id,
+          token: session?.access_token ? session.access_token.substring(0, 20) + '...' : 'none'
+        })
+        
         const response = await fetch(`${this.supabaseUrl}/functions/v1/ocr-dedup-complete`, {
           method: 'POST',
           headers: {
@@ -182,15 +189,20 @@ export class EdgeFunctionOCRService {
 
       if (!response.ok) {
         const errorText = await response.text()
+        console.error('🚨 [DEBUG] Edge Function失败详情:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          error: errorText
+        })
         logger.error('❌ [EdgeFunctionOCR] Edge Function调用失败:', {
           status: response.status,
           statusText: response.statusText,
           error: errorText
         })
         
-        // 如果Edge Function失败，回退到后端API
-        logger.warn('🔄 [EdgeFunctionOCR] 回退到后端API处理')
-        return await this.fallbackToBackendAPI(file)
+        // 直接抛出错误，不再回退到后端API
+        throw new Error(`Edge Function调用失败: ${response.status} - ${errorText}`)
       }
 
       const result = await response.json()
@@ -235,47 +247,11 @@ export class EdgeFunctionOCRService {
     } catch (error) {
       logger.error('❌ [EdgeFunctionOCR] 处理失败:', error)
       
-      // 网络错误或其他异常，回退到后端API
-      logger.warn('🔄 [EdgeFunctionOCR] 异常回退到后端API')
-      return await this.fallbackToBackendAPI(file)
+      // 直接抛出错误，不再回退到后端API
+      throw error
     }
   }
 
-  /**
-   * 回退到原有的后端API
-   */
-  private async fallbackToBackendAPI(file: File): Promise<EdgeFunctionOCRResponse> {
-    logger.info('🔄 [EdgeFunctionOCR] 使用后端API作为备选方案')
-    
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8090'
-
-      const response = await fetch(`${backendUrl}/api/v1/ocr/combined/full`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: formData
-      })
-
-      if (!response.ok) {
-        throw new Error(`Backend API failed: ${response.status}`)
-      }
-
-      const backendResult = await response.json()
-      
-      // 转换后端响应格式为Edge Function格式
-      return this.convertBackendResponseToEdgeFormat(backendResult)
-
-    } catch (error) {
-      logger.error('❌ [EdgeFunctionOCR] 后端API也失败了:', error)
-      throw new Error('OCR处理完全失败，请稍后重试')
-    }
-  }
 
   /**
    * 转换ocr-dedup-complete响应格式为前端期望格式
@@ -289,7 +265,7 @@ export class EdgeFunctionOCRService {
     })
 
     // 从保存的发票数据中提取OCR信息
-    let extractedOcrData = {}
+    const extractedOcrData = {}
     let invoice_type = '未知类型'
     let fields = {}
     let confidence = { overall: 0, fields: {} }
@@ -344,7 +320,7 @@ export class EdgeFunctionOCRService {
           
           // 尝试从extracted_text中解析特定字段
           const extractedText = ocrDedupResult.data.extracted_data?.extracted_text || ''
-          let parsedFromText = {}
+          const parsedFromText = {}
           
           // 如果有extracted_text，尝试从中解析字段
           if (extractedText) {
@@ -437,7 +413,7 @@ export class EdgeFunctionOCRService {
           // 普通发票字段映射
           // 尝试从extracted_text中解析特定字段
           const extractedText = ocrDedupResult.data.extracted_data?.extracted_text || ''
-          let parsedFromText = {}
+          const parsedFromText = {}
           
           // 如果有extracted_text，尝试从中解析字段
           if (extractedText) {
@@ -595,34 +571,6 @@ export class EdgeFunctionOCRService {
     return convertedResponse
   }
 
-  /**
-   * 转换后端响应格式为Edge Function格式
-   */
-  private convertBackendResponseToEdgeFormat(backendResult: any): EdgeFunctionOCRResponse {
-    return {
-      success: backendResult.success || false,
-      invoice_type: backendResult.invoice_type || '未知类型',
-      fields: backendResult.fields || {},
-      confidence: {
-        overall: backendResult.confidence?.overall || 0,
-        fields: backendResult.confidence?.fields || {}
-      },
-      validation: backendResult.validation || {
-        is_valid: false,
-        field_results: {},
-        overall_errors: [],
-        overall_warnings: [],
-        completeness_score: 0
-      },
-      raw_ocr_data: backendResult.raw_ocr_data || {},
-      processing_steps: ['后端API处理'],
-      metadata: {
-        total_processing_time: 0,
-        step_timings: {},
-        timestamp: new Date().toISOString()
-      }
-    }
-  }
 
   /**
    * 验证OCR响应格式

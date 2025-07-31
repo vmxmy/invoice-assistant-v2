@@ -415,7 +415,7 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
         </span>
       )
     
-    case 'select':
+    case 'select': {
       if (field.field === 'status') {
         const statusMap: Record<string, string> = {
           'unreimbursed': 'badge-success',  // 未报销 - 绿色
@@ -440,8 +440,9 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
         )
       }
       return value || '-'
+    }
     
-    default:
+    default: {
       // 特殊处理发票号码，显示类型信息
       if (field.field === 'invoice_number') {
         return (
@@ -490,5 +491,6 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
         )
       }
       return value || '-'
+    }
   }
 }

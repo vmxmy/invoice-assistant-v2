@@ -333,11 +333,12 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
         dateFrom = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
         dateTo = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0];
         break;
-      case 'lastWeek':
+      case 'lastWeek': {
         const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         dateFrom = new Date(lastWeek.getFullYear(), lastWeek.getMonth(), lastWeek.getDate()).toISOString().split('T')[0];
         dateTo = now.toISOString().split('T')[0];
         break;
+      }
       default:
         return;
     }
