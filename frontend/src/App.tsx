@@ -16,7 +16,6 @@ import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import EmailAccountsPage from './pages/EmailAccountsPage'
 import EmailScanJobsPage from './pages/EmailScanJobsPage'
-import SimpleEmailConfigPage from './pages/SimpleEmailConfigPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
 import './App.css'
 
@@ -97,14 +96,6 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <EmailScanJobsPage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/settings/email-config" 
-        element={
-          <ProtectedRoute>
-            <SimpleEmailConfigPage />
           </ProtectedRoute>
         } 
       />
