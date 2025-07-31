@@ -1,10 +1,11 @@
 /**
  * 纯Supabase注册组件
- * 使用SupabaseAuthContext
+ * 使用SupabaseAuthContext，支持智能状态处理
  */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../../contexts/AuthContext'
+import { AuthStatus } from '../../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 const SupabaseSignUp: React.FC = () => {
@@ -12,10 +13,21 @@ const SupabaseSignUp: React.FC = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   
-  const { signUp } = useAuthContext()
+  const { signUp, resendConfirmation, status, message, loading, clearStatus } = useAuthContext()
   const navigate = useNavigate()
+
+  // 监听状态变化，显示相应的toast
+  useEffect(() => {
+    if (status === AuthStatus.SUCCESS && message) {
+      // 注册成功后跳转到邮箱确认页面
+      if (status === AuthStatus.SUCCESS && !loading) {
+        navigate(`/email-confirmation?email=${encodeURIComponent(email)}`)
+      }
+    } else if (status === AuthStatus.ERROR || status === AuthStatus.WEAK_PASSWORD) {
+      toast.error(message)
+    }
+  }, [status, message, loading, navigate, email])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,33 +48,17 @@ const SupabaseSignUp: React.FC = () => {
       return
     }
 
-    setIsLoading(true)
-    
-    try {
-      const { error } = await signUp(email, password, displayName)
-      
-      if (error) {
-        console.error('注册失败:', error)
-        
-        // 处理常见错误
-        if (error.message.includes('User already registered')) {
-          toast.error('该邮箱已被注册')
-        } else if (error.message.includes('Password should be at least')) {
-          toast.error('密码强度不够')
-        } else {
-          toast.error(`注册失败: ${error.message}`)
-        }
-        return
-      }
+    clearStatus()
+    await signUp(email, password, displayName)
+  }
 
-      toast.success('注册成功！请检查邮箱验证链接')
-      navigate('/login')
-    } catch (error) {
-      console.error('注册异常:', error)
-      toast.error('注册时发生异常，请稍后重试')
-    } finally {
-      setIsLoading(false)
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error('请输入邮箱地址')
+      return
     }
+    
+    await resendConfirmation(email)
   }
 
   return (
@@ -84,7 +80,7 @@ const SupabaseSignUp: React.FC = () => {
                 className="input input-bordered w-full"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
               />
             </div>
@@ -99,7 +95,7 @@ const SupabaseSignUp: React.FC = () => {
                 className="input input-bordered w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
               />
             </div>
@@ -114,7 +110,7 @@ const SupabaseSignUp: React.FC = () => {
                 className="input input-bordered w-full"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
                 minLength={6}
               />
@@ -130,17 +126,47 @@ const SupabaseSignUp: React.FC = () => {
                 className="input input-bordered w-full"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={loading}
                 required
               />
             </div>
+
+            {/* 智能状态显示 */}
+            {status === AuthStatus.EMAIL_EXISTS && (
+              <div className="alert alert-warning">
+                <div className="flex-1">
+                  <p>该邮箱已注册</p>
+                  <p className="text-sm opacity-70">我们已重新发送确认邮件</p>
+                </div>
+                <div className="flex-none space-x-2">
+                  <button 
+                    type="button"
+                    className="btn btn-sm btn-ghost"
+                    onClick={handleResendConfirmation}
+                    disabled={loading}
+                  >
+                    重新发送
+                  </button>
+                  <Link to="/login" className="btn btn-sm btn-primary">
+                    直接登录
+                  </Link>
+                </div>
+              </div>
+            )}
+
+
+            {status === AuthStatus.WEAK_PASSWORD && (
+              <div className="alert alert-error">
+                <p>{message}</p>
+              </div>
+            )}
             
             <button
               type="submit"
-              className={`btn btn-primary w-full ${isLoading ? 'loading' : ''}`}
-              disabled={isLoading}
+              className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
+              disabled={loading}
             >
-              {isLoading ? '注册中...' : '注册账户'}
+              {loading ? message || '注册中...' : '注册账户'}
             </button>
           </form>
           
