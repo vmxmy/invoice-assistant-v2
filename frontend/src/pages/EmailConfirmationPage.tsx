@@ -64,7 +64,7 @@ const EmailConfirmationPage: React.FC = () => {
   const emailProvider = getEmailProvider(email)
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
+    <div className="min-h-screen min-h-[100vh] min-h-[100dvh] bg-base-200 flex items-center justify-center p-4 mobile-full-container">
       <div className="card w-full max-w-lg bg-base-100 shadow-xl">
         <div className="card-body text-center">
           {/* 成功图标 */}
