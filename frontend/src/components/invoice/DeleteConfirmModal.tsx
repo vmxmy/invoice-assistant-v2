@@ -33,15 +33,93 @@ export function DeleteConfirmModal({
       setDeleting(true)
       setError(null)
 
-      // 软删除：更新deleted_at字段
-      const { error: deleteError } = await supabase
-        .from('invoices')
-        .update({ deleted_at: new Date().toISOString() })
-        .in('id', invoiceIds)
-        .eq('user_id', user.id)
+      // 硬删除：逐个删除发票和相关数据
+      for (const invoiceId of invoiceIds) {
+        console.log(`🔄 开始删除发票 ${invoiceId}，用户ID: ${user.id}`)
+        
+        // 先获取发票信息，包含文件路径和哈希值
+        const { data: invoice, error: fetchError } = await supabase
+          .from('invoices')
+          .select('file_path, file_hash, invoice_number')
+          .eq('id', invoiceId)
+          .eq('user_id', user.id)
+          .single()
 
-      if (deleteError) {
-        throw new Error(deleteError.message)
+        if (fetchError) {
+          console.error(`❌ 获取发票 ${invoiceId} 信息失败:`, fetchError)
+          continue
+        }
+
+        console.log(`📋 发票信息:`, {
+          invoiceId,
+          invoiceNumber: invoice.invoice_number,
+          fileHash: invoice.file_hash,
+          filePath: invoice.file_path,
+          userId: user.id
+        })
+
+        // 先删除哈希记录（使用file_hash字段，更可靠）
+        if (invoice?.file_hash) {
+          console.log(`🔍 准备删除哈希记录 - file_hash: ${invoice.file_hash}, user_id: ${user.id}`)
+          
+          // 先查询确认记录存在
+          const { data: existingHashes, error: queryError } = await supabase
+            .from('file_hashes')
+            .select('id, file_hash, invoice_id, user_id')
+            .eq('file_hash', invoice.file_hash)
+            .eq('user_id', user.id)
+          
+          if (queryError) {
+            console.error(`❌ 查询哈希记录失败:`, queryError)
+          } else {
+            console.log(`📊 找到 ${existingHashes?.length || 0} 条匹配的哈希记录:`, existingHashes)
+          }
+          
+          try {
+            const { error: hashError, data: deletedHashes } = await supabase
+              .from('file_hashes')
+              .delete()
+              .eq('file_hash', invoice.file_hash)
+              .eq('user_id', user.id)
+              .select()
+            
+            if (hashError) {
+              console.error(`❌ 删除发票 ${invoiceId} 的哈希记录失败:`, hashError)
+            } else {
+              console.log(`✅ 成功删除发票 ${invoiceId} 的哈希记录，删除了 ${deletedHashes?.length || 0} 条记录:`, deletedHashes)
+            }
+          } catch (hashError) {
+            console.error(`❌ 删除发票 ${invoiceId} 的哈希记录异常:`, hashError)
+          }
+        } else {
+          console.warn(`⚠️ 发票 ${invoiceId} 无file_hash，跳过哈希记录删除`)
+        }
+
+        // 删除数据库记录
+        const { error: deleteError } = await supabase
+          .from('invoices')
+          .delete()
+          .eq('id', invoiceId)
+          .eq('user_id', user.id)
+
+        if (deleteError) {
+          throw new Error(`删除发票 ${invoiceId} 失败: ${deleteError.message}`)
+        }
+
+        console.log(`✅ 成功删除发票记录 ${invoiceId}`)
+
+        // 删除存储桶中的文件
+        if (invoice?.file_path) {
+          const { error: storageError } = await supabase.storage
+            .from('invoice-files')
+            .remove([invoice.file_path])
+          
+          if (storageError) {
+            console.warn(`删除文件 ${invoice.file_path} 失败:`, storageError)
+          } else {
+            console.log(`✅ 成功删除文件 ${invoice.file_path}`)
+          }
+        }
       }
 
       onSuccess()

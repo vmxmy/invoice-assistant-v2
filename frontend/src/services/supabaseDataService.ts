@@ -216,22 +216,20 @@ export class InvoiceService {
         }
       }
 
-      // 删除哈希记录（如果存在），清除所有痕迹
-      if (invoice.file_hash) {
-        try {
-          const { error: hashError } = await supabase
-            .from('file_hashes')
-            .delete()
-            .eq('file_hash', invoice.file_hash)
-            .eq('user_id', userId)
-          
-          if (hashError) {
-            console.warn('删除哈希记录失败:', hashError)
-          }
-        } catch (hashError) {
-          console.warn('删除哈希记录异常:', hashError)
-          // 不返回错误，因为数据库已删除成功
+      // 删除哈希记录，根据invoice_id删除所有相关记录
+      try {
+        const { error: hashError } = await supabase
+          .from('file_hashes')
+          .delete()
+          .eq('invoice_id', invoiceId)
+          .eq('user_id', userId)
+        
+        if (hashError) {
+          console.warn('删除哈希记录失败:', hashError)
         }
+      } catch (hashError) {
+        console.warn('删除哈希记录异常:', hashError)
+        // 不返回错误，因为数据库已删除成功
       }
 
       return { data: true, error: null }
