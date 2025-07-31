@@ -8,7 +8,6 @@ import {
   LogOut,
   User,
   Mail,
-  Trash2,
   Menu,
   X
 } from 'lucide-react';
@@ -24,7 +23,6 @@ const AppNavbar: React.FC = () => {
     { name: '首页', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
-    { name: '回收站', href: '/trash', icon: Trash2 },
     { name: '邮箱配置', href: '/settings/email-config', icon: Mail },
   ];
 
