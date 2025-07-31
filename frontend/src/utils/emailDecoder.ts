@@ -58,7 +58,7 @@ export function decodeEmailAddress(encodedAddress: string): string {
   
   try {
     // 先解码可能的编码部分
-    let decoded = decodeEmailHeader(encodedAddress)
+    const decoded = decodeEmailHeader(encodedAddress)
     
     // 提取显示名称和邮箱地址
     const emailMatch = decoded.match(/^(.+?)\s*<(.+?)>$/)

@@ -81,7 +81,7 @@ export const prepareBatchDownloadFiles = (invoices: Invoice[]): DownloadFileInfo
   const fileNames = new Set<string>();
   
   return invoices.map(invoice => {
-    let fileName = generateTypeSpecificFileName(invoice);
+    const fileName = generateTypeSpecificFileName(invoice);
     
     // 处理重名文件
     let counter = 1;
