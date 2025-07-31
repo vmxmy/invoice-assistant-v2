@@ -10,7 +10,8 @@ import {
   Building2,
   User,
   Download,
-  Loader2
+  Loader2,
+  Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
@@ -201,6 +202,51 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     }
   };
 
+  const handlePrint = async () => {
+    if (!invoice.file_url && !invoice.file_path) {
+      toast.error('PDF文件未找到，无法打印');
+      return;
+    }
+    
+    try {
+      // 生成带权限的临时访问URL
+      const { supabase } = await import('../../../lib/supabase');
+      
+      let signedUrl = null;
+      
+      // 如果有file_path，使用它生成签名URL
+      if (invoice.file_path) {
+        const { data, error } = await supabase.storage
+          .from('invoice-files')
+          .createSignedUrl(invoice.file_path, 60 * 5); // 5分钟有效期
+        
+        if (error) {
+          console.error('生成签名URL失败:', error);
+          toast.error('无法生成PDF访问链接');
+          return;
+        }
+        
+        signedUrl = data.signedUrl;
+      } else if (invoice.file_url) {
+        // 如果只有file_url，尝试直接使用（可能是公共URL）
+        signedUrl = invoice.file_url;
+      }
+      
+      if (!signedUrl) {
+        toast.error('无法获取PDF访问链接');
+        return;
+      }
+      
+      // 在新窗口中打开PDF文件，浏览器会自动显示打印选项
+      window.open(signedUrl, '_blank');
+      toast.success('已在新窗口中打开PDF文件');
+      
+    } catch (error) {
+      console.error('PDF打印失败:', error);
+      toast.error(`PDF访问失败: ${error.message}`);
+    }
+  };
+
   const getInvoiceTypeEmoji = (invoice: Invoice) => {
     // 优先检查特定的发票类型
     if (isTrainTicketByCategory(invoice)) {
@@ -328,6 +374,12 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                   <button onClick={() => onView(invoice.id)} className="text-sm">
                     <Eye className="w-3 h-3" />
                     查看详情
+                  </button>
+                </li>
+                <li>
+                  <button onClick={handlePrint} className="text-sm" disabled={!invoice.file_url}>
+                    <Printer className="w-3 h-3" />
+                    打印
                   </button>
                 </li>
                 <li>
