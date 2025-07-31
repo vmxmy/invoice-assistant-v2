@@ -11,7 +11,6 @@ import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
-import { TrashPage } from './pages/TrashPage'
 import EmailAccountsPage from './pages/EmailAccountsPage'
 import EmailScanJobsPage from './pages/EmailScanJobsPage'
 import SimpleEmailConfigPage from './pages/SimpleEmailConfigPage'
@@ -73,14 +72,6 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <InvoiceUploadPage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/trash" 
-        element={
-          <ProtectedRoute>
-            <TrashPage />
           </ProtectedRoute>
         } 
       />
