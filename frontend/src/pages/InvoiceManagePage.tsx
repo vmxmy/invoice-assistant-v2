@@ -368,9 +368,75 @@ export function InvoiceManagePage() {
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false)
   
   // 简化状态管理 - 不使用localStorage持久化分页状态
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'created_at', desc: true } // 默认以消费日期降序排序
+  ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  // 默认显示字段配置
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    // 默认显示的字段
+    'select': true,
+    'invoice_number': true,        // 发票号码
+    'created_at': true,           // 消费日期  
+    'seller_name': true,          // 销售方
+    'buyer_name': true,           // 购买方
+    'total_amount': true,         // 含税金额
+    'status': true,               // 状态
+    'invoice_type': true,         // 发票类型
+    'expense_category': true,     // 费用类别
+    'actions': true,              // 操作
+    
+    // 默认隐藏的字段（设置为false或不设置）
+    'invoice_code': false,
+    'processing_status': false,
+    'amount': false,
+    'tax_amount': false,
+    'currency': false,
+    'invoice_date': false,
+    'seller_tax_id': false,
+    'buyer_tax_id': false,
+    'file_path': false,
+    'file_url': false,
+    'file_size': false,
+    'file_hash': false,
+    'source': false,
+    'source_metadata': false,
+    'is_verified': false,
+    'verified_at': false,
+    'verified_by': false,
+    'verification_notes': false,
+    'tags': false,
+    'basic_category': false,
+    'primary_category_id': false,
+    'primary_category_name': false,
+    'primary_category_code': false,
+    'primary_category_color': false,
+    'primary_category_icon': false,
+    'secondary_category_id': false,
+    'secondary_category_name': false,
+    'secondary_category_code': false,
+    'auto_classified': false,
+    'classification_confidence': false,
+    'classification_metadata': false,
+    'extracted_data': false,
+    'remarks': false,
+    'expense_category_code': false,
+    'category_icon': false,
+    'category_color': false,
+    'display_amount': false,
+    'category_path': false,
+    'status_text': false,
+    'processing_status_text': false,
+    'source_text': false,
+    'started_at': false,
+    'completed_at': false,
+    'last_activity_at': false,
+    'updated_at': false,
+    'metadata': false,
+    'created_by': false,
+    'updated_by': false,
+    'version': false
+  })
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -1193,11 +1259,58 @@ export function InvoiceManagePage() {
       columnFilters,
       globalFilter,
     },
-    // 设置初始分页状态作为备份
+    // 设置初始分页状态、默认排序和列可见性作为备份
     initialState: {
       pagination: {
         pageIndex: 0,
         pageSize: 20
+      },
+      sorting: [
+        { id: 'created_at', desc: true } // 默认以消费日期降序排序
+      ],
+      columnVisibility: {
+        // 默认显示的字段
+        'select': true,
+        'invoice_number': true,        // 发票号码
+        'created_at': true,           // 消费日期  
+        'seller_name': true,          // 销售方
+        'buyer_name': true,           // 购买方
+        'total_amount': true,         // 含税金额
+        'status': true,               // 状态
+        'invoice_type': true,         // 发票类型
+        'expense_category': true,     // 费用类别
+        'actions': true,              // 操作
+        
+        // 其他字段默认隐藏
+        'invoice_code': false,
+        'processing_status': false,
+        'amount': false,
+        'tax_amount': false,
+        'currency': false,
+        'invoice_date': false,
+        'seller_tax_id': false,
+        'buyer_tax_id': false,
+        'source': false,
+        'is_verified': false,
+        'verified_at': false,
+        'verified_by': false,
+        'verification_notes': false,
+        'tags': false,
+        'basic_category': false,
+        'remarks': false,
+        'expense_category_code': false,
+        'category_path': false,
+        'status_text': false,
+        'processing_status_text': false,
+        'source_text': false,
+        'started_at': false,
+        'completed_at': false,
+        'last_activity_at': false,
+        'updated_at': false,
+        'metadata': false,
+        'created_by': false,
+        'updated_by': false,
+        'version': false
       }
     }
   })
