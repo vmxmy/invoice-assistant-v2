@@ -162,7 +162,7 @@ export const InvoiceListTableView: React.FC<InvoiceListTableViewProps> = ({
                 </div>
               </td>
               <td>{invoice.seller_name}</td>
-              <td>{formatDate(invoice.invoice_date)}</td>
+              <td>{formatDate(invoice.created_at)}</td>
               <td className="font-semibold">{formatCurrency(invoice.total_amount)}</td>
               <td>
                 <span className={`badge badge-sm ${getStatusBadge(invoice.status)}`}>

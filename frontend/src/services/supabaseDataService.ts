@@ -78,10 +78,10 @@ export class InvoiceService {
           query = query.ilike('invoice_number', `%${filters.invoice_number}%`)
         }
         if (filters.date_from) {
-          query = query.gte('invoice_date', filters.date_from)
+          query = query.gte('created_at', filters.date_from)
         }
         if (filters.date_to) {
-          query = query.lte('invoice_date', filters.date_to)
+          query = query.lte('created_at', filters.date_to)
         }
         if (filters.amount_min !== undefined) {
           query = query.gte('total_amount', filters.amount_min)

@@ -397,8 +397,8 @@ export function sortInvoices(invoices: BaseInvoice[], sortBy: string, direction:
     
     switch (sortBy) {
       case 'date':
-        valueA = a.invoice_date ? new Date(a.invoice_date).getTime() : 0;
-        valueB = b.invoice_date ? new Date(b.invoice_date).getTime() : 0;
+        valueA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        valueB = b.created_at ? new Date(b.created_at).getTime() : 0;
         break;
       case 'amount':
         valueA = a.total_amount || 0;
@@ -450,15 +450,15 @@ export function filterInvoices(invoices: BaseInvoice[], filters: {
       return false;
     }
     
-    // 日期范围过滤
-    if (filters.dateFrom && invoice.invoice_date) {
-      if (new Date(invoice.invoice_date) < new Date(filters.dateFrom)) {
+    // 日期范围过滤（基于消费日期）
+    if (filters.dateFrom && invoice.created_at) {
+      if (new Date(invoice.created_at) < new Date(filters.dateFrom)) {
         return false;
       }
     }
     
-    if (filters.dateTo && invoice.invoice_date) {
-      if (new Date(invoice.invoice_date) > new Date(filters.dateTo)) {
+    if (filters.dateTo && invoice.created_at) {
+      if (new Date(invoice.created_at) > new Date(filters.dateTo)) {
         return false;
       }
     }
@@ -498,14 +498,14 @@ export function filterInvoices(invoices: BaseInvoice[], filters: {
  */
 export function exportInvoicesToCSV(invoices: BaseInvoice[]): string {
   const headers = [
-    '发票类型', '发票号码', '开票日期', '总金额', '销售方名称', '购买方名称',
+    '发票类型', '发票号码', '消费日期', '总金额', '销售方名称', '购买方名称',
     '验证状态', '置信度等级', '字段数量', '问题数量'
   ];
   
   const rows = invoices.map(invoice => [
     getInvoiceTypeDisplayName(invoice.invoice_type),
     invoice.invoice_number,
-    formatDate(invoice.invoice_date),
+    formatDate(invoice.created_at),
     invoice.total_amount?.toString() || '',
     invoice.seller_name,
     invoice.buyer_name,

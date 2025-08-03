@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认您的账户</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .confirm-button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .confirm-button:hover {
+            background-color: #1d4ed8;
+        }
+        .info-box {
+            background-color: #f3f4f6;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .alternative-link {
+            font-size: 12px;
+            color: #6b7280;
+            word-break: break-all;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🧾 发票助手</div>
+            <h1 class="title">欢迎注册发票管理系统！</h1>
+        </div>
+
+        <div class="content">
+            <p>您好！</p>
+            <p>感谢您注册发票管理系统。为了确保账户安全，请验证您的邮箱地址。</p>
+            
+            <div style="text-align: center;">
+                <a href="{{.ConfirmationURL}}" class="confirm-button">
+                    ✅ 确认邮箱地址
+                </a>
+            </div>
+
+            <div class="info-box">
+                <strong>📋 接下来您可以：</strong>
+                <ul style="margin: 10px 0;">
+                    <li>自动从邮箱提取发票附件</li>
+                    <li>使用AI智能识别发票信息</li>
+                    <li>管理和搜索所有发票记录</li>
+                    <li>导出发票数据到Excel</li>
+                </ul>
+            </div>
+
+            <p><strong>重要提醒：</strong></p>
+            <ul>
+                <li>此确认链接将在 <strong>24小时</strong> 后失效</li>
+                <li>如果您没有注册此账户，请忽略此邮件</li>
+                <li>请勿将此邮件转发给他人</li>
+            </ul>
+        </div>
+
+        <div class="alternative-link">
+            <p><strong>无法点击按钮？</strong> 请复制以下链接到浏览器地址栏：</p>
+            <p style="background-color: #f9fafb; padding: 10px; border-radius: 4px; font-family: monospace;">
+                {{.ConfirmationURL}}
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>此邮件由 <strong>发票管理系统</strong> 自动发送，请勿回复。</p>
+            <p>如有疑问，请联系客服支持。</p>
+            <p style="margin-top: 10px;">
+                © 2024 发票管理系统 | 
+                <a href="{{.SiteURL}}" style="color: #2563eb;">访问网站</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

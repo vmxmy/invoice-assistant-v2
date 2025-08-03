@@ -236,7 +236,7 @@ export function AdvancedSearchModal({
               {/* 日期范围 */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">开票日期</span>
+                  <span className="label-text">消费日期</span>
                   {(filters.date_from || filters.date_to) && (
                     <button
                       type="button"

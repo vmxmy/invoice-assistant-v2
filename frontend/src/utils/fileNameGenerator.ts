@@ -23,7 +23,7 @@ export const formatAmountForFileName = (amount: number): string => {
  * 生成单个发票文件名
  */
 export const generateInvoiceFileName = (invoice: Invoice): string => {
-  const date = new Date(invoice.invoice_date).toISOString().split('T')[0];
+  const date = new Date(invoice.created_at).toISOString().split('T')[0];
   const invoiceNumber = sanitizeFileName(invoice.invoice_number);
   const sellerName = sanitizeFileName(invoice.seller_name);
   const amount = formatAmountForFileName(invoice.total_amount);

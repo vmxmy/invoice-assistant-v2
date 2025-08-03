@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../../contexts/AuthContext'
 import { AuthStatus } from '../../hooks/useAuth'
+import EmailConfirmationGuide from './EmailConfirmationGuide'
 import toast from 'react-hot-toast'
 
 const SupabaseSignUp: React.FC = () => {
@@ -133,25 +134,30 @@ const SupabaseSignUp: React.FC = () => {
 
             {/* 智能状态显示 */}
             {status === AuthStatus.EMAIL_EXISTS && (
-              <div className="alert alert-warning">
-                <div className="flex-1">
-                  <p>该邮箱已注册</p>
-                  <p className="text-sm opacity-70">我们已重新发送确认邮件</p>
-                </div>
-                <div className="flex-none space-x-2">
-                  <button 
-                    type="button"
-                    className="btn btn-sm btn-ghost"
-                    onClick={handleResendConfirmation}
-                    disabled={loading}
-                  >
-                    重新发送
-                  </button>
+              <div className="space-y-3">
+                <div className="alert alert-warning">
+                  <div className="flex-1">
+                    <p>该邮箱已注册</p>
+                    <p className="text-sm opacity-70">我们已重新发送确认邮件</p>
+                  </div>
                   <Link to="/login" className="btn btn-sm btn-primary">
                     直接登录
                   </Link>
                 </div>
+                <EmailConfirmationGuide 
+                  email={email}
+                  onEmailChange={setEmail}
+                  showEmailInput={false}
+                />
               </div>
+            )}
+
+            {status === AuthStatus.SUCCESS && (
+              <EmailConfirmationGuide 
+                email={email}
+                onEmailChange={setEmail}
+                showEmailInput={false}
+              />
             )}
 
 

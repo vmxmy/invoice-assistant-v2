@@ -9,14 +9,15 @@ import { AuthProvider, useAuthContext } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
 import EmailConfirmationPage from './pages/EmailConfirmationPage'
+import MagicLinkCallbackPage from './pages/MagicLinkCallbackPage'
 import SupabaseSignIn from './components/auth/SupabaseSignIn'
 import SupabaseSignUp from './components/auth/SupabaseSignUp'
 import { DashboardPage } from './pages/DashboardPage'
 import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
-import EmailAccountsPage from './pages/EmailAccountsPage'
 import EmailScanJobsPage from './pages/EmailScanJobsPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
+import { InboxPage } from './components/inbox/InboxPage'
 import './App.css'
 
 // 创建QueryClient实例
@@ -49,6 +50,7 @@ function AppContent() {
       <Route path="/login" element={<SupabaseSignIn />} />
       <Route path="/signup" element={<SupabaseSignUp />} />
       <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+      <Route path="/magic-link-callback" element={<MagicLinkCallbackPage />} />
       
       {/* 受保护的路由 */}
       <Route 
@@ -84,14 +86,6 @@ function AppContent() {
         } 
       />
       <Route 
-        path="/settings/email-accounts" 
-        element={
-          <ProtectedRoute>
-            <EmailAccountsPage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
         path="/settings/email-scan-jobs" 
         element={
           <ProtectedRoute>
@@ -104,6 +98,14 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <AccountSettingsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/inbox" 
+        element={
+          <ProtectedRoute>
+            <InboxPage />
           </ProtectedRoute>
         } 
       />

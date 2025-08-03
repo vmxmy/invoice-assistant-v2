@@ -167,17 +167,46 @@ export function InvoiceManagePage() {
       return sum + amount;
     }, 0);
     
-    // 本月发票（按开票日期）和本月金额
+    // 本月发票（按消费日期）和本月金额
     const thisMonthInvoices = invoices.filter(invoice => {
-      if (!invoice.invoice_date) return false;
-      const targetDate = new Date(invoice.invoice_date);
-      return targetDate.getMonth() === currentMonth && 
-             targetDate.getFullYear() === currentYear;
+      if (!invoice.created_at) return false;
+      const targetDate = new Date(invoice.created_at);
+      const isThisMonth = targetDate.getMonth() === currentMonth && 
+                         targetDate.getFullYear() === currentYear;
+      
+      // 调试信息：查看日期解析情况
+      if (invoices.length > 0 && invoices.indexOf(invoice) < 3) {
+        console.log('📅 本月发票统计调试:', {
+          invoice_number: invoice.invoice_number,
+          created_at: invoice.created_at,
+          targetDate: targetDate.toISOString(),
+          currentMonth,
+          currentYear,
+          targetMonth: targetDate.getMonth(),
+          targetYear: targetDate.getFullYear(),
+          isThisMonth
+        });
+      }
+      
+      return isThisMonth;
     });
     const thisMonthAmount = thisMonthInvoices.reduce((sum, invoice) => {
       const amount = invoice.total_amount || invoice.amount || 0;
       return sum + amount;
     }, 0);
+    
+    // 调试信息：输出最终统计结果
+    console.log('📊 本月发票统计结果:', {
+      totalInvoices: invoices.length,
+      thisMonthCount: thisMonthInvoices.length,
+      thisMonthAmount,
+      currentMonth: currentMonth + 1, // 显示为1-12月
+      currentYear,
+      sampleDates: invoices.slice(0, 3).map(inv => ({
+        invoice_number: inv.invoice_number,
+        created_at: inv.created_at
+      }))
+    });
     
     // 按状态统计（未报销/已报销）
     const unreimbursedInvoices = invoices.filter(invoice => invoice.status === 'unreimbursed');
@@ -388,13 +417,13 @@ export function InvoiceManagePage() {
           return false
         }
         
-        // 日期范围筛选
+        // 日期范围筛选（基于消费日期）
         if (searchFilters.date_from || searchFilters.date_to) {
-          const invoiceDate = new Date(invoice.invoice_date)
-          if (searchFilters.date_from && invoiceDate < new Date(searchFilters.date_from)) {
+          const consumptionDate = new Date(invoice.created_at)
+          if (searchFilters.date_from && consumptionDate < new Date(searchFilters.date_from)) {
             return false
           }
-          if (searchFilters.date_to && invoiceDate > new Date(searchFilters.date_to)) {
+          if (searchFilters.date_to && consumptionDate > new Date(searchFilters.date_to)) {
             return false
           }
         }
@@ -545,9 +574,9 @@ export function InvoiceManagePage() {
       header: '发票号码',
       cell: ({ getValue }) => <div className="font-medium">{getValue()}</div>,
     }),
-    // 开票日期
-    columnHelper.accessor('invoice_date', {
-      header: '开票日期',
+    // 消费日期
+    columnHelper.accessor('created_at', {
+      header: '消费日期',
       cell: ({ getValue }) => formatDate(getValue()),
     }),
     // 销售方
@@ -1576,7 +1605,7 @@ export function InvoiceManagePage() {
                         ¥{pageStats.thisMonthAmount.toLocaleString()}
                       </div>
                       <div className="text-xs text-base-content/60 font-medium">
-                        本月消费额
+                        本月新增发票
                       </div>
                     </div>
                     <div className="flex-shrink-0 text-success/60 ml-3">

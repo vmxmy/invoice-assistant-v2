@@ -1,12 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
-import { 
-  useEmailScanJobs, 
-  useCancelEmailScanJob, 
-  useRetryEmailScanJob,
-  useDeleteEmailScanJob 
-} from '../hooks/useEmailAccounts'
+// Email scan job hooks are temporarily unavailable
 import Layout from '../components/layout/Layout'
 import SkeletonLoader from '../components/ui/SkeletonLoader'
 import EmailScanResultsModal from '../components/email/EmailScanResultsModal'
@@ -218,7 +213,7 @@ const EmailScanJobsPage: React.FC = () => {
           </p>
           <button 
             className="btn btn-primary"
-            onClick={() => navigate('/settings/email-accounts')}
+            onClick={() => navigate('/settings')}
           >
             去创建扫描任务
           </button>
@@ -398,7 +393,7 @@ const EmailScanJobsPage: React.FC = () => {
                 
                 <button 
                   className="btn btn-primary"
-                  onClick={() => navigate('/settings/email-accounts')}
+                  onClick={() => navigate('/settings')}
                 >
                   创建扫描任务
                 </button>

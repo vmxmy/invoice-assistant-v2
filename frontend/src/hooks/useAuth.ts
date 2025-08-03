@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { autoConfirmEmailInDev } from '../utils/devAutoConfirm'
 
 // 认证状态枚举
 export enum AuthStatus {
@@ -30,6 +31,7 @@ export interface UseAuthReturn {
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null; status: AuthStatus }>
   signOut: () => Promise<{ error: AuthError | null }>
   resendConfirmation: (email: string) => Promise<{ error: AuthError | null }>
+  signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null; status: AuthStatus }>
   clearStatus: () => void
 }
 
@@ -58,16 +60,28 @@ export function useAuth(): UseAuthReturn {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('认证状态变化:', event)
+        
+        // 避免在已经加载完成的情况下重复设置loading状态
+        if (event === 'INITIAL_SESSION') {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+          return
+        }
+        
         setSession(session)
         setUser(session?.user ?? null)
         setError(null)
-        setLoading(false)
+        
+        // 只在特定事件下设置loading为false，避免干扰用户操作
+        if (event === 'SIGNED_OUT') {
+          setLoading(false)
+        }
         
         // 处理认证事件
         switch (event) {
           case 'SIGNED_IN':
-            setStatus(AuthStatus.SUCCESS)
-            setMessage('登录成功！')
+            // 不在这里设置status，让signIn函数自己处理
             break
           case 'SIGNED_OUT':
             setStatus(AuthStatus.IDLE)
@@ -99,22 +113,31 @@ export function useAuth(): UseAuthReturn {
       setLoading(false)
       
       // 智能状态处理
+      let finalStatus = AuthStatus.ERROR
+      let finalMessage = error.message
+      
       if (error.message.includes('Email not confirmed')) {
-        setStatus(AuthStatus.EMAIL_NOT_CONFIRMED)
-        setMessage('请先确认邮箱后再登录')
+        finalStatus = AuthStatus.EMAIL_NOT_CONFIRMED
+        finalMessage = '请先确认邮箱后再登录'
       } else if (error.message.includes('Invalid login credentials')) {
-        setStatus(AuthStatus.INVALID_CREDENTIALS)
-        setMessage('邮箱或密码错误')
+        finalStatus = AuthStatus.INVALID_CREDENTIALS
+        finalMessage = '邮箱或密码错误'
       } else if (error.message.includes('Too many requests')) {
-        setStatus(AuthStatus.TOO_MANY_REQUESTS)
-        setMessage('请求过于频繁，请稍后再试')
-      } else {
-        setStatus(AuthStatus.ERROR)
-        setMessage(error.message)
+        finalStatus = AuthStatus.TOO_MANY_REQUESTS
+        finalMessage = '请求过于频繁，请稍后再试'
       }
       
-      return { error, status }
+      setStatus(finalStatus)
+      setMessage(finalMessage)
+      
+      return { error, status: finalStatus }
     }
+    
+    // 登录成功时，状态会通过onAuthStateChange处理
+    // 这里直接设置成功状态
+    setLoading(false)
+    setStatus(AuthStatus.SUCCESS)
+    setMessage('登录成功！')
     
     return { error: null, status: AuthStatus.SUCCESS }
   }
@@ -125,12 +148,26 @@ export function useAuth(): UseAuthReturn {
     setStatus(AuthStatus.LOADING)
     setMessage('注册中...')
     
-    const signUpData: any = { email, password }
-    if (displayName) {
-      signUpData.options = {
-        data: { display_name: displayName }
+    // 获取当前应用的基础URL
+    const currentURL = window.location.origin
+    const redirectURL = `${currentURL}/email-confirmation`
+    
+    const signUpData: any = { 
+      email, 
+      password,
+      options: {
+        emailRedirectTo: redirectURL,
+        ...(displayName && { data: { display_name: displayName } })
       }
     }
+    
+    console.log('注册配置:', {
+      email,
+      redirectURL,
+      currentURL,
+      hasDisplayName: !!displayName,
+      isDevelopment: import.meta.env.DEV
+    })
     
     const { data, error } = await supabase.auth.signUp(signUpData)
     
@@ -153,7 +190,21 @@ export function useAuth(): UseAuthReturn {
       return { error, status }
     }
 
-    if (data.user && !data.user.email_confirmed_at) {
+    // 开发环境自动确认邮箱
+    if (import.meta.env.DEV && data.user && !data.user.email_confirmed_at) {
+      console.log('🔧 [开发环境] 自动确认用户邮箱:', email)
+      try {
+        await autoConfirmEmailInDev(data.user.id)
+        setStatus(AuthStatus.SUCCESS)
+        setMessage('注册成功！开发环境已自动确认邮箱')
+        setLoading(false)
+      } catch (confirmError) {
+        console.error('开发环境自动确认失败:', confirmError)
+        setStatus(AuthStatus.SUCCESS)
+        setMessage('注册成功！请检查邮箱确认链接')
+        setLoading(false)
+      }
+    } else if (data.user && !data.user.email_confirmed_at) {
       setStatus(AuthStatus.SUCCESS)
       setMessage('注册成功！请检查邮箱确认链接')
       setLoading(false)
@@ -197,6 +248,47 @@ export function useAuth(): UseAuthReturn {
     return { error }
   }
 
+  const signInWithMagicLink = async (email: string) => {
+    setLoading(true)
+    setError(null)
+    setStatus(AuthStatus.LOADING)
+    setMessage('发送魔法链接中...')
+    
+    // 获取当前应用的基础URL
+    const currentURL = window.location.origin
+    const redirectURL = `${currentURL}/magic-link-callback`
+    
+    console.log('🔗 [魔法链接] 发送配置:', {
+      email,
+      redirectURL,
+      currentURL
+    })
+    
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        emailRedirectTo: redirectURL
+      }
+    })
+    
+    if (error) {
+      setError(error)
+      setStatus(AuthStatus.ERROR)
+      setMessage(`魔法链接发送失败: ${error.message}`)
+      setLoading(false)
+      
+      console.error('❌ [魔法链接] 发送失败:', error)
+      return { error, status: AuthStatus.ERROR }
+    } else {
+      setStatus(AuthStatus.SUCCESS)
+      setMessage('魔法链接已发送到您的邮箱！请点击邮件中的链接登录')
+      setLoading(false)
+      
+      console.log('✅ [魔法链接] 发送成功')
+      return { error: null, status: AuthStatus.SUCCESS }
+    }
+  }
+
   const clearStatus = () => {
     setStatus(AuthStatus.IDLE)
     setMessage('')
@@ -214,6 +306,7 @@ export function useAuth(): UseAuthReturn {
     signUp,
     signOut,
     resendConfirmation,
+    signInWithMagicLink,
     clearStatus,
   }
 }
