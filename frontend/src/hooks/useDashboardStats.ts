@@ -13,7 +13,7 @@ export function useDashboardStats(): DashboardStatsResponse {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  // 获取统计数据
+  // 获取统计数据 - 改为直接从invoices表计算
   const fetchStats = useCallback(async () => {
     if (!user?.id) {
       setData(null)
@@ -25,17 +25,133 @@ export function useDashboardStats(): DashboardStatsResponse {
       setError(null)
       console.log('🔍 [DashboardStats] 获取统计数据', user.id)
 
-      const { data: statsData, error: statsError } = await supabase
-        .from('dashboard_stats')
+      // 获取所有发票数据进行统计计算
+      const { data: invoicesData, error: invoicesError } = await supabase
+        .from('invoices')
         .select('*')
         .eq('user_id', user.id)
-        .single()
 
-      if (statsError) {
-        throw new Error(`获取统计数据失败: ${statsError.message}`)
+      if (invoicesError) {
+        throw new Error(`获取发票数据失败: ${invoicesError.message}`)
       }
 
-      console.log('✅ [DashboardStats] 统计数据获取成功', statsData)
+      // 获取邮箱账户数据
+      const { data: emailAccountsData, error: emailError } = await supabase
+        .from('email_accounts')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (emailError) {
+        console.warn('获取邮箱账户失败:', emailError.message)
+      }
+
+      // 获取扫描任务数据
+      const { data: scanJobsData, error: scanError } = await supabase
+        .from('email_scan_jobs')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (scanError) {
+        console.warn('获取扫描任务失败:', scanError.message)
+      }
+
+      // 计算统计数据
+      const currentMonth = new Date().getMonth()
+      const currentYear = new Date().getFullYear()
+      
+      const invoices = invoicesData || []
+      const emailAccounts = emailAccountsData || []
+      const scanJobs = scanJobsData || []
+
+      // 总发票数和总金额
+      const totalInvoices = invoices.length
+      const totalAmount = invoices.reduce((sum, invoice) => {
+        const amount = invoice.total_amount || invoice.amount || 0
+        return sum + amount
+      }, 0)
+
+      // 本月发票统计（按消费日期created_at）
+      const monthlyInvoices = invoices.filter(invoice => {
+        if (!invoice.created_at) return false
+        const targetDate = new Date(invoice.created_at)
+        return targetDate.getMonth() === currentMonth && 
+               targetDate.getFullYear() === currentYear
+      })
+
+      const monthlyAmount = monthlyInvoices.reduce((sum, invoice) => {
+        const amount = invoice.total_amount || invoice.amount || 0
+        return sum + amount
+      }, 0)
+
+      // 已验证发票数
+      const verifiedInvoices = invoices.filter(invoice => invoice.is_verified).length
+
+      // 邮箱账户统计
+      const totalEmailAccounts = emailAccounts.length
+      const activeEmailAccounts = emailAccounts.filter(account => account.is_active).length
+
+      // 扫描任务统计
+      const totalScanJobs = scanJobs.length
+      const completedScanJobs = scanJobs.filter(job => job.status === 'completed').length
+      const monthlyProcessed = scanJobs.filter(job => {
+        if (!job.created_at) return false
+        const targetDate = new Date(job.created_at)
+        return targetDate.getMonth() === currentMonth && 
+               targetDate.getFullYear() === currentYear
+      }).length
+
+      // 构造统计数据对象
+      const statsData: DashboardStats = {
+        user_id: user.id,
+        profile_id: user.id,
+        display_name: user.email?.split('@')[0] || null,
+        
+        // 发票统计
+        total_invoices: totalInvoices,
+        total_amount: totalAmount,
+        monthly_invoices: monthlyInvoices.length,
+        monthly_amount: monthlyAmount,
+        verified_invoices: verifiedInvoices,
+        last_invoice_date: invoices.length > 0 ? invoices.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0].created_at : null,
+        
+        // 邮箱统计
+        total_email_accounts: totalEmailAccounts,
+        active_email_accounts: activeEmailAccounts,
+        
+        // 扫描统计
+        total_scan_jobs: totalScanJobs,
+        completed_scan_jobs: completedScanJobs,
+        monthly_processed: monthlyProcessed,
+        last_scan_at: scanJobs.length > 0 ? scanJobs.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0].created_at : null,
+        
+        // 活动统计 - 简化版本
+        weekly_invoices: monthlyInvoices.length, // 暂时用月度数据
+        daily_invoices: Math.round(monthlyInvoices.length / 30), // 估算
+        
+        // 增长率 - 简化计算
+        invoice_growth_rate: totalInvoices > 0 ? Math.round((monthlyInvoices.length / totalInvoices) * 100) : 0,
+        amount_growth_rate: totalAmount > 0 ? Math.round((monthlyAmount / totalAmount) * 100) : 0,
+        
+        // 用户状态
+        is_active: true,
+        is_premium: false,
+        premium_expires_at: null,
+        
+        // 时间戳
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('✅ [DashboardStats] 统计数据计算成功', {
+        totalInvoices,
+        monthlyInvoices: monthlyInvoices.length,
+        monthlyAmount,
+        currentMonth: currentMonth + 1,
+        currentYear
+      })
       setData(statsData)
     } catch (err) {
       console.error('❌ [DashboardStats] 获取统计数据失败:', err)
@@ -163,7 +279,7 @@ export function generateStatCards(stats: DashboardStats | null) {
         title: '总金额',
         value: '¥0',
         icon: '💰',
-        description: '本月统计',
+        description: '本月新增 ¥0',
         color: 'secondary' as const
       },
       {
@@ -174,10 +290,10 @@ export function generateStatCards(stats: DashboardStats | null) {
         color: 'accent' as const
       },
       {
-        title: '本月处理',
+        title: '本月发票',
         value: 0,
-        icon: '🔍',
-        description: '份发票',
+        icon: '📋',
+        description: '暂无新增',
         color: 'info' as const
       }
     ]
@@ -205,7 +321,7 @@ export function generateStatCards(stats: DashboardStats | null) {
         trend: calculateTrend(stats.monthly_amount, stats.total_amount - stats.monthly_amount),
         period: '本月'
       },
-      description: `本月 ${formatStatValue(stats.monthly_amount, 'currency')}`,
+      description: `本月新增 ${formatStatValue(stats.monthly_amount, 'currency')}`,
       color: 'secondary' as const
     },
     {
@@ -216,10 +332,10 @@ export function generateStatCards(stats: DashboardStats | null) {
       color: 'accent' as const
     },
     {
-      title: '本月处理',
-      value: stats.monthly_processed,
-      icon: '🔍',
-      description: `总共处理 ${stats.completed_scan_jobs} 个任务`,
+      title: '本月发票',
+      value: stats.monthly_invoices,
+      icon: '📋',
+      description: `新增 ${stats.monthly_invoices} 张发票`,
       color: 'info' as const
     }
   ]

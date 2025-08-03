@@ -375,10 +375,10 @@ const AccountSettingsPage: React.FC = () => {
                     </button>
                     <button 
                       className="btn btn-outline btn-block justify-start gap-3"
-                      onClick={() => navigate('/settings/email-config')}
+                      onClick={() => navigate('/inbox')}
                     >
                       <Mail className="w-5 h-5" />
-                      邮箱配置
+                      查看收件箱
                     </button>
                   </div>
                 </div>
@@ -825,7 +825,7 @@ const AccountSettingsPage: React.FC = () => {
                       </p>
                       <ul className="list-disc list-inside text-sm text-base-content/70 ml-4">
                         <li>所有发票记录</li>
-                        <li>邮箱配置信息</li>
+                        <li>收件箱邮件信息</li>
                         <li>个人资料和设置</li>
                         <li>所有上传的文件</li>
                       </ul>

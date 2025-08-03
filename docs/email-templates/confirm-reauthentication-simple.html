@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认重新认证</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #f3f0ff 0%, #e9d5ff 100%); padding: 35px; border-radius: 10px; border: 2px solid #8b5cf6;">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h1 style="color: #6d28d9; margin-bottom: 10px; font-size: 24px;">🛡️ 确认重新认证</h1>
+            <p style="color: #7c3aed; font-size: 16px; margin: 0;">保护您的账户安全</p>
+        </div>
+        
+        <div style="background: white; border-radius: 8px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="background: #f3f0ff; border-radius: 6px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #8b5cf6;">
+                <p style="margin: 0; color: #6d28d9; font-weight: bold;">
+                    🔐 系统检测到需要重新验证您的身份
+                </p>
+            </div>
+            
+            <div style="background: #f3f4f6; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: #6b7280;">账户邮箱：</span>
+                    <div style="font-family: monospace; color: #8b5cf6; font-weight: bold;">{{.Email}}</div>
+                </div>
+                <div style="font-size: 13px; color: #6b7280;">
+                    <strong>认证有效期：</strong> 15分钟 | <strong>安全级别：</strong> 高
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{.ConfirmationURL}}" 
+                   style="display: inline-block; 
+                          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
+                          color: white; 
+                          text-decoration: none; 
+                          padding: 15px 35px; 
+                          border-radius: 8px; 
+                          font-weight: bold; 
+                          font-size: 16px;
+                          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                    ✅ 确认身份并继续
+                </a>
+            </div>
+            
+            <div style="background: #f0f9ff; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0 0 10px; font-size: 14px; color: #0c4a6e; font-weight: bold;">
+                    🤔 需要重新认证的原因：
+                </p>
+                <p style="margin: 0; font-size: 13px; color: #075985;">
+                    会话过期 • 敏感操作 • 异常位置 • 安全策略
+                </p>
+            </div>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #92400e;">
+                    <strong>⏰ 重要：</strong> 确认链接15分钟内有效，如非本人操作请联系客服
+                </p>
+            </div>
+        </div>
+        
+        <div style="background: #f0fdf4; border-radius: 6px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #15803d;">
+                <strong>🔐 确认后您可以：</strong>
+            </p>
+            <p style="margin: 8px 0 0; font-size: 13px; color: #166534;">
+                继续操作 • 访问受保护功能 • 享受安全保障
+            </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #7c3aed; margin: 25px 0;">
+        
+        <div style="font-size: 12px; color: #6d28d9; text-align: center;">
+            <p style="margin-bottom: 10px;">无法点击按钮？复制此链接到浏览器：</p>
+            <div style="background: #ffffff; padding: 10px; border-radius: 4px; font-family: monospace; word-break: break-all; border: 1px dashed #7c3aed; margin: 10px 0;">
+                {{.ConfirmationURL}}
+            </div>
+            <p style="margin-top: 15px;">
+                <strong>🆘 如非本人操作：</strong> 立即联系客服检查账户安全<br>
+                此邮件由 <strong>发票管理系统</strong> 自动发送，请勿回复
+            </p>
+        </div>
+    </div>
+</body>
+</html>

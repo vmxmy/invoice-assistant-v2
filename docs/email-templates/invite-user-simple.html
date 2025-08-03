@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邀请加入团队</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 40px; border-radius: 12px; border: 2px solid #10b981;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #065f46; margin-bottom: 8px; font-size: 28px;">👥 邀请加入团队</h1>
+            <p style="color: #059669; font-size: 18px; margin: 0;">开启高效的发票管理协作之旅</p>
+        </div>
+        
+        <div style="background: white; border-radius: 10px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div style="background: #f0fdf4; border-radius: 8px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #10b981;">
+                <h3 style="margin: 0 0 10px; color: #065f46;">🎉 恭喜您被邀请！</h3>
+                <p style="margin: 0; color: #059669; font-size: 15px;">
+                    您已被 <strong>{{.InviterEmail}}</strong> 邀请加入发票管理系统，体验AI智能发票处理服务。
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="font-size: 16px; margin-bottom: 25px; color: #374151;">
+                    点击下面的按钮接受邀请并创建您的账户：
+                </p>
+                
+                <a href="{{.ConfirmationURL}}" 
+                   style="display: inline-block; 
+                          background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                          color: white; 
+                          text-decoration: none; 
+                          padding: 18px 40px; 
+                          border-radius: 10px; 
+                          font-weight: bold; 
+                          font-size: 16px;
+                          margin: 20px 0;
+                          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);">
+                    🚀 接受邀请并加入
+                </a>
+            </div>
+            
+            <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <h3 style="margin: 0 0 15px; color: #374151; text-align: center;">✨ 您将获得的功能</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="text-align: center; padding: 10px;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🤖</div>
+                        <div style="font-size: 14px; color: #374151;"><strong>AI智能识别</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 10px;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">📧</div>
+                        <div style="font-size: 14px; color: #374151;"><strong>邮箱扫描</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 10px;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">👥</div>
+                        <div style="font-size: 14px; color: #374151;"><strong>团队协作</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 10px;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">📊</div>
+                        <div style="font-size: 14px; color: #374151;"><strong>数据导出</strong></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 18px; margin-top: 25px;">
+                <p style="margin: 0; font-size: 14px; color: #92400e; text-align: center;">
+                    <strong>⏰ 提醒：</strong> 邀请链接7天内有效，请尽快完成注册！
+                </p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin: 0 0 15px; color: #374151;">🏆 已有数千家企业选择我们</h3>
+                <div style="display: flex; justify-content: space-around; margin: 15px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #10b981;">10,000+</div>
+                        <div style="font-size: 12px; color: #6b7280;">活跃用户</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #10b981;">1,000,000+</div>
+                        <div style="font-size: 12px; color: #6b7280;">处理发票</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #10b981;">99.9%</div>
+                        <div style="font-size: 12px; color: #6b7280;">服务可用性</div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="font-size: 14px; color: #059669; margin: 20px 0;">
+                <strong>🎯 快速上手：</strong> 点击邀请链接 → 设置密码 → 开始使用
+            </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #10b981; margin: 30px 0;">
+        
+        <div style="font-size: 12px; color: #065f46; text-align: center;">
+            <p style="margin-bottom: 10px;">无法点击按钮？复制此链接到浏览器：</p>
+            <div style="background: #ffffff; padding: 12px; border-radius: 6px; font-family: monospace; word-break: break-all; border: 1px dashed #10b981; margin: 10px 0;">
+                {{.ConfirmationURL}}
+            </div>
+            <p style="margin-top: 20px;">
+                <strong>需要帮助？</strong> 联系邀请人 <strong>{{.InviterEmail}}</strong><br>
+                此邮件由 <strong>发票管理系统</strong> 自动发送，请勿回复
+            </p>
+        </div>
+    </div>
+</body>
+</html>

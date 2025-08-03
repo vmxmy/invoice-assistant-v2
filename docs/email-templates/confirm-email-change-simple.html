@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认邮箱更改</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #fef7e3 0%, #fef3c7 100%); padding: 35px; border-radius: 10px; border: 2px solid #f59e0b;">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h1 style="color: #92400e; margin-bottom: 10px; font-size: 24px;">🔄 确认邮箱更改</h1>
+            <p style="color: #78716c; font-size: 16px; margin: 0;">保护您的账户安全</p>
+        </div>
+        
+        <div style="background: white; border-radius: 8px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <p style="font-size: 16px; margin-bottom: 20px; color: #374151;">
+                我们收到了更改您账户邮箱地址的请求，请确认此次更改：
+            </p>
+            
+            <div style="background: #f3f4f6; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                <div style="margin-bottom: 10px;">
+                    <span style="font-size: 14px; color: #6b7280;">原邮箱：</span>
+                    <div style="font-family: monospace; color: #dc2626; font-weight: bold;">{{.Email}}</div>
+                </div>
+                <div style="text-align: center; margin: 10px 0; color: #f59e0b; font-size: 18px;">⬇️</div>
+                <div>
+                    <span style="font-size: 14px; color: #6b7280;">新邮箱：</span>
+                    <div style="font-family: monospace; color: #059669; font-weight: bold;">{{.NewEmail}}</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{.ConfirmationURL}}" 
+                   style="display: inline-block; 
+                          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
+                          color: white; 
+                          text-decoration: none; 
+                          padding: 15px 35px; 
+                          border-radius: 8px; 
+                          font-weight: bold; 
+                          font-size: 16px;
+                          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                    ✅ 确认邮箱更改
+                </a>
+            </div>
+            
+            <div style="background: #fef2f2; border: 1px solid #ef4444; border-radius: 6px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #dc2626;">
+                    <strong>⚠️ 重要提醒：</strong>
+                </p>
+                <ul style="margin: 8px 0 0 20px; padding: 0; font-size: 14px; color: #dc2626;">
+                    <li>确认链接24小时内有效</li>
+                    <li>如非本人操作，请立即联系客服</li>
+                    <li>确认后需要使用新邮箱登录</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="background: #f0f9ff; border-radius: 6px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #0c4a6e;">
+                <strong>📋 确认后将会：</strong>
+            </p>
+            <p style="margin: 8px 0 0; font-size: 13px; color: #075985;">
+                新邮箱成为主要联系方式 • 所有通知发送到新邮箱 • 需使用新邮箱登录
+            </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #d97706; margin: 25px 0;">
+        
+        <div style="font-size: 12px; color: #78716c; text-align: center;">
+            <p style="margin-bottom: 10px;">无法点击按钮？复制此链接到浏览器：</p>
+            <div style="background: #ffffff; padding: 10px; border-radius: 4px; font-family: monospace; word-break: break-all; border: 1px dashed #d97706; margin: 10px 0;">
+                {{.ConfirmationURL}}
+            </div>
+            <p style="margin-top: 15px;">
+                <strong>需要帮助？</strong> 如非本人操作或有疑问，请立即联系客服<br>
+                此邮件由 <strong>发票管理系统</strong> 自动发送，请勿回复
+            </p>
+        </div>
+    </div>
+</body>
+</html>

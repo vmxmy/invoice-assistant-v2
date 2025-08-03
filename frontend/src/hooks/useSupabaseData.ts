@@ -322,49 +322,50 @@ export const useInvoiceOCR = () => {
 }
 
 /**
- * 邮箱账户相关 Hooks
+ * 邮箱账户相关 Hooks - 已弃用
  */
-export const useEmailAccounts = () => {
-  const { user } = useAuthContext()
+// export const useEmailAccounts = () => {
+//   const { user } = useAuthContext()
 
-  return useQuery({
-    queryKey: QUERY_KEYS.emailAccounts(user?.id || ''),
-    queryFn: () => {
-      if (!user?.id) throw new Error('用户未登录')
-      return EmailAccountService.getEmailAccounts(user.id)
-    },
-    enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // 10分钟
-  })
-}
+//   return useQuery({
+//     queryKey: QUERY_KEYS.emailAccounts(user?.id || ''),
+//     queryFn: () => {
+//       if (!user?.id) throw new Error('用户未登录')
+//       return EmailAccountService.getEmailAccounts(user.id)
+//     },
+//     enabled: !!user?.id,
+//     staleTime: 10 * 60 * 1000, // 10分钟
+//   })
+// }
 
-export const useCreateEmailAccount = () => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
+// 已弃用 - 邮箱账户相关操作
+// export const useCreateEmailAccount = () => {
+//   const { user } = useAuthContext()
+//   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (accountData: Omit<EmailAccount, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      if (!user?.id) throw new Error('用户未登录')
-      return EmailAccountService.createEmailAccount(user.id, accountData)
-    },
-    onSuccess: (result) => {
-      if (result.error) {
-        toast.error(`创建邮箱账户失败: ${result.error}`)
-        return
-      }
+//   return useMutation({
+//     mutationFn: (accountData: Omit<EmailAccount, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+//       if (!user?.id) throw new Error('用户未登录')
+//       return EmailAccountService.createEmailAccount(user.id, accountData)
+//     },
+//     onSuccess: (result) => {
+//       if (result.error) {
+//         toast.error(`创建邮箱账户失败: ${result.error}`)
+//         return
+//       }
       
-      toast.success('邮箱账户创建成功')
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.emailAccounts(user?.id || '')
-      })
-    },
-    onError: (error: Error) => {
-      toast.error(`创建邮箱账户失败: ${error.message}`)
-    }
-  })
-}
+//       toast.success('邮箱账户创建成功')
+//       queryClient.invalidateQueries({
+//         queryKey: QUERY_KEYS.emailAccounts(user?.id || '')
+//       })
+//     },
+//     onError: (error: Error) => {
+//       toast.error(`创建邮箱账户失败: ${error.message}`)
+//     }
+//   })
+// }
 
-export const useUpdateEmailAccount = () => {
+// 已弃用 - export const useUpdateEmailAccount = () => {
   const { user } = useAuthContext()
   const queryClient = useQueryClient()
 
@@ -396,7 +397,7 @@ export const useUpdateEmailAccount = () => {
   })
 }
 
-export const useDeleteEmailAccount = () => {
+// 已弃用 - export const useDeleteEmailAccount = () => {
   const { user } = useAuthContext()
   const queryClient = useQueryClient()
 

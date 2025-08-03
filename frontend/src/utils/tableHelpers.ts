@@ -60,9 +60,9 @@ export const getInvoiceAmount = (invoice: Invoice): number => {
   return invoice.total_amount;
 };
 
-// 获取发票显示日期（优先使用消费日期）
+// 获取发票显示日期（统一使用消费日期）
 export const getInvoiceDisplayDate = (invoice: Invoice): string => {
-  return invoice.consumption_date || invoice.invoice_date;
+  return invoice.created_at || invoice.consumption_date || invoice.invoice_date;
 };
 
 // 日期范围筛选函数

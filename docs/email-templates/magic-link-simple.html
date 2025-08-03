@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录链接</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 35px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0;">
+        <div style="margin-bottom: 25px;">
+            <h1 style="color: #7c3aed; margin-bottom: 8px; font-size: 28px;">✨ 魔法登录</h1>
+            <p style="color: #64748b; font-size: 16px; margin: 0;">您的专属登录链接已准备就绪</p>
+        </div>
+        
+        <div style="background: white; border-radius: 8px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <p style="font-size: 16px; margin-bottom: 25px; color: #475569;">
+                点击下面的按钮即可安全登录发票管理系统，无需输入密码：
+            </p>
+            
+            <a href="{{.ConfirmationURL}}" 
+               style="display: inline-block; 
+                      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); 
+                      color: white; 
+                      text-decoration: none; 
+                      padding: 15px 40px; 
+                      border-radius: 8px; 
+                      font-weight: bold; 
+                      font-size: 16px;
+                      margin: 20px 0;
+                      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                🚀 立即登录
+            </a>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin-top: 20px; text-align: left;">
+                <p style="margin: 0; font-size: 14px; color: #92400e;">
+                    <strong>🔒 安全提醒：</strong> 此链接1小时内有效，仅限您本人使用。如非本人操作请忽略此邮件。
+                </p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 25px;">
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 10px;">
+                <strong>✨ 魔法链接优势：</strong> 更安全 • 更快速 • 免密码
+            </p>
+            
+            <p style="font-size: 12px; color: #94a3b8;">
+                建议收藏 <a href="{{.SiteURL}}" style="color: #7c3aed;">发票管理系统</a> 方便下次访问
+            </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
+        
+        <div style="font-size: 12px; color: #94a3b8;">
+            <p style="margin-bottom: 8px;">无法点击按钮？复制此链接到浏览器：</p>
+            <div style="background: #f8fafc; padding: 10px; border-radius: 4px; font-family: monospace; word-break: break-all; border: 1px dashed #cbd5e1;">
+                {{.ConfirmationURL}}
+            </div>
+            <p style="margin-top: 15px;">此邮件由 <strong>发票管理系统</strong> 自动发送，请勿回复</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认邮箱更改</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 22px;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .confirm-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+        }
+        .confirm-button:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+        .email-change-info {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            position: relative;
+        }
+        .email-change-info::before {
+            content: "📧";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #f59e0b;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .email-display {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .old-email {
+            color: #dc2626;
+        }
+        .new-email {
+            color: #059669;
+            font-weight: bold;
+        }
+        .security-warning {
+            background-color: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .security-warning .icon {
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        .steps-container {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 8px 0;
+        }
+        .step-number {
+            background: #0ea5e9;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .step-text {
+            font-size: 14px;
+            color: #0f172a;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px solid #e5e7eb;
+        }
+        .alternative-link {
+            font-size: 12px;
+            color: #6b7280;
+            word-break: break-all;
+            margin-top: 25px;
+            background-color: #f9fafb;
+            padding: 18px;
+            border-radius: 8px;
+            border: 2px dashed #d1d5db;
+        }
+        .contact-info {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 25px;
+            }
+            .email-display {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🔄 发票助手</div>
+            <h1 class="title">确认邮箱更改</h1>
+            <p class="subtitle">保护您的账户安全</p>
+        </div>
+
+        <div class="content">
+            <p>您好！</p>
+            <p>我们收到了更改您账户邮箱地址的请求。为确保账户安全，需要您确认此次更改。</p>
+            
+            <div class="email-change-info">
+                <h3 style="margin-top: 0; color: #92400e; font-size: 16px;">📧 邮箱更改详情</h3>
+                
+                <div style="margin: 15px 0;">
+                    <p style="margin: 5px 0; font-size: 14px; color: #374151;"><strong>原邮箱地址：</strong></p>
+                    <div class="email-display old-email">
+                        {{.Email}} (当前邮箱)
+                    </div>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <p style="margin: 5px 0; font-size: 14px; color: #374151;"><strong>新邮箱地址：</strong></p>
+                    <div class="email-display new-email">
+                        {{.NewEmail}} (待确认)
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{.ConfirmationURL}}" class="confirm-button">
+                    ✅ 确认邮箱更改
+                </a>
+            </div>
+
+            <div class="steps-container">
+                <h3 style="margin-top: 0; color: #0c4a6e; font-size: 16px;">📋 确认后会发生什么？</h3>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">新邮箱将成为您的主要联系邮箱</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">所有系统通知将发送到新邮箱</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">登录时需要使用新邮箱地址</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">原邮箱将收到更改成功的通知</div>
+                </div>
+            </div>
+
+            <div class="security-warning">
+                <p><span class="icon">⚠️</span><strong>重要安全提醒</strong></p>
+                <ul style="margin: 10px 0 0 30px; padding: 0;">
+                    <li>确认链接将在 <strong>24小时</strong> 后失效</li>
+                    <li>如果这不是您本人的操作，请立即联系客服</li>
+                    <li>确认后，您需要使用新邮箱登录账户</li>
+                    <li>原邮箱将无法再用于登录和接收通知</li>
+                    <li>请确保新邮箱地址正确且能正常接收邮件</li>
+                </ul>
+            </div>
+
+            <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 18px; margin: 25px 0;">
+                <p style="margin: 0; color: #047857;"><strong>💡 温馨提示：</strong></p>
+                <p style="margin: 8px 0 0; color: #047857; font-size: 14px;">
+                    建议在确认更改前，先确保新邮箱能够正常接收邮件，避免因邮箱问题无法接收重要通知。
+                </p>
+            </div>
+        </div>
+
+        <div class="alternative-link">
+            <p><strong>🔗 无法点击按钮？</strong></p>
+            <p>请复制以下完整链接到浏览器地址栏中打开：</p>
+            <div style="background-color: #ffffff; padding: 12px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 10px; border: 1px solid #e5e7eb; word-break: break-all;">
+                {{.ConfirmationURL}}
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <p style="margin: 0; font-size: 14px; color: #374151;">
+                <strong>🆘 需要帮助？</strong>
+            </p>
+            <p style="margin: 8px 0 0; font-size: 13px; color: #6b7280;">
+                如果您没有发起此邮箱更改请求，或有任何疑问，请立即联系我们的客服团队
+            </p>
+        </div>
+
+        <div class="footer">
+            <p style="margin-bottom: 12px;">
+                <strong>🧾 发票管理系统</strong> - 专业的智能发票处理平台
+            </p>
+            <p style="font-size: 12px; color: #9ca3af;">
+                此邮件由系统自动发送，请勿回复 | 
+                <a href="{{.SiteURL}}" style="color: #f59e0b; text-decoration: none;">访问官网</a>
+            </p>
+            <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid #f3f4f6;">
+                <p style="font-size: 11px; color: #9ca3af; margin: 0;">
+                    © 2024 发票管理系统 | 安全 • 可靠 • 专业
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

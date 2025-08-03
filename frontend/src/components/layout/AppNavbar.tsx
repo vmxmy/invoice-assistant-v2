@@ -23,13 +23,12 @@ const AppNavbar: React.FC = () => {
     { name: '首页', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
-    { name: '邮箱配置', href: '/settings/email-config', icon: Mail },
+    { name: '收件箱', href: '/inbox', icon: Mail },
   ];
 
   const isActive = (href: string) => {
     return location.pathname === href || 
-           (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload') ||
-           (href === '/settings/email-config' && location.pathname.startsWith('/settings/email-config'));
+           (href === '/invoices' && location.pathname.startsWith('/invoices') && location.pathname !== '/invoices/upload');
   };
 
   const handleSignOut = async () => {
@@ -92,6 +91,14 @@ const AppNavbar: React.FC = () => {
                       </div>
                     </div>
                   </div>
+                </li>
+                
+                {/* 收件箱 */}
+                <li>
+                  <Link to="/inbox" className="flex items-center gap-2 px-2 py-2">
+                    <Mail className="w-4 h-4" />
+                    <span>收件箱</span>
+                  </Link>
                 </li>
                 
                 {/* 用户中心 */}

@@ -33,8 +33,8 @@ const generateSmartFileName = (invoice: Invoice | any) => {
   const parts = []
   
   // 消费日期
-  if (invoice.invoice_date) {
-    parts.push(invoice.invoice_date)
+  if (invoice.created_at) {
+    parts.push(invoice.created_at.split('T')[0])
   }
   
   // 消费类型 (发票类型)
@@ -195,7 +195,7 @@ export function useInvoiceExport() {
       // 获取所有发票的完整信息（用于智能文件命名）
       const { data: invoicesData, error: fetchError } = await supabase
         .from('invoices')
-        .select('id, file_path, invoice_number, invoice_date, invoice_type, seller_name, total_amount')
+        .select('id, file_path, invoice_number, created_at, invoice_type, seller_name, total_amount')
         .in('id', invoices.map(inv => inv.id))
         .eq('user_id', user.id)
 

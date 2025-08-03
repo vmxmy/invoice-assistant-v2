@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认重新认证</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8b5cf6;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .auth-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            margin: 25px 0;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        .auth-button:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        .auth-info {
+            background: linear-gradient(135deg, #f3f0ff 0%, #e9d5ff 100%);
+            border: 2px solid #8b5cf6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+        }
+        .auth-info::before {
+            content: "🔐";
+            position: absolute;
+            top: -15px;
+            left: 25px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .session-info {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #8b5cf6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .reason-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid #e2e8f0;
+        }
+        .reason-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 8px 0;
+        }
+        .reason-icon {
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 2px;
+            color: #8b5cf6;
+        }
+        .reason-text {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.5;
+        }
+        .security-context {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .context-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+        .context-icon {
+            color: #0ea5e9;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .context-text {
+            font-size: 14px;
+            color: #0c4a6e;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .action-steps {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 10px 0;
+        }
+        .step-number {
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-text {
+            font-size: 15px;
+            color: #15803d;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px solid #e5e7eb;
+        }
+        .alternative-link {
+            font-size: 12px;
+            color: #6b7280;
+            word-break: break-all;
+            margin-top: 25px;
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #d1d5db;
+        }
+        .security-notice {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .device-info {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 25px;
+            }
+            .auth-button {
+                padding: 15px 30px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🛡️ 发票助手</div>
+            <h1 class="title">确认重新认证</h1>
+            <p class="subtitle">保护您的账户安全，验证身份</p>
+        </div>
+
+        <div class="content">
+            <div class="security-notice">
+                <h3 style="margin-top: 0; color: #dc2626; font-size: 18px;">🔐 安全验证请求</h3>
+                <p style="margin-bottom: 0; color: #dc2626;">系统检测到需要重新验证您的身份以确保账户安全。</p>
+            </div>
+
+            <div class="auth-info">
+                <h3 style="margin-top: 0; color: #6d28d9; font-size: 18px;">🔒 重新认证详情</h3>
+                
+                <div class="session-info">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 20px; margin-right: 10px;">👤</span>
+                        <div>
+                            <div style="font-weight: bold; color: #374151;">账户邮箱</div>
+                            <div style="font-family: monospace; color: #8b5cf6; font-weight: bold; font-size: 16px;">{{.Email}}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div style="color: #6b7280; margin-bottom: 8px;"><strong>会话信息：</strong></div>
+                        <div style="color: #374151;">
+                            请求时间：刚刚 | 
+                            操作类型：敏感操作 | 
+                            安全级别：高
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{.ConfirmationURL}}" class="auth-button">
+                    ✅ 确认身份并继续
+                </a>
+            </div>
+
+            <div class="reason-box">
+                <h3 style="margin-top: 0; color: #374151; text-align: center;">🤔 为什么需要重新认证？</h3>
+                
+                <div class="reason-item">
+                    <span class="reason-icon">🕐</span>
+                    <span class="reason-text">您的登录会话已过期或即将过期</span>
+                </div>
+                
+                <div class="reason-item">
+                    <span class="reason-icon">🔄</span>
+                    <span class="reason-text">正在执行敏感操作（如修改密码、邮箱等）</span>
+                </div>
+                
+                <div class="reason-item">
+                    <span class="reason-icon">🌍</span>
+                    <span class="reason-text">检测到异常登录位置或设备</span>
+                </div>
+                
+                <div class="reason-item">
+                    <span class="reason-icon">🛡️</span>
+                    <span class="reason-text">系统安全策略要求重新验证身份</span>
+                </div>
+            </div>
+
+            <div class="security-context">
+                <h3 style="margin-top: 0; color: #0c4a6e; text-align: center;">🔍 安全上下文信息</h3>
+                
+                <div class="context-item">
+                    <span class="context-icon">🏠</span>
+                    <span class="context-text">当前操作来源：发票管理系统</span>
+                </div>
+                
+                <div class="context-item">
+                    <span class="context-icon">⏰</span>
+                    <span class="context-text">认证有效期：15分钟</span>
+                </div>
+                
+                <div class="context-item">
+                    <span class="context-icon">🔒</span>
+                    <span class="context-text">安全级别：高级别敏感操作</span>
+                </div>
+                
+                <div class="context-item">
+                    <span class="context-icon">📧</span>
+                    <span class="context-text">确认方式：邮箱验证链接</span>
+                </div>
+            </div>
+
+            <div class="action-steps">
+                <h3 style="margin-top: 0; color: #15803d; text-align: center;">📋 确认后您可以：</h3>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">
+                        <strong>继续之前的操作</strong><br>
+                        <span style="font-size: 13px; color: #166534;">完成被中断的敏感操作</span>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">
+                        <strong>访问受保护功能</strong><br>
+                        <span style="font-size: 13px; color: #166534;">使用需要额外验证的功能</span>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">
+                        <strong>享受安全保障</strong><br>
+                        <span style="font-size: 13px; color: #166534;">确保账户和数据的安全性</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3 style="margin-top: 0; color: #92400e; font-size: 16px;">⏰ 重要时效提醒</h3>
+                <p style="margin: 10px 0; color: #92400e; font-size: 14px;">
+                    <strong>此确认链接仅在15分钟内有效</strong><br>
+                    超时后需要重新发起认证请求
+                </p>
+                <p style="margin-bottom: 0; color: #92400e; font-size: 13px;">
+                    如果这不是您的操作，请立即联系客服
+                </p>
+            </div>
+
+            <div style="background: #f0fdf4; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <h4 style="margin: 0 0 10px; color: #15803d; text-align: center;">🔐 安全承诺</h4>
+                <div style="text-align: center; font-size: 14px; color: #166534;">
+                    我们承诺保护您的隐私和数据安全 • 绝不滥用您的认证信息 • 仅用于必要的安全验证
+                </div>
+            </div>
+        </div>
+
+        <div class="alternative-link">
+            <p><strong>🔗 无法点击按钮？</strong></p>
+            <p>请复制以下完整链接到浏览器地址栏中打开：</p>
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 12px; border: 1px solid #e5e7eb; word-break: break-all;">
+                {{.ConfirmationURL}}
+            </div>
+        </div>
+
+        <div style="background: #fef2f2; border-radius: 8px; padding: 20px; margin-top: 25px; text-align: center;">
+            <p style="margin: 0; font-size: 14px; color: #dc2626;">
+                <strong>🆘 如果您没有进行相关操作</strong>
+            </p>
+            <p style="margin: 10px 0 0; font-size: 13px; color: #7f1d1d;">
+                请立即联系客服并检查账户安全 • 可能有未授权访问 • 客服邮箱：support@yoursite.com
+            </p>
+        </div>
+
+        <div class="footer">
+            <p style="margin-bottom: 15px;">
+                <strong>🛡️ 发票管理系统</strong> - 您的安全是我们的首要任务
+            </p>
+            <p style="font-size: 12px; color: #9ca3af;">
+                此邮件由系统自动发送，请勿回复 | 
+                <a href="{{.SiteURL}}" style="color: #8b5cf6; text-decoration: none;">访问官网</a>
+            </p>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #f3f4f6;">
+                <p style="font-size: 11px; color: #9ca3af; margin: 0;">
+                    © 2024 发票管理系统 | 安全 • 专业 • 值得信赖
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
