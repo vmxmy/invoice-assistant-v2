@@ -1,0 +1,25 @@
+# Edge Functions配置文件
+
+[email-invoice-scanner]
+# 允许访问的环境变量
+env = [
+  "BACKEND_API_URL",
+  "SUPABASE_URL", 
+  "SUPABASE_SERVICE_ROLE_KEY"
+]
+# 如果后端使用自签名证书，在开发环境可以设置
+# verify_ssl = false
+
+[alicloud-ocr]
+env = [
+  "ALICLOUD_ACCESS_KEY_ID",
+  "ALICLOUD_ACCESS_KEY_SECRET"
+]
+
+# 全局配置
+[global]
+# 开发环境配置
+development = {
+  # 忽略特定域名的SSL证书验证
+  ignore_ssl_domains = ["localhost", "127.0.0.1", "host.docker.internal"]
+}

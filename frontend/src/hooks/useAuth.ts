@@ -148,8 +148,9 @@ export function useAuth(): UseAuthReturn {
     setStatus(AuthStatus.LOADING)
     setMessage('注册中...')
     
-    // 获取当前应用的基础URL
-    const currentURL = window.location.origin
+    // 获取应用的基础URL - 使用环境变量配置的域名
+    const configuredDomain = import.meta.env.VITE_APP_DOMAIN
+    const currentURL = configuredDomain || window.location.origin
     const redirectURL = `${currentURL}/email-confirmation`
     
     const signUpData: any = { 
@@ -165,6 +166,8 @@ export function useAuth(): UseAuthReturn {
       email,
       redirectURL,
       currentURL,
+      configuredDomain,
+      windowOrigin: window.location.origin,
       hasDisplayName: !!displayName,
       isDevelopment: import.meta.env.DEV
     })
@@ -254,14 +257,17 @@ export function useAuth(): UseAuthReturn {
     setStatus(AuthStatus.LOADING)
     setMessage('发送魔法链接中...')
     
-    // 获取当前应用的基础URL
-    const currentURL = window.location.origin
+    // 获取应用的基础URL - 使用环境变量配置的域名
+    const configuredDomain = import.meta.env.VITE_APP_DOMAIN
+    const currentURL = configuredDomain || window.location.origin
     const redirectURL = `${currentURL}/magic-link-callback`
     
     console.log('🔗 [魔法链接] 发送配置:', {
       email,
       redirectURL,
-      currentURL
+      currentURL,
+      configuredDomain,
+      windowOrigin: window.location.origin
     })
     
     const { error } = await supabase.auth.signInWithOtp({
