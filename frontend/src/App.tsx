@@ -15,7 +15,6 @@ import SupabaseSignUp from './components/auth/SupabaseSignUp'
 import { DashboardPage } from './pages/DashboardPage'
 import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
-import EmailScanJobsPage from './pages/EmailScanJobsPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
 import { InboxPage } from './components/inbox/InboxPage'
 import './App.css'
@@ -82,14 +81,6 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <InvoiceUploadPage />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/settings/email-scan-jobs" 
-        element={
-          <ProtectedRoute>
-            <EmailScanJobsPage />
           </ProtectedRoute>
         } 
       />

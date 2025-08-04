@@ -8,6 +8,7 @@
       "args": [
         "-y",
         "@supabase/mcp-server-supabase@latest",
+        "--read-only",
         "--project-ref=sfenhhtvcyslxplvewmt"
       ],
       "env": {

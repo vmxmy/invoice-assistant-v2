@@ -35,33 +35,12 @@ export function useDashboardStats(): DashboardStatsResponse {
         throw new Error(`获取发票数据失败: ${invoicesError.message}`)
       }
 
-      // 获取邮箱账户数据
-      const { data: emailAccountsData, error: emailError } = await supabase
-        .from('email_accounts')
-        .select('*')
-        .eq('user_id', user.id)
-
-      if (emailError) {
-        console.warn('获取邮箱账户失败:', emailError.message)
-      }
-
-      // 获取扫描任务数据
-      const { data: scanJobsData, error: scanError } = await supabase
-        .from('email_scan_jobs')
-        .select('*')
-        .eq('user_id', user.id)
-
-      if (scanError) {
-        console.warn('获取扫描任务失败:', scanError.message)
-      }
 
       // 计算统计数据
       const currentMonth = new Date().getMonth()
       const currentYear = new Date().getFullYear()
       
       const invoices = invoicesData || []
-      const emailAccounts = emailAccountsData || []
-      const scanJobs = scanJobsData || []
 
       // 总发票数和总金额
       const totalInvoices = invoices.length
@@ -86,19 +65,6 @@ export function useDashboardStats(): DashboardStatsResponse {
       // 已验证发票数
       const verifiedInvoices = invoices.filter(invoice => invoice.is_verified).length
 
-      // 邮箱账户统计
-      const totalEmailAccounts = emailAccounts.length
-      const activeEmailAccounts = emailAccounts.filter(account => account.is_active).length
-
-      // 扫描任务统计
-      const totalScanJobs = scanJobs.length
-      const completedScanJobs = scanJobs.filter(job => job.status === 'completed').length
-      const monthlyProcessed = scanJobs.filter(job => {
-        if (!job.created_at) return false
-        const targetDate = new Date(job.created_at)
-        return targetDate.getMonth() === currentMonth && 
-               targetDate.getFullYear() === currentYear
-      }).length
 
       // 构造统计数据对象
       const statsData: DashboardStats = {
@@ -116,17 +82,15 @@ export function useDashboardStats(): DashboardStatsResponse {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0].created_at : null,
         
-        // 邮箱统计
-        total_email_accounts: totalEmailAccounts,
-        active_email_accounts: activeEmailAccounts,
+        // 邮箱统计 - 已移除
+        total_email_accounts: 0,
+        active_email_accounts: 0,
         
-        // 扫描统计
-        total_scan_jobs: totalScanJobs,
-        completed_scan_jobs: completedScanJobs,
-        monthly_processed: monthlyProcessed,
-        last_scan_at: scanJobs.length > 0 ? scanJobs.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )[0].created_at : null,
+        // 扫描统计 - 已移除
+        total_scan_jobs: 0,
+        completed_scan_jobs: 0,
+        monthly_processed: 0,
+        last_scan_at: null,
         
         // 活动统计 - 简化版本
         weekly_invoices: monthlyInvoices.length, // 暂时用月度数据
@@ -167,61 +131,24 @@ export function useDashboardStats(): DashboardStatsResponse {
     fetchStats()
   }, [fetchStats])
 
-  // 设置实时订阅
+  // 使用轮询替代实时订阅 - 避免WebSocket连接问题
   useEffect(() => {
     if (!user?.id) return
 
-    console.log('👂 [DashboardStats] 设置实时订阅', user.id)
+    console.log('⏰ [DashboardStats] 设置定时刷新', user.id)
 
-    // 订阅PostgreSQL通知
-    const channel = supabase.channel('dashboard-stats-changes')
-      .on('postgres_changes', 
-        {
-          event: '*',
-          schema: 'public',
-          table: 'invoices',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('📊 [DashboardStats] 发票数据变化', payload)
-          // 延迟刷新，确保数据库更新完成
-          setTimeout(() => fetchStats(), 500)
-        }
-      )
-      .on('postgres_changes',
-        {
-          event: '*', 
-          schema: 'public',
-          table: 'email_accounts',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('📧 [DashboardStats] 邮箱账号变化', payload)
-          setTimeout(() => fetchStats(), 500)
-        }
-      )
-      .on('postgres_changes',
-        {
-          event: '*',
-          schema: 'public', 
-          table: 'email_scan_jobs',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('🔄 [DashboardStats] 扫描任务变化', payload)
-          setTimeout(() => fetchStats(), 500)
-        }
-      )
-      .subscribe((status) => {
-        console.log('📡 [DashboardStats] 订阅状态:', status)
-      })
+    // 每60秒自动刷新统计数据
+    const interval = setInterval(() => {
+      console.log('🔄 [DashboardStats] 定时刷新统计数据')
+      fetchStats()
+    }, 60000) // 60秒
 
-    // 清理订阅
+    // 清理定时器
     return () => {
-      console.log('🧹 [DashboardStats] 清理实时订阅')
-      supabase.removeChannel(channel)
+      console.log('🧹 [DashboardStats] 清理定时刷新')
+      clearInterval(interval)
     }
-  }, [user?.id]) // 移除fetchStats依赖，直接在回调中调用
+  }, [user?.id, fetchStats])
 
   // 手动刷新统计数据
   const refresh = useCallback(() => {
@@ -326,9 +253,9 @@ export function generateStatCards(stats: DashboardStats | null) {
     },
     {
       title: '邮箱账号',
-      value: stats.total_email_accounts,
+      value: 0,
       icon: '📧',
-      description: `其中 ${stats.active_email_accounts} 个活跃`,
+      description: '已移除邮箱功能',
       color: 'accent' as const
     },
     {

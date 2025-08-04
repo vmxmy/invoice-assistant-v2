@@ -22,6 +22,7 @@ import {
 import { useAuthContext } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useDashboardStats } from '../hooks/useDashboardStats'
+import { useInvoices } from '../hooks/useSupabaseData'
 import { AdvancedSearchModal } from '../components/invoice/AdvancedSearchModal'
 import { InvoiceModal } from '../components/invoice/InvoiceModal'
 import { DeleteConfirmModal } from '../components/invoice/DeleteConfirmModal'
@@ -356,12 +357,6 @@ export function InvoiceManagePage() {
     };
   }
   
-  // 基础状态
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [totalCount, setTotalCount] = useState(0)
-  
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({})
@@ -442,6 +437,34 @@ export function InvoiceManagePage() {
     pageIndex: 0,
     pageSize: 20,
   })
+
+  // 使用 TanStack Query 获取发票数据，启用轮询
+  const { 
+    data: invoicesResponse, 
+    isLoading: loading, 
+    error: queryError, 
+    refetch: refreshInvoices 
+  } = useInvoices(
+    searchFilters, 
+    pagination.pageIndex + 1, 
+    pagination.pageSize
+  )
+  
+  // 从响应中提取数据
+  const invoices = invoicesResponse?.data || []
+  const totalCount = invoicesResponse?.total || 0
+  const error = queryError?.message || invoicesResponse?.error
+
+  // 添加轮询机制 - 每30秒自动刷新一次
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading && !error) {
+        refreshInvoices()
+      }
+    }, 30000) // 30秒
+
+    return () => clearInterval(interval)
+  }, [loading, error, refreshInvoices])
   
   // 筛选后的发票数据
   const filteredInvoices = useMemo(() => {
@@ -545,8 +568,6 @@ export function InvoiceManagePage() {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.GRID)
   
-  // 实时订阅状态
-  const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
   
   
   // 模态框状态
@@ -1397,97 +1418,6 @@ export function InvoiceManagePage() {
     }
   }, [])
 
-  // 实时订阅模式：初始获取 + 实时更新
-  useEffect(() => {
-    if (!user?.id) return
-
-    console.log('🔄 初始化实时订阅模式，用户ID:', user.id)
-    setLoading(true)
-    
-    // 获取初始数据
-    const fetchInitialData = async () => {
-      try {
-        console.log('📡 获取初始发票数据...')
-        const { data, error } = await supabase
-          .from('invoice_management_view')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(200)
-
-        if (error) {
-          console.error('❌ 初始数据获取失败:', error)
-          setError(error.message)
-          return
-        }
-
-        console.log('✅ 初始发票数据获取成功:', { count: data?.length })
-        setInvoices(data || [])
-        setTotalCount(data?.length || 0)
-        setError(null)
-      } catch (err) {
-        console.error('❌ 获取初始数据异常:', err)
-        setError(err instanceof Error ? err.message : '获取发票列表失败')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    // 获取初始数据
-    fetchInitialData()
-
-    // 设置实时订阅 - 监听后续数据变化
-    const channel = supabase.channel(`invoice-realtime-${user.id}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'invoices',
-        filter: `user_id=eq.${user.id}`
-      }, (payload) => {
-        console.log('🔥 发票数据实时变化:', payload.eventType, payload.new?.invoice_number || payload.old?.invoice_number)
-        
-        // 根据事件类型更新本地状态
-        if (payload.eventType === 'INSERT' && payload.new) {
-          setInvoices(prev => {
-            // 避免重复添加
-            const exists = prev.some(inv => inv.id === payload.new!.id)
-            if (exists) return prev
-            return [payload.new as Invoice, ...prev].sort((a, b) => 
-              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            )
-          })
-          setTotalCount(prev => prev + 1)
-        } else if (payload.eventType === 'UPDATE' && payload.new) {
-          setInvoices(prev => prev.map(inv => 
-            inv.id === payload.new!.id ? payload.new as Invoice : inv
-          ))
-        } else if (payload.eventType === 'DELETE' && payload.old) {
-          setInvoices(prev => prev.filter(inv => inv.id !== payload.old!.id))
-          setTotalCount(prev => Math.max(0, prev - 1))
-        }
-        
-        // 同时更新统计数据 - 使用稳定的引用
-        stableRefreshStats()
-      })
-      .subscribe((status) => {
-        console.log('📡 发票订阅状态:', status)
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ 实时订阅已建立，监听数据变化...')
-          setRealtimeStatus('connected')
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ 实时订阅失败')
-          setRealtimeStatus('error')
-          setError('实时订阅连接失败')
-        } else if (status === 'CONNECTING') {
-          setRealtimeStatus('connecting')
-        }
-      })
-
-    return () => {
-      console.log('🧹 清理实时订阅')
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id]) // 移除refreshStats依赖，使用内部的stableRefreshStats
 
   // 格式化货币
   const formatCurrency = (amount: number) => {
@@ -1549,10 +1479,10 @@ export function InvoiceManagePage() {
     setSelectedInvoiceId(null)
   }
 
-  // 模态框成功回调 - 纯实时订阅模式下不需要手动刷新
+  // 模态框成功回调 - 使用 TanStack Query 刷新数据
   const handleModalSuccess = () => {
-    // fetchInvoices() // 移除主动查询
-    stableRefreshStats()
+    refreshInvoices() // 刷新发票数据
+    stableRefreshStats() // 刷新统计数据
   }
 
   // 批量删除
@@ -1575,11 +1505,11 @@ export function InvoiceManagePage() {
     setDeleteInvoiceNumbers([])
   }
 
-  // 删除成功回调 - 纯实时订阅模式下不需要手动刷新
+  // 删除成功回调 - 使用 TanStack Query 刷新数据
   const handleDeleteSuccess = () => {
     setSelectedInvoices([])
-    // fetchInvoices() // 移除主动查询
-    stableRefreshStats()
+    refreshInvoices() // 刷新发票数据
+    stableRefreshStats() // 刷新统计数据
   }
 
   // 状态切换处理函数
@@ -1603,7 +1533,8 @@ export function InvoiceManagePage() {
       }
 
       console.log('✅ 状态更新成功')
-      // 实时订阅会自动更新UI，这里不需要手动更新
+      // 使用 TanStack Query 刷新数据
+      refreshInvoices()
       return true
     } catch (error) {
       console.error('❌ 状态更新异常:', error)
@@ -1816,6 +1747,20 @@ export function InvoiceManagePage() {
                   🔍 高级搜索
                 </button>
 
+                {/* 手动刷新按钮 */}
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => refreshInvoices()}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    '🔄'
+                  )}
+                  刷新
+                </button>
+
                 {/* 批量操作按钮 */}
                 {selectedInvoiceIds.length > 0 && (
                   <div className="flex gap-2">
@@ -1897,13 +1842,9 @@ export function InvoiceManagePage() {
                       显示 {table.getPaginationRowModel().rows.length} / {table.getCoreRowModel().rows.length} 条记录
                     </span>
                     <div className={`badge badge-sm ${
-                      realtimeStatus === 'connected' ? 'badge-success' :
-                      realtimeStatus === 'connecting' ? 'badge-warning' :
-                      'badge-error'
+                      !error ? 'badge-success' : 'badge-error'
                     }`}>
-                      {realtimeStatus === 'connected' ? '🟢 实时同步' :
-                       realtimeStatus === 'connecting' ? '🟡 连接中...' :
-                       '🔴 连接异常'}
+                      {!error ? '✅ 数据已加载' : '❌ 加载失败'}
                     </div>
                   </div>
                 </div>
@@ -1928,7 +1869,14 @@ export function InvoiceManagePage() {
                     <div>
                       <h3 className="font-bold">连接异常</h3>
                       <div className="text-sm">{error || dynamicColumnsError}</div>
-                      <div className="text-xs mt-1 opacity-70">实时订阅将自动重新连接</div>
+                      <div className="text-xs mt-1 opacity-70">
+                        <button 
+                          onClick={() => refreshInvoices()} 
+                          className="btn btn-xs btn-outline"
+                        >
+                          重新加载
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

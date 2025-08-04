@@ -1,0 +1,7 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+spawn supabase db pull
+expect "Enter your database password:"
+send "Xumy8!75\r"
+expect eof
