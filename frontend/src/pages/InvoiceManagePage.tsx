@@ -156,206 +156,7 @@ export function InvoiceManagePage() {
   const navigate = useNavigate()
   const { data: stats, loading: statsLoading, refresh: refreshStats } = useDashboardStats()
   
-  // 计算各种统计数据
-  const calculateStats = (invoices: Invoice[]) => {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    // 总发票和总金额 - 使用 total_amount 优先，否则用 amount
-    const totalInvoices = invoices.length;
-    const totalAmount = invoices.reduce((sum, invoice) => {
-      const amount = invoice.total_amount || invoice.amount || 0;
-      return sum + amount;
-    }, 0);
-    
-    // 本月发票（按消费日期）和本月金额
-    const thisMonthInvoices = invoices.filter(invoice => {
-      if (!invoice.created_at) return false;
-      const targetDate = new Date(invoice.created_at);
-      const isThisMonth = targetDate.getMonth() === currentMonth && 
-                         targetDate.getFullYear() === currentYear;
-      
-      // 调试信息：查看日期解析情况
-      if (invoices.length > 0 && invoices.indexOf(invoice) < 3) {
-        console.log('📅 本月发票统计调试:', {
-          invoice_number: invoice.invoice_number,
-          created_at: invoice.created_at,
-          targetDate: targetDate.toISOString(),
-          currentMonth,
-          currentYear,
-          targetMonth: targetDate.getMonth(),
-          targetYear: targetDate.getFullYear(),
-          isThisMonth
-        });
-      }
-      
-      return isThisMonth;
-    });
-    const thisMonthAmount = thisMonthInvoices.reduce((sum, invoice) => {
-      const amount = invoice.total_amount || invoice.amount || 0;
-      return sum + amount;
-    }, 0);
-    
-    // 调试信息：输出最终统计结果
-    console.log('📊 本月发票统计结果:', {
-      totalInvoices: invoices.length,
-      thisMonthCount: thisMonthInvoices.length,
-      thisMonthAmount,
-      currentMonth: currentMonth + 1, // 显示为1-12月
-      currentYear,
-      sampleDates: invoices.slice(0, 3).map(inv => ({
-        invoice_number: inv.invoice_number,
-        created_at: inv.created_at
-      }))
-    });
-    
-    // 按状态统计（未报销/已报销）
-    const unreimbursedInvoices = invoices.filter(invoice => invoice.status === 'unreimbursed');
-    const reimbursedInvoices = invoices.filter(invoice => invoice.status === 'reimbursed');
-    const unreimbursedAmount = unreimbursedInvoices.reduce((sum, invoice) => {
-      const amount = invoice.total_amount || invoice.amount || 0;
-      return sum + amount;
-    }, 0);
-    const reimbursedAmount = reimbursedInvoices.reduce((sum, invoice) => {
-      const amount = invoice.total_amount || invoice.amount || 0;
-      return sum + amount;
-    }, 0);
-    
-    // 按费用类型统计 - 增强智能分类
-    const categoryStats = invoices.reduce((acc, invoice) => {
-      // 智能识别发票类型并归类为实用的费用类型
-      let category = '其他';
-      const invoiceType = invoice.invoice_type?.toLowerCase() || '';
-      const sellerName = invoice.seller_name?.toLowerCase() || '';
-      const combinedText = `${invoiceType} ${sellerName}`.toLowerCase();
-      
-      // 交通费用 - 高铁/火车
-      if (combinedText.includes('火车') || combinedText.includes('高铁') || 
-          combinedText.includes('铁路') || combinedText.includes('动车') ||
-          combinedText.includes('中国铁路') || combinedText.includes('12306') ||
-          combinedText.includes('车票') || combinedText.includes('railway')) {
-        category = '高铁';
-      } 
-      // 交通费用 - 飞机
-      else if (combinedText.includes('机票') || combinedText.includes('航空') || 
-               combinedText.includes('机场') || combinedText.includes('airlines') ||
-               combinedText.includes('国际航空') || combinedText.includes('东方航空') ||
-               combinedText.includes('南方航空') || combinedText.includes('海南航空') ||
-               combinedText.includes('厦门航空') || combinedText.includes('深圳航空') ||
-               combinedText.includes('春秋航空') || combinedText.includes('吉祥航空') ||
-               combinedText.includes('航班') || combinedText.includes('flight')) {
-        category = '飞机';
-      } 
-      // 交通费用 - 其他交通
-      else if (combinedText.includes('出租') || combinedText.includes('网约') ||
-               combinedText.includes('滴滴') || combinedText.includes('uber') ||
-               combinedText.includes('客运') || combinedText.includes('巴士') ||
-               combinedText.includes('公交') || combinedText.includes('地铁') ||
-               combinedText.includes('打车') || combinedText.includes('租车')) {
-        category = '交通';
-      }
-      // 餐饮服务
-      else if (combinedText.includes('餐饮') || combinedText.includes('饮食') ||
-               combinedText.includes('餐厅') || combinedText.includes('饭店') ||
-               combinedText.includes('食品') || combinedText.includes('咖啡') ||
-               combinedText.includes('茶') || combinedText.includes('快餐') ||
-               combinedText.includes('美食') || combinedText.includes('小吃') ||
-               combinedText.includes('烧烤') || combinedText.includes('火锅') ||
-               combinedText.includes('麦当劳') || combinedText.includes('肯德基') ||
-               combinedText.includes('星巴克') || combinedText.includes('面包') ||
-               combinedText.includes('蛋糕') || combinedText.includes('饮料') ||
-               combinedText.includes('restaurant') || combinedText.includes('food')) {
-        category = '餐饮服务';
-      }
-      // 住宿服务
-      else if (combinedText.includes('住宿') || combinedText.includes('酒店') ||
-               combinedText.includes('宾馆') || combinedText.includes('旅馆') ||
-               combinedText.includes('民宿') || combinedText.includes('旅游') ||
-               combinedText.includes('度假') || combinedText.includes('hotel') ||
-               combinedText.includes('如家') || combinedText.includes('汉庭') ||
-               combinedText.includes('锦江') || combinedText.includes('7天') ||
-               combinedText.includes('全季') || combinedText.includes('维也纳')) {
-        category = '住宿服务';
-      }
-      // 办公用品/设备
-      else if (combinedText.includes('办公') || combinedText.includes('文具') ||
-               combinedText.includes('设备') || combinedText.includes('用品') ||
-               combinedText.includes('电脑') || combinedText.includes('打印') ||
-               combinedText.includes('纸张') || combinedText.includes('笔') ||
-               combinedText.includes('本子') || combinedText.includes('文件') ||
-               combinedText.includes('软件') || combinedText.includes('硬件') ||
-               combinedText.includes('耗材') || combinedText.includes('supplies')) {
-        category = '办公用品';
-      }
-      // 通讯费用
-      else if (combinedText.includes('通讯') || combinedText.includes('电话') ||
-               combinedText.includes('手机') || combinedText.includes('流量') ||
-               combinedText.includes('网络') || combinedText.includes('宽带') ||
-               combinedText.includes('移动') || combinedText.includes('联通') ||
-               combinedText.includes('电信') || combinedText.includes('telecom')) {
-        category = '通讯费用';
-      }
-      // 医疗费用
-      else if (combinedText.includes('医院') || combinedText.includes('医疗') ||
-               combinedText.includes('药品') || combinedText.includes('诊所') ||
-               combinedText.includes('体检') || combinedText.includes('保健') ||
-               combinedText.includes('pharmacy') || combinedText.includes('medical')) {
-        category = '医疗费用';
-      }
-      // 购物/零售
-      else if (combinedText.includes('超市') || combinedText.includes('商场') ||
-               combinedText.includes('购物') || combinedText.includes('零售') ||
-               combinedText.includes('商店') || combinedText.includes('便利店') ||
-               combinedText.includes('百货') || combinedText.includes('mall') ||
-               combinedText.includes('沃尔玛') || combinedText.includes('家乐福') ||
-               combinedText.includes('大润发') || combinedText.includes('永辉')) {
-        category = '购物零售';
-      }
-      // 汽车相关
-      else if (combinedText.includes('汽车') || combinedText.includes('加油') ||
-               combinedText.includes('油费') || combinedText.includes('维修') ||
-               combinedText.includes('保养') || combinedText.includes('停车') ||
-               combinedText.includes('洗车') || combinedText.includes('4s店') ||
-               combinedText.includes('中石油') || combinedText.includes('中石化')) {
-        category = '汽车相关';
-      }
-      // 其他服务
-      else if (combinedText.includes('服务') || combinedText.includes('咨询') ||
-               combinedText.includes('培训') || combinedText.includes('会议') ||
-               combinedText.includes('活动') || combinedText.includes('rental') ||
-               combinedText.includes('清洁') || combinedText.includes('维护')) {
-        category = '其他服务';
-      }
-      
-      if (!acc[category]) {
-        acc[category] = { count: 0, amount: 0 };
-      }
-      acc[category].count++;
-      acc[category].amount += invoice.total_amount || invoice.amount || 0;
-      return acc;
-    }, {} as Record<string, { count: number; amount: number }>);
-    
-    // 按金额排序的费用类型列表
-    const sortedCategories = Object.entries(categoryStats)
-      .sort(([,a], [,b]) => b.amount - a.amount)
-      .slice(0, 3); // 取前3个类型
-    
-    return {
-      totalInvoices,
-      totalAmount,
-      thisMonthCount: thisMonthInvoices.length,
-      thisMonthAmount,
-      unreimbursedCount: unreimbursedInvoices.length,
-      reimbursedCount: reimbursedInvoices.length,
-      unreimbursedAmount,
-      reimbursedAmount,
-      categoryBreakdown: sortedCategories.map(([name, stats]) => ({
-        name,
-        amount: stats.amount,
-        count: stats.count
-      }))
-    };
-  }
+  // 移除 calculateStats 函数，现在使用 useDashboardStats 的全部数据统计
   
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
@@ -1256,14 +1057,15 @@ export function InvoiceManagePage() {
     } : null
   })
 
-  // 完整TanStack Table配置 - 启用分页器
+  // 完整TanStack Table配置 - 启用服务端分页
   const table = useReactTable({
     data: invoices,
     columns,
     // 显式指定getRowId函数
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // 对于服务端分页，不使用 getPaginationRowModel
+    // getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
@@ -1272,6 +1074,9 @@ export function InvoiceManagePage() {
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
+    // 服务端分页配置
+    manualPagination: true,
+    pageCount: Math.ceil(totalCount / pagination.pageSize),
     state: {
       sorting,
       rowSelection,
@@ -1583,13 +1388,10 @@ export function InvoiceManagePage() {
             <div>
               <h1 className="text-3xl font-bold">发票管理</h1>
               <p className="text-base-content/60 mt-2">
-                共 {invoices.length} 张发票
+                共 {totalCount} 张发票，当前页显示 {invoices.length} 条记录
                 {(globalFilter || Object.keys(searchFilters).length > 0) && (
                   <span>
-                    {viewMode === ViewMode.TABLE && table 
-                      ? ` (显示 ${table.getFilteredRowModel().rows.length} 条匹配结果)`
-                      : ` (显示 ${filteredInvoices.length} 条匹配结果)`
-                    }
+                    (已应用筛选条件)
                   </span>
                 )}
                 {selectedInvoiceIds.length > 0 && (
@@ -1610,117 +1412,102 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 迷你指标卡片 */}
+        {/* 迷你指标卡片 - 使用全部数据统计 */}
         <section className="mb-8">
-          {(() => {
-            const pageStats = calculateStats(invoices);
-            return (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 总发票总金额 */}
-                <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex-1">
-                      <div className="text-2xl font-bold text-primary mb-1">
-                        {pageStats.totalInvoices}
-                      </div>
-                      <div className="text-lg font-semibold text-base-content mb-1">
-                        ¥{pageStats.totalAmount.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-base-content/60 font-medium">
-                        总发票金额
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-primary/60 ml-3">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 总发票总金额 */}
+            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {statsLoading ? '...' : (stats?.total_invoices || 0)}
+                  </div>
+                  <div className="text-lg font-semibold text-base-content mb-1">
+                    ¥{statsLoading ? '...' : (stats?.total_amount || 0).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-base-content/60 font-medium">
+                    总发票金额
                   </div>
                 </div>
-
-                {/* 本月发票本月总金额 */}
-                <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex-1">
-                      <div className="text-2xl font-bold text-success mb-1">
-                        {pageStats.thisMonthCount}
-                      </div>
-                      <div className="text-lg font-semibold text-base-content mb-1">
-                        ¥{pageStats.thisMonthAmount.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-base-content/60 font-medium">
-                        本月新增发票
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-success/60 ml-3">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 费用类型总金额 */}
-                <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-secondary mb-2">
-                        费用类型分布
-                      </div>
-                      <div className="space-y-1">
-                        {pageStats.categoryBreakdown.length > 0 ? (
-                          pageStats.categoryBreakdown.map((category, index) => (
-                            <div key={category.name} className="flex items-center justify-between">
-                              <span className="text-xs text-base-content/70 truncate max-w-[80px]" title={category.name}>
-                                {category.name}
-                              </span>
-                              <span className="text-xs font-semibold text-base-content">
-                                ¥{category.amount.toLocaleString()}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs text-base-content/50">暂无数据</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-secondary/60 ml-3">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 报销状态统计 */}
-                <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-                  <div className="flex items-center justify-between h-full">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg font-bold text-warning">
-                          {pageStats.unreimbursedCount}
-                        </span>
-                        <span className="text-sm font-medium text-success">
-                          {pageStats.reimbursedCount}
-                        </span>
-                      </div>
-                      <div className="text-lg font-semibold text-base-content mb-1">
-                        ¥{pageStats.unreimbursedAmount.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-base-content/60 font-medium">
-                        未报销/已报销
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 text-warning/60 ml-3">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
+                <div className="flex-shrink-0 text-primary/60 ml-3">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
                 </div>
               </div>
-            );
-          })()}
+            </div>
+
+            {/* 本月发票本月总金额 */}
+            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-success mb-1">
+                    {statsLoading ? '...' : (stats?.monthly_invoices || 0)}
+                  </div>
+                  <div className="text-lg font-semibold text-base-content mb-1">
+                    ¥{statsLoading ? '...' : (stats?.monthly_amount || 0).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-base-content/60 font-medium">
+                    本月新增发票
+                  </div>
+                </div>
+                <div className="flex-shrink-0 text-success/60 ml-3">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* 已验证发票数 */}
+            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-secondary mb-1">
+                    {statsLoading ? '...' : (stats?.verified_invoices || 0)}
+                  </div>
+                  <div className="text-lg font-semibold text-base-content mb-1">
+                    {statsLoading ? '...' : Math.round(((stats?.verified_invoices || 0) / (stats?.total_invoices || 1)) * 100)}%
+                  </div>
+                  <div className="text-xs text-base-content/60 font-medium">
+                    已验证发票
+                  </div>
+                </div>
+                <div className="flex-shrink-0 text-secondary/60 ml-3">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* 增长趋势 */}
+            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg font-bold text-info">
+                      {statsLoading ? '...' : (stats?.invoice_growth_rate || 0)}%
+                    </span>
+                    <span className="text-sm font-medium text-base-content/70">
+                      📈
+                    </span>
+                  </div>
+                  <div className="text-lg font-semibold text-base-content mb-1">
+                    {statsLoading ? '...' : (stats?.amount_growth_rate || 0)}%
+                  </div>
+                  <div className="text-xs text-base-content/60 font-medium">
+                    发票/金额增长率
+                  </div>
+                </div>
+                <div className="flex-shrink-0 text-info/60 ml-3">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* 控制区域 - 所有工具组件在一行 */}
@@ -1839,7 +1626,7 @@ export function InvoiceManagePage() {
                   
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-base-content/60">
-                      显示 {table.getPaginationRowModel().rows.length} / {table.getCoreRowModel().rows.length} 条记录
+                      显示 {invoices.length} / {totalCount} 条记录 (第 {pagination.pageIndex + 1} 页)
                     </span>
                     <div className={`badge badge-sm ${
                       !error ? 'badge-success' : 'badge-error'
@@ -1903,7 +1690,7 @@ export function InvoiceManagePage() {
                       ))}
                     </thead>
                     <tbody>
-                      {table.getPaginationRowModel().rows.map(row => (
+                      {table.getRowModel().rows.map(row => (
                         <tr key={row.id}>
                           {row.getVisibleCells().map(cell => (
                             <td key={cell.id}>
@@ -1921,7 +1708,7 @@ export function InvoiceManagePage() {
               {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && viewMode === ViewMode.GRID && (
                 <div className="p-6">
                   <InvoiceListView
-                    invoices={table.getPaginationRowModel().rows.map(row => row.original)}
+                    invoices={table.getRowModel().rows.map(row => row.original)}
                     selectedInvoices={selectedInvoices}
                     onSelectInvoice={handleSelectInvoice}
                     onViewInvoice={handleViewInvoice}
@@ -1934,7 +1721,7 @@ export function InvoiceManagePage() {
               )}
 
               {/* 空状态 */}
-              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && table.getCoreRowModel().rows.length === 0 && (
+              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && invoices.length === 0 && (
                 <div className="p-12 text-center">
                   <div className="text-6xl mb-4">📄</div>
                   <h3 className="text-xl font-bold mb-2">暂无发票数据</h3>
@@ -1945,12 +1732,12 @@ export function InvoiceManagePage() {
               )}
 
               {/* TanStack Table 分页 */}
-              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && table.getCoreRowModel().rows.length > 0 && (
+              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && totalCount > 0 && (
                 <div className="p-4 border-t border-base-300">
                   <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-base-content/60">
-                        显示第 {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} - {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getCoreRowModel().rows.length)} 条，共 {table.getCoreRowModel().rows.length} 条
+                        显示第 {pagination.pageIndex * pagination.pageSize + 1} - {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalCount)} 条，共 {totalCount} 条
                       </span>
                       <select 
                         className="select select-bordered select-xs"
