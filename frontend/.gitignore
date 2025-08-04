@@ -26,8 +26,13 @@ dist-ssr
 # Environment files
 .env
 .env.local
-.env.production
-.env.development
+.env*.local
+.env.backup
+
+# 注意: 模板环境文件应该被跟踪
+# .env.development - 本地开发模板 (已跟踪)
+# .env.production - 生产环境模板 (已跟踪) 
+# .env.staging - 测试环境模板 (已跟踪)
 
 # User specific files
 ../.user_token

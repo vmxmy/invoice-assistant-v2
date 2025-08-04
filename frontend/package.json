@@ -20,6 +20,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:staging": "vite build --mode staging",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
@@ -27,7 +28,17 @@
     "deploy": "./scripts/deploy.sh",
     "deploy:prod": "./scripts/deploy.sh production",
     "clean": "rm -rf dist node_modules package-lock.json",
-    "analyze": "npm run build && npx vite-bundle-analyzer dist"
+    "analyze": "npm run build && npx vite-bundle-analyzer dist",
+    "env:switch": "node scripts/env-switch.js",
+    "env:local": "node scripts/env-switch.js local",
+    "env:staging": "node scripts/env-switch.js staging",
+    "env:prod": "node scripts/env-switch.js prod",
+    "env:check": "echo \"Current environment:\" && grep VITE_APP_ENV .env || echo \"No .env file found\"",
+    "supabase:local": "supabase start && npm run env:local && npm run dev",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "start:local": "npm run env:local && npm run dev",
+    "start:staging": "npm run env:staging && npm run dev"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
