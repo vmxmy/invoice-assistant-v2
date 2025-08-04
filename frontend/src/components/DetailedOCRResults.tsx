@@ -66,7 +66,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
 
       {/* 核心信息 - 始终显示 */}
       <div className={`px-4 py-3 bg-gray-50 ${isExpanded ? 'border-b border-gray-100' : 'rounded-b-lg'}`}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           {/* 发票类型 */}
           <div className="flex items-center gap-2">
             <span className="text-gray-500">类型:</span>
@@ -108,7 +108,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
         
         {/* 处理时间 */}
         {metadata?.total_processing_time && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span>⏱️ 处理时间: {formatProcessingTime(metadata.total_processing_time)}</span>
             {validation?.overall_errors && validation.overall_errors.length > 0 && (
               <>
@@ -134,7 +134,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
       {isExpanded && (
         <div className="p-4 space-y-4">
           {/* 基础信息 */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-blue-50 p-3 rounded-md">
               <div className="text-sm font-medium text-blue-800">发票类型</div>
               <div className="text-blue-600">{ocrData.invoice_type || '未识别'}</div>
@@ -165,7 +165,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
           {confidence?.fields && Object.keys(confidence.fields).length > 0 && (
             <div className="bg-yellow-50 p-3 rounded-md">
               <div className="text-sm font-medium text-yellow-800 mb-2">📊 字段置信度</div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.entries(confidence.fields).map(([field, conf]) => (
                   <div key={field} className="flex justify-between text-sm">
                     <span className="text-gray-600">{field}:</span>
@@ -231,7 +231,7 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
           {metadata && (
             <div className="bg-purple-50 p-3 rounded-md">
               <div className="text-sm font-medium text-purple-800 mb-2">⏱️ 性能指标</div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-gray-600">总处理时间:</div>
                   <div className="font-mono text-purple-600">
@@ -268,11 +268,11 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
               <div className="space-y-2">
                 {Object.entries(ocrData.fields).map(([key, value]) => (
                   <div key={key} className="border-l-2 border-indigo-300 pl-3">
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm font-medium text-gray-700 min-w-[120px] bg-gray-100 px-2 py-1 rounded">
+                    <div className="flex flex-col sm:flex-row items-start gap-2">
+                      <span className="text-sm font-medium text-gray-700 w-full sm:min-w-[120px] sm:w-auto bg-gray-100 px-2 py-1 rounded">
                         {key}
                       </span>
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         {/* 处理不同类型的值 */}
                         {Array.isArray(value) ? (
                           <div className="space-y-2">
@@ -283,9 +283,9 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
                                 {typeof item === 'object' && item !== null ? (
                                   <div className="space-y-1">
                                     {Object.entries(item).map(([subKey, subValue]) => (
-                                      <div key={subKey} className="flex">
-                                        <span className="text-gray-600 w-24 text-xs">{subKey}:</span>
-                                        <span className="text-indigo-700 font-mono text-xs break-all">
+                                      <div key={subKey} className="flex flex-col sm:flex-row">
+                                        <span className="text-gray-600 sm:w-24 text-xs">{subKey}:</span>
+                                        <span className="text-indigo-700 font-mono text-xs break-all flex-1">
                                           {String(subValue)}
                                         </span>
                                       </div>
@@ -301,9 +301,9 @@ const DetailedOCRResults: React.FC<DetailedOCRResultsProps> = ({ fileItem }) => 
                           <div className="bg-white border border-gray-200 rounded p-2 space-y-1">
                             <span className="text-xs text-gray-500">对象:</span>
                             {Object.entries(value).map(([subKey, subValue]) => (
-                              <div key={subKey} className="flex text-sm">
-                                <span className="text-gray-600 w-24 text-xs">{subKey}:</span>
-                                <span className="text-indigo-700 font-mono text-xs break-all">
+                              <div key={subKey} className="flex flex-col sm:flex-row text-sm">
+                                <span className="text-gray-600 sm:w-24 text-xs">{subKey}:</span>
+                                <span className="text-indigo-700 font-mono text-xs break-all flex-1">
                                   {String(subValue)}
                                 </span>
                               </div>

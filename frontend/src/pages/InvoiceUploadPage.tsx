@@ -910,7 +910,7 @@ const InvoiceUploadPage: React.FC = () => {
                   <div key={fileItem.id} className="border border-base-300 rounded-lg p-4">
                     <div className="flex items-start gap-4">
                       {/* 文件图标/预览 */}
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 hidden sm:block">
                         {fileItem.preview ? (
                           <img 
                             src={fileItem.preview} 
@@ -960,7 +960,7 @@ const InvoiceUploadPage: React.FC = () => {
                             {fileItem.duplicateInfo.existingData && Object.keys(fileItem.duplicateInfo.existingData).length > 0 && (
                               <div className="mb-3 p-2 bg-base-200 rounded">
                                 <p className="font-medium mb-1">已存在的发票信息：</p>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                   <div>
                                     <span className="text-base-content/60">发票号：</span>
                                     <span>{fileItem.duplicateInfo.existingData.invoice_number || '-'}</span>
@@ -989,13 +989,13 @@ const InvoiceUploadPage: React.FC = () => {
 
                         {/* OCR识别结果预览 */}
                         {fileItem.status === 'recognized' && fileItem.ocrData && (
-                          <div className="mt-3 p-3 bg-base-200 rounded-lg text-sm">
-                            <div className="mb-2 flex items-center justify-between">
+                          <div className="mt-3 p-3 bg-base-200 rounded-lg text-sm overflow-x-auto">
+                            <div className="mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                               <span className="badge badge-primary">
                                 {fileItem.ocrData.invoice_type || fileItem.ocrData.invoiceType || fileItem.ocrData.title || '增值税发票'}
                               </span>
                               {/* Edge Function质量信息 */}
-                              <div className="flex items-center gap-2 text-xs">
+                              <div className="flex flex-wrap items-center gap-2 text-xs">
                                 {fileItem.completenessScore && (
                                   <span className={`badge badge-sm ${
                                     fileItem.completenessScore >= 70 ? 'badge-success' : 
@@ -1039,7 +1039,7 @@ const InvoiceUploadPage: React.FC = () => {
                             
                             {/* 详细OCR结果展示 */}
                             <DetailedOCRResults fileItem={fileItem} />
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {(fileItem.ocrData.invoice_type === '火车票' || 
                                 fileItem.ocrData.invoice_type === 'TrainTicket' ||
                                 fileItem.ocrData.title?.includes('电子发票(铁路电子客票)')) ? (
@@ -1097,7 +1097,7 @@ const InvoiceUploadPage: React.FC = () => {
                                   </div>
                                   {(fileItem.ocrData.fields?.invoicedetails || fileItem.ocrData.invoiceDetails) && 
                                    (fileItem.ocrData.fields?.invoicedetails || fileItem.ocrData.invoiceDetails).length > 0 && (
-                                    <div className="col-span-2">
+                                    <div className="sm:col-span-2">
                                       <span className="text-base-content/60">发票明细：</span>
                                       <span className="font-medium">
                                         {(fileItem.ocrData.fields?.invoicedetails?.[0]?.goods_name || 
@@ -1113,7 +1113,7 @@ const InvoiceUploadPage: React.FC = () => {
                       </div>
 
                       {/* 操作按钮 */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         {fileItem.status === 'recognized' && (
                           <button 
                             className="btn btn-sm btn-outline"
