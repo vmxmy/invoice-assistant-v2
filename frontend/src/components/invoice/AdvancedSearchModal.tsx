@@ -40,10 +40,8 @@ export function AdvancedSearchModal({
 
   // 状态选项
   const statusOptions = [
-    { value: 'pending', label: '待处理' },
-    { value: 'completed', label: '已完成' },
-    { value: 'failed', label: '失败' },
-    { value: 'draft', label: '草稿' }
+    { value: 'unreimbursed', label: '未报销' },
+    { value: 'reimbursed', label: '已报销' }
   ]
 
   // 来源选项

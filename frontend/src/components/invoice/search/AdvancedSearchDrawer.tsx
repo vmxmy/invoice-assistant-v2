@@ -695,15 +695,13 @@ export const AdvancedSearchDrawer: React.FC<AdvancedSearchDrawerProps> = ({
                   {/* 处理状态 */}
                   <div className="space-y-2">
                     <label className="label">
-                      <span className="label-text font-medium">处理状态</span>
+                      <span className="label-text font-medium">报销状态</span>
                       <span className="label-text-alt text-base-content/60">可多选</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { value: 'pending', label: '待处理', color: 'warning' },
-                        { value: 'processing', label: '处理中', color: 'info' },
-                        { value: 'completed', label: '已完成', color: 'success' },
-                        { value: 'failed', label: '失败', color: 'error' }
+                        { value: 'unreimbursed', label: '未报销', color: 'warning' },
+                        { value: 'reimbursed', label: '已报销', color: 'success' }
                       ].map(status => {
                         const isSelected = filters.status?.includes(status.value);
                         return (

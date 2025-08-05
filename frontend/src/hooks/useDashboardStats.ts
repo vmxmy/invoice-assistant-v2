@@ -54,6 +54,12 @@ export function useDashboardStats(): DashboardStatsResponse {
         verified_invoices: statsData.verified_invoices,
         last_invoice_date: statsData.last_invoice_date,
         
+        // 报销状态统计
+        unreimbursed_count: statsData.unreimbursed_count,
+        reimbursed_count: statsData.reimbursed_count,
+        unreimbursed_amount: statsData.unreimbursed_amount,
+        reimbursed_amount: statsData.reimbursed_amount,
+        
         // 邮箱统计
         total_email_accounts: statsData.total_email_accounts,
         active_email_accounts: statsData.active_email_accounts,
@@ -222,27 +228,28 @@ export function generateStatCards(stats: DashboardStats | null) {
       color: 'secondary' as const
     },
     {
-      title: '收件箱',
-      value: stats.total_email_accounts || 0,
-      icon: '📨',
-      description: stats.active_email_accounts > 0 
-        ? `${stats.active_email_accounts} 封未读邮件`
-        : stats.total_email_accounts > 0 
-          ? '没有未读邮件'
-          : '暂无邮件',
-      color: 'accent' as const,
-      change: stats.active_email_accounts > 0 ? {
-        value: stats.active_email_accounts,
-        trend: 'up' as const,
-        period: '未读'
-      } : undefined
+      title: '待报销',
+      value: stats.unreimbursed_count,
+      icon: '⏳',
+      description: `金额 ${formatStatValue(stats.unreimbursed_amount, 'currency')}`,
+      color: 'warning' as const,
+      change: {
+        value: Math.round((stats.unreimbursed_count / stats.total_invoices) * 100),
+        trend: stats.unreimbursed_count > stats.reimbursed_count ? 'up' : 'down',
+        period: '占比'
+      }
     },
     {
-      title: '本月发票',
-      value: stats.monthly_invoices,
-      icon: '📋',
-      description: `新增 ${stats.monthly_invoices} 张发票`,
-      color: 'info' as const
+      title: '已报销',
+      value: stats.reimbursed_count,
+      icon: '✅',
+      description: `金额 ${formatStatValue(stats.reimbursed_amount, 'currency')}`,
+      color: 'success' as const,
+      change: {
+        value: Math.round((stats.reimbursed_count / stats.total_invoices) * 100),
+        trend: 'up' as const,
+        period: '完成率'
+      }
     }
   ]
 }

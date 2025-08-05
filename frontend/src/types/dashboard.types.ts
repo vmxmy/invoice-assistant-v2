@@ -15,6 +15,12 @@ export interface DashboardStats {
   verified_invoices: number
   last_invoice_date: string | null
   
+  // 报销状态统计
+  unreimbursed_count: number
+  reimbursed_count: number
+  unreimbursed_amount: number
+  reimbursed_amount: number
+  
   // 邮箱统计
   total_email_accounts: number
   active_email_accounts: number

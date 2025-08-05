@@ -198,9 +198,9 @@ export const supabaseStats = {
         categoryData,
         recentActivity: recentInvoices,
         statusDistribution: statusDist,
-        // 计算待处理和已完成的数量
-        pendingInvoices: statusDist['pending'] || 0,
-        completedInvoices: statusDist['completed'] || 0
+        // 计算未报销和已报销的数量
+        unreimbursedInvoices: statusDist['unreimbursed'] || 0,
+        reimbursedInvoices: statusDist['reimbursed'] || 0
       }
     } catch (error) {
       console.error('获取仪表盘统计数据失败:', error)
