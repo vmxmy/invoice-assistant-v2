@@ -111,7 +111,7 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
   // 核心字段
   const coreFields = [
     { label: '发票号码', value: invoice.invoice_number, icon: FileText, copyable: true },
-    { label: '消费日期', value: invoice.created_at, icon: Calendar, type: 'date' as const },
+    { label: '消费日期', value: invoice.consumption_date || invoice.created_at, icon: Calendar, type: 'date' as const },
     { label: '销售方', value: invoice.seller_name, icon: Building, copyable: true },
     { label: '购买方', value: invoice.buyer_name, icon: Building },
     { label: '总金额', value: invoice.total_amount, icon: DollarSign, type: 'currency' as const },
@@ -121,7 +121,6 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
   const extendedFields = [
     { label: '发票代码', value: invoice.invoice_code, copyable: true },
     { label: '发票类型', value: invoice.invoice_type },
-    { label: '消费日期', value: invoice.consumption_date, type: 'date' as const },
     { label: '不含税金额', value: invoice.amount_without_tax, type: 'currency' as const },
     { label: '税额', value: invoice.tax_amount, type: 'currency' as const },
     { label: '费用分类', value: invoice.expense_category, icon: Tag },

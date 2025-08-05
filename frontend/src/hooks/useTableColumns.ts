@@ -179,7 +179,7 @@ function getStaticColumnsData(): TableColumnsResponse {
   // 基于实际数据库schema定义列
   const coreFields: TableColumn[] = [
     { field: 'invoice_number', label: '发票号码', dataType: 'character varying', type: 'text', nullable: false, sortable: true, filterable: true, searchable: true, category: 'core', priority: 1 },
-    { field: 'created_at', label: '消费日期', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'core', priority: 2 },
+    { field: 'consumption_date', label: '消费日期', dataType: 'date', type: 'date', nullable: true, sortable: true, filterable: true, searchable: false, category: 'core', priority: 2 },
     { field: 'seller_name', label: '销售方', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'core', priority: 3 },
     { field: 'buyer_name', label: '购买方', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'core', priority: 4 },
     { field: 'status', label: '状态', dataType: 'character varying', type: 'select', nullable: false, sortable: true, filterable: true, searchable: false, category: 'core', priority: 8 },
@@ -221,7 +221,7 @@ function getStaticColumnsData(): TableColumnsResponse {
     },
     allColumns,
     // 更新默认可见列，包含视图的重要字段
-    defaultVisible: ['invoice_number', 'created_at', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source', 'expense_category', 'remarks'],
+    defaultVisible: ['invoice_number', 'consumption_date', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source', 'expense_category', 'remarks'],
     metadata: {
       generatedAt: new Date().toISOString(),
       version: '2.0', // 更新版本号
