@@ -91,7 +91,7 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
       <div className="flex items-start justify-between h-full">
         <div className="flex-1 min-w-0">
           {/* 标题行 */}
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             {typeof icon === 'string' ? (
               <span className={`${device.isMobile ? 'text-xl' : 'text-2xl'} flex-shrink-0`}>
                 {icon}
@@ -100,8 +100,8 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
               <div className="flex-shrink-0">{icon}</div>
             )}
             <h3 className={`
-              font-medium text-base-content/80 truncate
-              ${device.isMobile ? 'text-xs' : 'text-xs'}
+              font-semibold text-base-content/80 truncate
+              ${device.isMobile ? 'text-sm' : 'text-sm'}
             `}>
               {title}
             </h3>

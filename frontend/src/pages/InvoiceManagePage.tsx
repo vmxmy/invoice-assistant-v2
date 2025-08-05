@@ -1433,8 +1433,6 @@ export function InvoiceManagePage() {
             <CashFlowCard
               reimbursedAmount={stats?.reimbursed_amount || 0}
               unreimbursedAmount={stats?.unreimbursed_amount || 0}
-              monthlyReimbursedCount={stats?.monthly_reimbursed_count || 0}
-              monthlyReimbursedAmount={stats?.monthly_reimbursed_amount || 0}
               loading={statsLoading}
             />
             
