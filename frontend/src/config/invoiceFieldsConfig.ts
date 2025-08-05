@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText, Calendar, Building2, User, DollarSign, Hash, Info, Train, MapPin, Clock, Ticket, CreditCard, Calculator, Package, Tag, Plane, Navigation } from 'lucide-react';
 import type { Invoice } from '../types/index';
+import { logger } from '../utils/logger';
 
 // Lucide 图标组件类型
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -101,7 +102,7 @@ export const parseFlightInfoFromRemarks = (remarks: string, field: string): stri
     }
     
   } catch (e) {
-    console.warn('解析机票信息失败:', e, 'remarks:', remarks, 'field:', field);
+    logger.warn('解析机票信息失败:', e, 'remarks:', remarks, 'field:', field);
   }
   
   return '';
@@ -112,7 +113,7 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
   // 调试发票明细字段的路径解析
   const isInvoiceDetails = paths.some(p => p.includes('invoice_details'));
   if (isInvoiceDetails) {
-    console.log('🔍 [getValueFromPaths] invoice_details 路径解析调试:', {
+    logger.log('🔍 [getValueFromPaths] invoice_details 路径解析调试:', {
       paths,
       invoice_id: invoice.id,
       invoice_type: invoice.invoice_type
@@ -128,7 +129,7 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
     const value = getNestedValue(invoice, path);
     
     if (isInvoiceDetails) {
-      console.log(`🔍 [getValueFromPaths] 路径 "${path}" 解析结果:`, {
+      logger.log(`🔍 [getValueFromPaths] 路径 "${path}" 解析结果:`, {
         path,
         value,
         valueType: typeof value,
@@ -152,7 +153,7 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
       if (fieldName) {
         const parsedValue = parseFlightInfoFromRemarks(value, fieldName);
         if (parsedValue) {
-          console.log(`🔍 [getValueFromPaths] 从机票 remarks 解析 ${fieldName}:`, parsedValue);
+          logger.log(`🔍 [getValueFromPaths] 从机票 remarks 解析 ${fieldName}:`, parsedValue);
           return parsedValue;
         }
       }
@@ -161,11 +162,11 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
     if (value !== undefined && value !== null && value !== '') {
       // 特殊处理 invoice_details 字段 - 如果是字符串，尝试解析为JSON
       if (path.includes('invoice_details') && typeof value === 'string') {
-        console.log('🔍 [getValueFromPaths] 尝试解析 invoice_details 字符串:', value);
+        logger.log('🔍 [getValueFromPaths] 尝试解析 invoice_details 字符串:', value);
         try {
           // 先尝试标准JSON解析
           const parsed = JSON.parse(value);
-          console.log('✅ [getValueFromPaths] 标准JSON解析成功:', parsed);
+          logger.log('✅ [getValueFromPaths] 标准JSON解析成功:', parsed);
           return Array.isArray(parsed) ? parsed : [];
         } catch (e) {
           try {
@@ -189,26 +190,26 @@ export const getValueFromPaths = (invoice: Invoice, paths: string[]): any => {
             jsonStr = jsonStr.replace(/\{'/g, '{"'); // 对象开始
             jsonStr = jsonStr.replace(/'\}/g, '"}'); // 对象结束
             
-            console.log('🔍 [getValueFromPaths] 尝试Python转JSON:', jsonStr);
+            logger.log('🔍 [getValueFromPaths] 尝试Python转JSON:', jsonStr);
             const parsed = JSON.parse(jsonStr);
-            console.log('✅ [getValueFromPaths] Python转JSON解析成功:', parsed);
+            logger.log('✅ [getValueFromPaths] Python转JSON解析成功:', parsed);
             return Array.isArray(parsed) ? parsed : [];
           } catch (e2) {
-            console.warn('❌ [getValueFromPaths] 解析发票明细失败:', e2, 'value:', value);
+            logger.warn('❌ [getValueFromPaths] 解析发票明细失败:', e2, 'value:', value);
             return [];
           }
         }
       }
       
       if (isInvoiceDetails) {
-        console.log(`✅ [getValueFromPaths] 直接返回路径 "${path}" 的值:`, value);
+        logger.log(`✅ [getValueFromPaths] 直接返回路径 "${path}" 的值:`, value);
       }
       return value;
     }
   }
   
   if (isInvoiceDetails) {
-    console.log('❌ [getValueFromPaths] 所有路径都没有找到有效值，返回空字符串');
+    logger.log('❌ [getValueFromPaths] 所有路径都没有找到有效值，返回空字符串');
   }
   return '';
 };
@@ -1163,7 +1164,7 @@ const vatInvoiceConfig: InvoiceTypeConfig = {
           invoice.extracted_data?.structured_data?.invoiceDetails || 
           invoice.invoice_details;
         
-        console.log('🔍 [details_info showWhen] 检查商品明细分组显示条件:', {
+        logger.log('🔍 [details_info showWhen] 检查商品明细分组显示条件:', {
           invoice_type: invoice.invoice_type,
           details,
           detailsType: typeof details,
@@ -1280,7 +1281,7 @@ export const invoiceTypeConfigs: InvoiceTypeConfig[] = [
 
 // 根据发票获取对应的配置
 export const getInvoiceConfig = (invoice: Invoice): InvoiceTypeConfig => {
-  console.log('🔍 [getInvoiceConfig] 检测发票类型:', {
+  logger.log('🔍 [getInvoiceConfig] 检测发票类型:', {
     invoice_type: invoice.invoice_type,
     invoice_number: invoice.invoice_number,
     available_configs: invoiceTypeConfigs.map(c => c.type)
@@ -1288,12 +1289,12 @@ export const getInvoiceConfig = (invoice: Invoice): InvoiceTypeConfig => {
   
   const matchedConfig = invoiceTypeConfigs.find(config => {
     const matches = config.matcher(invoice);
-    console.log(`🔍 [getInvoiceConfig] 配置 ${config.type} 匹配结果:`, matches);
+    logger.log(`🔍 [getInvoiceConfig] 配置 ${config.type} 匹配结果:`, matches);
     return matches;
   });
   
   const finalConfig = matchedConfig || vatInvoiceConfig;
-  console.log('🔍 [getInvoiceConfig] 最终使用配置:', finalConfig.type);
+  logger.log('🔍 [getInvoiceConfig] 最终使用配置:', finalConfig.type);
   
   return finalConfig;
 };
@@ -1304,7 +1305,7 @@ export const getFieldValue = (invoice: Invoice, field: FieldConfig): any => {
   
   // 调试发票明细字段
   if (field.key === 'invoice_details') {
-    console.log('🔍 [getFieldValue] invoice_details 字段调试:', {
+    logger.log('🔍 [getFieldValue] invoice_details 字段调试:', {
       fieldKey: field.key,
       valuePaths: field.valuePaths,
       value,

@@ -676,7 +676,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
             
             return (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+              <div className="bg-info/10 border border-info/20 rounded-lg p-3 mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="badge badge-info badge-sm">
                     <span className="text-xs">🕐</span>
@@ -712,7 +712,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
           })()}
           
           {invoice.invoice_type === '餐饮服务' && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-base-content/60">用餐信息：</span>
                 <div className="badge badge-warning badge-sm">
@@ -725,7 +725,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
           )}
           
           {!isTrainTicketByCategory(invoice) && !isFlightTicketByCategory(invoice) && invoice.invoice_type !== '餐饮服务' && (
-            <div className="bg-base-50 border border-base-200 rounded-lg p-3 mb-3">
+            <div className="bg-base-100 border border-base-200 rounded-lg p-3 mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-base-content/60">备注信息：</span>
                 <span className="text-sm font-medium">普通发票</span>
