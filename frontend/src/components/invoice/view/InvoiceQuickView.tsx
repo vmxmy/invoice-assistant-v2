@@ -111,7 +111,7 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
   // 核心字段
   const coreFields = [
     { label: '发票号码', value: invoice.invoice_number, icon: FileText, copyable: true },
-    { label: '消费日期', value: invoice.consumption_date || invoice.created_at, icon: Calendar, type: 'date' as const },
+    { label: '消费日期', value: invoice.consumption_date || invoice.invoice_date, icon: Calendar, type: 'date' as const },
     { label: '销售方', value: invoice.seller_name, icon: Building, copyable: true },
     { label: '购买方', value: invoice.buyer_name, icon: Building },
     { label: '总金额', value: invoice.total_amount, icon: DollarSign, type: 'currency' as const },
@@ -315,9 +315,6 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
                   <p>• 按 <kbd className="kbd kbd-xs">ESC</kbd> 关闭窗口</p>
                   <p>• 按 <kbd className="kbd kbd-xs">Ctrl+E</kbd> 编辑发票</p>
                   <p>• 按 <kbd className="kbd kbd-xs">Ctrl+D</kbd> 下载发票</p>
-                  {showNavigation && (
-                    <p>• 按 <kbd className="kbd kbd-xs">←</kbd> <kbd className="kbd kbd-xs">→</kbd> 切换发票</p>
-                  )}
                 </div>
               </div>
               

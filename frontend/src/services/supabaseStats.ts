@@ -39,9 +39,10 @@ export const supabaseStats = {
   async getMonthlyStats(userId: string): Promise<MonthlyStats[]> {
     // 确保 userId 是有效的 UUID 格式
     const { data, error } = await supabase
-      .from('invoice_monthly_stats')
+      .from('v_invoice_monthly_stats')
       .select('*')
       .eq('user_id', userId)
+      .eq('is_recent', true) // 只获取最近12个月
       .order('month', { ascending: false })
       .limit(12)
 
@@ -58,7 +59,7 @@ export const supabaseStats = {
    */
   async getTypeStats(userId: string): Promise<TypeStats[]> {
     const { data, error } = await supabase
-      .from('invoice_type_stats')
+      .from('v_invoice_type_stats')
       .select('*')
       .eq('user_id', userId)
       .order('count', { ascending: false })
@@ -76,7 +77,7 @@ export const supabaseStats = {
    */
   async getUserSummary(userId: string): Promise<UserSummary | null> {
     const { data, error } = await supabase
-      .from('invoice_user_summary')
+      .from('v_invoice_summary')
       .select('*')
       .eq('user_id', userId)
       .single()
@@ -94,9 +95,10 @@ export const supabaseStats = {
    */
   async getRecentMonthlyStats(userId: string): Promise<RecentMonthlyStats[]> {
     const { data, error } = await supabase
-      .from('invoice_recent_monthly_stats')
-      .select('*')
+      .from('v_invoice_monthly_stats')
+      .select('month:month_str, invoice_count, total_amount')
       .eq('user_id', userId)
+      .eq('is_recent', true)
       .order('month', { ascending: true })
 
     if (error) {
@@ -113,10 +115,10 @@ export const supabaseStats = {
   async getRecentInvoices(userId: string, limit: number = 10) {
     const { data, error } = await supabase
       .from('invoices')
-      .select('id, invoice_number, invoice_date, seller_name, total_amount, invoice_type, created_at')
+      .select('id, invoice_number, consumption_date, seller_name, total_amount, invoice_type, created_at')
       .eq('user_id', userId)
       .is('deleted_at', null)
-      .order('created_at', { ascending: false })
+      .order('consumption_date', { ascending: false })
       .limit(limit)
 
     if (error) {

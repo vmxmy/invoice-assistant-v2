@@ -68,7 +68,7 @@ export class InvoiceService {
   ): Promise<PaginatedResponse<Invoice>> {
     try {
       let query = supabase
-        .from('invoices')
+        .from('v_invoice_detail')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
         .neq('status', 'deleted')  // 过滤已删除的发票
