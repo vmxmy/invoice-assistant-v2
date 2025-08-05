@@ -3,7 +3,7 @@
  * 集成TanStack Table、Grid系统、实时数据和完整的发票管理功能
  */
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   createColumnHelper,
   flexRender,
@@ -37,6 +37,8 @@ import { InvoiceListView } from '../components/invoice/cards/InvoiceListView'
 import { MobileBatchActions } from '../components/mobile/MobileBatchActions'
 import { UrgentTodoCard } from '../components/invoice/indicators/UrgentTodoCard'
 import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
+import { OverdueInvoiceCard } from '../components/invoice/indicators/OverdueInvoiceCard'
+import { GrowthTrendCard } from '../components/invoice/indicators/GrowthTrendCard'
 import Layout from '../components/layout/Layout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -124,20 +126,6 @@ interface Invoice {
   version: number
 }
 
-// 搜索筛选类型
-interface SearchFilters {
-  invoice_number?: string
-  seller_name?: string
-  buyer_name?: string
-  date_from?: string
-  date_to?: string
-  amount_min?: number
-  amount_max?: number
-  status?: string[]
-  source?: string[]
-  invoice_type?: string
-}
-
 // 视图模式
 enum ViewMode {
   TABLE = 'table',
@@ -154,11 +142,13 @@ interface SearchFilters {
   amount_max?: number
   status?: string[]
   source?: string[]
+  overdue?: boolean
 }
 
 export function InvoiceManagePage() {
   const { user } = useAuthContext()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { data: stats, loading: statsLoading, refresh: refreshStats } = useDashboardStats()
   
   // 设备检测 - 用于响应式适配
@@ -170,6 +160,28 @@ export function InvoiceManagePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({})
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false)
+
+  // 处理URL参数初始化筛选条件
+  useEffect(() => {
+    const status = searchParams.get('status')
+    const overdue = searchParams.get('overdue')
+    
+    if (status || overdue) {
+      const initialFilters: SearchFilters = {}
+      
+      if (status === 'unreimbursed') {
+        initialFilters.status = ['unreimbursed']
+      } else if (status === 'reimbursed') {
+        initialFilters.status = ['reimbursed']
+      }
+      
+      if (overdue === 'true') {
+        initialFilters.overdue = true
+      }
+      
+      setSearchFilters(initialFilters)
+    }
+  }, [searchParams])
   
   // 简化状态管理 - 不使用localStorage持久化分页状态
   const [sorting, setSorting] = useState<SortingState>([
@@ -1409,12 +1421,10 @@ export function InvoiceManagePage() {
         {/* 任务导向指标卡片 - 第一阶段实现 */}
         <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 紧急待办卡 */}
+            {/* 紧急待办卡 - 只显示未报销统计 */}
             <UrgentTodoCard
               unreimbursedCount={stats?.unreimbursed_count || 0}
               unreimbursedAmount={stats?.unreimbursed_amount || 0}
-              overdueCount={stats?.overdue_unreimbursed_count || 0}
-              overdueAmount={stats?.overdue_unreimbursed_amount || 0}
               oldestUnreimbursedDate={stats?.oldest_unreimbursed_date || undefined}
               loading={statsLoading}
             />
@@ -1428,54 +1438,21 @@ export function InvoiceManagePage() {
               loading={statsLoading}
             />
             
-            {/* 保留原有的已验证发票卡 - 临时过渡 */}
-            <div className={`bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 ${device.isMobile ? 'h-32' : 'h-28'}`}>
-              <div className="flex items-center justify-between h-full">
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-secondary mb-1">
-                    {statsLoading ? '...' : (stats?.verified_invoices || 0)}
-                  </div>
-                  <div className="text-lg font-semibold text-base-content mb-1">
-                    {statsLoading ? '...' : Math.round(((stats?.verified_invoices || 0) / (stats?.total_invoices || 1)) * 100)}%
-                  </div>
-                  <div className="text-xs text-base-content/60 font-medium">
-                    已验证发票
-                  </div>
-                </div>
-                <div className="flex-shrink-0 text-secondary/60 ml-3">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            {/* 临期与超期发票卡 */}
+            <OverdueInvoiceCard
+              dueSoonCount={stats?.due_soon_unreimbursed_count || 0}
+              dueSoonAmount={stats?.due_soon_unreimbursed_amount || 0}
+              overdueCount={stats?.overdue_unreimbursed_count || 0}
+              overdueAmount={stats?.overdue_unreimbursed_amount || 0}
+              loading={statsLoading}
+            />
 
-            {/* 保留原有的增长趋势卡 - 临时过渡 */}
-            <div className={`bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 ${device.isMobile ? 'h-32' : 'h-28'}`}>
-              <div className="flex items-center justify-between h-full">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-bold text-info">
-                      {statsLoading ? '...' : (stats?.invoice_growth_rate || 0)}%
-                    </span>
-                    <span className="text-sm font-medium text-base-content/70">
-                      📈
-                    </span>
-                  </div>
-                  <div className="text-lg font-semibold text-base-content mb-1">
-                    {statsLoading ? '...' : (stats?.amount_growth_rate || 0)}%
-                  </div>
-                  <div className="text-xs text-base-content/60 font-medium">
-                    发票/金额增长率
-                  </div>
-                </div>
-                <div className="flex-shrink-0 text-info/60 ml-3">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            {/* 增长趋势卡 */}
+            <GrowthTrendCard
+              invoiceGrowthRate={stats?.invoice_growth_rate || 0}
+              amountGrowthRate={stats?.amount_growth_rate || 0}
+              loading={statsLoading}
+            />
           </div>
         </section>
 

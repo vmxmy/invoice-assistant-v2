@@ -36,6 +36,7 @@ export const useInvoices = (
     status?: string[]
     source?: string[]
     global_search?: string
+    overdue?: boolean
   },
   page: number = 1,
   pageSize: number = 20,
