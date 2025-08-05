@@ -21,7 +21,11 @@ export interface DashboardStats {
   unreimbursed_amount: number
   reimbursed_amount: number
   
-  // 超期未报销统计
+  // 临期未报销统计（60天）
+  due_soon_unreimbursed_count?: number
+  due_soon_unreimbursed_amount?: number
+  
+  // 超期未报销统计（90天）
   overdue_unreimbursed_count?: number
   overdue_unreimbursed_amount?: number
   oldest_unreimbursed_date?: string | null

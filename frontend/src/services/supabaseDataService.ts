@@ -62,6 +62,7 @@ export class InvoiceService {
       status?: string[]
       source?: string[]
       global_search?: string
+      overdue?: boolean
     },
     sortField: string = 'consumption_date',
     sortOrder: 'asc' | 'desc' = 'desc'
@@ -116,6 +117,15 @@ export class InvoiceService {
         // 来源筛选
         if (filters.source && filters.source.length > 0) {
           query = query.in('source', filters.source)
+        }
+        // 超期筛选
+        if (filters.overdue === true) {
+          // 筛选未报销且超过90天的发票
+          const overdueDate = new Date()
+          overdueDate.setDate(overdueDate.getDate() - 90)
+          query = query
+            .eq('status', 'unreimbursed')
+            .lt('consumption_date', overdueDate.toISOString().split('T')[0])
         }
       }
 

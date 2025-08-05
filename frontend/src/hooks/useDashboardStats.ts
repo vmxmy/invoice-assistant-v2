@@ -60,6 +60,19 @@ export function useDashboardStats(): DashboardStatsResponse {
         unreimbursed_amount: statsData.unreimbursed_amount,
         reimbursed_amount: statsData.reimbursed_amount,
         
+        // 临期未报销统计（60天）
+        due_soon_unreimbursed_count: statsData.due_soon_unreimbursed_count,
+        due_soon_unreimbursed_amount: statsData.due_soon_unreimbursed_amount,
+        
+        // 超期未报销统计（90天）
+        overdue_unreimbursed_count: statsData.overdue_unreimbursed_count,
+        overdue_unreimbursed_amount: statsData.overdue_unreimbursed_amount,
+        oldest_unreimbursed_date: statsData.oldest_unreimbursed_date,
+        
+        // 本月报销统计
+        monthly_reimbursed_count: statsData.monthly_reimbursed_count,
+        monthly_reimbursed_amount: statsData.monthly_reimbursed_amount,
+        
         // 邮箱统计
         total_email_accounts: statsData.total_email_accounts,
         active_email_accounts: statsData.active_email_accounts,
@@ -90,7 +103,11 @@ export function useDashboardStats(): DashboardStatsResponse {
       console.log('✅ [DashboardStats] 统计数据获取成功', {
         totalInvoices: data.total_invoices,
         monthlyInvoices: data.monthly_invoices,
-        monthlyAmount: data.monthly_amount
+        monthlyAmount: data.monthly_amount,
+        dueSoonCount: data.due_soon_unreimbursed_count,
+        dueSoonAmount: data.due_soon_unreimbursed_amount,
+        overdueCount: data.overdue_unreimbursed_count,
+        overdueAmount: data.overdue_unreimbursed_amount
       })
       setData(data)
     } catch (err) {
