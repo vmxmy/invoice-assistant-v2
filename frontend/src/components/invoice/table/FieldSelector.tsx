@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import type { Table } from '@tanstack/react-table';
 import { useTableColumns, type TableColumn } from '../../../hooks/useTableColumns';
+import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 
 interface FieldSelectorProps {
   table?: Table<any>;
@@ -28,6 +29,9 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // 设备检测
+  const device = useDeviceDetection();
   
   // 使用 useTableColumns Hook 获取字段信息
   const { allColumns, loading, categories, totalFields } = useTableColumns({ 
@@ -181,15 +185,27 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
             onClick={() => setIsOpen(false)}
           />
           
-          {/* 抽屉面板内容 */}
+          {/* 抽屉面板内容 - 移动端从底部滑出 */}
           <div className={`
-            fixed top-0 right-0 h-full bg-base-100 shadow-2xl z-50
-            w-full sm:w-96 max-w-md
+            fixed bg-base-100 shadow-2xl z-50 flex flex-col
             transform transition-transform duration-300 ease-in-out
-            ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-            flex flex-col
+            ${device.isMobile ? 
+              'bottom-0 left-0 right-0 h-[85vh] max-h-[85vh] rounded-t-xl' : 
+              'top-0 right-0 h-full w-96 max-w-md'
+            }
+            ${device.isMobile ? 
+              (isOpen ? 'translate-y-0' : 'translate-y-full') :
+              (isOpen ? 'translate-x-0' : 'translate-x-full')
+            }
           `}>
-            <div className="flex flex-col h-full p-4">
+            {/* 移动端拖拽指示器 */}
+            {device.isMobile && (
+              <div className="flex justify-center py-2">
+                <div className="w-12 h-1 bg-base-300 rounded-full"></div>
+              </div>
+            )}
+            
+            <div className={`flex flex-col h-full ${device.isMobile ? 'p-4 pt-2' : 'p-4'}`}>
               {/* 头部 */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium text-lg text-base-content">字段设置</h3>
@@ -259,13 +275,13 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
                         ${config.required ? 'opacity-75' : ''}
                       `}
                     >
-                      {/* 可见性切换 */}
+                      {/* 可见性切换 - 移动端增大触控区域 */}
                       <button
                         type="button"
                         onClick={() => toggleFieldVisibility(field.field)}
                         disabled={config.required}
                         className={`
-                          btn btn-ghost btn-xs p-1 min-h-0 h-6 w-6
+                          btn btn-ghost ${device.isMobile ? 'btn-sm min-h-[40px] min-w-[40px]' : 'btn-xs p-1 min-h-0 h-6 w-6'}
                           ${config.visible ? 'text-primary' : 'text-base-content/50'}
                           ${config.required ? 'cursor-not-allowed' : ''}
                         `}

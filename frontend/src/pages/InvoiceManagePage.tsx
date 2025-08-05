@@ -19,6 +19,7 @@ import {
   type RowSelectionState,
   type PaginationState
 } from '@tanstack/react-table'
+import { useDeviceDetection } from '../hooks/useMediaQuery'
 import { useAuthContext } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useDashboardStats } from '../hooks/useDashboardStats'
@@ -33,6 +34,9 @@ import { useDynamicTableColumns } from '../hooks/useDynamicTableColumns'
 // import { useTableState } from '../hooks/useTableState' // 不使用localStorage持久化
 import { FieldSelector } from '../components/invoice/table/FieldSelector'
 import { InvoiceListView } from '../components/invoice/cards/InvoiceListView'
+import { MobileBatchActions } from '../components/mobile/MobileBatchActions'
+import { UrgentTodoCard } from '../components/invoice/indicators/UrgentTodoCard'
+import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
 import Layout from '../components/layout/Layout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -156,6 +160,9 @@ export function InvoiceManagePage() {
   const { user } = useAuthContext()
   const navigate = useNavigate()
   const { data: stats, loading: statsLoading, refresh: refreshStats } = useDashboardStats()
+  
+  // 设备检测 - 用于响应式适配
+  const device = useDeviceDetection()
   
   // 移除 calculateStats 函数，现在使用 useDashboardStats 的全部数据统计
   
@@ -333,10 +340,30 @@ export function InvoiceManagePage() {
   
   // 选择和视图状态
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.GRID)
   
+  // 移动端强制使用卡片视图，桌面端默认使用表格视图
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // 初始化时根据设备类型设置视图模式
+    return device.isMobile ? ViewMode.GRID : ViewMode.TABLE
+  })
   
-  
+  // 监听设备变化，移动端强制使用卡片视图，桌面端可切换
+  useEffect(() => {
+    if (device.isMobile) {
+      // 移动端强制使用卡片视图
+      setViewMode(ViewMode.GRID)
+    }
+  }, [device.isMobile])
+
+  // 视图切换处理函数 - 移动端禁用表格视图
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    if (device.isMobile && mode === ViewMode.TABLE) {
+      // 移动端不允许切换到表格视图
+      return
+    }
+    setViewMode(mode)
+  }, [device.isMobile])
+
   // 模态框状态
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -1379,55 +1406,30 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 迷你指标卡片 - 使用全部数据统计 */}
+        {/* 任务导向指标卡片 - 第一阶段实现 */}
         <section className="mb-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 总发票总金额 */}
-            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-              <div className="flex items-center justify-between h-full">
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-primary mb-1">
-                    {statsLoading ? '...' : (stats?.total_invoices || 0)}
-                  </div>
-                  <div className="text-lg font-semibold text-base-content mb-1">
-                    ¥{statsLoading ? '...' : (stats?.total_amount || 0).toLocaleString()}
-                  </div>
-                  <div className="text-xs text-base-content/60 font-medium">
-                    总发票金额
-                  </div>
-                </div>
-                <div className="flex-shrink-0 text-primary/60 ml-3">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* 本月发票本月总金额 */}
-            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
-              <div className="flex items-center justify-between h-full">
-                <div className="flex-1">
-                  <div className="text-2xl font-bold text-success mb-1">
-                    {statsLoading ? '...' : (stats?.monthly_invoices || 0)}
-                  </div>
-                  <div className="text-lg font-semibold text-base-content mb-1">
-                    ¥{statsLoading ? '...' : (stats?.monthly_amount || 0).toLocaleString()}
-                  </div>
-                  <div className="text-xs text-base-content/60 font-medium">
-                    本月新增发票
-                  </div>
-                </div>
-                <div className="flex-shrink-0 text-success/60 ml-3">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* 已验证发票数 */}
-            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 紧急待办卡 */}
+            <UrgentTodoCard
+              unreimbursedCount={stats?.unreimbursed_count || 0}
+              unreimbursedAmount={stats?.unreimbursed_amount || 0}
+              overdueCount={stats?.overdue_unreimbursed_count || 0}
+              overdueAmount={stats?.overdue_unreimbursed_amount || 0}
+              oldestUnreimbursedDate={stats?.oldest_unreimbursed_date || undefined}
+              loading={statsLoading}
+            />
+            
+            {/* 资金回流卡 */}
+            <CashFlowCard
+              reimbursedAmount={stats?.reimbursed_amount || 0}
+              unreimbursedAmount={stats?.unreimbursed_amount || 0}
+              monthlyReimbursedCount={stats?.monthly_reimbursed_count || 0}
+              monthlyReimbursedAmount={stats?.monthly_reimbursed_amount || 0}
+              loading={statsLoading}
+            />
+            
+            {/* 保留原有的已验证发票卡 - 临时过渡 */}
+            <div className={`bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 ${device.isMobile ? 'h-32' : 'h-28'}`}>
               <div className="flex items-center justify-between h-full">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-secondary mb-1">
@@ -1448,8 +1450,8 @@ export function InvoiceManagePage() {
               </div>
             </div>
 
-            {/* 增长趋势 */}
-            <div className="bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 h-28">
+            {/* 保留原有的增长趋势卡 - 临时过渡 */}
+            <div className={`bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 ${device.isMobile ? 'h-32' : 'h-28'}`}>
               <div className="flex items-center justify-between h-full">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -1477,46 +1479,49 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 控制区域 - 所有工具组件在一行 */}
+        {/* 控制区域 - 移动端响应式布局 */}
         <section className="mb-8">
           <div className="card bg-base-100 shadow-lg">
-            <div className="card-body p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                {/* 搜索框 */}
-                <div className="form-control">
+            <div className={`card-body ${device.isMobile ? 'p-3' : 'p-4'}`}>
+              <div className={`${device.isMobile ? 'space-y-3' : 'flex flex-wrap items-center gap-2'}`}>
+                {/* 搜索框 - 移动端全宽 */}
+                <div className={`form-control ${device.isMobile ? 'w-full' : ''}`}>
                   <input
                     type="text"
                     placeholder="搜索发票..."
-                    className="input input-bordered input-sm w-64"
+                    className={`input input-bordered ${device.isMobile ? 'input-md w-full' : 'input-sm w-64'}`}
                     value={globalFilter || ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                   />
                 </div>
 
-                {/* 高级搜索按钮 */}
-                <button
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setIsAdvancedSearchOpen(true)}
-                >
-                  🔍 高级搜索
-                </button>
+                {/* 操作按钮组 - 移动端调整布局 */}
+                <div className={`${device.isMobile ? 'flex flex-wrap gap-2 w-full' : 'flex gap-2'}`}>
+                  {/* 高级搜索按钮 */}
+                  <button
+                    className={`btn btn-outline ${device.isMobile ? 'btn-md flex-1 min-h-[44px]' : 'btn-sm'}`}
+                    onClick={() => setIsAdvancedSearchOpen(true)}
+                  >
+                    🔍 <span className={device.isMobile ? '' : 'ml-1'}>高级搜索</span>
+                  </button>
 
-                {/* 手动刷新按钮 */}
-                <button
-                  className="btn btn-outline btn-sm"
-                  onClick={() => refreshInvoices()}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="loading loading-spinner loading-xs"></span>
-                  ) : (
-                    '🔄'
-                  )}
-                  刷新
-                </button>
+                  {/* 手动刷新按钮 */}
+                  <button
+                    className={`btn btn-outline ${device.isMobile ? 'btn-md min-h-[44px] min-w-[44px]' : 'btn-sm'}`}
+                    onClick={() => refreshInvoices()}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className={`loading loading-spinner ${device.isMobile ? 'loading-sm' : 'loading-xs'}`}></span>
+                    ) : (
+                      '🔄'
+                    )}
+                    {!device.isMobile && <span className="ml-1">刷新</span>}
+                  </button>
+                </div>
 
-                {/* 批量操作按钮 */}
-                {selectedInvoiceIds.length > 0 && (
+                {/* 批量操作按钮 - 桌面端显示，移动端使用底部面板 */}
+                {selectedInvoiceIds.length > 0 && !device.isMobile && (
                   <div className="flex gap-2">
                     <button
                       className="btn btn-primary btn-sm"
@@ -1534,36 +1539,53 @@ export function InvoiceManagePage() {
                   </div>
                 )}
 
-                {/* 右侧组件区域 */}
-                <div className="ml-auto flex items-center gap-2">
-                  {/* 视图切换按钮 */}
-                  <div className="join">
-                    <button
-                      className={`btn join-item ${viewMode === ViewMode.TABLE ? 'btn-active' : ''}`}
-                      onClick={() => setViewMode(ViewMode.TABLE)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9m-9 4h9m-9-8H3m0 4h6" />
-                      </svg>
-                      表格
-                    </button>
-                    <button
-                      className={`btn join-item ${viewMode === ViewMode.GRID ? 'btn-active' : ''}`}
-                      onClick={() => setViewMode(ViewMode.GRID)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                      卡片
-                    </button>
-                  </div>
+                {/* 右侧组件区域 - 移动端调整布局 */}
+                <div className={`${device.isMobile ? 'flex justify-center w-full' : 'ml-auto flex items-center gap-2'}`}>
+                  {/* 视图切换按钮 - 移动端隐藏表格视图选项 */}
+                  {!device.isMobile ? (
+                    <div className="join">
+                      <button
+                        className={`btn join-item btn-sm ${viewMode === ViewMode.TABLE ? 'btn-active' : ''}`}
+                        onClick={() => handleViewModeChange(ViewMode.TABLE)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9m-9 4h9m-9-8H3m0 4h6" />
+                        </svg>
+                        <span className="hidden sm:inline">表格</span>
+                      </button>
+                      <button
+                        className={`btn join-item btn-sm ${viewMode === ViewMode.GRID ? 'btn-active' : ''}`}
+                        onClick={() => handleViewModeChange(ViewMode.GRID)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                        <span className="hidden sm:inline">卡片</span>
+                      </button>
+                    </div>
+                  ) : (
+                    // 移动端只显示当前视图类型提示
+                    <div className="flex items-center gap-2">
+                      <div className="badge badge-primary badge-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                        卡片视图
+                      </div>
+                      <div className="text-xs text-base-content/60">
+                        (移动端优化)
+                      </div>
+                    </div>
+                  )}
 
-                  {/* 字段配置器 - 最右边 */}
-                  <FieldSelector
-                    table={table}
-                    columns={table?.getAllColumns()}
-                    onVisibilityChange={setColumnVisibility}
-                  />
+                  {/* 字段配置器 - 最右边，移动端隐藏 */}
+                  {!device.isMobile && (
+                    <FieldSelector
+                      table={table}
+                      columns={table?.getAllColumns()}
+                      onVisibilityChange={setColumnVisibility}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -1804,6 +1826,19 @@ export function InvoiceManagePage() {
           // 这里可以根据需要实现具体的筛选逻辑
         }}
         initialFilters={searchFilters}
+      />
+
+      {/* 移动端批量操作面板 */}
+      <MobileBatchActions
+        selectedCount={selectedInvoiceIds.length}
+        onBatchExport={handleBatchExport}
+        onBatchDelete={handleBatchDelete}
+        onClearSelection={() => {
+          setRowSelection({})
+          setSelectedInvoices([])
+        }}
+        isExporting={isExporting}
+        isVisible={device.isMobile && selectedInvoiceIds.length > 0}
       />
         </div>
       </div>
