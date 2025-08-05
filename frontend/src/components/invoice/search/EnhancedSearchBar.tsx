@@ -103,11 +103,11 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
       filter: { amountMax: 100 },
     },
     {
-      id: 'pending_status',
-      label: '待处理',
+      id: 'unreimbursed_status',
+      label: '未报销',
       icon: Tag,
-      description: '需要处理的发票',
-      filter: { status: ['pending', 'draft'] },
+      description: '需要报销的发票',
+      filter: { status: ['unreimbursed'] },
     }
   ];
 

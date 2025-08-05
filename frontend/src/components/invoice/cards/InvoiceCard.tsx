@@ -141,26 +141,16 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'draft': 'badge-warning',
-      'pending': 'badge-info', 
-      'completed': 'badge-success',
-      'failed': 'badge-error',
       'unreimbursed': 'badge-warning',
-      'reimbursed': 'badge-success',
-      'voided': 'badge-error'
+      'reimbursed': 'badge-success'
     };
     return statusMap[status as keyof typeof statusMap] || 'badge-neutral';
   };
 
   const getStatusText = (status: string) => {
     const statusTextMap = {
-      'draft': '草稿',
-      'pending': '待处理', 
-      'completed': '已完成',
-      'failed': '失败',
       'unreimbursed': '未报销',
-      'reimbursed': '已报销',
-      'voided': '已作废'
+      'reimbursed': '已报销'
     };
     return statusTextMap[status as keyof typeof statusTextMap] || status.toUpperCase();
   };

@@ -60,8 +60,7 @@ export const InvoiceListTableView: React.FC<InvoiceListTableViewProps> = ({
   const getStatusBadge = (status: string) => {
     const statusMap = {
       'unreimbursed': 'badge-warning',  // 未报销 - 黄色
-      'reimbursed': 'badge-success',    // 已报销 - 绿色  
-      'voided': 'badge-error'           // 作废 - 红色
+      'reimbursed': 'badge-success'     // 已报销 - 绿色  
     };
     return statusMap[status as keyof typeof statusMap] || 'badge-neutral';
   };
@@ -69,8 +68,7 @@ export const InvoiceListTableView: React.FC<InvoiceListTableViewProps> = ({
   const getStatusText = (status: string) => {
     const statusTextMap = {
       'unreimbursed': '未报销',
-      'reimbursed': '已报销',
-      'voided': '已作废'
+      'reimbursed': '已报销'
     };
     return statusTextMap[status as keyof typeof statusTextMap] || status;
   };

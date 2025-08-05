@@ -105,10 +105,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     // 处理状态
     if (filters.status && filters.status.length > 0) {
       const statusMap: Record<string, string> = {
-        'pending': '待处理',
-        'processing': '处理中',
-        'completed': '已完成',
-        'failed': '失败'
+        'unreimbursed': '未报销',
+        'reimbursed': '已报销'
       };
       
       filters.status.forEach(status => {

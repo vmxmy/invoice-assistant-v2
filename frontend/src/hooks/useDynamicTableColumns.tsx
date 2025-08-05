@@ -310,7 +310,7 @@ function renderFilterInput(field: TableColumn, column: any) {
       if (field.field === 'status') {
         return (
           <div className="space-y-2">
-            {['unreimbursed', 'reimbursed', 'voided'].map(status => (
+            {['unreimbursed', 'reimbursed'].map(status => (
               <label key={status} className="label cursor-pointer justify-start gap-2">
                 <input
                   type="checkbox"
@@ -327,8 +327,7 @@ function renderFilterInput(field: TableColumn, column: any) {
                 />
                 <span className="label-text text-sm">
                   {status === 'unreimbursed' ? '未报销' : 
-                   status === 'reimbursed' ? '已报销' : 
-                   status === 'voided' ? '作废' : status}
+                   status === 'reimbursed' ? '已报销' : status}
                 </span>
               </label>
             ))}
@@ -418,14 +417,12 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
     case 'select': {
       if (field.field === 'status') {
         const statusMap: Record<string, string> = {
-          'unreimbursed': 'badge-success',  // 未报销 - 绿色
-          'reimbursed': 'badge-info',       // 已报销 - 蓝色  
-          'voided': 'badge-error'           // 作废 - 红色
+          'unreimbursed': 'badge-warning',  // 未报销 - 黄色
+          'reimbursed': 'badge-success'     // 已报销 - 绿色
         }
         const statusText: Record<string, string> = {
           'unreimbursed': '未报销',
-          'reimbursed': '已报销',
-          'voided': '作废'
+          'reimbursed': '已报销'
         }
         return (
           <span className={`badge ${statusMap[value] || 'badge-neutral'}`}>

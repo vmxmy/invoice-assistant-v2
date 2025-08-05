@@ -231,20 +231,16 @@ const InvoiceQuickView: React.FC<InvoiceQuickViewProps> = ({
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
                       {invoice.status === 'unreimbursed' ? (
-                        <CheckCircle2 className="w-4 h-4 text-success" />
+                        <AlertCircle className="w-4 h-4 text-warning" />
                       ) : invoice.status === 'reimbursed' ? (
-                        <AlertCircle className="w-4 h-4 text-info" />
-                      ) : invoice.status === 'voided' ? (
-                        <XCircle className="w-4 h-4 text-error" />
+                        <CheckCircle2 className="w-4 h-4 text-success" />
                       ) : null}
                       <span className={`badge ${
-                        invoice.status === 'unreimbursed' ? 'badge-success' : 
-                        invoice.status === 'reimbursed' ? 'badge-info' :
-                        invoice.status === 'voided' ? 'badge-error' : 'badge-ghost'
+                        invoice.status === 'unreimbursed' ? 'badge-warning' : 
+                        invoice.status === 'reimbursed' ? 'badge-success' : 'badge-ghost'
                       }`}>
                         {invoice.status === 'unreimbursed' ? '未报销' :
-                         invoice.status === 'reimbursed' ? '已报销' :
-                         invoice.status === 'voided' ? '作废' : invoice.status}
+                         invoice.status === 'reimbursed' ? '已报销' : invoice.status}
                       </span>
                     </div>
                     {invoice.total_amount && (
