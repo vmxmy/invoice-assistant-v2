@@ -1,7 +1,8 @@
 import React from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BaseIndicatorCard, StatItem, StatBadge } from './BaseIndicatorCard';
+import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 
 interface UrgentTodoCardProps {
   unreimbursedCount: number;
@@ -17,6 +18,7 @@ export const UrgentTodoCard: React.FC<UrgentTodoCardProps> = ({
   loading = false
 }) => {
   const navigate = useNavigate();
+  const device = useDeviceDetection();
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', {
@@ -43,31 +45,38 @@ export const UrgentTodoCard: React.FC<UrgentTodoCardProps> = ({
   
   return (
     <BaseIndicatorCard
-      icon="⏳"
-      title="待处理"
+      icon={<AlertCircle className="w-5 h-5 text-warning" />}
+      title="待报销发票"
       loading={loading}
       onClick={handleClick}
-      variant="default"
+      variant="warning"
+      borderHighlight={unreimbursedCount > 0}
     >
-      <div className="space-y-1">
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <StatItem 
-            value={unreimbursedCount} 
-            unit="张" 
-            size="lg"
-          />
-          <StatItem 
-            value={formatCurrency(unreimbursedAmount)} 
-            variant="warning"
-            size="md"
-          />
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-3">
+          <span className={`
+            font-mono tabular-nums font-bold text-warning
+            ${device.isMobile ? 'text-2xl' : 'text-3xl'}
+          `}>
+            {unreimbursedCount}
+          </span>
+          <span className="text-base-content/60 text-xs">张待处理</span>
         </div>
         
-        {daysAgo && (
-          <StatBadge icon={<Clock className="w-3 h-3" />}>
-            {daysAgo}天前
-          </StatBadge>
-        )}
+        <div className="space-y-1">
+          <div className="text-base font-medium text-base-content/80">
+            {formatCurrency(unreimbursedAmount)}
+          </div>
+          
+          {daysAgo && (
+            <StatBadge 
+              icon={<Clock className="w-3 h-3" />}
+              variant="warning"
+            >
+              最早{daysAgo}天前
+            </StatBadge>
+          )}
+        </div>
       </div>
     </BaseIndicatorCard>
   );
