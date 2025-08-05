@@ -52,12 +52,19 @@ export class InvoiceService {
     pageSize: number = 20,
     filters?: {
       seller_name?: string
+      buyer_name?: string
       invoice_number?: string
+      invoice_type?: string
       date_from?: string
       date_to?: string
       amount_min?: number
       amount_max?: number
-    }
+      status?: string[]
+      source?: string[]
+      global_search?: string
+    },
+    sortField: string = 'consumption_date',
+    sortOrder: 'asc' | 'desc' = 'desc'
   ): Promise<PaginatedResponse<Invoice>> {
     try {
       let query = supabase
@@ -65,27 +72,50 @@ export class InvoiceService {
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
         .neq('status', 'deleted')  // 过滤已删除的发票
-        .order('created_at', { ascending: false })
+        .order(sortField, { ascending: sortOrder === 'asc' })
 
       // 应用筛选条件
       if (filters) {
+        // 全局搜索 - 在多个字段中搜索
+        if (filters.global_search) {
+          const search = `%${filters.global_search}%`
+          query = query.or(`invoice_number.ilike.${search},seller_name.ilike.${search},buyer_name.ilike.${search}`)
+        }
+        
+        // 特定字段筛选
         if (filters.seller_name) {
           query = query.ilike('seller_name', `%${filters.seller_name}%`)
+        }
+        if (filters.buyer_name) {
+          query = query.ilike('buyer_name', `%${filters.buyer_name}%`)
         }
         if (filters.invoice_number) {
           query = query.ilike('invoice_number', `%${filters.invoice_number}%`)
         }
+        if (filters.invoice_type) {
+          query = query.eq('invoice_type', filters.invoice_type)
+        }
+        // 日期范围筛选（基于消费日期）
         if (filters.date_from) {
-          query = query.gte('created_at', filters.date_from)
+          query = query.gte('consumption_date', filters.date_from)
         }
         if (filters.date_to) {
-          query = query.lte('created_at', filters.date_to)
+          query = query.lte('consumption_date', filters.date_to)
         }
+        // 金额范围筛选
         if (filters.amount_min !== undefined) {
           query = query.gte('total_amount', filters.amount_min)
         }
         if (filters.amount_max !== undefined) {
           query = query.lte('total_amount', filters.amount_max)
+        }
+        // 状态筛选
+        if (filters.status && filters.status.length > 0) {
+          query = query.in('status', filters.status)
+        }
+        // 来源筛选
+        if (filters.source && filters.source.length > 0) {
+          query = query.in('source', filters.source)
         }
       }
 

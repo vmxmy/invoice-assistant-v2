@@ -51,6 +51,7 @@ interface Invoice {
   total_amount?: number  // 价税合计 
   currency: string
   invoice_date: string
+  consumption_date?: string  // 消费日期（实际消费/服务发生的日期）
   seller_name?: string
   seller_tax_id?: string
   buyer_name?: string
@@ -165,9 +166,19 @@ export function InvoiceManagePage() {
   
   // 简化状态管理 - 不使用localStorage持久化分页状态
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'created_at', desc: true } // 默认以消费日期降序排序
+    { id: 'consumption_date', desc: true } // 默认以消费日期降序排序
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = useState<string>('')
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  })
+  
+  // 当排序或筛选器改变时，重置到第一页
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, pageIndex: 0 }))
+  }, [sorting, columnFilters, globalFilter, searchFilters])
   // 默认显示字段配置
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     // 默认显示的字段
@@ -233,12 +244,41 @@ export function InvoiceManagePage() {
     'updated_by': false,
     'version': false
   })
-  const [globalFilter, setGlobalFilter] = useState<string>('')
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20,
-  })
 
+  // 合并搜索筛选器、排序和列筛选器
+  const serverFilters = useMemo(() => {
+    const filters = { ...searchFilters }
+    
+    // 添加全局搜索到服务端筛选（在发票号、销售方、购买方中搜索）
+    if (globalFilter) {
+      // 使用模糊搜索，服务端会在多个字段中搜索
+      filters.global_search = globalFilter
+    }
+    
+    // 添加列筛选器到服务端筛选
+    columnFilters.forEach(filter => {
+      if (filter.id === 'seller_name' && filter.value) {
+        filters.seller_name = filter.value as string
+      } else if (filter.id === 'buyer_name' && filter.value) {
+        filters.buyer_name = filter.value as string
+      } else if (filter.id === 'invoice_number' && filter.value) {
+        filters.invoice_number = filter.value as string
+      } else if (filter.id === 'invoice_type' && filter.value) {
+        filters.invoice_type = filter.value as string
+      } else if (filter.id === 'status' && filter.value) {
+        filters.status = filter.value as string[]
+      } else if (filter.id === 'source' && filter.value) {
+        filters.source = filter.value as string[]
+      }
+    })
+    
+    return filters
+  }, [searchFilters, columnFilters, globalFilter])
+  
+  // 提取排序信息
+  const sortField = sorting.length > 0 ? sorting[0].id : 'consumption_date'
+  const sortOrder = sorting.length > 0 ? (sorting[0].desc ? 'desc' : 'asc') : 'desc'
+  
   // 使用 TanStack Query 获取发票数据，启用轮询
   const { 
     data: invoicesResponse, 
@@ -246,9 +286,11 @@ export function InvoiceManagePage() {
     error: queryError, 
     refetch: refreshInvoices 
   } = useInvoices(
-    searchFilters, 
+    serverFilters, 
     pagination.pageIndex + 1, 
-    pagination.pageSize
+    pagination.pageSize,
+    sortField,
+    sortOrder
   )
   
   // 从响应中提取数据
@@ -267,84 +309,8 @@ export function InvoiceManagePage() {
     return () => clearInterval(interval)
   }, [loading, error, refreshInvoices])
   
-  // 筛选后的发票数据
-  const filteredInvoices = useMemo(() => {
-    let filtered = invoices
-
-    // 应用全局搜索
-    if (globalFilter) {
-      filtered = filtered.filter(invoice => 
-        invoice.invoice_number?.toLowerCase().includes(globalFilter.toLowerCase()) ||
-        invoice.seller_name?.toLowerCase().includes(globalFilter.toLowerCase()) ||
-        invoice.buyer_name?.toLowerCase().includes(globalFilter.toLowerCase())
-      )
-    }
-
-    // 应用高级搜索筛选
-    if (Object.keys(searchFilters).length > 0) {
-      filtered = filtered.filter(invoice => {
-        // 发票号码筛选
-        if (searchFilters.invoice_number && 
-            !invoice.invoice_number?.toLowerCase().includes(searchFilters.invoice_number.toLowerCase())) {
-          return false
-        }
-        
-        // 销售方筛选
-        if (searchFilters.seller_name && 
-            !invoice.seller_name?.toLowerCase().includes(searchFilters.seller_name.toLowerCase())) {
-          return false
-        }
-        
-        // 购买方筛选
-        if (searchFilters.buyer_name && 
-            !invoice.buyer_name?.toLowerCase().includes(searchFilters.buyer_name.toLowerCase())) {
-          return false
-        }
-        
-        // 发票类型筛选
-        if (searchFilters.invoice_type && 
-            invoice.invoice_type !== searchFilters.invoice_type) {
-          return false
-        }
-        
-        // 日期范围筛选（基于消费日期）
-        if (searchFilters.date_from || searchFilters.date_to) {
-          const consumptionDate = new Date(invoice.created_at)
-          if (searchFilters.date_from && consumptionDate < new Date(searchFilters.date_from)) {
-            return false
-          }
-          if (searchFilters.date_to && consumptionDate > new Date(searchFilters.date_to)) {
-            return false
-          }
-        }
-        
-        // 金额范围筛选 - 使用 total_amount 优先，否则用 amount
-        const invoiceAmount = invoice.total_amount || invoice.amount || 0;
-        if (searchFilters.amount_min !== undefined && invoiceAmount < searchFilters.amount_min) {
-          return false
-        }
-        if (searchFilters.amount_max !== undefined && invoiceAmount > searchFilters.amount_max) {
-          return false
-        }
-        
-        // 状态筛选
-        if (searchFilters.status && searchFilters.status.length > 0 && 
-            !searchFilters.status.includes(invoice.status)) {
-          return false
-        }
-        
-        // 来源筛选
-        if (searchFilters.source && searchFilters.source.length > 0 && 
-            !searchFilters.source.includes(invoice.source)) {
-          return false
-        }
-        
-        return true
-      })
-    }
-
-    return filtered
-  }, [invoices, globalFilter, searchFilters])
+  // 所有筛选都已在服务端处理，直接使用服务端返回的数据
+  const filteredInvoices = invoices
   
   // 分页状态 - 现在由TanStack Table管理，这些状态可能不再需要
   // const [currentPage, setCurrentPage] = useState(1)
@@ -463,7 +429,7 @@ export function InvoiceManagePage() {
       cell: ({ getValue }) => <div className="font-medium">{getValue()}</div>,
     }),
     // 消费日期
-    columnHelper.accessor('created_at', {
+    columnHelper.accessor('consumption_date', {
       header: '消费日期',
       cell: ({ getValue }) => formatDate(getValue()),
     }),
@@ -1057,25 +1023,26 @@ export function InvoiceManagePage() {
     } : null
   })
 
-  // 完整TanStack Table配置 - 启用服务端分页
+  // 完整TanStack Table配置 - 启用服务端分页、排序和筛选
   const table = useReactTable({
     data: invoices,
     columns,
     // 显式指定getRowId函数
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    // 对于服务端分页，不使用 getPaginationRowModel
-    // getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    // 服务端处理，不使用客户端模型
+    // getSortedRowModel: getSortedRowModel(), // 移除客户端排序
+    // getFilteredRowModel: getFilteredRowModel(), // 移除客户端筛选
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
-    // 服务端分页配置
+    // 服务端分页、排序和筛选配置
     manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
     pageCount: Math.ceil(totalCount / pagination.pageSize),
     state: {
       sorting,
@@ -1092,13 +1059,13 @@ export function InvoiceManagePage() {
         pageSize: 20
       },
       sorting: [
-        { id: 'created_at', desc: true } // 默认以消费日期降序排序
+        { id: 'consumption_date', desc: true } // 默认以消费日期降序排序
       ],
       columnVisibility: {
         // 默认显示的字段
         'select': true,
         'invoice_number': true,        // 发票号码
-        'created_at': true,           // 消费日期  
+        'consumption_date': true,     // 消费日期  
         'seller_name': true,          // 销售方
         'buyer_name': true,           // 购买方
         'total_amount': true,         // 含税金额

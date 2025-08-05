@@ -65,6 +65,11 @@ export function useDashboardStats(): DashboardStatsResponse {
       // 已验证发票数
       const verifiedInvoices = invoices.filter(invoice => invoice.is_verified).length
 
+      // 已移除邮件功能，使用占位数据
+      const inboxStats = {
+        total_emails: 0,
+        unread_emails: 0
+      }
 
       // 构造统计数据对象
       const statsData: DashboardStats = {
@@ -82,8 +87,8 @@ export function useDashboardStats(): DashboardStatsResponse {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0].created_at : null,
         
-        // 邮箱统计 - 已移除
-        total_email_accounts: 0,
+        // 邮箱统计 - 使用已验证发票数据代替
+        total_email_accounts: verifiedInvoices,
         active_email_accounts: 0,
         
         // 扫描统计 - 已移除
@@ -210,10 +215,10 @@ export function generateStatCards(stats: DashboardStats | null) {
         color: 'secondary' as const
       },
       {
-        title: '邮箱账号',
+        title: '已验证',
         value: 0,
-        icon: '📧',
-        description: '未配置',
+        icon: '✅',
+        description: '暂无验证',
         color: 'accent' as const
       },
       {
@@ -252,11 +257,20 @@ export function generateStatCards(stats: DashboardStats | null) {
       color: 'secondary' as const
     },
     {
-      title: '邮箱账号',
-      value: 0,
-      icon: '📧',
-      description: '已移除邮箱功能',
-      color: 'accent' as const
+      title: '收件箱',
+      value: stats.total_email_accounts || 0,
+      icon: '📨',
+      description: stats.active_email_accounts > 0 
+        ? `${stats.active_email_accounts} 封未读邮件`
+        : stats.total_email_accounts > 0 
+          ? '没有未读邮件'
+          : '暂无邮件',
+      color: 'accent' as const,
+      change: stats.active_email_accounts > 0 ? {
+        value: stats.active_email_accounts,
+        trend: 'up' as const,
+        period: '未读'
+      } : undefined
     },
     {
       title: '本月发票',

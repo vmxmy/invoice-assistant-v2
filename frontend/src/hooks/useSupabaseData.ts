@@ -26,22 +26,29 @@ export const QUERY_KEYS = {
 export const useInvoices = (
   filters?: {
     seller_name?: string
+    buyer_name?: string
     invoice_number?: string
+    invoice_type?: string
     date_from?: string
     date_to?: string
     amount_min?: number
     amount_max?: number
+    status?: string[]
+    source?: string[]
+    global_search?: string
   },
   page: number = 1,
-  pageSize: number = 20
+  pageSize: number = 20,
+  sortField: string = 'consumption_date',
+  sortOrder: 'asc' | 'desc' = 'desc'
 ) => {
   const { user } = useAuthContext()
 
   return useQuery({
-    queryKey: QUERY_KEYS.invoices(user?.id || '', { filters, page, pageSize }),
+    queryKey: QUERY_KEYS.invoices(user?.id || '', { filters, page, pageSize, sortField, sortOrder }),
     queryFn: () => {
       if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.getInvoices(user.id, page, pageSize, filters)
+      return InvoiceService.getInvoices(user.id, page, pageSize, filters, sortField, sortOrder)
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5分钟
