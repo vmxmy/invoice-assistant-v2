@@ -190,15 +190,15 @@ const ThemeDemo: React.FC = () => {
           <div className="card-body">
             <h3 className="card-title text-base-content">Tailwind CSS 暗色模式测试</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-gray-900 dark:text-white font-semibold mb-2">
-                  Tailwind Dark 类测试
+              <div className="p-4 bg-base-100 rounded-lg border border-base-300">
+                <h4 className="text-base-content font-semibold mb-2">
+                  主题感知测试
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  这个区域使用 Tailwind 的 dark: 前缀类，会根据暗色主题自动切换颜色。
+                <p className="text-base-content/70 mb-4">
+                  这个区域使用 DaisyUI 的语义化颜色，会随主题自动适配。
                 </p>
-                <button className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded">
-                  Tailwind 按钮
+                <button className="btn btn-primary">
+                  主题按钮
                 </button>
               </div>
               

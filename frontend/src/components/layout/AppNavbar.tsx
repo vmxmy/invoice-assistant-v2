@@ -55,7 +55,7 @@ const AppNavbar: React.FC = () => {
             className="flex items-center gap-2 text-primary font-bold text-lg"
             onClick={closeMobileMenu}
           >
-            <span className="text-xl">📄</span>
+            <img src="/favicon.svg" alt="发票助手" className="w-8 h-8" />
             <span className="hidden sm:block">发票助手</span>
           </Link>
           

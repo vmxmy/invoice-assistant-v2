@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 主要发票形状 -->
+  <rect x="96" y="64" width="320" height="384" rx="16" fill="#3B82F6" stroke="#2563EB" stroke-width="8"/>
+  
+  <!-- 发票内容线条 -->
+  <rect x="144" y="144" width="224" height="16" rx="8" fill="white" opacity="0.9"/>
+  <rect x="144" y="192" width="160" height="16" rx="8" fill="white" opacity="0.7"/>
+  <rect x="144" y="240" width="224" height="16" rx="8" fill="white" opacity="0.9"/>
+  <rect x="144" y="288" width="128" height="16" rx="8" fill="white" opacity="0.7"/>
+  <rect x="144" y="336" width="192" height="16" rx="8" fill="white" opacity="0.9"/>
+  
+  <!-- 美元符号 -->
+  <circle cx="328" cy="376" r="40" fill="#10B981" stroke="#059669" stroke-width="6"/>
+  <path d="M328 356 L328 396 M318 366 C318 366 328 356 338 366 C338 366 338 376 328 376 C318 376 318 386 318 386 C318 386 328 396 338 386" 
+        stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

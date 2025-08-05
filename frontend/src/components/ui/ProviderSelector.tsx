@@ -18,7 +18,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       name: 'Gmail',
       description: '支持Google Workspace，使用OAuth2认证',
       icon: '📧',
-      color: 'bg-red-50 border-red-200 text-red-700',
+      color: 'bg-error/10 border-error/20 text-error',
       popular: true,
     },
     {
@@ -26,7 +26,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       name: 'Outlook',
       description: '支持Microsoft 365，使用OAuth2认证',
       icon: '📨',
-      color: 'bg-blue-50 border-blue-200 text-blue-700',
+      color: 'bg-info/10 border-info/20 text-info',
       popular: true,
     },
     {
@@ -34,7 +34,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       name: 'QQ邮箱',
       description: '需要开启IMAP服务并获取授权码',
       icon: '🐧',
-      color: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+      color: 'bg-warning/10 border-warning/20 text-warning',
       popular: true,
     },
     {
@@ -42,7 +42,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       name: '163邮箱',
       description: '使用应用密码进行SMTP连接',
       icon: '📮',
-      color: 'bg-green-50 border-green-200 text-green-700',
+      color: 'bg-success/10 border-success/20 text-success',
       popular: false,
     },
     {
@@ -50,7 +50,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       name: '126邮箱',
       description: '使用应用密码进行SMTP连接',
       icon: '📬',
-      color: 'bg-purple-50 border-purple-200 text-purple-700',
+      color: 'bg-secondary/10 border-secondary/20 text-secondary',
       popular: false,
     },
   ];

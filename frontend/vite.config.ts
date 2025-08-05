@@ -12,6 +12,13 @@ export default defineConfig({
     // 生产环境优化
     minify: 'terser',
     sourcemap: false,
+    terserOptions: {
+      compress: {
+        // 移除console日志
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         // 优化代码分割
