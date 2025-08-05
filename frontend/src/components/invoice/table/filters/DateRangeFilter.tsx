@@ -127,6 +127,12 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ column }) => {
 
         {/* 自定义日期范围 */}
         <div className="space-y-3">
+          <div className="text-xs text-base-content/60 mb-2">
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              基于消费日期筛选
+            </span>
+          </div>
           <div>
             <label className="label label-text text-xs">开始日期</label>
             <div className="relative">

@@ -13,7 +13,7 @@ export function useDashboardStats(): DashboardStatsResponse {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  // 获取统计数据 - 改为直接从invoices表计算
+  // 获取统计数据 - 使用v_dashboard_stats视图
   const fetchStats = useCallback(async () => {
     if (!user?.id) {
       setData(null)
@@ -25,103 +25,68 @@ export function useDashboardStats(): DashboardStatsResponse {
       setError(null)
       console.log('🔍 [DashboardStats] 获取统计数据', user.id)
 
-      // 获取所有发票数据进行统计计算
-      const { data: invoicesData, error: invoicesError } = await supabase
-        .from('invoices')
+      // 从视图获取统计数据
+      const { data: statsData, error: statsError } = await supabase
+        .from('v_dashboard_stats')
         .select('*')
         .eq('user_id', user.id)
+        .single()
 
-      if (invoicesError) {
-        throw new Error(`获取发票数据失败: ${invoicesError.message}`)
+      if (statsError) {
+        throw new Error(`获取统计数据失败: ${statsError.message}`)
       }
 
-
-      // 计算统计数据
-      const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
-      
-      const invoices = invoicesData || []
-
-      // 总发票数和总金额
-      const totalInvoices = invoices.length
-      const totalAmount = invoices.reduce((sum, invoice) => {
-        const amount = invoice.total_amount || invoice.amount || 0
-        return sum + amount
-      }, 0)
-
-      // 本月发票统计（按消费日期created_at）
-      const monthlyInvoices = invoices.filter(invoice => {
-        if (!invoice.created_at) return false
-        const targetDate = new Date(invoice.created_at)
-        return targetDate.getMonth() === currentMonth && 
-               targetDate.getFullYear() === currentYear
-      })
-
-      const monthlyAmount = monthlyInvoices.reduce((sum, invoice) => {
-        const amount = invoice.total_amount || invoice.amount || 0
-        return sum + amount
-      }, 0)
-
-      // 已验证发票数
-      const verifiedInvoices = invoices.filter(invoice => invoice.is_verified).length
-
-      // 已移除邮件功能，使用占位数据
-      const inboxStats = {
-        total_emails: 0,
-        unread_emails: 0
+      if (!statsData) {
+        throw new Error('未找到统计数据')
       }
 
-      // 构造统计数据对象
-      const statsData: DashboardStats = {
-        user_id: user.id,
-        profile_id: user.id,
-        display_name: user.email?.split('@')[0] || null,
+      // 直接使用视图返回的数据
+      const data: DashboardStats = {
+        user_id: statsData.user_id,
+        profile_id: statsData.profile_id,
+        display_name: statsData.display_name,
         
         // 发票统计
-        total_invoices: totalInvoices,
-        total_amount: totalAmount,
-        monthly_invoices: monthlyInvoices.length,
-        monthly_amount: monthlyAmount,
-        verified_invoices: verifiedInvoices,
-        last_invoice_date: invoices.length > 0 ? invoices.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )[0].created_at : null,
+        total_invoices: statsData.total_invoices,
+        total_amount: statsData.total_amount,
+        monthly_invoices: statsData.monthly_invoices,
+        monthly_amount: statsData.monthly_amount,
+        verified_invoices: statsData.verified_invoices,
+        last_invoice_date: statsData.last_invoice_date,
         
-        // 邮箱统计 - 使用已验证发票数据代替
-        total_email_accounts: verifiedInvoices,
-        active_email_accounts: 0,
+        // 邮箱统计
+        total_email_accounts: statsData.total_email_accounts,
+        active_email_accounts: statsData.active_email_accounts,
         
-        // 扫描统计 - 已移除
-        total_scan_jobs: 0,
-        completed_scan_jobs: 0,
-        monthly_processed: 0,
-        last_scan_at: null,
+        // 扫描统计
+        total_scan_jobs: statsData.total_scan_jobs,
+        completed_scan_jobs: statsData.completed_scan_jobs,
+        monthly_processed: statsData.monthly_processed,
+        last_scan_at: statsData.last_scan_at,
         
-        // 活动统计 - 简化版本
-        weekly_invoices: monthlyInvoices.length, // 暂时用月度数据
-        daily_invoices: Math.round(monthlyInvoices.length / 30), // 估算
+        // 活动统计
+        weekly_invoices: statsData.weekly_invoices,
+        daily_invoices: statsData.daily_invoices,
         
-        // 增长率 - 简化计算
-        invoice_growth_rate: totalInvoices > 0 ? Math.round((monthlyInvoices.length / totalInvoices) * 100) : 0,
-        amount_growth_rate: totalAmount > 0 ? Math.round((monthlyAmount / totalAmount) * 100) : 0,
+        // 增长率
+        invoice_growth_rate: statsData.invoice_growth_rate,
+        amount_growth_rate: statsData.amount_growth_rate,
         
         // 用户状态
-        is_active: true,
-        is_premium: false,
-        premium_expires_at: null,
+        is_active: statsData.is_active,
+        is_premium: statsData.is_premium,
+        premium_expires_at: statsData.premium_expires_at,
         
         // 时间戳
-        updated_at: new Date().toISOString()
+        updated_at: statsData.updated_at
       }
 
-      console.log('✅ [DashboardStats] 统计数据计算成功', {
-        totalInvoices,
-        monthlyInvoices: monthlyInvoices.length,
-        monthlyAmount,
-        currentMonth: currentMonth + 1,
-        currentYear
+      console.log('✅ [DashboardStats] 统计数据获取成功', {
+        totalInvoices: data.total_invoices,
+        monthlyInvoices: data.monthly_invoices,
+        monthlyAmount: data.monthly_amount
       })
-      setData(statsData)
+      setData(data)
     } catch (err) {
       console.error('❌ [DashboardStats] 获取统计数据失败:', err)
       setError(err as Error)
