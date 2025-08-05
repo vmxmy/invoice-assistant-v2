@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   FileText, 
   Calendar, 
@@ -14,6 +14,7 @@ import {
   Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
 import { 
   extractTrainTicketInfo, 
@@ -122,11 +123,31 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(invoice.status);
+  
+  // 设备检测 - 用于触控优化
+  const device = useDeviceDetection();
+  
+  // 手势检测状态
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLongPressing, setIsLongPressing] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // 同步外部状态变化（实时订阅更新）
   useEffect(() => {
     setCurrentStatus(invoice.status);
   }, [invoice.status]);
+
+  // 清理长按定时器
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', {
@@ -275,18 +296,143 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     return '📄';
   };
 
+  // 长按处理函数
+  const handleLongPress = useCallback(() => {
+    if (device.isMobile) {
+      setIsLongPressing(true);
+      // 触发选择
+      onSelect(invoice.id);
+      // 添加触觉反馈（如果支持）
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      // 清理定时器
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        setLongPressTimer(null);
+      }
+    }
+  }, [device.isMobile, invoice.id, onSelect, longPressTimer]);
+
+  // 手势处理函数
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!device.isMobile) return;
+    
+    const touch = e.touches[0];
+    setStartX(touch.clientX);
+    setStartY(touch.clientY);
+    setIsSwipeActive(true);
+    setIsLongPressing(false);
+    
+    // 启动长按计时器（500ms）
+    const timer = setTimeout(() => {
+      handleLongPress();
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!device.isMobile) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    
+    // 如果移动距离超过阈值，取消长按和滑动
+    const moveDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    if (moveDistance > 10) {
+      // 取消长按
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        setLongPressTimer(null);
+      }
+      setIsLongPressing(false);
+      
+      // 如果垂直滑动距离大于水平滑动，取消滑动手势
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        setIsSwipeActive(false);
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!device.isMobile) return;
+    
+    // 清理长按定时器
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
+    // 如果是长按，不执行其他操作
+    if (isLongPressing) {
+      setIsLongPressing(false);
+      setIsSwipeActive(false);
+      return;
+    }
+    
+    if (!isSwipeActive) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    
+    // 确保是水平滑动
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      setIsSwipeActive(false);
+      return;
+    }
+    
+    const minSwipeDistance = 50; // 最小滑动距离
+    
+    if (Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0) {
+        // 右滑 - 标记为已报销
+        if (currentStatus === 'unreimbursed' && onStatusChange) {
+          handleStatusClick();
+        }
+      } else {
+        // 左滑 - 显示操作菜单或删除
+        if (cardRef.current) {
+          // 触发操作菜单
+          const moreButton = cardRef.current.querySelector('[role="button"]') as HTMLElement;
+          moreButton?.click();
+        }
+      }
+    }
+    
+    setIsSwipeActive(false);
+  };
+
   return (
-    <div className="card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg transition-all duration-200">
-      <div className="card-body p-4">
+    <div 
+      ref={cardRef}
+      className={`
+        card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg 
+        transition-all duration-200
+        ${device.isMobile ? 'rounded-lg' : 'rounded-xl'}
+        ${device.isMobile ? 'shadow-sm hover:shadow-md' : 'shadow hover:shadow-lg'}
+      `}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className={`card-body ${device.isMobile ? 'p-4' : 'p-4'}`}>
         {/* 顶部：选择框和发票类型 */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            <input 
-              type="checkbox" 
-              className="checkbox checkbox-sm flex-shrink-0 mt-0.5"
-              checked={isSelected}
-              onChange={() => onSelect(invoice.id)}
-            />
+            {/* 移动端增大触控区域 - 确保44px最小触控标准 */}
+            <label className={`
+              cursor-pointer flex items-center justify-center
+              ${device.isMobile ? 'min-w-[44px] min-h-[44px] -m-2 p-2' : 'p-1'}
+            `}>
+              <input 
+                type="checkbox" 
+                className={`checkbox ${device.isMobile ? 'checkbox-lg' : 'checkbox-sm'} flex-shrink-0`}
+                checked={isSelected}
+                onChange={() => onSelect(invoice.id)}
+              />
+            </label>
             <div className="flex flex-col gap-2 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-base flex-shrink-0">{getCategoryIcon(invoice)}</span>
@@ -323,15 +469,20 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                   </>
                 )}
                 
-                {/* 发票状态徽章 - 第三位显示，可点击切换 */}
+                {/* 发票状态徽章 - 第三位显示，可点击切换，移动端增大触控区域 */}
                 <div 
                   className={`
-                    badge ${getStatusBadge(currentStatus)} badge-sm font-medium h-5 
+                    badge ${getStatusBadge(currentStatus)} font-medium 
+                    ${device.isMobile ? 'badge-lg h-8 px-4 py-2 text-sm' : 'badge-sm h-5'}
                     ${onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus) 
-                      ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md' 
+                      ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md select-none' 
                       : ''
                     }
                     ${isUpdatingStatus ? 'animate-pulse' : ''}
+                    ${device.isMobile && onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus) 
+                      ? 'min-h-[44px] min-w-[80px] flex items-center justify-center' 
+                      : ''
+                    }
                   `}
                   onClick={handleStatusClick}
                   title={
@@ -353,35 +504,78 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             </div>
           </div>
           
-          {/* 操作菜单 */}
+          {/* 操作菜单 - 移动端优化触控体验 */}
           {showActions && (
             <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-circle">
-                <MoreVertical className="w-4 h-4" />
+              <div 
+                tabIndex={0} 
+                role="button" 
+                className={`
+                  btn btn-ghost btn-circle
+                  ${device.isMobile ? 'btn-lg min-h-[48px] min-w-[48px] p-3' : 'btn-sm'}
+                  ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
+                `}
+                title="更多操作"
+              >
+                <MoreVertical className={`${device.isMobile ? 'w-6 h-6' : 'w-4 h-4'}`} />
               </div>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
+              <ul tabIndex={0} className={`
+                dropdown-content z-[1] menu shadow bg-base-100 rounded-box
+                ${device.isMobile ? 'w-48 p-3' : 'w-36 p-2'}
+                ${device.isMobile ? 'border border-base-300' : ''}
+              `}>
                 <li>
-                  <button onClick={() => onView(invoice.id)} className="text-sm">
-                    <Eye className="w-3 h-3" />
-                    查看详情
+                  <button 
+                    onClick={() => onView(invoice.id)} 
+                    className={`
+                      flex items-center gap-3 w-full rounded-lg transition-colors
+                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
+                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
+                    `}
+                  >
+                    <Eye className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
+                    <span>查看详情</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={handlePrint} className="text-sm" disabled={!invoice.file_url}>
-                    <Printer className="w-3 h-3" />
-                    打印
+                  <button 
+                    onClick={handlePrint} 
+                    className={`
+                      flex items-center gap-3 w-full rounded-lg transition-colors
+                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
+                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
+                      ${!invoice.file_url ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                    disabled={!invoice.file_url}
+                  >
+                    <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
+                    <span>打印</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => onEdit(invoice)} className="text-sm">
-                    <Download className="w-3 h-3" />
-                    下载
+                  <button 
+                    onClick={() => onEdit(invoice)} 
+                    className={`
+                      flex items-center gap-3 w-full rounded-lg transition-colors
+                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
+                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
+                    `}
+                  >
+                    <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
+                    <span>下载</span>
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => onDelete(invoice)} className="text-sm text-error">
-                    <Trash2 className="w-3 h-3" />
-                    删除
+                  <button 
+                    onClick={() => onDelete(invoice)} 
+                    className={`
+                      flex items-center gap-3 w-full rounded-lg transition-colors text-error
+                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
+                      ${device.isMobile ? 'hover:bg-error/10 active:bg-error/20' : ''}
+                    `}
+                  >
+                    <Trash2 className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
+                    <span>删除</span>
                   </button>
                 </li>
               </ul>
@@ -390,8 +584,8 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
         </div>
 
 
-        {/* 主要信息 */}
-        <div className="space-y-3">
+        {/* 主要信息 - 移动端调整间距 */}
+        <div className={`${device.isMobile ? 'space-y-2' : 'space-y-3'}`}>
           {/* 销售方和购买方 */}
           <div className="grid grid-cols-1 gap-2">
             <div className="flex items-start gap-2 text-sm">

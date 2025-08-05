@@ -21,6 +21,15 @@ export interface DashboardStats {
   unreimbursed_amount: number
   reimbursed_amount: number
   
+  // 超期未报销统计
+  overdue_unreimbursed_count?: number
+  overdue_unreimbursed_amount?: number
+  oldest_unreimbursed_date?: string | null
+  
+  // 本月报销统计
+  monthly_reimbursed_count?: number
+  monthly_reimbursed_amount?: number
+  
   // 邮箱统计
   total_email_accounts: number
   active_email_accounts: number
