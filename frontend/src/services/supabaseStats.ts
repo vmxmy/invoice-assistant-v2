@@ -1,4 +1,4 @@
-import { supabase } from '../services/supabase'
+import { supabase } from '../lib/supabase'
 
 export interface MonthlyStats {
   month: string

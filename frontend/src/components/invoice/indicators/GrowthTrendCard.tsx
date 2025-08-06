@@ -1,142 +1,185 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { BaseIndicatorCard, StatItem, StatBadge } from './BaseIndicatorCard';
+import React, { useEffect, useState } from 'react';
+import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
+import { BaseIndicatorCard, StatBadge } from './BaseIndicatorCard';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
-import { AnimatedPercentage } from '../../ui/AnimatedNumber';
+import { AnimatedCurrency } from '../../ui/AnimatedNumber';
+import { SimpleLineChart, formatMonth, formatCurrency } from '../../ui/SimpleLineChart';
+import { supabaseStats, RecentMonthlyStats } from '../../../services/supabaseStats';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 interface GrowthTrendCardProps {
-  invoiceGrowthRate: number;
-  amountGrowthRate: number;
   loading?: boolean;
 }
 
-// 自定义趋势指示器组件
-interface TrendIndicatorProps {
-  value: number;
-  variant: 'success' | 'error' | 'default';
-}
-
-const TrendIndicator: React.FC<TrendIndicatorProps> = ({ value, variant }) => {
-  // 根据增长率生成5个柱状条的高度
-  const bars = Array.from({ length: 5 }, (_, i) => {
-    const position = i - 2; // -2, -1, 0, 1, 2
-    const absValue = Math.abs(value);
-    
-    // 根据值的大小决定哪些柱子应该高亮
-    let height = 20; // 默认最低高度
-    let isActive = false;
-    
-    if (value > 0 && position > 0) {
-      // 正增长，右侧柱子
-      height = position === 1 ? 40 : 60;
-      isActive = (position === 1 && absValue > 0) || (position === 2 && absValue > 20);
-    } else if (value < 0 && position < 0) {
-      // 负增长，左侧柱子
-      height = position === -1 ? 40 : 60;
-      isActive = (position === -1 && absValue > 0) || (position === -2 && absValue > 20);
-    } else if (position === 0) {
-      // 中间柱子始终显示
-      height = 30;
-      isActive = Math.abs(value) <= 5;
-    }
-    
-    return { height, isActive };
-  });
-  
-  const getBarColor = (isActive: boolean) => {
-    if (!isActive) return 'bg-base-300';
-    
-    switch (variant) {
-      case 'success': return 'bg-success';
-      case 'error': return 'bg-error';
-      default: return 'bg-base-content/30';
-    }
-  };
-  
-  return (
-    <div className="flex items-end gap-0.5 h-8">
-      {bars.map((bar, index) => (
-        <div
-          key={index}
-          className={`w-1.5 rounded-t transition-all duration-300 ${getBarColor(bar.isActive)}`}
-          style={{ height: `${bar.height}%` }}
-        />
-      ))}
-    </div>
-  );
-};
-
 export const GrowthTrendCard: React.FC<GrowthTrendCardProps> = ({
-  invoiceGrowthRate,
-  amountGrowthRate,
   loading = false
 }) => {
   const device = useDeviceDetection();
-  
-  const getGrowthVariant = (rate: number) => {
-    if (rate > 0) return 'success';
-    if (rate < 0) return 'error';
+  const { user } = useAuthContext();
+  const [monthlyData, setMonthlyData] = useState<RecentMonthlyStats[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [growthRate, setGrowthRate] = useState(0);
+
+  useEffect(() => {
+    const fetchMonthlyData = async () => {
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const data = await supabaseStats.getRecentMonthlyStats(user.id);
+        
+        // 获取当前年份
+        const currentYear = new Date().getFullYear();
+        
+        // 只筛选当前年度的数据
+        const currentYearData = data.filter(item => {
+          return item.month.startsWith(currentYear.toString());
+        });
+        
+        // 如果当前年度没有数据，创建12个月的空数据
+        if (currentYearData.length === 0) {
+          const emptyData = [];
+          for (let month = 1; month <= 12; month++) {
+            emptyData.push({
+              month: `${currentYear}-${month.toString().padStart(2, '0')}`,
+              invoice_count: 0,
+              total_amount: 0
+            });
+          }
+          setMonthlyData(emptyData);
+        } else {
+          // 补全当前年度所有月份的数据
+          const allMonths = [];
+          for (let month = 1; month <= 12; month++) {
+            const monthStr = `${currentYear}-${month.toString().padStart(2, '0')}`;
+            const existingData = currentYearData.find(item => item.month === monthStr);
+            
+            allMonths.push(existingData || {
+              month: monthStr,
+              invoice_count: 0,
+              total_amount: 0
+            });
+          }
+          
+          // 确保数据按时间顺序排列
+          const sortedData = allMonths.sort((a, b) => a.month.localeCompare(b.month));
+          setMonthlyData(sortedData);
+
+          // 计算总金额
+          const total = sortedData.reduce((sum, item) => sum + item.total_amount, 0);
+          setTotalAmount(total);
+
+          // 计算增长率（最近一个月与上个月比较）
+          const currentMonthIndex = new Date().getMonth(); // 0-11
+          if (currentMonthIndex > 0) {
+            const currentMonthData = sortedData[currentMonthIndex];
+            const previousMonthData = sortedData[currentMonthIndex - 1];
+            
+            if (previousMonthData.total_amount > 0) {
+              const rate = ((currentMonthData.total_amount - previousMonthData.total_amount) / previousMonthData.total_amount) * 100;
+              setGrowthRate(Math.round(rate));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('获取年度趋势数据失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMonthlyData();
+  }, [user?.id]);
+
+  const getGrowthIcon = () => {
+    if (growthRate > 0) return <TrendingUp className="w-5 h-5 text-success" />;
+    if (growthRate < 0) return <TrendingDown className="w-5 h-5 text-error" />;
+    return <Calendar className="w-5 h-5 text-primary" />;
+  };
+
+  const getGrowthVariant = () => {
+    if (growthRate > 0) return 'success';
+    if (growthRate < 0) return 'error';
     return 'default';
   };
-  
-  const getGrowthIcon = (rate: number) => {
-    if (rate > 5) return <TrendingUp className="w-5 h-5 text-success" />;
-    if (rate < -5) return <TrendingDown className="w-5 h-5 text-error" />;
-    return <Minus className="w-5 h-5 text-base-content/60" />;
-  };
-  
-  const formatRate = (rate: number) => {
-    return `${rate >= 0 ? '+' : ''}${rate}%`;
-  };
-  
-  // 选择主要展示的增长率（优先显示金额增长）
-  const primaryRate = amountGrowthRate;
-  const primaryVariant = getGrowthVariant(primaryRate);
-  
+
+  // 转换数据格式用于折线图
+  const chartData = monthlyData.map(item => ({
+    month: formatMonth(item.month),
+    amount: item.total_amount
+  }));
+
   return (
     <BaseIndicatorCard
-      icon={getGrowthIcon(primaryRate)}
-      title="本月趋势"
-      loading={loading}
-      variant={primaryVariant}
+      icon={getGrowthIcon()}
+      title="年度趋势"
+      loading={loading || isLoading}
+      variant={getGrowthVariant()}
     >
-      <div className="space-y-3">
-        {/* 趋势可视化 */}
-        <div className="flex items-center gap-4">
-          <TrendIndicator value={primaryRate} variant={primaryVariant} />
+      <div className="space-y-4">
+        {/* 主要指标 */}
+        <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <AnimatedPercentage 
-                value={primaryRate}
+              <AnimatedCurrency 
+                value={totalAmount}
                 className={`
                   font-mono tabular-nums font-bold
                   ${device.isMobile ? 'text-xl' : 'text-2xl'}
-                  ${primaryVariant === 'success' ? 'text-success' : 
-                    primaryVariant === 'error' ? 'text-error' : 'text-base-content'}
+                  text-primary
                 `}
-                enableAnimation={!loading}
+                enableAnimation={!loading && !isLoading}
               />
-              <span className="text-xs text-base-content/60">金额</span>
+            </div>
+            <div className="text-xs text-base-content/60 mt-1">
+              {new Date().getFullYear()}年度累计
             </div>
           </div>
+          
+          {growthRate !== 0 && (
+            <div className="text-right">
+              <div className={`
+                font-mono text-sm font-medium
+                ${growthRate > 0 ? 'text-success' : 'text-error'}
+              `}>
+                {growthRate > 0 ? '+' : ''}{growthRate}%
+              </div>
+              <div className="text-xs text-base-content/60">
+                月环比
+              </div>
+            </div>
+          )}
         </div>
-        
-        {/* 次要指标 */}
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-base-content/60">数量:</span>
-            <AnimatedPercentage 
-              value={invoiceGrowthRate}
-              className={`
-                font-medium font-mono
-                ${getGrowthVariant(invoiceGrowthRate) === 'success' ? 'text-success' : 
-                  getGrowthVariant(invoiceGrowthRate) === 'error' ? 'text-error' : 'text-base-content'}
-              `}
-              enableAnimation={!loading}
+
+        {/* 折线图 */}
+        <div className="pt-2">
+          {chartData.length > 0 ? (
+            <SimpleLineChart
+              data={chartData}
+              width={device.isMobile ? 260 : 280}
+              height={device.isMobile ? 50 : 60}
+              strokeColor="rgb(99, 102, 241)" // indigo-500
+              fillColor="rgba(99, 102, 241, 0.1)"
+              showDots={!device.isMobile}
             />
-          </div>
+          ) : (
+            <div className="flex items-center justify-center h-12">
+              <span className="text-xs text-base-content/40">暂无年度数据</span>
+            </div>
+          )}
+        </div>
+
+        {/* 底部信息 */}
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-base-content/60">
+            {new Date().getFullYear()}年 1-12月
+          </span>
           <StatBadge variant="default">
-            月同比
+            年度汇总
           </StatBadge>
         </div>
       </div>
