@@ -39,6 +39,7 @@ import { UrgentTodoCard } from '../components/invoice/indicators/UrgentTodoCard'
 import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
 import { OverdueInvoiceCard } from '../components/invoice/indicators/OverdueInvoiceCard'
 import { GrowthTrendCard } from '../components/invoice/indicators/GrowthTrendCard'
+import { MobileIndicatorGrid } from '../components/invoice/indicators/MobileIndicatorGrid'
 import Layout from '../components/layout/Layout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -1420,7 +1421,14 @@ export function InvoiceManagePage() {
 
         {/* 任务导向指标卡片 - 第一阶段实现 */}
         <section className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MobileIndicatorGrid>
+            {/* 资金回流卡 */}
+            <CashFlowCard
+              reimbursedAmount={stats?.reimbursed_amount || 0}
+              unreimbursedAmount={stats?.unreimbursed_amount || 0}
+              loading={statsLoading}
+            />
+            
             {/* 紧急待办卡 - 只显示未报销统计 */}
             <UrgentTodoCard
               unreimbursedCount={stats?.unreimbursed_count || 0}
@@ -1429,17 +1437,10 @@ export function InvoiceManagePage() {
               loading={statsLoading}
             />
             
-            {/* 资金回流卡 */}
-            <CashFlowCard
-              reimbursedAmount={stats?.reimbursed_amount || 0}
-              unreimbursedAmount={stats?.unreimbursed_amount || 0}
-              loading={statsLoading}
-            />
-            
             {/* 临期与超期发票卡 */}
             <OverdueInvoiceCard
-              dueSoonCount={stats?.due_soon_unreimbursed_count || 0}
-              dueSoonAmount={stats?.due_soon_unreimbursed_amount || 0}
+              dueSoonCount={Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0))}
+              dueSoonAmount={Math.max(0, (stats?.due_soon_unreimbursed_amount || 0) - (stats?.overdue_unreimbursed_amount || 0))}
               overdueCount={stats?.overdue_unreimbursed_count || 0}
               overdueAmount={stats?.overdue_unreimbursed_amount || 0}
               loading={statsLoading}
@@ -1451,7 +1452,7 @@ export function InvoiceManagePage() {
               amountGrowthRate={stats?.amount_growth_rate || 0}
               loading={statsLoading}
             />
-          </div>
+          </MobileIndicatorGrid>
         </section>
 
         {/* 控制区域 - 移动端响应式布局 */}

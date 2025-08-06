@@ -2,6 +2,7 @@ import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BaseIndicatorCard, StatItem, StatBadge } from './BaseIndicatorCard';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
+import { AnimatedPercentage } from '../../ui/AnimatedNumber';
 
 interface GrowthTrendCardProps {
   invoiceGrowthRate: number;
@@ -105,14 +106,16 @@ export const GrowthTrendCard: React.FC<GrowthTrendCardProps> = ({
           <TrendIndicator value={primaryRate} variant={primaryVariant} />
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <span className={`
-                font-mono tabular-nums font-bold
-                ${device.isMobile ? 'text-xl' : 'text-2xl'}
-                ${primaryVariant === 'success' ? 'text-success' : 
-                  primaryVariant === 'error' ? 'text-error' : 'text-base-content'}
-              `}>
-                {formatRate(primaryRate)}
-              </span>
+              <AnimatedPercentage 
+                value={primaryRate}
+                className={`
+                  font-mono tabular-nums font-bold
+                  ${device.isMobile ? 'text-xl' : 'text-2xl'}
+                  ${primaryVariant === 'success' ? 'text-success' : 
+                    primaryVariant === 'error' ? 'text-error' : 'text-base-content'}
+                `}
+                enableAnimation={!loading}
+              />
               <span className="text-xs text-base-content/60">金额</span>
             </div>
           </div>
@@ -122,13 +125,15 @@ export const GrowthTrendCard: React.FC<GrowthTrendCardProps> = ({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <span className="text-base-content/60">数量:</span>
-            <span className={`
-              font-medium font-mono
-              ${getGrowthVariant(invoiceGrowthRate) === 'success' ? 'text-success' : 
-                getGrowthVariant(invoiceGrowthRate) === 'error' ? 'text-error' : 'text-base-content'}
-            `}>
-              {formatRate(invoiceGrowthRate)}
-            </span>
+            <AnimatedPercentage 
+              value={invoiceGrowthRate}
+              className={`
+                font-medium font-mono
+                ${getGrowthVariant(invoiceGrowthRate) === 'success' ? 'text-success' : 
+                  getGrowthVariant(invoiceGrowthRate) === 'error' ? 'text-error' : 'text-base-content'}
+              `}
+              enableAnimation={!loading}
+            />
           </div>
           <StatBadge variant="default">
             月同比
