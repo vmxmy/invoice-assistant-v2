@@ -269,9 +269,10 @@ export function InvoiceManagePage() {
   const serverFilters = useMemo(() => {
     const filters = { ...searchFilters }
     
-    // 添加全局搜索到服务端筛选（在发票号、销售方、购买方中搜索）
+    // 添加全局搜索到服务端筛选（支持在发票号、销售方、购买方、含税金额中搜索）
     if (globalFilter) {
       // 使用模糊搜索，服务端会在多个字段中搜索
+      // 对于数字搜索，支持精确匹配和范围匹配
       filters.global_search = globalFilter
     }
     
@@ -1464,7 +1465,7 @@ export function InvoiceManagePage() {
                 <div className={`form-control ${device.isMobile ? 'w-full' : ''}`}>
                   <input
                     type="text"
-                    placeholder="搜索发票..."
+                    placeholder="搜索发票号、销售方、购买方或金额..."
                     className={`input input-bordered ${device.isMobile ? 'input-md w-full' : 'input-sm w-64'}`}
                     value={globalFilter || ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
