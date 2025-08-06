@@ -439,16 +439,9 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                 <span className="font-medium text-sm truncate">{invoice.invoice_number}</span>
               </div>
               
-              {/* 统一徽章行 - 发票类型、费用类别、发票状态 */}
+              {/* 统一徽章行 - 费用类别、发票状态 */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* 发票类型徽章 - 第一位显示 */}
-                {invoice.invoice_type && (
-                  <div className="badge badge-outline badge-sm font-medium h-5">
-                    <span className="truncate max-w-16">{invoice.invoice_type}</span>
-                  </div>
-                )}
-                
-                {/* 费用类别徽章 - 第二位显示，根据分类值使用不同背景颜色 */}
+                {/* 费用类别徽章 - 第一位显示，根据分类值使用不同背景颜色 */}
                 {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
                   <div 
                     className={getCategoryBadgeStyle(invoice).className}
@@ -469,7 +462,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                   </>
                 )}
                 
-                {/* 发票状态徽章 - 第三位显示，可点击切换，移动端增大触控区域 */}
+                {/* 发票状态徽章 - 第二位显示，可点击切换，移动端增大触控区域 */}
                 <div 
                   className={`
                     badge ${getStatusBadge(currentStatus)} font-medium 

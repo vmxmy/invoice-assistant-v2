@@ -6,6 +6,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
+import { useRecentActivities } from '../hooks/useRecentActivities'
 import { StatCardGrid } from '../components/dashboard/StatCard'
 import Layout from '../components/layout/Layout'
 import { 
@@ -20,6 +21,8 @@ export function DashboardPage() {
   const navigate = useNavigate()
   // 获取实时统计数据
   const { data: stats, loading: statsLoading, error: statsError, refresh } = useDashboardStats() as any
+  // 获取最近活动
+  const { data: activities, isLoading: activitiesLoading } = useRecentActivities(10)
 
   // 生成统计卡片数据
   const statCards = generateStatCards(stats)
@@ -31,11 +34,13 @@ export function DashboardPage() {
 
         {/* 主内容区 - 使用原生Tailwind Grid */}
         
-        {/* 欢迎区域 */}
-        <section className="text-center py-8 mb-12">
-          <h1 className="text-4xl font-bold mb-4">欢迎回来！</h1>
-          <p className="text-lg text-base-content/70 mb-2">{user?.email}</p>
-          <p className="text-base-content/50">开始管理您的发票数据</p>
+        {/* 欢迎区域 - 精简版 */}
+        <section className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold mb-1">欢迎回来！</h1>
+            <p className="text-sm text-base-content/60">{user?.email}</p>
+          </div>
+          <p className="text-sm text-base-content/50">开始管理您的发票数据</p>
         </section>
 
         {/* 统计数据网格 - 使用实时数据 */}
@@ -205,22 +210,44 @@ export function DashboardPage() {
         {/* 最近活动 - 单列布局 */}
         <section>
           <h2 className="text-2xl font-bold mb-6">最近活动</h2>
-          {/* 单个DaisyUI card组件 */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <div className="text-center py-12">
-                <div className="text-8xl mb-6 opacity-50">📝</div>
-                <h3 className="text-2xl font-bold mb-4">暂无活动记录</h3>
-                <p className="text-base-content/60 mb-6 max-w-md mx-auto">
-                  上传您的第一张发票开始使用吧！系统会自动记录您的操作历史。
-                </p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => navigate('/invoices/upload')}
-                >
-                  立即上传发票
-                </button>
-              </div>
+              {activitiesLoading ? (
+                <div className="flex justify-center py-12">
+                  <span className="loading loading-spinner loading-lg"></span>
+                </div>
+              ) : activities && activities.length > 0 ? (
+                <div className="space-y-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-4 p-4 rounded-lg hover:bg-base-200 transition-colors">
+                      <div className={`text-2xl ${activity.color}`}>
+                        {activity.icon}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{activity.title}</h4>
+                        <p className="text-sm text-base-content/70">{activity.description}</p>
+                        <p className="text-xs text-base-content/50 mt-1">
+                          {new Date(activity.timestamp).toLocaleString('zh-CN')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-8xl mb-6 opacity-50">📝</div>
+                  <h3 className="text-2xl font-bold mb-4">暂无活动记录</h3>
+                  <p className="text-base-content/60 mb-6 max-w-md mx-auto">
+                    上传您的第一张发票开始使用吧！系统会自动记录您的操作历史。
+                  </p>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => navigate('/invoices/upload')}
+                  >
+                    立即上传发票
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>

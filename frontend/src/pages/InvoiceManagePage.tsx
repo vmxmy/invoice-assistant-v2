@@ -1447,10 +1447,8 @@ export function InvoiceManagePage() {
               loading={statsLoading}
             />
 
-            {/* 增长趋势卡 */}
+            {/* 年度趋势卡 */}
             <GrowthTrendCard
-              invoiceGrowthRate={stats?.invoice_growth_rate || 0}
-              amountGrowthRate={stats?.amount_growth_rate || 0}
               loading={statsLoading}
             />
           </MobileIndicatorGrid>
@@ -1770,6 +1768,7 @@ export function InvoiceManagePage() {
         onClose={handleCloseModal}
         onSuccess={handleModalSuccess}
         mode={modalMode}
+        onModeChange={setModalMode}
       />
 
       {/* 删除确认模态框 */}

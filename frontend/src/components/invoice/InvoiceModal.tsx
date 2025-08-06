@@ -14,6 +14,7 @@ interface InvoiceModalProps {
   onClose: () => void
   onSuccess?: () => void
   mode: 'view' | 'edit'
+  onModeChange?: (mode: 'view' | 'edit') => void
 }
 
 export function InvoiceModal({
@@ -21,7 +22,8 @@ export function InvoiceModal({
   isOpen,
   onClose,
   onSuccess,
-  mode
+  mode,
+  onModeChange
 }: InvoiceModalProps) {
   const { user } = useAuthContext()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
@@ -29,6 +31,7 @@ export function InvoiceModal({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editedInvoice, setEditedInvoice] = useState<Partial<Invoice>>({})
+  const [internalMode, setInternalMode] = useState<'view' | 'edit'>(mode)
 
   // 获取发票详情
   const fetchInvoice = async () => {
@@ -81,8 +84,10 @@ export function InvoiceModal({
         throw new Error(updateError.message)
       }
 
+      // 保存成功后切换回查看模式
+      setInternalMode('view')
+      onModeChange?.('view')
       onSuccess?.()
-      onClose()
     } catch (err) {
       console.error('保存发票失败:', err)
       setError(err instanceof Error ? err.message : '保存发票失败')
@@ -104,8 +109,14 @@ export function InvoiceModal({
       setInvoice(null)
       setEditedInvoice({})
       setError(null)
+      setInternalMode(mode)
     }
-  }, [isOpen])
+  }, [isOpen, mode])
+  
+  // 同步外部mode变化
+  useEffect(() => {
+    setInternalMode(mode)
+  }, [mode])
 
   // 更新编辑状态
   const updateField = (field: keyof Invoice, value: any) => {
@@ -123,7 +134,7 @@ export function InvoiceModal({
       <div className="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-xl">
-            {mode === 'view' ? '👁️ 查看发票' : '✏️ 编辑发票'}
+            {internalMode === 'view' ? '👁️ 查看发票' : '✏️ 编辑发票'}
           </h3>
           <button
             className="btn btn-sm btn-circle btn-ghost"
@@ -155,8 +166,8 @@ export function InvoiceModal({
         {invoice && (
           <AdaptiveInvoiceFields
             invoice={invoice}
-            mode={mode}
-            editData={mode === 'edit' ? editedInvoice : undefined}
+            mode={internalMode}
+            editData={internalMode === 'edit' ? editedInvoice : undefined}
             onFieldChange={updateField}
             errors={{}}
           />
@@ -164,7 +175,7 @@ export function InvoiceModal({
 
         {/* 操作按钮 */}
         <div className="modal-action">
-          {mode === 'view' ? (
+          {internalMode === 'view' ? (
             <>
               <button
                 className="btn btn-ghost"
@@ -175,8 +186,8 @@ export function InvoiceModal({
               <button
                 className="btn btn-primary"
                 onClick={() => {
-                  // 这里可以切换到编辑模式
-                  console.log('切换到编辑模式')
+                  setInternalMode('edit')
+                  onModeChange?.('edit')
                 }}
               >
                 ✏️ 编辑
@@ -186,7 +197,12 @@ export function InvoiceModal({
             <>
               <button
                 className="btn btn-ghost"
-                onClick={onClose}
+                onClick={() => {
+                  setInternalMode('view')
+                  onModeChange?.('view')
+                  // 重置编辑数据
+                  setEditedInvoice(invoice || {})
+                }}
                 disabled={saving}
               >
                 取消
