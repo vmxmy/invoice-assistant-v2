@@ -357,8 +357,8 @@ export function InvoiceManagePage() {
   
   // 移动端强制使用卡片视图，桌面端默认使用表格视图
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    // 初始化时根据设备类型设置视图模式
-    return device.isMobile ? ViewMode.GRID : ViewMode.TABLE
+    // 默认使用卡片模式
+    return ViewMode.GRID
   })
   
   // 监听设备变化，移动端强制使用卡片视图，桌面端可切换
