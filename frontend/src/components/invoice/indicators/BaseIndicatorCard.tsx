@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
+import { Skeleton, IconSkeleton, TextSkeleton, NumberSkeleton } from '../../ui/Skeleton';
 
 export interface BaseIndicatorCardProps {
   // 标题部分
@@ -82,7 +83,7 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
         bg-base-100 border rounded-xl shadow-sm hover:shadow-md 
         transition-all duration-200 
         ${getVariantStyles()}
-        ${device.isMobile ? 'p-3' : 'p-4'}
+        ${device.isMobile ? 'p-4' : 'p-5'}
         ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}
         ${className}
       `}
@@ -101,7 +102,7 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
             )}
             <h3 className={`
               font-semibold text-base-content/80 truncate
-              ${device.isMobile ? 'text-sm' : 'text-sm'}
+              ${device.isMobile ? 'text-xs' : 'text-sm'}
             `}>
               {title}
             </h3>
@@ -110,10 +111,7 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
           {/* 内容区域 */}
           <div className="overflow-hidden">
             {loading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span className="text-xs text-base-content/60">加载中...</span>
-              </div>
+              <SkeletonContent />
             ) : (
               children
             )}
@@ -126,10 +124,10 @@ export const BaseIndicatorCard: React.FC<BaseIndicatorCardProps> = ({
             flex items-center justify-center rounded-lg 
             transition-all duration-200 flex-shrink-0 ml-3
             ${getActionButtonStyles()}
-            ${device.isMobile ? 'w-10 h-10' : 'w-9 h-9'}
+            ${device.isMobile ? 'w-8 h-8' : 'w-9 h-9'}
             hover:scale-110
           `}>
-            {actionIcon || <ArrowRight className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />}
+            {actionIcon || <ArrowRight className={`${device.isMobile ? 'w-4 h-4' : 'w-4 h-4'}`} />}
           </div>
         )}
       </div>
@@ -275,6 +273,40 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           {percentage}%
         </span>
       )}
+    </div>
+  );
+};
+
+// Skeleton content for loading state
+const SkeletonContent: React.FC = () => {
+  const device = useDeviceDetection();
+  
+  return (
+    <div className="space-y-3">
+      {/* Main number skeleton */}
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-3">
+          <NumberSkeleton size={device.isMobile ? 'lg' : 'xl'} />
+          <Skeleton className="h-3 w-12" />
+        </div>
+        
+        {/* Secondary info skeleton */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-4 w-20 rounded-full" />
+          </div>
+          
+          {/* Progress bar skeleton */}
+          <div className="space-y-1">
+            <Skeleton className="h-2 w-full rounded-full" />
+            <div className="flex justify-between">
+              <Skeleton className="h-3 w-14" />
+              <Skeleton className="h-3 w-10" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

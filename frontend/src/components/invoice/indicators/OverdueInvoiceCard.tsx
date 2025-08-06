@@ -3,6 +3,8 @@ import { Clock, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BaseIndicatorCard, StatItem, StatBadge, ProgressBar } from './BaseIndicatorCard';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
+import { AnimatedCount, AnimatedCurrency } from '../../ui/AnimatedNumber';
+import { usePercentageAnimation } from '../../../hooks/useNumberAnimation';
 
 interface OverdueInvoiceCardProps {
   dueSoonCount: number;
@@ -50,6 +52,12 @@ export const OverdueInvoiceCard: React.FC<OverdueInvoiceCardProps> = ({
   const urgencyScore = totalCount > 0 ? 
     ((overdueCount * 2 + dueSoonCount) / (totalCount * 2)) * 100 : 0;
   
+  // 使用动画钩子获取动画后的紧急程度
+  const { displayNumber: animatedUrgencyScore } = usePercentageAnimation(urgencyScore, {
+    enableAnimation: !loading,
+    duration: 1200
+  });
+  
   // 根据变体选择图标
   const icon = hasOverdue ? 
     <AlertTriangle className="w-5 h-5 text-error animate-pulse" /> : 
@@ -67,65 +75,75 @@ export const OverdueInvoiceCard: React.FC<OverdueInvoiceCardProps> = ({
       <div className="space-y-3">
         {hasAny ? (
           <>
-            {/* 紧急程度可视化 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-base-content/60">紧急程度</span>
-                <span className="font-medium">{Math.round(urgencyScore)}%</span>
-              </div>
-              <ProgressBar 
-                value={urgencyScore} 
-                variant={getVariant()}
-                className="h-2"
-              />
-            </div>
-            
             {/* 详细统计 */}
             <div className="space-y-2">
               {hasOverdue && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`
-                      font-mono tabular-nums font-bold text-error
-                      ${device.isMobile ? 'text-lg' : 'text-xl'}
-                    `}>
-                      {overdueCount}
-                    </span>
+                    <AnimatedCount 
+                      value={overdueCount}
+                      className={`
+                        font-mono tabular-nums font-bold text-error
+                        ${device.isMobile ? 'text-lg' : 'text-xl'}
+                      `}
+                      enableAnimation={!loading}
+                    />
                     <span className="text-xs text-error">张超期</span>
                   </div>
-                  <span className="text-sm font-medium text-error">
-                    {formatCurrency(overdueAmount)}
-                  </span>
+                  <AnimatedCurrency 
+                    value={overdueAmount}
+                    className="text-sm font-medium text-error"
+                    enableAnimation={!loading}
+                  />
                 </div>
               )}
               
               {hasDueSoon && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`
-                      font-mono tabular-nums font-bold text-warning
-                      ${device.isMobile ? 'text-lg' : 'text-xl'}
-                    `}>
-                      {dueSoonCount}
-                    </span>
+                    <AnimatedCount 
+                      value={dueSoonCount}
+                      className={`
+                        font-mono tabular-nums font-bold text-warning
+                        ${device.isMobile ? 'text-lg' : 'text-xl'}
+                      `}
+                      enableAnimation={!loading}
+                    />
                     <span className="text-xs text-warning">张临期</span>
                   </div>
-                  <span className="text-sm font-medium text-warning">
-                    {formatCurrency(dueSoonAmount)}
-                  </span>
+                  <AnimatedCurrency 
+                    value={dueSoonAmount}
+                    className="text-sm font-medium text-warning"
+                    enableAnimation={!loading}
+                  />
                 </div>
               )}
+            </div>
+            
+            {/* 紧急程度可视化 - 移到底部 */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-base-content/60">紧急程度</span>
+                <span className="font-medium">{Math.round(animatedUrgencyScore)}%</span>
+              </div>
+              <ProgressBar 
+                value={animatedUrgencyScore} 
+                variant={getVariant()}
+                className="h-2"
+              />
             </div>
           </>
         ) : (
           <div className="space-y-2">
             <div className="flex items-baseline gap-3">
-              <span className={`
-                font-mono tabular-nums font-bold text-success
-                ${device.isMobile ? 'text-2xl' : 'text-3xl'}
-              `}>
-                0
-              </span>
+              <AnimatedCount 
+                value={0}
+                className={`
+                  font-mono tabular-nums font-bold text-success
+                  ${device.isMobile ? 'text-2xl' : 'text-3xl'}
+                `}
+                enableAnimation={!loading}
+              />
               <span className="text-xs text-base-content/60">张需关注</span>
             </div>
             <StatBadge 

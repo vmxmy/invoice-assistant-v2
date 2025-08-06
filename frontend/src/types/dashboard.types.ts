@@ -22,6 +22,8 @@ export interface DashboardStats {
   reimbursed_amount: number
   
   // 临期未报销统计（60天）
+  // 注意：这个值包含了所有超过60天的发票，包括超过90天的
+  // 真正的60-90天临期发票数 = due_soon_unreimbursed_count - overdue_unreimbursed_count
   due_soon_unreimbursed_count?: number
   due_soon_unreimbursed_amount?: number
   

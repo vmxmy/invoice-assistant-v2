@@ -3,6 +3,7 @@ import { Clock, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BaseIndicatorCard, StatItem, StatBadge } from './BaseIndicatorCard';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
+import { AnimatedCount, AnimatedCurrency } from '../../ui/AnimatedNumber';
 
 interface UrgentTodoCardProps {
   unreimbursedCount: number;
@@ -54,18 +55,23 @@ export const UrgentTodoCard: React.FC<UrgentTodoCardProps> = ({
     >
       <div className="space-y-2">
         <div className="flex items-baseline gap-3">
-          <span className={`
-            font-mono tabular-nums font-bold text-warning
-            ${device.isMobile ? 'text-2xl' : 'text-3xl'}
-          `}>
-            {unreimbursedCount}
-          </span>
+          <AnimatedCount 
+            value={unreimbursedCount}
+            className={`
+              font-mono tabular-nums font-bold text-warning
+              ${device.isMobile ? 'text-2xl' : 'text-3xl'}
+            `}
+            enableAnimation={!loading}
+          />
           <span className="text-base-content/60 text-xs">张待处理</span>
         </div>
         
         <div className="space-y-1">
           <div className="text-base font-medium text-base-content/80">
-            {formatCurrency(unreimbursedAmount)}
+            <AnimatedCurrency 
+              value={unreimbursedAmount}
+              enableAnimation={!loading}
+            />
           </div>
           
           {daysAgo && (
