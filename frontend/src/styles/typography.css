@@ -3,9 +3,13 @@
    基于UI设计最佳实践，优化中英文混排体验
    ========================================= */
 
-/* 引入优质字体 */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+/* 引入优质字体 - 使用字节跳动静态资源CDN（国内访问稳定） */
+@import url('https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/inter-font/3.19.0/inter.css');
+@import url('https://fonts.font.im/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+/* 备用方案：如果CDN失效，可使用以下镜像 */
+/* @import url('https://npm.elemecdn.com/inter-ui@3.19.3/inter.css'); */
+/* @import url('https://chinese-fonts-cdn.deno.dev/packages/notosanssc/dist/NotoSansSC-Regular/result.css'); */
 
 /* ===========================================
    字体栈定义 - 优先级配置
