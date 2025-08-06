@@ -100,11 +100,9 @@ export class InvoiceService {
               const rangeMax = numericValue + 1
               searchConditions.push(`and(total_amount.gte.${numericValue},total_amount.lt.${rangeMax})`)
             }
-          } else {
-            // 对于非数字搜索，尝试在数字字段的文本表示中搜索
-            searchConditions.push(`total_amount::text.ilike.${search}`)
           }
           
+          // 对于非数字搜索，只在文本字段中搜索（发票号、销方名称、购方名称）
           query = query.or(searchConditions.join(','))
         }
         
