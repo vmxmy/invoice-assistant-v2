@@ -80,7 +80,32 @@ export class InvoiceService {
         // 全局搜索 - 在多个字段中搜索
         if (filters.global_search) {
           const search = `%${filters.global_search}%`
-          query = query.or(`invoice_number.ilike.${search},seller_name.ilike.${search},buyer_name.ilike.${search}`)
+          const searchValue = filters.global_search.trim()
+          
+          // 构建搜索条件数组
+          const searchConditions = [
+            `invoice_number.ilike.${search}`,
+            `seller_name.ilike.${search}`,
+            `buyer_name.ilike.${search}`
+          ]
+          
+          // 如果搜索内容是数字，则也在含税金额中搜索
+          const numericValue = parseFloat(searchValue)
+          if (!isNaN(numericValue) && numericValue > 0) {
+            // 对于数字搜索，支持精确匹配和范围匹配
+            searchConditions.push(`total_amount.eq.${numericValue}`)
+            
+            // 如果是整数，也允许范围匹配（比如搜索100可以匹配100-109.99）
+            if (Number.isInteger(numericValue)) {
+              const rangeMax = numericValue + 1
+              searchConditions.push(`and(total_amount.gte.${numericValue},total_amount.lt.${rangeMax})`)
+            }
+          } else {
+            // 对于非数字搜索，尝试在数字字段的文本表示中搜索
+            searchConditions.push(`total_amount::text.ilike.${search}`)
+          }
+          
+          query = query.or(searchConditions.join(','))
         }
         
         // 特定字段筛选
