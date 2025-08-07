@@ -8,7 +8,7 @@ import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { useRecentActivities } from '../hooks/useRecentActivities'
 import { StatCardGrid } from '../components/dashboard/StatCard'
-import Layout from '../components/layout/Layout'
+import CompactLayout from '../components/layout/CompactLayout'
 import { 
   CloudArrowUpIcon,
   DocumentTextIcon,
@@ -28,7 +28,7 @@ export function DashboardPage() {
   const statCards = generateStatCards(stats)
 
   return (
-    <Layout>
+    <CompactLayout compactMode="auto">
       <div className="page-container min-h-screen">
         <div className="container mx-auto p-6 max-w-7xl">
 
@@ -286,6 +286,6 @@ export function DashboardPage() {
 
         </div>
       </div>
-    </Layout>
+    </CompactLayout>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { 
   FileText, 
   Calendar, 
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
+import { useGestures } from '../../../hooks/useGestures';
 import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
 import { 
   extractTrainTicketInfo, 
@@ -126,28 +128,12 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
   
   // 设备检测 - 用于触控优化
   const device = useDeviceDetection();
-  
-  // 手势检测状态
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [isSwipeActive, setIsSwipeActive] = useState(false);
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
-  const [isLongPressing, setIsLongPressing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // 同步外部状态变化（实时订阅更新）
   useEffect(() => {
     setCurrentStatus(invoice.status);
   }, [invoice.status]);
-
-  // 清理长按定时器
-  useEffect(() => {
-    return () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-      }
-    };
-  }, [longPressTimer]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', {
@@ -296,126 +282,53 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     return '📄';
   };
 
-  // 长按处理函数
-  const handleLongPress = useCallback(() => {
-    if (device.isMobile) {
-      setIsLongPressing(true);
-      // 触发选择
-      onSelect(invoice.id);
-      // 添加触觉反馈（如果支持）
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-      // 清理定时器
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        setLongPressTimer(null);
-      }
-    }
-  }, [device.isMobile, invoice.id, onSelect, longPressTimer]);
-
-  // 手势处理函数
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!device.isMobile) return;
-    
-    const touch = e.touches[0];
-    setStartX(touch.clientX);
-    setStartY(touch.clientY);
-    setIsSwipeActive(true);
-    setIsLongPressing(false);
-    
-    // 启动长按计时器（500ms）
-    const timer = setTimeout(() => {
-      handleLongPress();
-    }, 500);
-    setLongPressTimer(timer);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!device.isMobile) return;
-    
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-    
-    // 如果移动距离超过阈值，取消长按和滑动
-    const moveDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    if (moveDistance > 10) {
-      // 取消长按
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        setLongPressTimer(null);
-      }
-      setIsLongPressing(false);
-      
-      // 如果垂直滑动距离大于水平滑动，取消滑动手势
-      if (Math.abs(deltaY) > Math.abs(deltaX)) {
-        setIsSwipeActive(false);
-      }
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!device.isMobile) return;
-    
-    // 清理长按定时器
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-    
-    // 如果是长按，不执行其他操作
-    if (isLongPressing) {
-      setIsLongPressing(false);
-      setIsSwipeActive(false);
-      return;
-    }
-    
-    if (!isSwipeActive) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-    
-    // 确保是水平滑动
-    if (Math.abs(deltaY) > Math.abs(deltaX)) {
-      setIsSwipeActive(false);
-      return;
-    }
-    
-    const minSwipeDistance = 50; // 最小滑动距离
-    
-    if (Math.abs(deltaX) > minSwipeDistance) {
-      if (deltaX > 0) {
-        // 右滑 - 标记为已报销
-        if (currentStatus === 'unreimbursed' && onStatusChange) {
-          handleStatusClick();
-        }
-      } else {
-        // 左滑 - 显示操作菜单或删除
-        if (cardRef.current) {
-          // 触发操作菜单
+  // 使用手势处理钩子
+  const { touchHandlers, gestureState } = useGestures(
+    {
+      onSwipeLeft: () => {
+        // 左滑 - 显示操作菜单
+        if (cardRef.current && device.isMobile) {
           const moreButton = cardRef.current.querySelector('[role="button"]') as HTMLElement;
           moreButton?.click();
         }
-      }
+      },
+      onSwipeRight: () => {
+        // 右滑 - 切换报销状态
+        if (currentStatus === 'unreimbursed' && onStatusChange && device.isMobile) {
+          handleStatusClick();
+        }
+      },
+      onLongPress: () => {
+        // 长按 - 选择卡片
+        if (device.isMobile) {
+          onSelect(invoice.id);
+        }
+      },
+    },
+    {
+      swipeThreshold: 60,
+      longPressDelay: 500,
+      preventScroll: true,
     }
-    
-    setIsSwipeActive(false);
-  };
+  );
 
   return (
-    <div 
+    <motion.div 
       ref={cardRef}
       className={`
         card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg 
         transition-all duration-200
         ${device.isMobile ? 'rounded-lg' : 'rounded-xl'}
         ${device.isMobile ? 'shadow-sm hover:shadow-md' : 'shadow hover:shadow-lg'}
+        ${gestureState.isLongPressing ? 'ring-2 ring-primary ring-opacity-50' : ''}
       `}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      {...(device.isMobile ? touchHandlers : {})}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      whileHover={{ scale: device.isMobile ? 1 : 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      layout
     >
       <div className={`card-body ${device.isMobile ? 'p-4' : 'p-4'}`}>
         {/* 顶部：选择框和发票类型 */}
@@ -759,7 +672,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
 
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

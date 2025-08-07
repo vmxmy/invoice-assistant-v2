@@ -4,6 +4,9 @@
 /* 引入组件样式 */
 @import "./styles/components.css";
 
+/* 引入紧凑UI样式 */
+@import "./styles/compact-ui.css";
+
 /* 引入主题系统 */
 /* @import "./styles/themes.css"; */
 
@@ -12,6 +15,9 @@
 
 /* 引入打印样式 */
 @import "./styles/print.css";
+
+/* 引入移动端优化样式 */
+@import "./styles/mobile.css";
 
 @import "tailwindcss";
 

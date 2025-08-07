@@ -40,7 +40,7 @@ import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
 import { OverdueInvoiceCard } from '../components/invoice/indicators/OverdueInvoiceCard'
 import { GrowthTrendCard } from '../components/invoice/indicators/GrowthTrendCard'
 import { MobileIndicatorGrid } from '../components/invoice/indicators/MobileIndicatorGrid'
-import Layout from '../components/layout/Layout'
+import CompactLayout from '../components/layout/CompactLayout'
 
 // 发票数据类型 - 基于invoice_management_view视图
 interface Invoice {
@@ -1375,7 +1375,7 @@ export function InvoiceManagePage() {
   // ).length
 
   return (
-    <Layout>
+    <CompactLayout compactMode="auto">
       <div className="page-container min-h-screen">
         {/* 页面状态指示器 */}
         <div className="container mx-auto p-6 max-w-7xl">
@@ -1818,7 +1818,7 @@ export function InvoiceManagePage() {
       />
         </div>
       </div>
-    </Layout>
+    </CompactLayout>
   )
 }
 
