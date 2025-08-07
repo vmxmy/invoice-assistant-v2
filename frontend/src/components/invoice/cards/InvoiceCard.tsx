@@ -119,7 +119,7 @@ interface InvoiceCardProps {
   statusComponent?: 'badge' | 'switch' | 'toggle'; // 控制使用哪种状态组件
 }
 
-export const InvoiceCard: React.FC<InvoiceCardProps> = ({
+const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
   invoice,
   isSelected,
   onSelect,
@@ -250,8 +250,24 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
         
         signedUrl = data.signedUrl;
       } else if (invoice.file_url) {
-        // 如果只有file_url，尝试直接使用（可能是公共URL）
-        signedUrl = invoice.file_url;
+        // 验证URL是否安全
+        try {
+          const url = new URL(invoice.file_url);
+          // 只允许http和https协议
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error('不支持的URL协议');
+          }
+          // 可选：验证域名白名单
+          // const allowedDomains = ['yourdomain.com', 'supabase.co'];
+          // if (!allowedDomains.some(domain => url.hostname.endsWith(domain))) {
+          //   throw new Error('不允许的域名');
+          // }
+          signedUrl = invoice.file_url;
+        } catch (urlError) {
+          console.error('URL验证失败:', urlError);
+          toast.error('PDF链接格式无效');
+          return;
+        }
       }
       
       if (!signedUrl) {
@@ -259,8 +275,8 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
         return;
       }
       
-      // 在新窗口中打开PDF文件，浏览器会自动显示打印选项
-      window.open(signedUrl, '_blank');
+      // 在新窗口中打开PDF文件，添加安全属性
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
       toast.success('已在新窗口中打开PDF文件');
       
     } catch (error) {
@@ -375,7 +391,9 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             cursor-pointer flex items-center justify-center flex-shrink-0 mt-1
             transition-compact hover:bg-primary/5 rounded-lg p-1
             ${isSelected ? 'bg-primary/10' : ''}
-          `}>
+          `}
+            aria-label={`选择发票 ${invoice.invoice_number}`}
+          >
             <input 
               type="checkbox" 
               className={`
@@ -386,6 +404,8 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
               `}
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
+              aria-checked={isSelected}
+              aria-describedby={`invoice-${invoice.id}-info`}
             />
           </label>
           
@@ -476,6 +496,10 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                     hover:bg-base-200 border border-base-300/50
                   `}
                   title="更多操作"
+                  aria-label={`发票 ${invoice.invoice_number} 的操作菜单`}
+                  role="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
                 >
                   <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
                 </label>
@@ -488,14 +512,19 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
                     ${device.isMobile ? 'w-52' : 'w-48'} z-[9998]
                     border border-base-300/50
                   `}
+                  role="menu"
+                  aria-labelledby={`menu-button-${invoice.id}`}
                 >
-                  <li>
+                  <li role="none">
                     <a 
                       onClick={() => onView(invoice.id)}
                       className={`
                         flex items-center gap-2 hover:bg-primary/10
                         ${device.isMobile ? 'py-3' : 'py-2'}
                       `}
+                      role="menuitem"
+                      tabIndex={0}
+                      aria-label="查看发票详情"
                     >
                       <Eye className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-primary`} />
                       <span>查看详情</span>
@@ -752,5 +781,18 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     </motion.div>
   );
 };
+
+// 使用React.memo优化性能，只在关键props变化时重新渲染
+export const InvoiceCard = React.memo(InvoiceCardComponent, (prevProps, nextProps) => {
+  // 自定义比较逻辑
+  return (
+    prevProps.invoice.id === nextProps.invoice.id &&
+    prevProps.invoice.status === nextProps.invoice.status &&
+    prevProps.invoice.updated_at === nextProps.invoice.updated_at &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.showActions === nextProps.showActions &&
+    prevProps.statusComponent === nextProps.statusComponent
+  );
+});
 
 export default InvoiceCard;
