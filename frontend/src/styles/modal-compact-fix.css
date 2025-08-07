@@ -1,0 +1,46 @@
+/* ==========================================
+   模态框紧凑设计系统 - 修复版本
+   统一所有模态框相关样式，避免冲突
+   ========================================== */
+
+/* 模态框底部操作栏 */
+.modal-footer-compact {
+  display: flex !important;
+  justify-content: flex-end !important; /* 确保内容右对齐 */
+  align-items: center !important;
+  padding: 12px 16px !important;
+  height: 56px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* 按钮组容器 */
+.modal-buttons-compact {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  /* 不需要设置 justify-content，让父容器控制对齐 */
+}
+
+/* 移动端响应式 */
+@media (max-width: 640px) {
+  .modal-footer-compact {
+    padding: 16px !important;
+  }
+  
+  .modal-buttons-compact {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  
+  .modal-buttons-compact .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

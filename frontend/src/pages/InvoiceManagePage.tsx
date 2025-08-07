@@ -40,6 +40,13 @@ import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
 import { OverdueInvoiceCard } from '../components/invoice/indicators/OverdueInvoiceCard'
 import { GrowthTrendCard } from '../components/invoice/indicators/GrowthTrendCard'
 import { MobileIndicatorGrid } from '../components/invoice/indicators/MobileIndicatorGrid'
+import { 
+  ResponsiveIndicatorSection,
+  createCashFlowIndicator,
+  createUrgentTodoIndicator,
+  createOverdueIndicator,
+  createGrowthIndicator
+} from '../components/invoice/indicators/ResponsiveIndicatorSection'
 import CompactLayout from '../components/layout/CompactLayout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -1420,38 +1427,34 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 任务导向指标卡片 - 第一阶段实现 */}
-        <section className="mb-8">
-          <MobileIndicatorGrid>
-            {/* 资金回流卡 */}
-            <CashFlowCard
-              reimbursedAmount={stats?.reimbursed_amount || 0}
-              unreimbursedAmount={stats?.unreimbursed_amount || 0}
-              loading={statsLoading}
-            />
-            
-            {/* 紧急待办卡 - 只显示未报销统计 */}
-            <UrgentTodoCard
-              unreimbursedCount={stats?.unreimbursed_count || 0}
-              unreimbursedAmount={stats?.unreimbursed_amount || 0}
-              oldestUnreimbursedDate={stats?.oldest_unreimbursed_date || undefined}
-              loading={statsLoading}
-            />
-            
-            {/* 临期与超期发票卡 */}
-            <OverdueInvoiceCard
-              dueSoonCount={Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0))}
-              dueSoonAmount={Math.max(0, (stats?.due_soon_unreimbursed_amount || 0) - (stats?.overdue_unreimbursed_amount || 0))}
-              overdueCount={stats?.overdue_unreimbursed_count || 0}
-              overdueAmount={stats?.overdue_unreimbursed_amount || 0}
-              loading={statsLoading}
-            />
-
-            {/* 年度趋势卡 */}
-            <GrowthTrendCard
-              loading={statsLoading}
-            />
-          </MobileIndicatorGrid>
+        {/* 任务导向指标卡片 - 响应式布局 */}
+        <section className="mb-6 sm:mb-8">
+          <ResponsiveIndicatorSection
+            title={device.isMobile ? '关键指标' : undefined}
+            loading={statsLoading}
+            indicators={[
+              createCashFlowIndicator(
+                stats?.reimbursed_amount || 0,
+                stats?.unreimbursed_amount || 0,
+                () => navigate('/dashboard')
+              ),
+              createUrgentTodoIndicator(
+                stats?.unreimbursed_count || 0,
+                stats?.unreimbursed_amount || 0,
+                () => setSearchFilters({ status: ['unreimbursed'] })
+              ),
+              createOverdueIndicator(
+                stats?.overdue_unreimbursed_count || 0,
+                Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0)),
+                () => setSearchFilters({ overdue: true })
+              ),
+              createGrowthIndicator(
+                stats?.current_month_amount || 0,
+                stats?.last_month_amount || 0,
+                () => navigate('/dashboard')
+              )
+            ]}
+          />
         </section>
 
         {/* 控制区域 - 移动端响应式布局 */}

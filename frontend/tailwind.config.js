@@ -86,16 +86,22 @@ export default {
           '100%': { transform: 'scale(1)' },
         },
       },
-      // 自定义阴影
+      // 自定义阴影 - 优化层次感
       boxShadow: {
-        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+        'soft': '0 4px 20px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.05)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'glow': '0 0 20px -5px rgba(59, 130, 246, 0.15)',
+        'glow-success': '0 0 20px -5px rgba(34, 197, 94, 0.15)',
+        'glow-warning': '0 0 20px -5px rgba(245, 158, 11, 0.15)',
+        'glow-error': '0 0 20px -5px rgba(239, 68, 68, 0.15)',
       },
-      // 自定义边框圆角
+      // 自定义边框圆角 - 现代化设计
       borderRadius: {
         'xl': '1rem',
         '2xl': '1.5rem',
         '3xl': '2rem',
+        '4xl': '2.5rem',
+        '5xl': '3rem',
       },
       // 屏幕断点
       screens: {

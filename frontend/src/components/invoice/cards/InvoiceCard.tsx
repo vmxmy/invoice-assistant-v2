@@ -17,6 +17,10 @@ import {
 import toast from 'react-hot-toast';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { useGestures } from '../../../hooks/useGestures';
+import { InvoiceStatusBadge, type InvoiceStatus } from '../InvoiceStatusBadge';
+import { InvoiceStatusSwitch } from '../InvoiceStatusSwitch';
+import { InvoiceStatusToggle } from '../InvoiceStatusToggle';
+import { useInvoiceStatuses } from '../../../hooks/useInvoiceStatuses';
 import { getCategoryIcon, getCategoryDisplayName, getCategoryBadgeStyle } from '../../../utils/categoryUtils';
 import { 
   extractTrainTicketInfo, 
@@ -33,6 +37,7 @@ import {
   isValidFlightTicket,
   isFlightTicketByCategory 
 } from '../../../utils/flightTicketUtils';
+import '../../../styles/compact-design-system.css';
 
 // 视图数据结构 - 来自 invoice_management_view
 interface Invoice {
@@ -111,6 +116,7 @@ interface InvoiceCardProps {
   onDelete: (invoice: Invoice) => void;
   onStatusChange?: (invoiceId: string, newStatus: string) => Promise<boolean>;
   showActions?: boolean;
+  statusComponent?: 'badge' | 'switch' | 'toggle'; // 控制使用哪种状态组件
 }
 
 export const InvoiceCard: React.FC<InvoiceCardProps> = ({
@@ -121,10 +127,29 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
-  showActions = true
+  showActions = true,
+  statusComponent = 'toggle' // 默认使用 toggle 组件
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(invoice.status);
+  
+  // 获取动态状态配置
+  const { getStatusConfig } = useInvoiceStatuses();
+  
+  // 动态初始化当前状态
+  const [currentStatus, setCurrentStatus] = useState<InvoiceStatus>(() => {
+    // 检查数据库中是否有此状态配置
+    const statusConfig = getStatusConfig(invoice.status);
+    if (statusConfig) {
+      return invoice.status;
+    }
+    
+    // 兼容旧系统的状态映射
+    if (invoice.status === 'unreimbursed') return 'pending';
+    if (invoice.status === 'reimbursed') return 'reimbursed';
+    
+    // 默认返回原状态或 pending
+    return invoice.status || 'pending';
+  });
   
   // 设备检测 - 用于触控优化
   const device = useDeviceDetection();
@@ -146,33 +171,33 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     return new Date(dateString).toLocaleDateString('zh-CN');
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      'unreimbursed': 'badge-warning',
-      'reimbursed': 'badge-success'
-    };
-    return statusMap[status as keyof typeof statusMap] || 'badge-neutral';
+  // 将旧状态映射到新的状态系统
+  const mapLegacyStatus = (status: string): InvoiceStatus => {
+    if (status === 'unreimbursed') return 'pending';
+    if (status === 'reimbursed') return 'reimbursed';
+    if (status === 'rejected') return 'rejected';
+    if (status === 'cancelled') return 'cancelled';
+    if (status === 'processing') return 'processing';
+    return 'pending';
   };
 
-  const getStatusText = (status: string) => {
-    const statusTextMap = {
-      'unreimbursed': '未报销',
-      'reimbursed': '已报销'
-    };
-    return statusTextMap[status as keyof typeof statusTextMap] || status.toUpperCase();
-  };
-
-  const handleStatusClick = async () => {
+  const handleStatusChange = async (newStatus: InvoiceStatus) => {
     if (!onStatusChange || isUpdatingStatus) return;
 
-    // 只允许在 unreimbursed 和 reimbursed 之间切换
-    if (!['unreimbursed', 'reimbursed'].includes(currentStatus)) {
-      toast.error('此状态不支持切换');
-      return;
-    }
-
-    const newStatus = currentStatus === 'unreimbursed' ? 'reimbursed' : 'unreimbursed';
     const oldStatus = currentStatus;
+    
+    // 获取状态配置以确定如何处理
+    const newStatusConfig = getStatusConfig(newStatus);
+    const statusLabel = newStatusConfig?.label || newStatus;
+    
+    // 映射新状态到旧系统（为了兼容性）
+    let legacyStatus = newStatus;
+    if (newStatus === 'pending') {
+      legacyStatus = 'unreimbursed';
+    } else if (newStatus === 'reimbursed') {
+      legacyStatus = 'reimbursed';
+    }
+    // 其他状态直接使用新状态值
 
     try {
       setIsUpdatingStatus(true);
@@ -181,10 +206,10 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
       setCurrentStatus(newStatus);
       
       // 调用后端API
-      const success = await onStatusChange(invoice.id, newStatus);
+      const success = await onStatusChange(invoice.id, legacyStatus);
       
       if (success) {
-        toast.success(`已${newStatus === 'reimbursed' ? '标记为已报销' : '标记为未报销'}`);
+        toast.success(`已标记为${statusLabel}`);
       } else {
         // 失败时回滚状态
         setCurrentStatus(oldStatus);
@@ -293,9 +318,14 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
         }
       },
       onSwipeRight: () => {
-        // 右滑 - 切换报销状态
-        if (currentStatus === 'unreimbursed' && onStatusChange && device.isMobile) {
-          handleStatusClick();
+        // 右滑 - 切换到下一个可用状态
+        if (onStatusChange && device.isMobile) {
+          const statusConfig = getStatusConfig(currentStatus);
+          if (statusConfig && statusConfig.can_transition_to && statusConfig.can_transition_to.length > 0) {
+            // 选择第一个可转换的状态
+            const nextStatus = statusConfig.can_transition_to[0];
+            handleStatusChange(nextStatus);
+          }
         }
       },
       onLongPress: () => {
@@ -316,211 +346,258 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
     <motion.div 
       ref={cardRef}
       className={`
-        card bg-base-100 border border-base-300 hover:border-primary/40 hover:shadow-lg 
-        transition-all duration-200
-        ${device.isMobile ? 'rounded-lg' : 'rounded-xl'}
-        ${device.isMobile ? 'shadow-sm hover:shadow-md' : 'shadow hover:shadow-lg'}
-        ${gestureState.isLongPressing ? 'ring-2 ring-primary ring-opacity-50' : ''}
+        invoice-card-compact transition-compact-slow focus-compact group relative
+        ${gestureState.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.02]' : ''}
+        ${isSelected ? 'selected' : ''}
       `}
       {...(device.isMobile ? touchHandlers : {})}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      whileHover={{ scale: device.isMobile ? 1 : 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      whileHover={{ 
+        scale: device.isMobile ? 1 : 1.005,
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+      whileTap={{ 
+        scale: 0.995,
+        transition: { duration: 0.1, ease: "easeInOut" }
+      }}
       layout
+      transition={{
+        layout: { duration: 0.2, ease: "easeInOut" }
+      }}
     >
-      <div className={`card-body ${device.isMobile ? 'p-4' : 'p-4'}`}>
-        {/* 顶部：选择框和发票类型 */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            {/* 移动端增大触控区域 - 确保44px最小触控标准 */}
-            <label className={`
-              cursor-pointer flex items-center justify-center
-              ${device.isMobile ? 'min-w-[44px] min-h-[44px] -m-2 p-2' : 'p-1'}
-            `}>
-              <input 
-                type="checkbox" 
-                className={`checkbox ${device.isMobile ? 'checkbox-lg' : 'checkbox-sm'} flex-shrink-0`}
-                checked={isSelected}
-                onChange={() => onSelect(invoice.id)}
-              />
-            </label>
-            <div className="flex flex-col gap-2 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-base flex-shrink-0">{getCategoryIcon(invoice)}</span>
-                <span className="font-medium text-sm truncate">{invoice.invoice_number}</span>
-              </div>
-              
-              {/* 统一徽章行 - 费用类别、发票状态 */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* 费用类别徽章 - 第一位显示，根据分类值使用不同背景颜色 */}
+      <div className="invoice-info-compact">
+        {/* 顶部：选择框、发票信息和操作菜单 - 改进布局结构 */}
+        <div className="relative flex items-start gap-3 mb-4">
+          {/* 左侧：选择框 */}
+          <label className={`
+            cursor-pointer flex items-center justify-center flex-shrink-0 mt-1
+            transition-compact hover:bg-primary/5 rounded-lg p-1
+            ${isSelected ? 'bg-primary/10' : ''}
+          `}>
+            <input 
+              type="checkbox" 
+              className={`
+                ${device.isMobile ? 'checkbox-compact-touch' : 'checkbox-compact'}
+                checkbox border-2 border-base-300/70 
+                checked:border-primary checked:bg-primary
+                focus-compact transition-compact flex-shrink-0
+              `}
+              checked={isSelected}
+              onChange={() => onSelect(invoice.id)}
+            />
+          </label>
+          
+          {/* 中间：发票主要信息区域 */}
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* 发票基础信息 - 简化只显示发票号码 */}
+            <div className="flex items-center">
+              <h3 className="font-semibold text-base text-base-content/90 truncate">
+                {invoice.invoice_number}
+              </h3>
+            </div>
+            
+            {/* 分类徽章和状态组件 - 改进间距和对齐 */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* 左侧：费用类别徽章 */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
-                  <div 
-                    className={getCategoryBadgeStyle(invoice).className}
+                  <div className={`
+                    badge-compact-sm inline-flex items-center gap-1.5
+                    ${getCategoryBadgeStyle(invoice).className}
+                    shadow-sm ring-1 ring-black/5 transition-compact
+                    hover:shadow-sm hover:scale-105
+                  `}
                     style={getCategoryBadgeStyle(invoice).style}
                   >
-                    <span className="text-xs">{getCategoryIcon(invoice)}</span>
-                    <span className="truncate max-w-20">{getCategoryDisplayName(invoice)}</span>
+                    <span className="text-current opacity-90 text-xs">{getCategoryIcon(invoice)}</span>
+                    <span className="truncate max-w-24 text-current">{getCategoryDisplayName(invoice)}</span>
                   </div>
                 ) : (
-                  <>
-                    <div className="badge badge-ghost badge-sm font-medium h-5 gap-1">
-                      <span className="text-xs">📄</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="badge-compact-xs inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
+                      <span className="opacity-70 text-xs">📄</span>
                       <span>未分类</span>
                     </div>
-                    <div className="badge badge-warning badge-outline badge-sm font-medium h-5">
+                    <div className="badge-compact-xs bg-warning/10 text-warning ring-1 ring-warning/20">
                       待分类
                     </div>
-                  </>
+                  </div>
                 )}
-                
-                {/* 发票状态徽章 - 第二位显示，可点击切换，移动端增大触控区域 */}
-                <div 
-                  className={`
-                    badge ${getStatusBadge(currentStatus)} font-medium 
-                    ${device.isMobile ? 'badge-lg h-8 px-4 py-2 text-sm' : 'badge-sm h-5'}
-                    ${onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus) 
-                      ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md select-none' 
-                      : ''
-                    }
-                    ${isUpdatingStatus ? 'animate-pulse' : ''}
-                    ${device.isMobile && onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus) 
-                      ? 'min-h-[44px] min-w-[80px] flex items-center justify-center' 
-                      : ''
-                    }
-                  `}
-                  onClick={handleStatusClick}
-                  title={
-                    onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus)
-                      ? `点击切换为${currentStatus === 'unreimbursed' ? '已报销' : '未报销'}`
-                      : '报销状态'
-                  }
-                >
-                  {isUpdatingStatus ? (
-                    <div className="flex items-center gap-1">
-                      <Loader2 className="w-2 h-2 animate-spin" />
-                      <span>更新中</span>
-                    </div>
-                  ) : (
-                    getStatusText(currentStatus)
-                  )}
-                </div>
+              </div>
+              
+              {/* 右侧：状态组件 */}
+              <div className="flex-shrink-0 ml-auto">
+                {statusComponent === 'toggle' ? (
+                  <InvoiceStatusToggle
+                    status={currentStatus}
+                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                    size="sm"
+                    disabled={!onStatusChange}
+                    loading={isUpdatingStatus}
+                  />
+                ) : statusComponent === 'switch' ? (
+                  <InvoiceStatusSwitch
+                    status={currentStatus}
+                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                    size="sm"
+                    disabled={!onStatusChange}
+                    loading={isUpdatingStatus}
+                  />
+                ) : (
+                  <InvoiceStatusBadge
+                    status={currentStatus}
+                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                    size="sm"
+                    interactive={!!onStatusChange}
+                    showDropdownArrow={true}
+                  />
+                )}
               </div>
             </div>
           </div>
           
-          {/* 操作菜单 - 移动端优化触控体验 */}
+          {/* 右侧：daisyUI原生分裂按钮组合 - 更符合设计系统 */}
           {showActions && (
-            <div className="dropdown dropdown-end">
-              <div 
-                tabIndex={0} 
-                role="button" 
-                className={`
-                  btn btn-ghost btn-circle
-                  ${device.isMobile ? 'btn-lg min-h-[48px] min-w-[48px] p-3' : 'btn-sm'}
-                  ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
-                `}
-                title="更多操作"
-              >
-                <MoreVertical className={`${device.isMobile ? 'w-6 h-6' : 'w-4 h-4'}`} />
+            <div className={`
+              absolute top-0 right-0
+              ${device.isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+              transition-opacity duration-300 ease-out
+            `}>
+              {/* 单独的三点菜单 - 不再使用按钮组 */}
+              <div className="dropdown dropdown-end">
+                {/* 三点菜单触发器 - 使用daisyUI的btn-square */}
+                <label 
+                  tabIndex={0} 
+                  className={`
+                    btn btn-ghost btn-square
+                    ${device.isMobile ? 'btn-md' : 'btn-sm'}
+                    hover:bg-base-200 border border-base-300/50
+                  `}
+                  title="更多操作"
+                >
+                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                </label>
+                
+                {/* DaisyUI原生菜单结构 */}
+                <ul 
+                  tabIndex={0} 
+                  className={`
+                    dropdown-content menu p-2 shadow bg-base-100 rounded-box
+                    ${device.isMobile ? 'w-52' : 'w-48'} z-[9998]
+                    border border-base-300/50
+                  `}
+                >
+                  <li>
+                    <a 
+                      onClick={() => onView(invoice.id)}
+                      className={`
+                        flex items-center gap-2 hover:bg-primary/10
+                        ${device.isMobile ? 'py-3' : 'py-2'}
+                      `}
+                    >
+                      <Eye className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-primary`} />
+                      <span>查看详情</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                      <a 
+                        onClick={handlePrint}
+                        className={`
+                          flex items-center gap-2 
+                          ${!invoice.file_url && !invoice.file_path ? 'opacity-50 cursor-not-allowed' : 'hover:bg-info/10'}
+                          ${device.isMobile ? 'py-3' : 'py-2'}
+                        `}
+                        disabled={!invoice.file_url && !invoice.file_path}
+                      >
+                        <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-info`} />
+                        <span>打印</span>
+                      </a>
+                    </li>
+                    
+                    <li>
+                      <a 
+                        onClick={() => onEdit(invoice)}
+                        className={`
+                          flex items-center gap-2 hover:bg-warning/10
+                          ${device.isMobile ? 'py-3' : 'py-2'}
+                        `}
+                      >
+                        <Edit className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
+                        <span>编辑</span>
+                      </a>
+                    </li>
+                    
+                    {/* daisyUI 分隔线 */}
+                    <div className="divider my-1"></div>
+                    
+                    <li>
+                      <a 
+                        onClick={() => {
+                          if (window.confirm('确定要删除这张发票吗？此操作无法撤销。')) {
+                            onDelete(invoice);
+                          }
+                        }}
+                        className={`
+                          flex items-center gap-2 text-error hover:bg-error/10
+                          ${device.isMobile ? 'py-3' : 'py-2'}
+                        `}
+                      >
+                        <Trash2 className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                        <span>删除</span>
+                      </a>
+                    </li>
+                  </ul>
               </div>
-              <ul tabIndex={0} className={`
-                dropdown-content z-[1] menu shadow bg-base-100 rounded-box
-                ${device.isMobile ? 'w-48 p-3' : 'w-36 p-2'}
-                ${device.isMobile ? 'border border-base-300' : ''}
-              `}>
-                <li>
-                  <button 
-                    onClick={() => onView(invoice.id)} 
-                    className={`
-                      flex items-center gap-3 w-full rounded-lg transition-colors
-                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
-                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
-                    `}
-                  >
-                    <Eye className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
-                    <span>查看详情</span>
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={handlePrint} 
-                    className={`
-                      flex items-center gap-3 w-full rounded-lg transition-colors
-                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
-                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
-                      ${!invoice.file_url ? 'opacity-50 cursor-not-allowed' : ''}
-                    `}
-                    disabled={!invoice.file_url}
-                  >
-                    <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
-                    <span>打印</span>
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => onEdit(invoice)} 
-                    className={`
-                      flex items-center gap-3 w-full rounded-lg transition-colors
-                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
-                      ${device.isMobile ? 'hover:bg-base-200 active:bg-base-300' : ''}
-                    `}
-                  >
-                    <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
-                    <span>下载</span>
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => onDelete(invoice)} 
-                    className={`
-                      flex items-center gap-3 w-full rounded-lg transition-colors text-error
-                      ${device.isMobile ? 'text-base py-4 px-4 min-h-[48px] font-medium' : 'text-sm py-2 px-3'}
-                      ${device.isMobile ? 'hover:bg-error/10 active:bg-error/20' : ''}
-                    `}
-                  >
-                    <Trash2 className={`${device.isMobile ? 'w-5 h-5' : 'w-3 h-3'} flex-shrink-0`} />
-                    <span>删除</span>
-                  </button>
-                </li>
-              </ul>
             </div>
           )}
         </div>
 
-
-        {/* 主要信息 - 移动端调整间距 */}
-        <div className={`${device.isMobile ? 'space-y-2' : 'space-y-3'}`}>
-          {/* 销售方和购买方 */}
-          <div className="grid grid-cols-1 gap-2">
-            <div className="flex items-start gap-2 text-sm">
-              <Building2 className="w-3 h-3 text-base-content/60 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <span className="text-base-content/60">销售方: </span>
-                <span className="font-medium break-all">{invoice.seller_name}</span>
+        {/* 信息内容区域 - 改进层次结构 */}
+        <div className="space-y-4">
+          {/* 企业信息卡片 - 简化设计 */}
+          {(invoice.seller_name || invoice.buyer_name) && (
+            <div className="bg-base-50/30 border border-base-200/50 rounded-lg p-3">
+              
+              <div className="grid gap-2">
+                {invoice.seller_name && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-3.5 h-3.5 text-primary/70" />
+                      <span className="text-xs text-base-content/60">销售方</span>
+                    </div>
+                    <span className="text-sm font-medium text-base-content/90 truncate max-w-40">
+                      {invoice.seller_name}
+                    </span>
+                  </div>
+                )}
+                
+                {invoice.buyer_name && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-accent/70" />
+                      <span className="text-xs text-base-content/60">购买方</span>
+                    </div>
+                    <span className="text-sm font-medium text-base-content/90 truncate max-w-40">
+                      {invoice.buyer_name}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <User className="w-3 h-3 text-base-content/60 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <span className="text-base-content/60">购买方: </span>
-                <span className="break-all">{invoice.buyer_name}</span>
-              </div>
-            </div>
-          </div>
+          )}
 
-          {/* 根据费用类别显示专有信息区域 */}
+          {/* 特殊票据信息区域 - 紧凑设计 */}
           {isTrainTicketByCategory(invoice) && (() => {
             const trainInfo = extractTrainTicketInfo(invoice);
             const isValid = isValidTrainTicket(trainInfo);
             
             if (!isValid || !trainInfo) {
               return (
-                <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-warning">⚠️ 火车票信息解析失败</span>
-                  </div>
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-2">
+                  <span className="text-xs text-warning">⚠️ 火车票信息解析失败</span>
                 </div>
               );
             }
@@ -529,34 +606,34 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             const route = formatTrainRoute(trainInfo.departureStation, trainInfo.arrivalStation);
             
             return (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="badge badge-info badge-sm">
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-2">
+                <div className="flex items-center gap-1 flex-wrap mb-1">
+                  <div className="badge-compact-xs badge badge-info">
                     <span className="text-xs">🕐</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-xs">
                       {trainInfo.departureTime && trainInfo.departureTimeDetail 
                         ? `${trainInfo.departureTime} ${trainInfo.departureTimeDetail}`
                         : trainInfo.departureTime || '时间未知'
                       }
                     </span>
                   </div>
-                  <div className="badge badge-outline badge-sm">
+                  <div className="badge-compact-xs badge badge-outline">
                     <span className="text-xs">🚩</span>
-                    <span className="font-medium">{route}</span>
+                    <span className="font-medium text-xs">{route}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="badge badge-primary badge-sm">
+                <div className="flex items-center gap-1 flex-wrap">
+                  <div className="badge-compact-xs badge badge-primary">
                     <span className="text-xs">🚄</span>
-                    <span className="font-medium">{trainInfo.trainNumber}</span>
+                    <span className="font-medium text-xs">{trainInfo.trainNumber}</span>
                   </div>
-                  <div className={`badge ${seatStyle.className} badge-sm`}>
+                  <div className={`badge-compact-xs badge ${seatStyle.className}`}>
                     <span className="text-xs">{seatStyle.icon}</span>
-                    <span className="font-medium">{trainInfo.seatType}</span>
+                    <span className="font-medium text-xs">{trainInfo.seatType}</span>
                   </div>
-                  <div className="badge badge-neutral badge-sm">
+                  <div className="badge-compact-xs badge badge-neutral">
                     <span className="text-xs">💺</span>
-                    <span className="font-medium">{trainInfo.seatNumber}</span>
+                    <span className="font-medium text-xs">{trainInfo.seatNumber}</span>
                   </div>
                 </div>
               </div>
@@ -569,47 +646,44 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
             
             if (!isValid || !flightInfo) {
               return (
-                <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-warning">⚠️ 飞机票信息解析失败</span>
-                  </div>
+                <div className="bg-warning/10 border border-warning/30 rounded-lg p-2">
+                  <span className="text-xs text-warning">⚠️ 飞机票信息解析失败</span>
                 </div>
               );
             }
             
             const seatClassStyle = getSeatClassStyle(flightInfo.seatClass);
-            const airlineStyle = getAirlineStyle(flightInfo.airline);
             const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
             
             return (
-              <div className="bg-info/10 border border-info/20 rounded-lg p-3 mb-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="badge badge-info badge-sm">
+              <div className="bg-info/10 border border-info/20 rounded-lg p-2">
+                <div className="flex items-center gap-1 flex-wrap mb-1">
+                  <div className="badge-compact-xs badge badge-info">
                     <span className="text-xs">🕐</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-xs">
                       {flightInfo.departureTime || '时间未知'}
                     </span>
                   </div>
-                  <div className="badge badge-outline badge-sm">
+                  <div className="badge-compact-xs badge badge-outline">
                     <span className="text-xs">✈️</span>
-                    <span className="font-medium">{route}</span>
+                    <span className="font-medium text-xs">{route}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="badge badge-primary badge-sm">
+                <div className="flex items-center gap-1 flex-wrap">
+                  <div className="badge-compact-xs badge badge-primary">
                     <span className="text-xs">✈️</span>
-                    <span className="font-medium">{flightInfo.flightNumber}</span>
+                    <span className="font-medium text-xs">{flightInfo.flightNumber}</span>
                   </div>
                   {flightInfo.seatClass && flightInfo.seatClass.trim() && (
-                    <div className={`badge ${seatClassStyle.className} badge-sm`}>
+                    <div className={`badge-compact-xs badge ${seatClassStyle.className}`}>
                       <span className="text-xs">{seatClassStyle.icon}</span>
-                      <span className="font-medium">{flightInfo.seatClass}</span>
+                      <span className="font-medium text-xs">{flightInfo.seatClass}</span>
                     </div>
                   )}
                   {flightInfo.seatNumber && (
-                    <div className="badge badge-neutral badge-sm">
+                    <div className="badge-compact-xs badge badge-neutral">
                       <span className="text-xs">💺</span>
-                      <span className="font-medium">{flightInfo.seatNumber}</span>
+                      <span className="font-medium text-xs">{flightInfo.seatNumber}</span>
                     </div>
                   )}
                 </div>
@@ -618,54 +692,57 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({
           })()}
           
           {invoice.invoice_type === '餐饮服务' && (
-            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-base-content/60">用餐信息：</span>
-                <div className="badge badge-warning badge-sm">
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-2">
+              <div className="flex items-center gap-1">
+                <span className="field-label">用餐：</span>
+                <div className="badge-compact-xs badge badge-warning">
                   <span className="text-xs">🍽️</span>
-                  <span className="font-medium">晚餐</span>
+                  <span className="font-medium text-xs">晚餐</span>
                 </div>
-                <span className="text-xs text-base-content/60">4人用餐</span>
-              </div>
-            </div>
-          )}
-          
-          {!isTrainTicketByCategory(invoice) && !isFlightTicketByCategory(invoice) && invoice.invoice_type !== '餐饮服务' && (
-            <div className="bg-base-100 border border-base-200 rounded-lg p-3 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-base-content/60">备注信息：</span>
-                <span className="text-sm font-medium">普通发票</span>
+                <span className="text-xs text-base-content/60">4人</span>
               </div>
             </div>
           )}
 
-          {/* 金额和日期 */}
-          <div className="bg-base-100 border border-base-200 rounded-lg p-3">
+          {/* 金额和日期信息卡片 - 突出显示 */}
+          <div className="bg-gradient-to-r from-success/5 to-primary/5 border border-success/20 rounded-lg p-4">
             <div className="flex items-center justify-between">
+              {/* 日期信息 */}
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-base-content/60" />
-                  <span className="text-sm font-medium">
-                    {`消费：${formatDate(invoice.consumption_date || invoice.created_at)}`}
+                  <Calendar className="w-3.5 h-3.5 text-info/70" />
+                  <span className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
+                    消费时间
                   </span>
                 </div>
+                <span className="text-sm font-semibold text-base-content/80">
+                  {formatDate(invoice.consumption_date || invoice.created_at)}
+                </span>
               </div>
-              <div className="flex flex-col items-end">
+              
+              {/* 金额信息 */}
+              <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-success" />
-                  <span className="font-bold text-lg text-success">
+                  <DollarSign className="w-3.5 h-3.5 text-success/70" />
+                  <span className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
+                    发票金额
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xl font-bold text-success">
                     {formatCurrency(
                       invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
                         ? parseFloat(invoice.extracted_data.structured_data.total_amount)
                         : (invoice.total_amount || invoice.amount || 0)
                     )}
                   </span>
+                  {invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount && (
+                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 bg-success/40 rounded-full"></div>
+                      <span className="text-xs text-success/70 font-medium">实际金额</span>
+                    </div>
+                  )}
                 </div>
-                {invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount && (
-                  <span className="text-xs text-base-content/50">
-                    实际金额
-                  </span>
-                )}
               </div>
             </div>
           </div>
