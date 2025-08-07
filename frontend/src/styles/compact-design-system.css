@@ -1,0 +1,986 @@
+/* 
+  紧凑设计系统 - 统一组件尺寸和间距标准
+  为发票管理系统提供一致的视觉体验
+*/
+
+/* ===== 基础间距系统 ===== */
+:root {
+  /* 间距标准 - 基于4px基准 */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem;  /* 8px */
+  --spacing-md: 0.75rem; /* 12px */
+  --spacing-lg: 1rem;    /* 16px */
+  --spacing-xl: 1.25rem; /* 20px */
+  --spacing-2xl: 1.5rem; /* 24px */
+  --spacing-3xl: 2rem;   /* 32px */
+
+  /* 组件高度标准 */
+  --height-xs: 1.5rem;  /* 24px */
+  --height-sm: 1.75rem; /* 28px */
+  --height-md: 2rem;    /* 32px */
+  --height-lg: 2.25rem; /* 36px */
+  --height-xl: 2.75rem; /* 44px - 移动端触控最小值 */
+
+  /* 圆角标准 */
+  --radius-xs: 0.25rem; /* 4px */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem;  /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem;    /* 16px */
+
+  /* 阴影层级 */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* ===== 发票卡片紧凑样式 ===== */
+.invoice-card-compact {
+  @apply bg-base-100 border border-base-200/60 rounded-xl;
+  @apply hover:border-primary/30 hover:shadow-md;
+  @apply transition-all duration-300 ease-out relative;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  min-height: auto;
+}
+
+@media (min-width: 1024px) {
+  .invoice-card-compact {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+  }
+}
+
+.invoice-card-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.invoice-card-compact.selected {
+  @apply border-primary/50 bg-primary/8;
+  box-shadow: 0 0 0 2px theme('colors.primary' / 0.15);
+}
+
+/* 卡片信息区域 */
+.invoice-info-compact {
+  @apply space-y-0; /* 移除默认间距，使用显式控制 */
+}
+
+/* 移动端适配 - 减少内边距和间距 */
+@media (max-width: 768px) {
+  .invoice-card-compact {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+}
+
+/* 移除不再使用的样式类 */
+
+.invoice-company-section-compact {
+  @apply bg-base-50/50 border border-base-200/40 rounded-lg;
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.invoice-amount-section-compact {
+  @apply bg-gradient-to-br from-success/5 to-primary/5;
+  @apply border border-success/20 rounded-lg;
+  padding: var(--spacing-lg);
+}
+
+/* 字段标签和值 */
+.invoice-field-compact {
+  @apply flex items-center justify-between;
+  min-height: var(--height-sm);
+}
+
+.field-label {
+  @apply text-xs font-medium text-base-content/60 uppercase tracking-wider;
+}
+
+.field-value {
+  @apply text-sm font-semibold text-base-content/90;
+}
+
+.field-value-large {
+  @apply text-lg font-bold text-success;
+}
+
+/* ===== 按钮系统 ===== */
+.btn-compact-xs {
+  height: var(--height-xs);
+  min-height: var(--height-xs);
+  @apply px-2 text-xs font-medium;
+  border-radius: var(--radius-sm);
+}
+
+.btn-compact-sm {
+  height: var(--height-sm);
+  min-height: var(--height-sm);
+  @apply px-3 text-xs font-medium;
+  border-radius: var(--radius-sm);
+}
+
+.btn-compact-md {
+  height: var(--height-md);
+  min-height: var(--height-md);
+  @apply px-4 text-sm font-medium;
+  border-radius: var(--radius-md);
+}
+
+.btn-compact-lg {
+  height: var(--height-lg);
+  min-height: var(--height-lg);
+  @apply px-5 text-sm font-medium;
+  border-radius: var(--radius-md);
+}
+
+.btn-compact-touch {
+  height: var(--height-xl);
+  min-height: var(--height-xl);
+  @apply px-6 text-base font-medium;
+  border-radius: var(--radius-lg);
+}
+
+/* ===== 徽章系统 ===== */
+.badge-compact-xs {
+  height: var(--height-xs);
+  @apply px-2 text-xs font-medium;
+  border-radius: var(--radius-xs);
+}
+
+.badge-compact-sm {
+  height: 1.25rem; /* 20px */
+  @apply px-2.5 text-xs font-medium;
+  border-radius: var(--radius-sm);
+}
+
+.badge-compact-md {
+  height: 1.5rem; /* 24px */
+  @apply px-3 text-sm font-medium;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== 输入框系统 ===== */
+.input-compact-xs {
+  height: var(--height-xs);
+  @apply px-2 text-xs;
+  border-radius: var(--radius-sm);
+}
+
+.input-compact-sm {
+  height: var(--height-sm);
+  @apply px-3 text-xs;
+  border-radius: var(--radius-sm);
+}
+
+.input-compact-md {
+  height: var(--height-md);
+  @apply px-4 text-sm;
+  border-radius: var(--radius-md);
+}
+
+.input-compact-touch {
+  height: var(--height-xl);
+  @apply px-4 text-base;
+  border-radius: var(--radius-lg);
+}
+
+/* ===== 选择框系统 ===== */
+.checkbox-compact {
+  @apply w-4 h-4;
+}
+
+.checkbox-compact-touch {
+  @apply w-6 h-6;
+}
+
+/* ===== 卡片系统 ===== */
+.card-compact {
+  @apply bg-base-100 border border-base-200 rounded-lg;
+  box-shadow: var(--shadow-xs);
+}
+
+.card-compact-sm {
+  padding: var(--spacing-md);
+}
+
+.card-compact-md {
+  padding: var(--spacing-lg);
+}
+
+.card-compact-lg {
+  padding: var(--spacing-xl);
+}
+
+.card-compact:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* ===== 响应式断点优化 ===== */
+@media (max-width: 768px) {
+  /* 移动端优化 */
+  .invoice-card-compact {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .invoice-info-compact {
+    @apply space-y-2;
+  }
+  
+  .invoice-header-compact {
+    gap: var(--spacing-sm);
+  }
+  
+  .invoice-main-info-compact {
+    gap: var(--spacing-sm);
+  }
+  
+  .invoice-meta-compact {
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+  }
+  
+  .invoice-company-section-compact,
+  .invoice-amount-section-compact {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (min-width: 1920px) {
+  /* 大屏幕适配 */
+  .invoice-card-compact {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+  }
+}
+
+/* ===== 状态组件统一化 ===== */
+.status-component-compact {
+  @apply inline-flex items-center gap-2 rounded-full;
+  @apply border-2 font-medium transition-all duration-300;
+  height: var(--height-md);
+  padding: 0 var(--spacing-md);
+  position: relative;
+}
+
+/* Toggle 状态组件样式 */
+.status-component-compact.toggle-style {
+  @apply border-0 bg-transparent rounded-lg;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  height: auto;
+  min-height: var(--height-md);
+}
+
+/* 确保下拉菜单层级正确 */
+.status-component-compact .dropdown,
+.status-component-compact .dropdown-content {
+  position: relative;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .status-component-compact {
+    height: var(--height-lg);
+    padding: 0 var(--spacing-lg);
+  }
+}
+
+/* ===== 图标统一尺寸 ===== */
+.icon-xs { @apply w-3 h-3; }
+.icon-sm { @apply w-4 h-4; }
+.icon-md { @apply w-5 h-5; }
+.icon-lg { @apply w-6 h-6; }
+
+/* ===== 动画和过渡 ===== */
+.transition-compact {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.transition-compact-slow {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* ===== 工具类 ===== */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.aspect-invoice {
+  aspect-ratio: 3 / 2;
+}
+
+/* ===== 加载状态 ===== */
+.skeleton-compact {
+  @apply animate-pulse bg-base-200 rounded;
+}
+
+.skeleton-text {
+  @apply skeleton-compact h-4 w-3/4;
+}
+
+.skeleton-text-sm {
+  @apply skeleton-compact h-3 w-1/2;
+}
+
+/* ===== 三个点操作菜单专用样式 ===== */
+.more-menu-button {
+  @apply relative;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.05) 100%);
+  backdrop-filter: blur(2px);
+}
+
+.more-menu-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    rgba(var(--primary-rgb, 59, 130, 246), 0.2) 0%, 
+    transparent 50%,
+    rgba(var(--primary-rgb, 59, 130, 246), 0.1) 100%
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.more-menu-button:hover::before {
+  opacity: 1;
+}
+
+/* 优化的主按钮样式 - 混合模式设计 */
+.invoice-card-compact .btn-primary {
+  backdrop-filter: blur(4px);
+  position: relative;
+}
+
+.invoice-card-compact .btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+/* ==========================================
+   按钮紧凑设计系统
+   ========================================== */
+
+/* 按钮基础紧凑样式 */
+.btn-compact {
+  padding: var(--spacing-xs) var(--spacing-md);
+  height: var(--height-md);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-compact);
+  font-weight: 500;
+}
+
+/* 按钮尺寸变体 - 紧凑版本 */
+.btn-compact-xs {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  height: var(--height-xs);
+  font-size: 0.75rem;
+  min-width: 3rem;
+}
+
+.btn-compact-sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  height: var(--height-sm);
+  font-size: 0.8125rem;
+  min-width: 4rem;
+}
+
+.btn-compact-md {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  height: var(--height-md);
+  font-size: 0.875rem;
+  min-width: 5rem;
+}
+
+.btn-compact-lg {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  height: var(--height-lg);
+  font-size: 0.9375rem;
+  min-width: 6rem;
+}
+
+/* 移动端触控优化按钮 */
+.btn-compact-touch {
+  padding: var(--spacing-md) var(--spacing-lg);
+  height: var(--height-xl);
+  font-size: 0.9375rem;
+  min-width: 5rem;
+}
+
+/* 图标按钮紧凑样式 */
+.btn-icon-compact {
+  padding: var(--spacing-xs);
+  width: var(--height-md);
+  height: var(--height-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-compact.btn-xs {
+  width: var(--height-xs);
+  height: var(--height-xs);
+}
+
+.btn-icon-compact.btn-sm {
+  width: var(--height-sm);
+  height: var(--height-sm);
+}
+
+.btn-icon-compact.btn-lg {
+  width: var(--height-lg);
+  height: var(--height-lg);
+}
+
+/* 方形按钮紧凑样式 */
+.btn-square-compact {
+  padding: 0;
+  width: var(--height-md);
+  height: var(--height-md);
+  min-width: unset;
+}
+
+.btn-square-compact.btn-xs {
+  width: var(--height-xs);
+  height: var(--height-xs);
+}
+
+.btn-square-compact.btn-sm {
+  width: var(--height-sm);
+  height: var(--height-sm);
+}
+
+.btn-square-compact.btn-lg {
+  width: var(--height-lg);
+  height: var(--height-lg);
+}
+
+/* 按钮组紧凑样式 */
+.btn-group-compact {
+  gap: 0;
+}
+
+.btn-group-compact > .btn {
+  border-radius: 0;
+  margin-left: -1px;
+}
+
+.btn-group-compact > .btn:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  margin-left: 0;
+}
+
+.btn-group-compact > .btn:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* 全局按钮覆盖 - 应用紧凑样式到所有daisyUI按钮 */
+.compact-mode .btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  height: var(--height-md);
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  transition: all var(--transition-compact);
+}
+
+.compact-mode .btn-xs {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  height: var(--height-xs);
+  font-size: 0.75rem;
+}
+
+.compact-mode .btn-sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  height: var(--height-sm);
+  font-size: 0.8125rem;
+}
+
+.compact-mode .btn-lg {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  height: var(--height-lg);
+  font-size: 0.9375rem;
+}
+
+/* 按钮内图标间距优化 */
+.compact-mode .btn .lucide,
+.compact-mode .btn svg {
+  width: 1em;
+  height: 1em;
+  margin-right: var(--spacing-xs);
+}
+
+.compact-mode .btn.btn-sm .lucide,
+.compact-mode .btn.btn-sm svg {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+.compact-mode .btn.btn-xs .lucide,
+.compact-mode .btn.btn-xs svg {
+  width: 0.75em;
+  height: 0.75em;
+}
+
+/* 按钮悬停和焦点状态优化 */
+.compact-mode .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.compact-mode .btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.compact-mode .btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* 禁用状态样式 */
+.compact-mode .btn:disabled,
+.compact-mode .btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==========================================
+   模态框紧凑设计系统
+   ========================================== */
+
+/* 模态框容器 - 响应式尺寸 */
+.modal-box-compact {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 移动端：全屏模态框 */
+@media (max-width: 767px) {
+  .modal-box-compact {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* 平板端：85vh高度 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .modal-box-compact {
+    max-width: 48rem;
+    height: 85vh;
+    max-height: 85vh;
+  }
+}
+
+/* 桌面端：80vh高度 */
+@media (min-width: 1024px) {
+  .modal-box-compact {
+    max-width: 56rem;
+    height: 80vh;
+    max-height: 80vh;
+  }
+}
+
+/* 模态框标题栏 - 固定高度 */
+.modal-header-compact {
+  padding: var(--spacing-md) var(--spacing-lg);
+  height: var(--height-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+/* 模态框内容区 - 可滚动 */
+.modal-content-compact {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  min-height: 0; /* 允许收缩 */
+}
+
+/* 模态框底部操作栏 - 固定高度 */
+/* 注释掉，使用modal-compact-fix.css中的定义
+.modal-footer-compact {
+  padding: var(--spacing-md) var(--spacing-lg);
+  height: calc(var(--height-xl) + var(--spacing-md));
+  flex-shrink: 0;
+}
+*/
+
+/* 按钮组布局 - 强制右对齐 */
+/* 注释掉，使用modal-compact-fix.css中的定义
+.modal-buttons-compact {
+  display: flex !important;
+  gap: var(--spacing-sm);
+  justify-content: flex-end !important;
+  align-items: center;
+  width: 100%;
+}
+*/
+
+/* 移动端按钮全宽布局 */
+/* 注释掉，使用modal-compact-fix.css中的定义
+@media (max-width: 640px) {
+  .modal-buttons-compact {
+    flex-direction: column-reverse;
+    gap: var(--spacing-xs);
+  }
+  
+  .modal-buttons-compact .btn {
+    width: 100%;
+  }
+}
+*/
+
+/* 加载状态样式 */
+.modal-loading-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) 0;
+  min-height: 200px;
+}
+
+/* 错误状态样式 */
+.modal-error-compact {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+/* 滚动条样式优化 */
+.modal-content-compact::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content-compact::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-content-compact::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+.modal-content-compact::-webkit-scrollbar-thumb:hover {
+  background-color: var(--border-hover-color);
+}
+
+/* 移动端优化 - 更大的触控区域 */
+@media (max-width: 768px) {
+  .more-menu-button {
+    /* 增加触控区域但不改变视觉尺寸 */
+    position: relative;
+  }
+  
+  .more-menu-button::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    bottom: -8px;
+    left: -8px;
+    z-index: -1;
+  }
+}
+
+/* 辅助视觉提示 - 微妙的图标增强 */
+.more-menu-icon {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.more-menu-button:hover .more-menu-icon {
+  filter: drop-shadow(0 2px 4px rgba(var(--primary-rgb, 59, 130, 246), 0.3));
+  transform: rotate(90deg);
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .more-menu-button {
+    @apply border-2 border-base-content/30;
+    background: var(--fallback-b1, oklch(var(--b1)));
+  }
+  
+  .more-menu-button:hover {
+    @apply border-primary bg-primary/10;
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .more-menu-button,
+  .more-menu-icon {
+    transition: none;
+    animation: none;
+  }
+  
+  .more-menu-button:hover .more-menu-icon {
+    transform: none;
+  }
+}
+
+/* ===== 无障碍优化 ===== */
+.focus-compact:focus {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+.focus-compact:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+/* ===== 模态框系统 ===== */
+.modal-compact {
+  @apply modal modal-open;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-box-compact {
+  @apply bg-base-100 border border-base-200/60 shadow-2xl;
+  @apply rounded-xl overflow-hidden;
+  
+  /* 响应式尺寸 */
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  
+  /* 移除默认样式 */
+  transform: none;
+  top: auto;
+  left: auto;
+}
+
+@media (min-width: 768px) {
+  .modal-box-compact {
+    width: 95vw;
+    height: 85vh;
+    max-width: 48rem; /* 768px */
+    max-height: 85vh;
+    margin: auto;
+    border-radius: var(--radius-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .modal-box-compact {
+    width: 90vw;
+    height: 80vh;
+    max-width: 56rem; /* 896px */
+    max-height: 80vh;
+  }
+}
+
+.modal-header-compact {
+  @apply flex items-center justify-between;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid rgba(var(--bc), 0.1);
+  background: linear-gradient(135deg, var(--b1) 0%, rgba(var(--b1), 0.95) 100%);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modal-title-compact {
+  @apply text-lg font-semibold flex items-center gap-3;
+  color: rgba(var(--bc), 0.9);
+}
+
+.modal-title-icon {
+  @apply w-5 h-5 text-primary;
+}
+
+.modal-content-compact {
+  padding: var(--spacing-md) var(--spacing-xl);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 注释掉，使用modal-compact-fix.css中的定义
+.modal-footer-compact {
+  @apply flex items-center justify-end gap-3;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-top: 1px solid rgba(var(--bc), 0.1);
+  background: rgba(var(--b1), 0.8);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+*/
+
+/* 模态框状态指示器 */
+.modal-status-compact {
+  @apply inline-flex items-center gap-2;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.modal-status-view {
+  @apply bg-info/10 text-info;
+}
+
+.modal-status-edit {
+  @apply bg-warning/10 text-warning;
+}
+
+/* 关闭按钮优化 */
+.modal-close-compact {
+  @apply btn btn-ghost btn-circle;
+  width: var(--height-lg);
+  height: var(--height-lg);
+  min-height: var(--height-lg);
+  background: rgba(var(--b2), 0.6);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(var(--bc), 0.1);
+}
+
+.modal-close-compact:hover {
+  @apply bg-error/10 border-error/20;
+  transform: rotate(90deg);
+}
+
+/* 加载状态优化 */
+.modal-loading-compact {
+  @apply flex flex-col items-center justify-center;
+  min-height: 200px;
+  gap: var(--spacing-lg);
+}
+
+.modal-loading-spinner {
+  @apply w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin;
+}
+
+.modal-loading-text {
+  @apply text-sm text-base-content/60 animate-pulse;
+}
+
+/* 错误状态优化 */
+.modal-error-compact {
+  @apply bg-error/5 border border-error/20 rounded-lg;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.modal-error-title {
+  color: var(--error);
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.modal-error-message {
+  color: rgb(var(--error) / 0.8);
+  font-size: 0.75rem;
+}
+
+/* 按钮组优化 - 已在上面定义 */
+
+.modal-button-secondary {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  height: var(--height-md);
+  font-size: 0.875rem;
+  border: 1px solid rgba(var(--bc), 0.15);
+}
+
+.modal-button-primary {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  height: var(--height-md);
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.modal-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .modal-header-compact,
+  .modal-content-compact {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+  
+  .modal-header-compact {
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+  
+  /* 注释掉，使用modal-compact-fix.css中的定义
+  .modal-footer-compact {
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+  
+  .modal-buttons-compact {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: var(--spacing-xs) !important;
+  }
+  
+  .modal-buttons-compact .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    height: var(--height-xl);
+  }
+  */
+}
+
+/* 键盘导航支持 */
+.modal-compact:focus-within .modal-close-compact {
+  @apply ring-2 ring-primary/30;
+}
+
+/* ===== 打印优化 ===== */
+@media print {
+  .invoice-card-compact {
+    @apply shadow-none border border-gray-300;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .btn-compact-xs,
+  .btn-compact-sm,
+  .btn-compact-md,
+  .btn-compact-lg,
+  .btn-compact-touch {
+    @apply hidden;
+  }
+  
+  .modal-compact {
+    @apply hidden;
+  }
+}

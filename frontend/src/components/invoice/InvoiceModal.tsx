@@ -1,11 +1,13 @@
 /**
  * 发票查看和编辑模态框
  * 支持查看详情和编辑发票信息
+ * 采用紧凑型布局设计系统
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuthContext } from '../../contexts/AuthContext'
 import { AdaptiveInvoiceFields } from './fields/AdaptiveInvoiceFields'
+import { Eye, Edit, Save, X, Loader2 } from 'lucide-react'
 import type { Invoice } from '../../types'
 
 interface InvoiceModalProps {
@@ -126,107 +128,157 @@ export function InvoiceModal({
     }))
   }
 
+  // 键盘快捷键处理
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // ESC - 关闭模态框
+    if (e.key === 'Escape') {
+      onClose()
+    }
+    // Ctrl+S - 保存编辑
+    if (e.ctrlKey && e.key === 's' && internalMode === 'edit') {
+      e.preventDefault()
+      handleSave()
+    }
+    // Ctrl+E - 切换到编辑模式
+    if (e.ctrlKey && e.key === 'e' && internalMode === 'view') {
+      e.preventDefault()
+      setInternalMode('edit')
+      onModeChange?.('edit')
+    }
+  }, [internalMode, onClose, onModeChange])
+
+  // 注册键盘事件
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, handleKeyDown])
 
   if (!isOpen) return null
 
   return (
-    <div className="modal modal-open">
-      <div className="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-bold text-xl">
-            {internalMode === 'view' ? '👁️ 查看发票' : '✏️ 编辑发票'}
-          </h3>
+    <div className="modal modal-open modal-compact">
+      <div className="modal-box modal-box-compact">
+        {/* 固定标题栏 - 紧凑设计 */}
+        <div className="modal-header-compact sticky top-0 z-10 bg-base-100 border-b border-base-200">
+          <div className="flex items-center gap-2">
+            {internalMode === 'view' ? (
+              <Eye className="w-4 h-4 text-primary" />
+            ) : (
+              <Edit className="w-4 h-4 text-warning" />
+            )}
+            <h3 className="font-semibold text-base">
+              {internalMode === 'view' ? '查看发票详情' : '编辑发票信息'}
+            </h3>
+            {internalMode === 'view' && (
+              <span className="badge badge-outline badge-sm">只读</span>
+            )}
+            {internalMode === 'edit' && (
+              <span className="badge badge-warning badge-sm">编辑中</span>
+            )}
+          </div>
           <button
-            className="btn btn-sm btn-circle btn-ghost"
+            className="btn btn-circle btn-ghost btn-compact-sm"
             onClick={onClose}
+            title="关闭 (ESC)"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Loading状态 */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="loading loading-spinner loading-lg"></div>
-            <p className="mt-4">正在加载发票详情...</p>
-          </div>
-        )}
-
-        {/* 错误状态 */}
-        {error && (
-          <div className="alert alert-error mb-6">
-            <div>
-              <h3 className="font-bold">操作失败</h3>
-              <div className="text-sm">{error}</div>
+        {/* 内容区域 - 可滚动 */}
+        <div className="modal-content-compact">
+          {/* Loading状态 - 紧凑设计 */}
+          {loading && (
+            <div className="modal-loading-compact">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-sm text-base-content/60 mt-2">加载中...</p>
             </div>
-          </div>
-        )}
-
-        {/* 发票详情 - 使用自适应字段组件 */}
-        {invoice && (
-          <AdaptiveInvoiceFields
-            invoice={invoice}
-            mode={internalMode}
-            editData={internalMode === 'edit' ? editedInvoice : undefined}
-            onFieldChange={updateField}
-            errors={{}}
-          />
-        )}
-
-        {/* 操作按钮 */}
-        <div className="modal-action">
-          {internalMode === 'view' ? (
-            <>
-              <button
-                className="btn btn-ghost"
-                onClick={onClose}
-              >
-                关闭
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setInternalMode('edit')
-                  onModeChange?.('edit')
-                }}
-              >
-                ✏️ 编辑
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className="btn btn-ghost"
-                onClick={() => {
-                  setInternalMode('view')
-                  onModeChange?.('view')
-                  // 重置编辑数据
-                  setEditedInvoice(invoice || {})
-                }}
-                disabled={saving}
-              >
-                取消
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? (
-                  <>
-                    <span className="loading loading-spinner loading-sm"></span>
-                    保存中...
-                  </>
-                ) : (
-                  '💾 保存'
-                )}
-              </button>
-            </>
           )}
+
+          {/* 错误状态 - 紧凑设计 */}
+          {error && (
+            <div className="alert alert-error modal-error-compact">
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
+          {/* 发票详情 - 使用自适应字段组件 */}
+          {invoice && (
+            <div className="space-y-3">
+              <AdaptiveInvoiceFields
+                invoice={invoice}
+                mode={internalMode}
+                editData={internalMode === 'edit' ? editedInvoice : undefined}
+                onFieldChange={updateField}
+                errors={{}}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 固定操作栏 - 紧凑设计 */}
+        <div className="modal-footer-compact sticky bottom-0 bg-base-100 border-t border-base-200">
+          <div className="modal-buttons-compact">
+            {internalMode === 'view' ? (
+              <>
+                <button
+                  className="btn btn-primary btn-compact-sm gap-1"
+                  onClick={() => {
+                    setInternalMode('edit')
+                    onModeChange?.('edit')
+                  }}
+                  title="快捷键: Ctrl+E"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  <span>编辑</span>
+                </button>
+                <button
+                  className="btn btn-ghost btn-compact-sm"
+                  onClick={onClose}
+                >
+                  关闭
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="btn btn-primary btn-compact-sm gap-1"
+                  onClick={handleSave}
+                  disabled={saving}
+                  title="快捷键: Ctrl+S"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>保存中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-3.5 h-3.5" />
+                      <span>保存</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  className="btn btn-ghost btn-compact-sm"
+                  onClick={() => {
+                    setInternalMode('view')
+                    onModeChange?.('view')
+                    setEditedInvoice(invoice || {})
+                  }}
+                  disabled={saving}
+                >
+                  取消
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
       
-      <div className="modal-backdrop" onClick={onClose}></div>
+      <div className="modal-backdrop backdrop-blur-sm bg-base-content/20" onClick={onClose}></div>
     </div>
   )
 }

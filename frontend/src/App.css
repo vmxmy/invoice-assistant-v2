@@ -140,3 +140,6 @@
 .email-content * {
   max-width: 100%;
 }
+
+/* 导入紧凑设计系统 */
+@import './styles/compact-design-system.css';

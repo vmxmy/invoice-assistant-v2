@@ -20,6 +20,8 @@ import { InboxPage } from './components/inbox/InboxPage'
 import PWAManager from './components/mobile/PWAManager'
 import './App.css'
 import './styles/compact-ui.css'
+import './styles/compact-design-system.css'
+import './styles/modal-compact-fix.css'
 
 // 创建QueryClient实例
 const queryClient = new QueryClient({
@@ -111,14 +113,16 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <AppContent />
-          <PWAManager />
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+    <div className="compact-mode">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+            <PWAManager />
+          </Router>
+        </AuthProvider>
+      </QueryClientProvider>
+    </div>
   )
 }
 

@@ -233,9 +233,9 @@ export const InvoiceCardCompact: React.FC<InvoiceCardCompactProps> = ({
       ref={cardRef}
       className={`
         invoice-card-compact
-        ${device.isMobile ? '' : 'hover:scale-[1.01]'}
-        ${gestureState.isLongPressing ? 'ring-2 ring-primary ring-opacity-50' : ''}
-        ${isSelected ? 'ring-2 ring-primary ring-opacity-30' : ''}
+        ${gestureState.isLongPressing ? 'ring-2 ring-primary/30 shadow-lg scale-[1.02]' : ''}
+        ${isSelected ? 'ring-2 ring-primary/40 bg-primary/5 border-primary/30' : ''}
+        group relative
       `}
       {...(device.isMobile ? touchHandlers : {})}
       initial={{ opacity: 0, y: 10 }}
@@ -249,10 +249,10 @@ export const InvoiceCardCompact: React.FC<InvoiceCardCompactProps> = ({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {/* 紧凑选择框 */}
-          <label className="cursor-pointer">
+          <label className="cursor-pointer hover:bg-primary/8 rounded-lg p-1 -m-1 transition-colors">
             <input 
               type="checkbox" 
-              className="checkbox checkbox-sm flex-shrink-0"
+              className={device.isMobile ? 'invoice-checkbox-mobile' : 'invoice-checkbox-compact'}
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
             />
@@ -267,16 +267,31 @@ export const InvoiceCardCompact: React.FC<InvoiceCardCompactProps> = ({
         
         {/* 操作菜单 - 紧凑版 */}
         {showActions && (
-          <div className="dropdown dropdown-end dropdown-compact">
+          <div className="dropdown dropdown-compact">
             <div 
               tabIndex={0} 
               role="button" 
-              className="btn btn-ghost btn-circle btn-compact-sm"
+              className={`
+                more-menu-button
+                btn btn-ghost rounded-lg flex items-center justify-center
+                ${device.isMobile ? 'w-9 h-9' : 'w-8 h-8'} 
+                transition-all duration-200 ease-out
+                bg-base-200/50 border border-base-300/40
+                hover:bg-primary/10 hover:border-primary/30 hover:shadow-sm
+                focus:ring-2 focus:ring-primary/30 focus:ring-offset-1
+                group/menu
+              `}
               title="更多操作"
             >
-              <MoreVertical className="w-3 h-3" />
+              <MoreVertical className={`
+                ${device.isMobile ? 'w-4.5 h-4.5' : 'w-4 h-4'} 
+                more-menu-icon
+                text-base-content/70 
+                group-hover/menu:text-primary
+                transition-colors duration-200 drop-shadow-sm
+              `} />
             </div>
-            <ul tabIndex={0} className="dropdown-content menu shadow bg-base-100 rounded-box w-32 p-1">
+            <ul tabIndex={0} className={`dropdown-content z-50 menu ${device.isMobile ? 'dropdown-mobile' : ''}`}>
               <li>
                 <button 
                   onClick={() => onView(invoice.id)} 
@@ -323,16 +338,24 @@ export const InvoiceCardCompact: React.FC<InvoiceCardCompactProps> = ({
       <div className="flex items-center gap-2 flex-wrap mb-2">
         {/* 费用类别徽章 */}
         {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
-          <div 
-            className={`${getCategoryBadgeStyle(invoice).className} badge-compact-xs`}
+          <div className={`
+            inline-flex items-center gap-1 px-2 py-1
+            ${device.isMobile ? 'badge-compact-md' : 'badge-compact-sm'}
+            ${getCategoryBadgeStyle(invoice).className}
+            shadow-sm ring-1 ring-black/5
+          `}
             style={getCategoryBadgeStyle(invoice).style}
           >
-            <span className="text-xs">{getCategoryIcon(invoice)}</span>
-            <span className="truncate max-w-16">{getCategoryDisplayName(invoice)}</span>
+            <span>{getCategoryIcon(invoice)}</span>
+            <span className="truncate-compact font-medium">{getCategoryDisplayName(invoice)}</span>
           </div>
         ) : (
-          <div className="badge badge-ghost badge-compact-xs">
-            <span className="text-xs">📄</span>
+          <div className={`
+            inline-flex items-center gap-1 px-2 py-1
+            ${device.isMobile ? 'badge-compact-md' : 'badge-compact-sm'}
+            bg-base-200/60 text-base-content/60 ring-1 ring-base-300/30
+          `}>
+            <span>📄</span>
             <span>未分类</span>
           </div>
         )}
@@ -340,9 +363,10 @@ export const InvoiceCardCompact: React.FC<InvoiceCardCompactProps> = ({
         {/* 状态徽章 - 可点击 */}
         <div 
           className={`
-            badge ${getStatusBadge(currentStatus)} badge-compact-xs
+            status-badge-compact ${getStatusBadge(currentStatus)}
+            ${device.isMobile ? 'badge-compact-md' : 'badge-compact-sm'}
             ${onStatusChange && ['unreimbursed', 'reimbursed'].includes(currentStatus) 
-              ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200' 
+              ? 'status-badge-interactive' 
               : ''
             }
             ${isUpdatingStatus ? 'animate-pulse' : ''}
