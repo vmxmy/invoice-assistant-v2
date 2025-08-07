@@ -1,0 +1,104 @@
+/* ===========================================
+   本地字体备用方案
+   当CDN不可用时，可以切换到这个文件
+   ========================================= */
+
+/* Inter 字体 - 可从 https://github.com/rsms/inter/releases 下载 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/Inter-Light.woff2') format('woff2'),
+       url('/fonts/Inter-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.woff2') format('woff2'),
+       url('/fonts/Inter-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Inter-Medium.woff2') format('woff2'),
+       url('/fonts/Inter-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/Inter-SemiBold.woff2') format('woff2'),
+       url('/fonts/Inter-SemiBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Inter-Bold.woff2') format('woff2'),
+       url('/fonts/Inter-Bold.woff') format('woff');
+}
+
+/* Noto Sans SC - 可从 https://fonts.google.com/noto/specimen/Noto+Sans+SC 下载 */
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/NotoSansSC-Light.woff2') format('woff2'),
+       url('/fonts/NotoSansSC-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/NotoSansSC-Regular.woff2') format('woff2'),
+       url('/fonts/NotoSansSC-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/NotoSansSC-Medium.woff2') format('woff2'),
+       url('/fonts/NotoSansSC-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/NotoSansSC-SemiBold.woff2') format('woff2'),
+       url('/fonts/NotoSansSC-SemiBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/NotoSansSC-Bold.woff2') format('woff2'),
+       url('/fonts/NotoSansSC-Bold.woff') format('woff');
+}
+
+/* 
+  使用说明：
+  1. 下载字体文件到 public/fonts/ 目录
+  2. 在 typography.css 中将 CDN 引用替换为：
+     @import url('./fonts-local.css');
+  3. 这样可以完全避免外部依赖
+*/

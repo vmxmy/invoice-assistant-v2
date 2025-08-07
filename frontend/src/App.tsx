@@ -17,7 +17,9 @@ import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
 import { InboxPage } from './components/inbox/InboxPage'
+import PWAManager from './components/mobile/PWAManager'
 import './App.css'
+import './styles/compact-ui.css'
 
 // 创建QueryClient实例
 const queryClient = new QueryClient({
@@ -113,6 +115,7 @@ function App() {
       <AuthProvider>
         <Router>
           <AppContent />
+          <PWAManager />
         </Router>
       </AuthProvider>
     </QueryClientProvider>

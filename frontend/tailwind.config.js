@@ -42,6 +42,12 @@ export default {
         '18': '4.5rem',
         '88': '22rem',
         '128': '32rem',
+        // 紧凑模式专用间距
+        'compact-xs': '0.375rem', // 6px
+        'compact-sm': '0.5rem',   // 8px
+        'compact-md': '0.75rem',  // 12px
+        'compact-lg': '1rem',     // 16px
+        'compact-xl': '1.5rem',   // 24px
       },
       // 自定义字体大小
       fontSize: {

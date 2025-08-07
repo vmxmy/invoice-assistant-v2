@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuthContext } from "../../contexts/AuthContext"
 import ThemeSelector from '../ui/ThemeSelector';
+import CompactModeToggle from '../ui/CompactModeToggle';
 
 const AppNavbar: React.FC = () => {
   const location = useLocation();
@@ -137,6 +138,14 @@ const AppNavbar: React.FC = () => {
                     <div className="flex items-center justify-between px-2 py-2">
                       <span className="text-sm">主题切换</span>
                       <ThemeSelector showLabel={false} className="scale-90" />
+                    </div>
+                  </li>
+                  
+                  {/* 紧凑模式切换 */}
+                  <li>
+                    <div className="flex items-center justify-between px-2 py-2">
+                      <span className="text-sm">显示密度</span>
+                      <CompactModeToggle showLabel={false} className="scale-90" />
                     </div>
                   </li>
                   
