@@ -134,16 +134,16 @@ export const createCashFlowStat = (
   
   return {
     id: 'cash-flow',
-    title: '现金流状态',
+    title: '已报销',
     value: `¥${reimbursed.toLocaleString()}`,
-    desc: `已报销 ${percentage}%`,
+    desc: `报销率 ${percentage}%`,
     icon: <DollarSign className="h-8 w-8 stroke-current opacity-80" />,
     trend: percentage >= 50 ? 'up' : 'down',
     onClick
   };
 };
 
-// 辅助函数：创建待办统计
+// 辅助函数：创建待办统计（金额为主）
 export const createTodoStat = (
   count: number,
   amount: number,
@@ -152,14 +152,14 @@ export const createTodoStat = (
   return {
     id: 'todo',
     title: '待报销',
-    value: count,
-    desc: `¥${amount.toLocaleString()}`,
+    value: `¥${amount.toLocaleString()}`,
+    desc: `${count} 张发票`,
     icon: <FileText className="h-8 w-8 stroke-current opacity-80" />,
     onClick
   };
 };
 
-// 辅助函数：创建逾期统计
+// 辅助函数：创建逾期统计（原版 - 数量为主）
 export const createOverdueStat = (
   overdueCount: number,
   dueSoonCount: number,
@@ -178,7 +178,32 @@ export const createOverdueStat = (
   };
 };
 
-// 辅助函数：创建增长统计
+// 辅助函数：创建逾期金额统计（金额为主）
+export const createOverdueAmountStat = (
+  overdueCount: number,
+  overdueAmount: number,
+  dueSoonCount: number,
+  dueSoonAmount: number,
+  onClick?: () => void
+): StatItem => {
+  const totalAmount = overdueAmount + dueSoonAmount;
+  
+  return {
+    id: 'overdue',
+    title: '逾期提醒',
+    value: `¥${overdueAmount.toLocaleString()}`,
+    desc: overdueCount > 0 
+      ? `${overdueCount} 张已逾期${dueSoonCount > 0 ? `，${dueSoonCount} 张即将到期` : ''}` 
+      : dueSoonCount > 0 
+        ? `${dueSoonCount} 张即将到期` 
+        : '无逾期发票',
+    icon: <AlertCircle className="h-8 w-8 stroke-current opacity-80" />,
+    trend: overdueAmount > 0 ? 'down' : 'neutral',
+    onClick
+  };
+};
+
+// 辅助函数：创建增长统计（金额）
 export const createGrowthStat = (
   currentMonth: number,
   lastMonth: number,
@@ -196,6 +221,86 @@ export const createGrowthStat = (
     icon: <TrendingUp className="h-8 w-8 stroke-current opacity-80" />,
     trend: growth > 0 ? 'up' : growth < 0 ? 'down' : 'neutral',
     trendValue: growth !== 0 ? `${Math.abs(growth)}%` : undefined,
+    onClick
+  };
+};
+
+// 辅助函数：创建月度发票统计（金额为主）
+export const createMonthlyInvoicesStat = (
+  currentMonthCount: number,
+  currentMonthAmount: number,
+  growthRate?: number,
+  onClick?: () => void
+): StatItem => {
+  return {
+    id: 'monthly-invoices',
+    title: '本月发票',
+    value: `¥${currentMonthAmount.toLocaleString()}`,
+    desc: `${currentMonthCount} 张发票`,
+    icon: <TrendingUp className="h-8 w-8 stroke-current opacity-80" />,
+    trend: growthRate ? (growthRate > 0 ? 'up' : growthRate < 0 ? 'down' : 'neutral') : 'neutral',
+    trendValue: growthRate && growthRate !== 0 ? `${Math.abs(growthRate)}%` : undefined,
+    onClick
+  };
+};
+
+// 辅助函数：创建紧急处理统计（用于首页）
+export const createUrgentActionsStat = (
+  overdueCount: number,
+  overdueAmount: number,
+  dueSoonCount: number,
+  onClick?: () => void
+): StatItem => {
+  const totalUrgent = overdueCount + dueSoonCount;
+  
+  return {
+    id: 'urgent-actions',
+    title: '紧急处理',
+    value: totalUrgent > 0 ? `${totalUrgent} 项` : '无',
+    desc: totalUrgent > 0 
+      ? `${overdueCount > 0 ? `${overdueCount}张逾期` : ''}${overdueCount > 0 && dueSoonCount > 0 ? '，' : ''}${dueSoonCount > 0 ? `${dueSoonCount}张即将到期` : ''}` 
+      : '所有发票状态正常',
+    icon: <AlertCircle className="h-8 w-8 stroke-current opacity-80" />,
+    trend: totalUrgent > 0 ? 'down' : 'neutral',
+    onClick
+  };
+};
+
+// 辅助函数：创建本月支出统计（用于首页）
+export const createMonthlySpendingStat = (
+  monthlyAmount: number,
+  monthlyCount: number,
+  growthRate?: number,
+  onClick?: () => void
+): StatItem => {
+  return {
+    id: 'monthly-spending',
+    title: '本月支出',
+    value: `¥${monthlyAmount.toLocaleString()}`,
+    desc: `${monthlyCount} 张发票${growthRate ? `，环比${growthRate > 0 ? '↑' : '↓'}${Math.abs(growthRate)}%` : ''}`,
+    icon: <Calculator className="h-8 w-8 stroke-current opacity-80" />,
+    trend: growthRate ? (growthRate > 0 ? 'up' : growthRate < 0 ? 'down' : 'neutral') : 'neutral',
+    onClick
+  };
+};
+
+// 辅助函数：创建报销进度统计（用于首页）
+export const createReimbursementProgressStat = (
+  reimbursedCount: number,
+  totalCount: number,
+  reimbursedAmount: number,
+  totalAmount: number,
+  onClick?: () => void
+): StatItem => {
+  const progressRate = totalCount > 0 ? Math.round((reimbursedCount / totalCount) * 100) : 0;
+  
+  return {
+    id: 'reimbursement-progress',
+    title: '报销进度',
+    value: `${progressRate}%`,
+    desc: `已报销 ${reimbursedCount}/${totalCount} 张，¥${reimbursedAmount.toLocaleString()}`,
+    icon: <TrendingUp className="h-8 w-8 stroke-current opacity-80" />,
+    trend: progressRate >= 50 ? 'up' : progressRate >= 30 ? 'neutral' : 'down',
     onClick
   };
 };

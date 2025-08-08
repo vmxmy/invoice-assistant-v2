@@ -39,8 +39,8 @@ import {
   DaisyUIStatsSection,
   createCashFlowStat,
   createTodoStat,
-  createOverdueStat,
-  createGrowthStat
+  createOverdueAmountStat,
+  createMonthlyInvoicesStat
 } from '../components/invoice/indicators/DaisyUIStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 
@@ -146,6 +146,7 @@ interface SearchFilters {
   status?: string[]
   source?: string[]
   overdue?: boolean
+  urgent?: boolean  // 紧急（>60天，包括临期和逾期）
 }
 
 export function InvoiceManagePage() {
@@ -168,8 +169,9 @@ export function InvoiceManagePage() {
   useEffect(() => {
     const status = searchParams.get('status')
     const overdue = searchParams.get('overdue')
+    const urgent = searchParams.get('urgent')
     
-    if (status || overdue) {
+    if (status || overdue || urgent) {
       const initialFilters: SearchFilters = {}
       
       if (status === 'unreimbursed') {
@@ -180,6 +182,10 @@ export function InvoiceManagePage() {
       
       if (overdue === 'true') {
         initialFilters.overdue = true
+      }
+      
+      if (urgent === 'true') {
+        initialFilters.urgent = true
       }
       
       setSearchFilters(initialFilters)
@@ -1437,14 +1443,17 @@ export function InvoiceManagePage() {
                 stats?.unreimbursed_amount || 0,
                 () => setSearchFilters({ status: ['unreimbursed'] })
               ),
-              createOverdueStat(
+              createOverdueAmountStat(
                 stats?.overdue_unreimbursed_count || 0,
+                stats?.overdue_unreimbursed_amount || 0,
                 Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0)),
+                stats?.due_soon_unreimbursed_amount || 0,
                 () => setSearchFilters({ overdue: true })
               ),
-              createGrowthStat(
-                stats?.current_month_amount || 0,
-                stats?.last_month_amount || 0,
+              createMonthlyInvoicesStat(
+                stats?.monthly_invoices || 0,
+                stats?.monthly_amount || 0,
+                stats?.invoice_growth_rate,
                 () => navigate('/dashboard')
               )
             ]}
