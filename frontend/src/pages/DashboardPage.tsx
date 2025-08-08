@@ -7,14 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { useRecentActivities } from '../hooks/useRecentActivities'
-import { 
-  DaisyUIStatsSection, 
-  type StatItem,
-  createTodoStat,
-  createUrgentActionsStat,
-  createMonthlySpendingStat,
-  createReimbursementProgressStat
-} from '../components/invoice/indicators/DaisyUIStatsSection'
+import { DashboardStatsSection, useStatsConfig } from '../components/dashboard/DashboardStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 import { 
   CloudArrowUpIcon,
@@ -29,49 +22,13 @@ import {
 
 export function DashboardPage() {
   const { user } = useAuthContext()
-  const navigate = useNavigate()
   // 获取实时统计数据
   const { data: stats, loading: statsLoading, error: statsError, refresh } = useDashboardStats() as any
   // 获取最近活动
   const { data: activities, isLoading: activitiesLoading } = useRecentActivities(10)
-
-  // 生成 DaisyUI 统计卡片数据 - 按用户需求优先级排序
-  const generateDaisyUIStats = (): StatItem[] => {
-    if (!stats) return []
-    
-    return [
-      // 1. 待报销 - 用户最关心的“我能拿回多少钱”
-      createTodoStat(
-        stats.unreimbursed_count || 0,
-        stats.unreimbursed_amount || 0,
-        () => navigate('/invoices?status=unreimbursed')
-      ),
-      // 2. 紧急处理 - 需要立即采取行动的事项
-      createUrgentActionsStat(
-        stats.overdue_unreimbursed_count || 0,
-        stats.overdue_unreimbursed_amount || 0,
-        Math.max(0, (stats.due_soon_unreimbursed_count || 0) - (stats.overdue_unreimbursed_count || 0)),
-        () => navigate('/invoices?status=unreimbursed&urgent=true')
-      ),
-      // 3. 本月支出 - 消费监控和预算管理
-      createMonthlySpendingStat(
-        stats.monthly_amount || 0,
-        stats.monthly_invoices || 0,
-        stats.amount_growth_rate,
-        () => navigate('/invoices')
-      ),
-      // 4. 报销进度 - 系统效率和完成感
-      createReimbursementProgressStat(
-        stats.reimbursed_count || 0,
-        stats.total_invoices || 0,
-        stats.reimbursed_amount || 0,
-        stats.total_amount || 0,
-        () => navigate('/invoices?status=reimbursed')
-      )
-    ]
-  }
-
-  const daisyUIStats = generateDaisyUIStats()
+  // 获取指标卡配置
+  const { createHomepageConfig } = useStatsConfig()
+  const statsConfig = createHomepageConfig()
 
   return (
     <CompactLayout compactMode="auto">
@@ -89,43 +46,15 @@ export function DashboardPage() {
           <p className="text-sm text-base-content/50">开始管理您的发票数据</p>
         </section>
 
-        {/* 统计数据网格 - 使用 DaisyUI Stats 组件 */}
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">数据概览</h2>
-            <div className="flex items-center gap-4">
-              {/* 实时状态指示器 */}
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${
-                  statsError ? 'bg-error animate-pulse' : 
-                  statsLoading ? 'bg-warning animate-pulse' : 
-                  'bg-success'
-                }`}></div>
-                <span className="text-xs opacity-70">
-                  {statsError ? '连接异常' : 
-                   statsLoading ? '同步中...' : 
-                   '实时同步'}
-                </span>
-              </div>
-              {statsError && (
-                <div className="alert alert-error alert-sm">
-                  <span className="text-xs">📡 数据加载失败</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <DaisyUIStatsSection 
-            stats={daisyUIStats}
-            loading={statsLoading}
-          />
-          
-          {stats && (
-            <div className="mt-4 text-xs text-base-content/50 text-center">
-              最后更新: {new Date(stats.updated_at).toLocaleString('zh-CN')}
-            </div>
-          )}
-        </section>
+        {/* 统计数据网格 - 使用通用组件 */}
+        <DashboardStatsSection
+          stats={stats}
+          loading={statsLoading}
+          error={statsError}
+          config={statsConfig}
+          title="数据概览"
+          className="mb-12"
+        />
 
         {/* 功能模块网格 - 移动优先：1列 → 中屏：2列 → 大屏：3列 → 超大屏：4列 */}
         <section className="mb-12">

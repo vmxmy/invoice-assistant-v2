@@ -5,6 +5,8 @@ import './index.css'
 import App from './App.tsx'
 import { initializeGlobalErrorHandler } from './utils/globalErrorHandler'
 import { logger } from './utils/logger'
+// 导入Cally日历组件
+import 'cally'
 
 // 初始化全局错误处理器
 initializeGlobalErrorHandler()

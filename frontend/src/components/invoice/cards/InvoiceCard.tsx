@@ -115,6 +115,7 @@ interface InvoiceCardProps {
   onEdit: (invoice: Invoice) => void;
   onDelete: (invoice: Invoice) => void;
   onStatusChange?: (invoiceId: string, newStatus: string) => Promise<boolean>;
+  onConsumptionDateChange?: (invoiceId: string, newDate: string) => Promise<boolean>;
   showActions?: boolean;
   statusComponent?: 'badge' | 'switch' | 'toggle'; // 控制使用哪种状态组件
 }
@@ -127,10 +128,14 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
+  onConsumptionDateChange,
   showActions = true,
   statusComponent = 'toggle' // 默认使用 toggle 组件
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [isUpdatingDate, setIsUpdatingDate] = useState(false);
+  const [calendarId] = useState(() => `cally-${invoice.id}`);
   
   // 获取动态状态配置
   const { getStatusConfig } = useInvoiceStatuses();
@@ -223,6 +228,43 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
       setIsUpdatingStatus(false);
     }
   };
+
+  const handleConsumptionDateChange = async (newDate: string) => {
+    if (!onConsumptionDateChange || isUpdatingDate) return;
+
+    const oldDate = invoice.consumption_date;
+    
+    try {
+      setIsUpdatingDate(true);
+      
+      // 调用后端API更新日期
+      const success = await onConsumptionDateChange(invoice.id, newDate);
+      
+      if (success) {
+        toast.success('消费日期更新成功');
+        setIsEditingDate(false);
+        // 关闭日历弹窗
+        const popover = document.getElementById(`${calendarId}-popover`);
+        if (popover && 'hidePopover' in popover) {
+          (popover as any).hidePopover();
+        }
+      } else {
+        toast.error('消费日期更新失败，请重试');
+      }
+    } catch (error) {
+      toast.error('消费日期更新失败，请重试');
+    } finally {
+      setIsUpdatingDate(false);
+    }
+  };
+
+  // 处理日历组件的日期变更事件
+  const handleCalendarChange = useCallback((event: Event) => {
+    const target = event.target as any;
+    if (target && target.value) {
+      handleConsumptionDateChange(target.value);
+    }
+  }, [handleConsumptionDateChange]);
 
   const handlePrint = async () => {
     if (!invoice.file_url && !invoice.file_path) {
@@ -736,17 +778,72 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           {/* 金额和日期信息卡片 - 突出显示 */}
           <div className="bg-gradient-to-r from-success/5 to-primary/5 border border-success/20 rounded-lg p-4">
             <div className="flex items-center justify-between">
-              {/* 日期信息 */}
+              {/* 日期信息 - 可编辑 */}
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-info/70" />
                   <span className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
                     消费时间
                   </span>
+                  {isUpdatingDate && (
+                    <Loader2 className="w-3 h-3 animate-spin text-info/70" />
+                  )}
                 </div>
-                <span className="text-sm font-semibold text-base-content/80">
-                  {formatDate(invoice.consumption_date || invoice.created_at)}
-                </span>
+                
+                {/* Cally日历组件 */}
+                {onConsumptionDateChange ? (
+                  <>
+                    <button
+                      popovertarget={`${calendarId}-popover`}
+                      className={`
+                        text-left text-sm font-semibold text-base-content/80 hover:text-primary transition-colors
+                        hover:underline cursor-pointer btn btn-ghost btn-xs justify-start p-0 h-auto min-h-0
+                      `}
+                      style={{ anchorName: `--${calendarId}` }}
+                      disabled={isUpdatingDate}
+                      title="点击修改消费日期"
+                    >
+                      {formatDate(invoice.consumption_date || invoice.created_at)}
+                    </button>
+                    
+                    <div
+                      popover="auto"
+                      id={`${calendarId}-popover`}
+                      className="dropdown bg-base-100 rounded-box shadow-lg border border-base-300 p-2"
+                      style={{ positionAnchor: `--${calendarId}` }}
+                    >
+                      <calendar-date
+                        className="cally"
+                        value={invoice.consumption_date ? new Date(invoice.consumption_date).toISOString().split('T')[0] : new Date(invoice.created_at).toISOString().split('T')[0]}
+                        onchange={handleCalendarChange}
+                      >
+                        <svg 
+                          aria-label="Previous" 
+                          className="fill-current size-4" 
+                          slot="previous" 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                        </svg>
+                        <svg 
+                          aria-label="Next" 
+                          className="fill-current size-4" 
+                          slot="next" 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+                        </svg>
+                        <calendar-month></calendar-month>
+                      </calendar-date>
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-sm font-semibold text-base-content/80">
+                    {formatDate(invoice.consumption_date || invoice.created_at)}
+                  </span>
+                )}
               </div>
               
               {/* 金额信息 */}

@@ -1,13 +1,13 @@
 /**
- * 发票查看和编辑模态框
- * 支持查看详情和编辑发票信息
+ * 发票查看模态框
+ * 支持查看发票详情
  * 采用紧凑型布局设计系统
  */
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuthContext } from '../../contexts/AuthContext'
 import { AdaptiveInvoiceFields } from './fields/AdaptiveInvoiceFields'
-import { Eye, Edit, Save, X, Loader2 } from 'lucide-react'
+import { Eye, X, Loader2 } from 'lucide-react'
 import type { Invoice } from '../../types'
 
 interface InvoiceModalProps {
@@ -15,25 +15,18 @@ interface InvoiceModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
-  mode: 'view' | 'edit'
-  onModeChange?: (mode: 'view' | 'edit') => void
 }
 
 export function InvoiceModal({
   invoiceId,
   isOpen,
   onClose,
-  onSuccess,
-  mode,
-  onModeChange
+  onSuccess
 }: InvoiceModalProps) {
   const { user } = useAuthContext()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [editedInvoice, setEditedInvoice] = useState<Partial<Invoice>>({})
-  const [internalMode, setInternalMode] = useState<'view' | 'edit'>(mode)
 
   // 获取发票详情
   const fetchInvoice = async () => {
@@ -56,7 +49,6 @@ export function InvoiceModal({
       }
 
       setInvoice(data)
-      setEditedInvoice(data)
     } catch (err) {
       console.error('获取发票详情失败:', err)
       setError(err instanceof Error ? err.message : '获取发票详情失败')
@@ -65,38 +57,6 @@ export function InvoiceModal({
     }
   }
 
-  // 保存编辑
-  const handleSave = async () => {
-    if (!invoice || !user?.id) return
-
-    try {
-      setSaving(true)
-      setError(null)
-
-      const { error: updateError } = await supabase
-        .from('invoices')
-        .update({
-          ...editedInvoice,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', invoice.id)
-        .eq('user_id', user.id)
-
-      if (updateError) {
-        throw new Error(updateError.message)
-      }
-
-      // 保存成功后切换回查看模式
-      setInternalMode('view')
-      onModeChange?.('view')
-      onSuccess?.()
-    } catch (err) {
-      console.error('保存发票失败:', err)
-      setError(err instanceof Error ? err.message : '保存发票失败')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   // 初始化数据
   useEffect(() => {
@@ -109,24 +69,10 @@ export function InvoiceModal({
   useEffect(() => {
     if (!isOpen) {
       setInvoice(null)
-      setEditedInvoice({})
       setError(null)
-      setInternalMode(mode)
     }
-  }, [isOpen, mode])
-  
-  // 同步外部mode变化
-  useEffect(() => {
-    setInternalMode(mode)
-  }, [mode])
+  }, [isOpen])
 
-  // 更新编辑状态
-  const updateField = (field: keyof Invoice, value: any) => {
-    setEditedInvoice(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
 
   // 键盘快捷键处理
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -134,18 +80,7 @@ export function InvoiceModal({
     if (e.key === 'Escape') {
       onClose()
     }
-    // Ctrl+S - 保存编辑
-    if (e.ctrlKey && e.key === 's' && internalMode === 'edit') {
-      e.preventDefault()
-      handleSave()
-    }
-    // Ctrl+E - 切换到编辑模式
-    if (e.ctrlKey && e.key === 'e' && internalMode === 'view') {
-      e.preventDefault()
-      setInternalMode('edit')
-      onModeChange?.('edit')
-    }
-  }, [internalMode, onClose, onModeChange])
+  }, [onClose])
 
   // 注册键盘事件
   useEffect(() => {
@@ -163,20 +98,11 @@ export function InvoiceModal({
         {/* 固定标题栏 - 紧凑设计 */}
         <div className="modal-header-compact sticky top-0 z-10 bg-base-100 border-b border-base-200">
           <div className="flex items-center gap-2">
-            {internalMode === 'view' ? (
-              <Eye className="w-4 h-4 text-primary" />
-            ) : (
-              <Edit className="w-4 h-4 text-warning" />
-            )}
+            <Eye className="w-4 h-4 text-primary" />
             <h3 className="font-semibold text-base">
-              {internalMode === 'view' ? '查看发票详情' : '编辑发票信息'}
+              查看发票详情
             </h3>
-            {internalMode === 'view' && (
-              <span className="badge badge-outline badge-sm">只读</span>
-            )}
-            {internalMode === 'edit' && (
-              <span className="badge badge-warning badge-sm">编辑中</span>
-            )}
+            <span className="badge badge-outline badge-sm">只读</span>
           </div>
           <button
             className="btn btn-circle btn-ghost btn-compact-sm"
@@ -209,9 +135,9 @@ export function InvoiceModal({
             <div className="space-y-3">
               <AdaptiveInvoiceFields
                 invoice={invoice}
-                mode={internalMode}
-                editData={internalMode === 'edit' ? editedInvoice : undefined}
-                onFieldChange={updateField}
+                mode="view"
+                editData={undefined}
+                onFieldChange={() => {}}
                 errors={{}}
               />
             </div>
@@ -221,59 +147,12 @@ export function InvoiceModal({
         {/* 固定操作栏 - 紧凑设计 */}
         <div className="modal-footer-compact sticky bottom-0 bg-base-100 border-t border-base-200">
           <div className="modal-buttons-compact">
-            {internalMode === 'view' ? (
-              <>
-                <button
-                  className="btn btn-primary btn-compact-sm gap-1"
-                  onClick={() => {
-                    setInternalMode('edit')
-                    onModeChange?.('edit')
-                  }}
-                  title="快捷键: Ctrl+E"
-                >
-                  <Edit className="w-3.5 h-3.5" />
-                  <span>编辑</span>
-                </button>
-                <button
-                  className="btn btn-ghost btn-compact-sm"
-                  onClick={onClose}
-                >
-                  关闭
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="btn btn-primary btn-compact-sm gap-1"
-                  onClick={handleSave}
-                  disabled={saving}
-                  title="快捷键: Ctrl+S"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>保存中...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-3.5 h-3.5" />
-                      <span>保存</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  className="btn btn-ghost btn-compact-sm"
-                  onClick={() => {
-                    setInternalMode('view')
-                    onModeChange?.('view')
-                    setEditedInvoice(invoice || {})
-                  }}
-                  disabled={saving}
-                >
-                  取消
-                </button>
-              </>
-            )}
+            <button
+              className="btn btn-ghost btn-compact-sm"
+              onClick={onClose}
+            >
+              关闭
+            </button>
           </div>
         </div>
       </div>
