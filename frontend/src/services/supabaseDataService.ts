@@ -63,6 +63,7 @@ export class InvoiceService {
       source?: string[]
       global_search?: string
       overdue?: boolean
+      urgent?: boolean
     },
     sortField: string = 'consumption_date',
     sortOrder: 'asc' | 'desc' = 'desc'
@@ -141,7 +142,7 @@ export class InvoiceService {
         if (filters.source && filters.source.length > 0) {
           query = query.in('source', filters.source)
         }
-        // 超期筛选
+        // 超期筛选（>90天）
         if (filters.overdue === true) {
           // 筛选未报销且超过90天的发票
           const overdueDate = new Date()
@@ -149,6 +150,16 @@ export class InvoiceService {
           query = query
             .eq('status', 'unreimbursed')
             .lt('consumption_date', overdueDate.toISOString().split('T')[0])
+        }
+        
+        // 紧急筛选（>60天，包括临期和逾期）
+        if (filters.urgent === true) {
+          // 筛选未报销且超过60天的发票
+          const urgentDate = new Date()
+          urgentDate.setDate(urgentDate.getDate() - 60)
+          query = query
+            .eq('status', 'unreimbursed')
+            .lt('consumption_date', urgentDate.toISOString().split('T')[0])
         }
       }
 

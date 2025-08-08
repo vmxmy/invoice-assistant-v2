@@ -37,6 +37,7 @@ export const useInvoices = (
     source?: string[]
     global_search?: string
     overdue?: boolean
+    urgent?: boolean
   },
   page: number = 1,
   pageSize: number = 20,

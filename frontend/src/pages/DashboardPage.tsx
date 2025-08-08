@@ -7,7 +7,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { useRecentActivities } from '../hooks/useRecentActivities'
-import { DaisyUIStatsSection, type StatItem } from '../components/invoice/indicators/DaisyUIStatsSection'
+import { 
+  DaisyUIStatsSection, 
+  type StatItem,
+  createTodoStat,
+  createUrgentActionsStat,
+  createMonthlySpendingStat,
+  createReimbursementProgressStat
+} from '../components/invoice/indicators/DaisyUIStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 import { 
   CloudArrowUpIcon,
@@ -28,48 +35,39 @@ export function DashboardPage() {
   // 获取最近活动
   const { data: activities, isLoading: activitiesLoading } = useRecentActivities(10)
 
-  // 生成 DaisyUI 统计卡片数据
+  // 生成 DaisyUI 统计卡片数据 - 按用户需求优先级排序
   const generateDaisyUIStats = (): StatItem[] => {
     if (!stats) return []
     
     return [
-      {
-        id: 'total-invoices',
-        title: '发票总数',
-        value: stats.total_invoices || 0,
-        desc: '所有已录入发票',
-        icon: <DocumentTextIcon className="h-8 w-8 stroke-current opacity-80" />,
-        onClick: () => navigate('/invoices')
-      },
-      {
-        id: 'total-amount',
-        title: '发票总额',
-        value: `¥${(stats.total_amount || 0).toLocaleString()}`,
-        desc: '累计金额',
-        icon: <CurrencyDollarIcon className="h-8 w-8 stroke-current opacity-80" />,
-        onClick: () => navigate('/invoices')
-      },
-      {
-        id: 'unreimbursed',
-        title: '待报销',
-        value: stats.unreimbursed_count || 0,
-        desc: `¥${(stats.unreimbursed_amount || 0).toLocaleString()}`,
-        icon: <ClockIcon className="h-8 w-8 stroke-current opacity-80" />,
-        onClick: () => navigate('/invoices')
-      },
-      {
-        id: 'monthly-trend',
-        title: '本月新增',
-        value: stats.monthly_invoices || 0,
-        desc: stats.invoice_growth_rate > 0 ? `环比增长 ${stats.invoice_growth_rate}%` : '首月数据',
-        icon: <ArrowTrendingUpIcon className="h-8 w-8 stroke-current opacity-80" />,
-        trend: stats.invoice_growth_rate > 0 ? 'up' : 
-               stats.invoice_growth_rate < 0 ? 'down' : 'neutral',
-        trendValue: stats.invoice_growth_rate !== 0 
-          ? `${Math.abs(stats.invoice_growth_rate)}%`
-          : undefined,
-        onClick: () => navigate('/invoices')
-      }
+      // 1. 待报销 - 用户最关心的“我能拿回多少钱”
+      createTodoStat(
+        stats.unreimbursed_count || 0,
+        stats.unreimbursed_amount || 0,
+        () => navigate('/invoices?status=unreimbursed')
+      ),
+      // 2. 紧急处理 - 需要立即采取行动的事项
+      createUrgentActionsStat(
+        stats.overdue_unreimbursed_count || 0,
+        stats.overdue_unreimbursed_amount || 0,
+        Math.max(0, (stats.due_soon_unreimbursed_count || 0) - (stats.overdue_unreimbursed_count || 0)),
+        () => navigate('/invoices?status=unreimbursed&urgent=true')
+      ),
+      // 3. 本月支出 - 消费监控和预算管理
+      createMonthlySpendingStat(
+        stats.monthly_amount || 0,
+        stats.monthly_invoices || 0,
+        stats.amount_growth_rate,
+        () => navigate('/invoices')
+      ),
+      // 4. 报销进度 - 系统效率和完成感
+      createReimbursementProgressStat(
+        stats.reimbursed_count || 0,
+        stats.total_invoices || 0,
+        stats.reimbursed_amount || 0,
+        stats.total_amount || 0,
+        () => navigate('/invoices?status=reimbursed')
+      )
     ]
   }
 
