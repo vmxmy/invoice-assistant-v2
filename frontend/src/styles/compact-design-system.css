@@ -3,6 +3,9 @@
   为发票管理系统提供一致的视觉体验
 */
 
+/* 引用 Tailwind CSS 工具类 */
+@import "tailwindcss";
+
 /* ===== 基础间距系统 ===== */
 :root {
   /* 间距标准 - 基于4px基准 */
@@ -56,8 +59,7 @@
 }
 
 .invoice-card-compact.selected {
-  @apply border-primary/50 bg-primary/8;
-  box-shadow: 0 0 0 2px theme('colors.primary' / 0.15);
+  @apply border-primary/50 bg-primary/10 shadow-lg ring-2 ring-primary/20;
 }
 
 /* 卡片信息区域 */

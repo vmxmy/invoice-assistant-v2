@@ -19,8 +19,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local": "vite --mode local",
+    "dev:staging": "vite --mode staging",
+    "dev:production": "vite --mode production",
     "build": "vite build",
+    "build:local": "vite build --mode local",
     "build:staging": "vite build --mode staging",
+    "build:production": "vite build --mode production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",

@@ -1,3 +1,5 @@
+import daisyui from 'daisyui'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -122,6 +124,16 @@ export default {
       },
     },
   },
-  // DaisyUI 配置现在在 CSS 中通过 @plugin 指令处理
-  plugins: [],
+  // DaisyUI 插件配置
+  plugins: [
+    daisyui
+  ],
+  
+  // DaisyUI 配置
+  daisyui: {
+    themes: "all", // 启用所有主题
+    base: true,    // 启用基础样式
+    styled: true,  // 启用组件样式
+    utils: true,   // 启用工具类
+  },
 }

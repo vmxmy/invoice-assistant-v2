@@ -23,29 +23,28 @@ export function useRecentActivities(limit: number = 5) {
       const activities: RecentActivity[] = []
 
       // 获取最近创建的发票
-      const { data: recentInvoices } = await supabase
+      const { data: recentInvoices, error: invoicesError } = await supabase
         .from('invoices')
-        .select('id, invoice_number, vendor_name, created_at')
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(limit)
+      
+      if (invoicesError) {
+        console.error('获取最近发票失败:', invoicesError)
+      }
 
       // 获取最近的状态变更历史
-      const { data: statusHistory } = await supabase
+      const { data: statusHistory, error: historyError } = await supabase
         .from('invoice_status_history')
-        .select(`
-          id,
-          from_status,
-          to_status,
-          changed_at,
-          invoice:invoices!invoice_id (
-            invoice_number,
-            vendor_name
-          )
-        `)
+        .select('*')
         .eq('changed_by', user.id)
         .order('changed_at', { ascending: false })
         .limit(limit)
+      
+      if (historyError) {
+        console.error('获取状态历史失败:', historyError)
+      }
 
       // 处理最近创建的发票
       if (recentInvoices) {
@@ -62,10 +61,30 @@ export function useRecentActivities(limit: number = 5) {
         })
       }
 
-      // 处理状态变更
-      if (statusHistory) {
+      // 处理状态变更 - 获取相关发票信息
+      if (statusHistory && statusHistory.length > 0) {
+        // 获取所有相关发票ID
+        const invoiceIds = statusHistory.map(h => h.invoice_id).filter(Boolean)
+        
+        // 批量获取发票信息
+        let invoicesMap: Record<string, any> = {}
+        if (invoiceIds.length > 0) {
+          const { data: invoices } = await supabase
+            .from('invoices')
+            .select('id, invoice_number, vendor_name')
+            .in('id', invoiceIds)
+          
+          if (invoices) {
+            invoicesMap = invoices.reduce((acc, inv) => {
+              acc[inv.id] = inv
+              return acc
+            }, {} as Record<string, any>)
+          }
+        }
+        
         statusHistory.forEach(history => {
-          if (history.invoice) {
+          const invoice = invoicesMap[history.invoice_id]
+          if (invoice) {
             const statusMap: Record<string, { label: string; icon: string; color: string }> = {
               'pending': { label: '待处理', icon: '⏳', color: 'text-warning' },
               'processing': { label: '处理中', icon: '⚙️', color: 'text-info' },
@@ -79,7 +98,7 @@ export function useRecentActivities(limit: number = 5) {
               id: history.id,
               type: 'status_changed',
               title: '状态变更',
-              description: `发票 #${history.invoice.invoice_number} 状态更新为${toStatus.label}`,
+              description: `发票 #${invoice.invoice_number} 状态更新为${toStatus.label}`,
               timestamp: history.changed_at,
               icon: toStatus.icon,
               color: toStatus.color

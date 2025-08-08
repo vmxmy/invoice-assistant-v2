@@ -35,18 +35,13 @@ import { useDynamicTableColumns } from '../hooks/useDynamicTableColumns'
 import { FieldSelector } from '../components/invoice/table/FieldSelector'
 import { InvoiceListView } from '../components/invoice/cards/InvoiceListView'
 import { MobileBatchActions } from '../components/mobile/MobileBatchActions'
-import { UrgentTodoCard } from '../components/invoice/indicators/UrgentTodoCard'
-import { CashFlowCard } from '../components/invoice/indicators/CashFlowCard'
-import { OverdueInvoiceCard } from '../components/invoice/indicators/OverdueInvoiceCard'
-import { GrowthTrendCard } from '../components/invoice/indicators/GrowthTrendCard'
-import { MobileIndicatorGrid } from '../components/invoice/indicators/MobileIndicatorGrid'
 import { 
-  ResponsiveIndicatorSection,
-  createCashFlowIndicator,
-  createUrgentTodoIndicator,
-  createOverdueIndicator,
-  createGrowthIndicator
-} from '../components/invoice/indicators/ResponsiveIndicatorSection'
+  DaisyUIStatsSection,
+  createCashFlowStat,
+  createTodoStat,
+  createOverdueStat,
+  createGrowthStat
+} from '../components/invoice/indicators/DaisyUIStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -1427,28 +1422,27 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 任务导向指标卡片 - 响应式布局 */}
+        {/* 任务导向指标卡片 - DaisyUI Stats 布局 */}
         <section className="mb-6 sm:mb-8">
-          <ResponsiveIndicatorSection
-            title={device.isMobile ? '关键指标' : undefined}
+          <DaisyUIStatsSection
             loading={statsLoading}
-            indicators={[
-              createCashFlowIndicator(
+            stats={[
+              createCashFlowStat(
                 stats?.reimbursed_amount || 0,
                 stats?.unreimbursed_amount || 0,
                 () => navigate('/dashboard')
               ),
-              createUrgentTodoIndicator(
+              createTodoStat(
                 stats?.unreimbursed_count || 0,
                 stats?.unreimbursed_amount || 0,
                 () => setSearchFilters({ status: ['unreimbursed'] })
               ),
-              createOverdueIndicator(
+              createOverdueStat(
                 stats?.overdue_unreimbursed_count || 0,
                 Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0)),
                 () => setSearchFilters({ overdue: true })
               ),
-              createGrowthIndicator(
+              createGrowthStat(
                 stats?.current_month_amount || 0,
                 stats?.last_month_amount || 0,
                 () => navigate('/dashboard')
