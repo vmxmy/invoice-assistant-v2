@@ -1,3 +1,6 @@
+/* 导入紧凑设计系统 */
+@import './styles/compact-design-system.css';
+
 .app {
   min-height: 100vh;
   display: flex;
@@ -141,5 +144,3 @@
   max-width: 100%;
 }
 
-/* 导入紧凑设计系统 */
-@import './styles/compact-design-system.css';

@@ -7,13 +7,17 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { useRecentActivities } from '../hooks/useRecentActivities'
-import { StatCardGrid } from '../components/dashboard/StatCard'
+import { DaisyUIStatsSection, type StatItem } from '../components/invoice/indicators/DaisyUIStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 import { 
   CloudArrowUpIcon,
   DocumentTextIcon,
   ChartBarIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  CurrencyDollarIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline'
 
 export function DashboardPage() {
@@ -24,8 +28,52 @@ export function DashboardPage() {
   // 获取最近活动
   const { data: activities, isLoading: activitiesLoading } = useRecentActivities(10)
 
-  // 生成统计卡片数据
-  const statCards = generateStatCards(stats)
+  // 生成 DaisyUI 统计卡片数据
+  const generateDaisyUIStats = (): StatItem[] => {
+    if (!stats) return []
+    
+    return [
+      {
+        id: 'total-invoices',
+        title: '发票总数',
+        value: stats.total_invoices || 0,
+        desc: '所有已录入发票',
+        icon: <DocumentTextIcon className="h-8 w-8 stroke-current opacity-80" />,
+        onClick: () => navigate('/invoices')
+      },
+      {
+        id: 'total-amount',
+        title: '发票总额',
+        value: `¥${(stats.total_amount || 0).toLocaleString()}`,
+        desc: '累计金额',
+        icon: <CurrencyDollarIcon className="h-8 w-8 stroke-current opacity-80" />,
+        onClick: () => navigate('/invoices')
+      },
+      {
+        id: 'unreimbursed',
+        title: '待报销',
+        value: stats.unreimbursed_count || 0,
+        desc: `¥${(stats.unreimbursed_amount || 0).toLocaleString()}`,
+        icon: <ClockIcon className="h-8 w-8 stroke-current opacity-80" />,
+        onClick: () => navigate('/invoices')
+      },
+      {
+        id: 'monthly-trend',
+        title: '本月新增',
+        value: stats.monthly_invoices || 0,
+        desc: stats.invoice_growth_rate > 0 ? `环比增长 ${stats.invoice_growth_rate}%` : '首月数据',
+        icon: <ArrowTrendingUpIcon className="h-8 w-8 stroke-current opacity-80" />,
+        trend: stats.invoice_growth_rate > 0 ? 'up' : 
+               stats.invoice_growth_rate < 0 ? 'down' : 'neutral',
+        trendValue: stats.invoice_growth_rate !== 0 
+          ? `${Math.abs(stats.invoice_growth_rate)}%`
+          : undefined,
+        onClick: () => navigate('/invoices')
+      }
+    ]
+  }
+
+  const daisyUIStats = generateDaisyUIStats()
 
   return (
     <CompactLayout compactMode="auto">
@@ -43,7 +91,7 @@ export function DashboardPage() {
           <p className="text-sm text-base-content/50">开始管理您的发票数据</p>
         </section>
 
-        {/* 统计数据网格 - 使用实时数据 */}
+        {/* 统计数据网格 - 使用 DaisyUI Stats 组件 */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">数据概览</h2>
@@ -69,8 +117,8 @@ export function DashboardPage() {
             </div>
           </div>
           
-          <StatCardGrid 
-            stats={statCards}
+          <DaisyUIStatsSection 
+            stats={daisyUIStats}
             loading={statsLoading}
           />
           

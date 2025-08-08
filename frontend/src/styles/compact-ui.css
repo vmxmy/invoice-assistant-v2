@@ -2,6 +2,9 @@
    紧凑UI样式系统 - 优化空间使用效率
    ========================================= */
 
+/* 引用 Tailwind CSS 工具类 */
+@import "tailwindcss";
+
 @layer utilities {
   /* 紧凑间距工具类 */
   .compact-p { padding: 0.75rem; }
