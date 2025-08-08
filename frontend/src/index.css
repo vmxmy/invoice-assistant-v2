@@ -23,7 +23,12 @@
 @import "tailwindcss";
 
 /* DaisyUI 插件 - CSS-first 配置 */
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+  base: true;
+  styled: true;
+  utils: true;
+}
 
 /* DaisyUI 主题配置已移至 tailwind.config.js */
 
