@@ -35,13 +35,7 @@ import { useDynamicTableColumns } from '../hooks/useDynamicTableColumns'
 import { FieldSelector } from '../components/invoice/table/FieldSelector'
 import { InvoiceListView } from '../components/invoice/cards/InvoiceListView'
 import { MobileBatchActions } from '../components/mobile/MobileBatchActions'
-import { 
-  DaisyUIStatsSection,
-  createCashFlowStat,
-  createTodoStat,
-  createOverdueAmountStat,
-  createMonthlyInvoicesStat
-} from '../components/invoice/indicators/DaisyUIStatsSection'
+import { DashboardStatsSection, useStatsConfig } from '../components/dashboard/DashboardStatsSection'
 import CompactLayout from '../components/layout/CompactLayout'
 
 // 发票数据类型 - 基于invoice_management_view视图
@@ -153,7 +147,7 @@ export function InvoiceManagePage() {
   const { user } = useAuthContext()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { data: stats, loading: statsLoading, refresh: refreshStats } = useDashboardStats()
+  const { data: stats, loading: statsLoading, error: statsError, refresh: refreshStats } = useDashboardStats()
   
   // 设备检测 - 用于响应式适配
   const device = useDeviceDetection()
@@ -1363,6 +1357,35 @@ export function InvoiceManagePage() {
     }
   }
 
+  // 消费日期变更处理函数
+  const handleConsumptionDateChange = async (invoiceId: string, newDate: string): Promise<boolean> => {
+    try {
+      console.log('🔄 更新消费日期:', { invoiceId, newDate })
+      
+      const { error } = await supabase
+        .from('invoices')
+        .update({ 
+          consumption_date: newDate,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId)
+        .eq('user_id', user?.id)
+
+      if (error) {
+        console.error('❌ 消费日期更新失败:', error)
+        return false
+      }
+
+      console.log('✅ 消费日期更新成功')
+      // 使用 TanStack Query 刷新数据
+      refreshInvoices()
+      return true
+    } catch (error) {
+      console.error('❌ 消费日期更新异常:', error)
+      return false
+    }
+  }
+
   // 批量导出发票
   const handleBatchExport = () => {
     if (selectedInvoices.length === 0) return
@@ -1375,6 +1398,10 @@ export function InvoiceManagePage() {
     // 导出成功后清空选中项
     setSelectedInvoices([])
   }
+
+  // 获取指标卡配置 - 使用管理页模式
+  const { createManagementConfig } = useStatsConfig()
+  const statsConfig = createManagementConfig(setSearchFilters)
 
   // 移除活跃筛选数量计算
   // const activeFilterCount = Object.values(searchFilters).filter(value =>
@@ -1428,37 +1455,14 @@ export function InvoiceManagePage() {
           </div>
         </section>
 
-        {/* 任务导向指标卡片 - DaisyUI Stats 布局 */}
-        <section className="mb-6 sm:mb-8">
-          <DaisyUIStatsSection
-            loading={statsLoading}
-            stats={[
-              createCashFlowStat(
-                stats?.reimbursed_amount || 0,
-                stats?.unreimbursed_amount || 0,
-                () => navigate('/dashboard')
-              ),
-              createTodoStat(
-                stats?.unreimbursed_count || 0,
-                stats?.unreimbursed_amount || 0,
-                () => setSearchFilters({ status: ['unreimbursed'] })
-              ),
-              createOverdueAmountStat(
-                stats?.overdue_unreimbursed_count || 0,
-                stats?.overdue_unreimbursed_amount || 0,
-                Math.max(0, (stats?.due_soon_unreimbursed_count || 0) - (stats?.overdue_unreimbursed_count || 0)),
-                stats?.due_soon_unreimbursed_amount || 0,
-                () => setSearchFilters({ overdue: true })
-              ),
-              createMonthlyInvoicesStat(
-                stats?.monthly_invoices || 0,
-                stats?.monthly_amount || 0,
-                stats?.invoice_growth_rate,
-                () => navigate('/dashboard')
-              )
-            ]}
-          />
-        </section>
+        {/* 数据概览指标卡片 - 使用通用组件 */}
+        <DashboardStatsSection
+          stats={stats}
+          loading={statsLoading}
+          error={statsError}
+          config={statsConfig}
+          title="数据概览"
+        />
 
         {/* 控制区域 - 移动端响应式布局 */}
         <section className="mb-8">
@@ -1685,6 +1689,7 @@ export function InvoiceManagePage() {
                     onDownloadInvoice={handleExportInvoice}
                     onDeleteInvoice={(invoice) => handleDeleteInvoice(invoice.id)}
                     onStatusChange={handleStatusChange}
+                    onConsumptionDateChange={handleConsumptionDateChange}
                     isLoading={false}
                   />
                 </div>

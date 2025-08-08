@@ -93,6 +93,7 @@ interface InvoiceListViewProps {
   onDownloadInvoice: (invoice: Invoice) => void;
   onDeleteInvoice: (invoice: Invoice) => void;
   onStatusChange?: (invoiceId: string, newStatus: string) => Promise<boolean>;
+  onConsumptionDateChange?: (invoiceId: string, newDate: string) => Promise<boolean>;
   isLoading?: boolean;
 }
 
@@ -104,6 +105,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   onDownloadInvoice,
   onDeleteInvoice,
   onStatusChange,
+  onConsumptionDateChange,
   isLoading = false
 }) => {
 
@@ -155,6 +157,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
             onEdit={onDownloadInvoice}
             onDelete={onDeleteInvoice}
             onStatusChange={onStatusChange}
+            onConsumptionDateChange={onConsumptionDateChange}
           />
         ))}
       </div>
