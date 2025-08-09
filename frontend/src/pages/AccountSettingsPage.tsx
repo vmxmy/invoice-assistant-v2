@@ -48,10 +48,27 @@ const AccountSettingsPage: React.FC = () => {
 
   // 初始化表单数据
   React.useEffect(() => {
-    if (user) {
-      setDisplayName(user.user_metadata?.display_name || '');
-      setBio(user.user_metadata?.bio || '');
-    }
+    const loadProfile = async () => {
+      if (user?.id) {
+        // 先尝试从 profiles 表读取
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name, bio, avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setDisplayName(profile.display_name || user.user_metadata?.display_name || '');
+          setBio(profile.bio || user.user_metadata?.bio || '');
+        } else {
+          // 如果 profiles 表没有数据，使用 user_metadata
+          setDisplayName(user.user_metadata?.display_name || '');
+          setBio(user.user_metadata?.bio || '');
+        }
+      }
+    };
+    
+    loadProfile();
   }, [user]);
 
   // 处理头像选择
@@ -78,22 +95,35 @@ const AccountSettingsPage: React.FC = () => {
         const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
         const filePath = `avatars/${fileName}`;
         
+        // 检查并创建存储桶
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const bucketExists = buckets?.some(b => b.name === 'avatars');
+        
+        if (!bucketExists) {
+          // 创建avatars存储桶
+          await supabase.storage.createBucket('avatars', {
+            public: true,
+            fileSizeLimit: 5242880, // 5MB
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp']
+          });
+        }
+        
         const { error: uploadError } = await supabase.storage
-          .from('user-assets')
-          .upload(filePath, avatarFile);
+          .from('avatars')
+          .upload(filePath, avatarFile, { upsert: true });
           
         if (uploadError) throw uploadError;
         
         // 获取公开URL
         const { data: { publicUrl } } = supabase.storage
-          .from('user-assets')
+          .from('avatars')
           .getPublicUrl(filePath);
           
         avatarUrl = publicUrl;
       }
       
-      // 更新用户元数据
-      const { error } = await supabase.auth.updateUser({
+      // 1. 更新用户元数据
+      const { error: authError } = await supabase.auth.updateUser({
         data: {
           display_name: displayName,
           bio: bio,
@@ -101,13 +131,30 @@ const AccountSettingsPage: React.FC = () => {
         }
       });
       
-      if (error) throw error;
+      if (authError) throw authError;
+      
+      // 2. 更新或插入 profiles 表
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user?.id,
+          auth_user_id: user?.id,
+          display_name: displayName,
+          bio: bio,
+          avatar_url: avatarUrl,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'id'
+        });
+      
+      if (profileError) throw profileError;
       
       toast.success('个人资料已更新');
       setIsEditing(false);
       setAvatarFile(null);
       setAvatarPreview(null);
     } catch (error: any) {
+      console.error('保存个人资料失败:', error);
       toast.error('更新失败：' + error.message);
     }
   };
@@ -156,10 +203,17 @@ const AccountSettingsPage: React.FC = () => {
     
     setIsDeleting(true);
     try {
-      // TODO: 实现账户删除逻辑
-      // 这里应该调用 Supabase 的账户删除 API
-      // await supabase.auth.admin.deleteUser(session?.user.id);
-      toast.warning('账户删除功能正在开发中，暂时无法使用');
+      // 调用后端API删除账户
+      const { error } = await supabase.rpc('delete_user_account', {
+        user_id: user?.id
+      });
+      
+      if (error) throw error;
+      
+      // 登出并跳转
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+      toast.success('账户已成功删除');
     } catch (error: any) {
       toast.error('删除失败：' + error.message);
     } finally {
@@ -171,7 +225,6 @@ const AccountSettingsPage: React.FC = () => {
     { id: 'overview', label: '概览', icon: BarChart3 },
     { id: 'profile', label: '个人资料', icon: User },
     { id: 'activity', label: '使用统计', icon: Activity },
-    { id: 'preferences', label: '偏好设置', icon: Settings },
     { id: 'security', label: '安全设置', icon: Lock },
     { id: 'danger', label: '危险操作', icon: Shield },
   ];
@@ -528,11 +581,11 @@ const AccountSettingsPage: React.FC = () => {
                           <div className="text-sm text-green-600">本月金额</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">{Math.floor(Math.random() * 20) + 5}</div>
+                          <div className="text-2xl font-bold text-purple-600">{stats?.active_days || 0}</div>
                           <div className="text-sm text-purple-600">活跃天数</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-orange-600">{Math.floor(Math.random() * 50) + 10}</div>
+                          <div className="text-2xl font-bold text-orange-600">{stats?.total_operations || 0}</div>
                           <div className="text-sm text-orange-600">操作次数</div>
                         </div>
                       </div>
@@ -550,11 +603,11 @@ const AccountSettingsPage: React.FC = () => {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-sm">今日处理</span>
-                            <span className="font-medium">{Math.floor(Math.random() * 5)}</span>
+                            <span className="font-medium">{stats?.today_count || 0}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">本周处理</span>
-                            <span className="font-medium">{Math.floor(Math.random() * 20) + 5}</span>
+                            <span className="font-medium">{stats?.this_week_count || 0}</span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">本月处理</span>
@@ -575,34 +628,24 @@ const AccountSettingsPage: React.FC = () => {
                           最近活动
                         </h3>
                         <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-success rounded-full"></div>
-                            <div className="flex-1">
-                              <div className="text-sm">上传了新发票</div>
-                              <div className="text-xs text-base-content/60">2小时前</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-info rounded-full"></div>
-                            <div className="flex-1">
-                              <div className="text-sm">修改了个人资料</div>
-                              <div className="text-xs text-base-content/60">1天前</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-warning rounded-full"></div>
-                            <div className="flex-1">
-                              <div className="text-sm">删除了3张发票</div>
-                              <div className="text-xs text-base-content/60">3天前</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <div className="flex-1">
-                              <div className="text-sm">配置了邮箱扫描</div>
-                              <div className="text-xs text-base-content/60">1周前</div>
-                            </div>
-                          </div>
+                          {stats?.recent_activities && stats.recent_activities.length > 0 ? (
+                            stats.recent_activities.slice(0, 4).map((activity: any, index: number) => (
+                              <div key={index} className="flex items-center gap-3">
+                                <div className={`w-2 h-2 rounded-full ${
+                                  activity.type === 'upload' ? 'bg-success' :
+                                  activity.type === 'edit' ? 'bg-info' :
+                                  activity.type === 'delete' ? 'bg-warning' :
+                                  'bg-primary'
+                                }`}></div>
+                                <div className="flex-1">
+                                  <div className="text-sm">{activity.description}</div>
+                                  <div className="text-xs text-base-content/60">{activity.time_ago}</div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-base-content/60">暂无最近活动</div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -796,11 +839,26 @@ const AccountSettingsPage: React.FC = () => {
 
                   <div className="divider">两步验证</div>
                   
-                  <div className="alert">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>两步验证功能即将推出，敬请期待</span>
+                  <div className="card bg-base-200">
+                    <div className="card-body">
+                      <h3 className="font-semibold mb-4">两步验证</h3>
+                      <div className="form-control">
+                        <label className="label cursor-pointer">
+                          <span className="label-text">启用两步验证</span>
+                          <input 
+                            type="checkbox" 
+                            className="toggle toggle-primary" 
+                            disabled
+                            title="功能开发中"
+                          />
+                        </label>
+                        <label className="label">
+                          <span className="label-text-alt text-base-content/60">
+                            两步验证可以为您的账户提供额外的安全保护（功能开发中）
+                          </span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

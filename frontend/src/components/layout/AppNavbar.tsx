@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useAuthContext } from "../../contexts/AuthContext"
 import ThemeSelector from '../ui/ThemeSelector';
-import CompactModeToggle from '../ui/CompactModeToggle';
 
 const AppNavbar: React.FC = () => {
   const location = useLocation();
@@ -85,17 +84,19 @@ const AppNavbar: React.FC = () => {
             
             {/* 右侧：用户操作区 */}
             <div className="flex items-center gap-2">
+              {/* 主题切换器 */}
+              <ThemeSelector showLabel={false} />
+              
               {/* 用户头像下拉菜单 */}
               <div className="dropdown dropdown-end">
-                <div 
+                <button 
                   tabIndex={0} 
-                  role="button" 
-                  className="btn btn-ghost btn-circle btn-sm avatar hover:bg-base-200"
+                  className="btn btn-ghost btn-square hover:bg-base-200 p-1"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary-content text-primary flex items-center justify-center text-xs font-bold">
+                  <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-bold shrink-0">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
-                </div>
+                </button>
                 <ul
                   tabIndex={0}
                   className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-56 border border-base-200"
@@ -103,7 +104,7 @@ const AppNavbar: React.FC = () => {
                   {/* 用户信息 */}
                   <li className="p-2 hover:bg-transparent border-b border-base-200 mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary-content text-primary flex items-center justify-center text-sm font-bold">
+                      <div className="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-bold">
                         {user?.email?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -131,22 +132,6 @@ const AppNavbar: React.FC = () => {
                       <User className="w-4 h-4" />
                       <span>用户中心</span>
                     </Link>
-                  </li>
-                  
-                  {/* 主题切换 */}
-                  <li>
-                    <div className="flex items-center justify-between px-2 py-2">
-                      <span className="text-sm">主题切换</span>
-                      <ThemeSelector showLabel={false} className="scale-90" />
-                    </div>
-                  </li>
-                  
-                  {/* 紧凑模式切换 */}
-                  <li>
-                    <div className="flex items-center justify-between px-2 py-2">
-                      <span className="text-sm">显示密度</span>
-                      <CompactModeToggle showLabel={false} className="scale-90" />
-                    </div>
                   </li>
                   
                   {/* 退出登录 */}

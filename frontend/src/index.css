@@ -5,8 +5,10 @@
 /* Tailwind CSS v4 配置 */
 @import "tailwindcss";
 
-/* DaisyUI v5 集成 - 使用 @plugin 指令 */
-@plugin "daisyui";
+/* DaisyUI v5 集成 - 使用 @plugin 指令配置所有官方主题 */
+@plugin "daisyui" {
+  themes: all;
+}
 
 /* 自定义样式文件 */
 @import "./styles/typography.css";
@@ -15,7 +17,7 @@
 @import "./styles/print.css";
 @import "./styles/mobile.css";
 
-/* DaisyUI 主题配置已移至 tailwind.config.js */
+/* DaisyUI 主题配置：已启用所有官方主题 */
 
 /* 配置 Tailwind CSS v4 暗色模式变体 - 支持所有深色主题 */
 @custom-variant dark (&:where(
