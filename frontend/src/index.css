@@ -1,6 +1,6 @@
 /* 字体导入必须在最顶部 */
-@import url('https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/inter-font/3.19.0/inter.css');
-@import url('https://fonts.font.im/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
 /* Tailwind CSS v4 配置 */
 @import "tailwindcss";

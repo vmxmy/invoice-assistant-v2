@@ -5,7 +5,6 @@ import {
   Calendar, 
   DollarSign,
   Eye,
-  Edit,
   Trash2,
   MoreVertical,
   Building2,
@@ -425,11 +424,11 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
       }}
     >
       <div className="invoice-info-compact">
-        {/* 顶部：选择框、发票信息和操作菜单 - 改进布局结构 */}
-        <div className="relative flex items-start gap-3 mb-4">
+        {/* 顶部行：选择框和操作菜单 */}
+        <div className="flex items-center justify-between mb-3">
           {/* 左侧：选择框 */}
           <label className={`
-            cursor-pointer flex items-center justify-center flex-shrink-0 mt-1
+            cursor-pointer flex items-center justify-center flex-shrink-0
             transition-compact hover:bg-primary/5 rounded-lg p-1
             ${isSelected ? 'bg-primary/10' : ''}
           `}
@@ -450,91 +449,21 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             />
           </label>
           
-          {/* 中间：发票主要信息区域 */}
-          <div className="flex-1 min-w-0 space-y-3">
-            {/* 发票基础信息 - 简化只显示发票号码 */}
-            <div className="flex items-center">
-              <h3 className="font-semibold text-base text-base-content/90 truncate">
-                {invoice.invoice_number}
-              </h3>
-            </div>
-            
-            {/* 分类徽章和状态组件 - 改进间距和对齐 */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* 左侧：费用类别徽章 */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
-                  <div className={`
-                    badge-compact-sm inline-flex items-center gap-1.5
-                    ${getCategoryBadgeStyle(invoice).className}
-                    shadow-sm ring-1 ring-black/5 transition-compact
-                    hover:shadow-sm hover:scale-105
-                  `}
-                    style={getCategoryBadgeStyle(invoice).style}
-                  >
-                    <span className="text-current opacity-90 text-xs">{getCategoryIcon(invoice)}</span>
-                    <span className="truncate max-w-24 text-current">{getCategoryDisplayName(invoice)}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <div className="badge-compact-xs inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
-                      <span className="opacity-70 text-xs">📄</span>
-                      <span>未分类</span>
-                    </div>
-                    <div className="badge-compact-xs bg-warning/10 text-warning ring-1 ring-warning/20">
-                      待分类
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* 右侧：状态组件 */}
-              <div className="flex-shrink-0 ml-auto">
-                {statusComponent === 'toggle' ? (
-                  <InvoiceStatusToggle
-                    status={currentStatus}
-                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                    size="sm"
-                    disabled={!onStatusChange}
-                    loading={isUpdatingStatus}
-                  />
-                ) : statusComponent === 'switch' ? (
-                  <InvoiceStatusSwitch
-                    status={currentStatus}
-                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                    size="sm"
-                    disabled={!onStatusChange}
-                    loading={isUpdatingStatus}
-                  />
-                ) : (
-                  <InvoiceStatusBadge
-                    status={currentStatus}
-                    onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                    size="sm"
-                    interactive={!!onStatusChange}
-                    showDropdownArrow={true}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* 右侧：daisyUI原生分裂按钮组合 - 更符合设计系统 */}
+          {/* 右侧：三点菜单 */}
           {showActions && (
             <div className={`
-              absolute top-0 right-0
+              flex-shrink-0
               ${device.isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
               transition-opacity duration-300 ease-out
             `}>
-              {/* 单独的三点菜单 - 不再使用按钮组 */}
+              {/* 单独的三点菜单 */}
               <div className="dropdown dropdown-end">
-                {/* 三点菜单触发器 - 使用daisyUI的btn-square */}
+                {/* 三点菜单触发器 - 最小化样式 */}
                 <label 
                   tabIndex={0} 
                   className={`
-                    btn btn-ghost btn-square
-                    ${device.isMobile ? 'btn-md' : 'btn-sm'}
-                    hover:bg-base-200 border border-base-300/50
+                    cursor-pointer p-1 rounded-lg
+                    hover:bg-base-200/50 transition-colors
                   `}
                   title="更多操作"
                   aria-label={`发票 ${invoice.invoice_number} 的操作菜单`}
@@ -542,7 +471,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-base-content/60 hover:text-base-content`} />
                 </label>
                 
                 {/* DaisyUI原生菜单结构 */}
@@ -595,8 +524,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                           ${device.isMobile ? 'py-3' : 'py-2'}
                         `}
                       >
-                        <Edit className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
-                        <span>编辑</span>
+                        <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
+                        <span>下载</span>
                       </a>
                     </li>
                     
@@ -622,6 +551,61 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   </ul>
               </div>
             </div>
+          )}
+        </div>
+
+        {/* 第二行：分类徽章和状态组件 */}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          {/* 左侧：费用类别徽章 */}
+          {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
+            <div className={`
+              badge-compact-sm inline-flex items-center gap-1.5
+              ${getCategoryBadgeStyle(invoice).className}
+              shadow-sm ring-1 ring-black/5 transition-compact
+              hover:shadow-sm hover:scale-105
+            `}
+              style={getCategoryBadgeStyle(invoice).style}
+            >
+              <span className="text-current opacity-90 text-xs">{getCategoryIcon(invoice)}</span>
+              <span className="truncate max-w-24 text-current">{getCategoryDisplayName(invoice)}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <div className="badge-compact-xs inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
+                <span className="opacity-70 text-xs">📄</span>
+                <span>未分类</span>
+              </div>
+              <div className="badge-compact-xs bg-warning/10 text-warning ring-1 ring-warning/20">
+                待分类
+              </div>
+            </div>
+          )}
+          
+          {/* 右侧：状态组件 */}
+          {statusComponent === 'toggle' ? (
+            <InvoiceStatusToggle
+              status={currentStatus}
+              onStatusChange={onStatusChange ? handleStatusChange : undefined}
+              size="sm"
+              disabled={!onStatusChange}
+              loading={isUpdatingStatus}
+            />
+          ) : statusComponent === 'switch' ? (
+            <InvoiceStatusSwitch
+              status={currentStatus}
+              onStatusChange={onStatusChange ? handleStatusChange : undefined}
+              size="sm"
+              disabled={!onStatusChange}
+              loading={isUpdatingStatus}
+            />
+          ) : (
+            <InvoiceStatusBadge
+              status={currentStatus}
+              onStatusChange={onStatusChange ? handleStatusChange : undefined}
+              size="sm"
+              interactive={!!onStatusChange}
+              showDropdownArrow={true}
+            />
           )}
         </div>
 
