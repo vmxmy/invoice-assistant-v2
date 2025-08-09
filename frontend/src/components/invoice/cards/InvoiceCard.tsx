@@ -15,6 +15,7 @@ import {
   Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { supabase } from '../../../lib/supabase';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { useGestures } from '../../../hooks/useGestures';
 import { InvoiceStatusBadge, type InvoiceStatus } from '../InvoiceStatusBadge';
@@ -274,8 +275,6 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     
     try {
       // 生成带权限的临时访问URL
-      const { supabase } = await import('../../../lib/supabase');
-      
       let signedUrl = null;
       
       // 如果有file_path，使用它生成签名URL
@@ -794,7 +793,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                 {onConsumptionDateChange ? (
                   <>
                     <button
-                      popovertarget={`${calendarId}-popover`}
+                      popoverTarget={`${calendarId}-popover`}
                       className={`
                         text-left text-sm font-semibold text-base-content/80 hover:text-primary transition-colors
                         hover:underline cursor-pointer btn btn-ghost btn-xs justify-start p-0 h-auto min-h-0
