@@ -1414,14 +1414,6 @@ export function InvoiceManagePage() {
       <div className="page-container min-h-screen">
         {/* 页面状态指示器 */}
         <div className="container mx-auto p-6 max-w-7xl">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-base-content/70">
-                {useDynamicColumns ? '动态' : '简化'}列定义: {fieldsCount} 列
-              </span>
-              {dynamicColumnsLoading && <span className="loading loading-spinner loading-xs ml-2"></span>}
-            </div>
-          </div>
 
         {/* 主内容区 - 使用原生Tailwind Grid */}
         
@@ -1556,9 +1548,6 @@ export function InvoiceManagePage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
                         卡片视图
-                      </div>
-                      <div className="text-xs text-base-content/60">
-                        (移动端优化)
                       </div>
                     </div>
                   )}
