@@ -1,15 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // 排除存在CSS类名问题的文件，避免Service Worker构建错误
+        dontCacheBustURLsMatching: /\.(js|css)$/,
+        // 最大文件大小限制，避免大文件导致的问题
+        maximumFileSizeToCacheInBytes: 3000000,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -168,7 +174,11 @@ export default defineConfig({
         }
       },
       devOptions: {
-        enabled: true
+        enabled: true,
+        // 解决开发模式下Service Worker CSS处理问题
+        type: 'module',
+        // 只允许入口页面，避免CSS类名识别问题
+        navigateFallbackAllowlist: [/^index.html$/]
       }
     })
   ],

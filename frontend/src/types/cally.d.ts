@@ -14,8 +14,8 @@ declare global {
     interface HTMLAttributes<T> extends React.AriaAttributes, React.DOMAttributes<T> {
       // Popover API
       popover?: 'auto' | 'manual' | ''
-      popovertarget?: string
-      popovertargetaction?: 'show' | 'hide' | 'toggle'
+      popoverTarget?: string
+      popoverTargetAction?: 'show' | 'hide' | 'toggle'
       // CSS Anchor Positioning  
       anchorName?: string
       positionAnchor?: string

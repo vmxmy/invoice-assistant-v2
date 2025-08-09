@@ -1,34 +1,19 @@
-/* 引入现代字体配置 */
-@import "./styles/typography.css";
+/* 字体导入必须在最顶部 */
+@import url('https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/inter-font/3.19.0/inter.css');
+@import url('https://fonts.font.im/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
-/* 引入组件样式 */
-@import "./styles/components.css";
-
-/* 引入紧凑UI样式 */
-@import "./styles/compact-ui.css";
-
-/* 引入主题系统 */
-/* @import "./styles/themes.css"; */
-
-/* 引入动画系统 */
-@import "./styles/animations.css";
-
-/* 引入打印样式 */
-@import "./styles/print.css";
-
-/* 引入移动端优化样式 */
-@import "./styles/mobile.css";
-
-/* Tailwind CSS 引用 */
+/* Tailwind CSS v4 配置 */
 @import "tailwindcss";
 
-/* DaisyUI 插件 - CSS-first 配置 */
-@plugin "daisyui" {
-  themes: all;
-  base: true;
-  styled: true;
-  utils: true;
-}
+/* DaisyUI v5 集成 - 使用 @plugin 指令 */
+@plugin "daisyui";
+
+/* 自定义样式文件 */
+@import "./styles/typography.css";
+/* components.css 和 compact-ui.css 需要单独在组件中导入，因为它们使用了 @apply */
+@import "./styles/animations.css";
+@import "./styles/print.css";
+@import "./styles/mobile.css";
 
 /* DaisyUI 主题配置已移至 tailwind.config.js */
 

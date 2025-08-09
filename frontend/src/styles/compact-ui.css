@@ -2,8 +2,8 @@
    紧凑UI样式系统 - 优化空间使用效率
    ========================================= */
 
-/* 引用 Tailwind CSS 工具类 */
-@import "tailwindcss";
+/* 引用主样式文件以使用 Tailwind 和 DaisyUI 类 */
+@reference "../index.css";
 
 @layer utilities {
   /* 紧凑间距工具类 */

@@ -1,3 +1,6 @@
+/* 引用主样式文件以使用 Tailwind 和 DaisyUI 类 */
+@reference './index.css';
+
 /* 导入紧凑设计系统 */
 @import './styles/compact-design-system.css';
 
