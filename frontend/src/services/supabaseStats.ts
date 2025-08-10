@@ -39,7 +39,7 @@ export const supabaseStats = {
   async getMonthlyStats(userId: string): Promise<MonthlyStats[]> {
     // 确保 userId 是有效的 UUID 格式
     const { data, error } = await supabase
-      .from('v_invoice_monthly_stats')
+      .from('v_invoice_monthly_analysis')
       .select('*')
       .eq('user_id', userId)
       .eq('is_recent', true) // 只获取最近12个月
@@ -59,10 +59,11 @@ export const supabaseStats = {
    */
   async getTypeStats(userId: string): Promise<TypeStats[]> {
     const { data, error } = await supabase
-      .from('v_invoice_type_stats')
-      .select('*')
+      .from('v_category_statistics')
+      .select('invoice_type, invoice_count:invoice_count, total_amount, avg_amount')
       .eq('user_id', userId)
-      .order('count', { ascending: false })
+      .not('invoice_type', 'is', null)
+      .order('invoice_count', { ascending: false })
 
     if (error) {
       console.error('获取类型统计失败:', error)
@@ -77,8 +78,8 @@ export const supabaseStats = {
    */
   async getUserSummary(userId: string): Promise<UserSummary | null> {
     const { data, error } = await supabase
-      .from('v_invoice_summary')
-      .select('*')
+      .from('v_invoice_aggregates')
+      .select('total_invoices, total_amount, avg_amount, max_amount, min_amount, active_months, invoice_types, latest_invoice_date, earliest_invoice_date')
       .eq('user_id', userId)
       .single()
 
@@ -95,7 +96,7 @@ export const supabaseStats = {
    */
   async getRecentMonthlyStats(userId: string): Promise<RecentMonthlyStats[]> {
     const { data, error } = await supabase
-      .from('v_invoice_monthly_stats')
+      .from('v_invoice_monthly_analysis')
       .select('month:month_str, invoice_count, total_amount')
       .eq('user_id', userId)
       .eq('is_recent', true)
@@ -179,7 +180,7 @@ export const supabaseStats = {
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
       const categoryData = typeStats.map((item, index) => ({
         name: item.invoice_type,
-        value: item.count,
+        value: item.invoice_count || item.count,
         amount: item.total_amount,
         color: colors[index % colors.length]
       }))
