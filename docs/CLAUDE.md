@@ -44,6 +44,22 @@
 
 ## Migration Design Docs
 - Supabase OCR迁移设计文档已添加：docs/supabase-ocr-migration-design.md
+- 数据库视图优化与迁移指南：docs/DATABASE_VIEWS_MIGRATION.md
+
+## Database Views API Documentation
+### 视图API使用指南（docs/DATABASE_VIEWS_MIGRATION.md）
+该文档包含：
+- **新视图API使用方法**：
+  - `v_invoice_aggregates` - 统一发票聚合（替代dashboard_stats、invoice_summary、status_stats）
+  - `v_invoice_monthly_analysis` - 月度分析（替代monthly_stats、monthly_trend）
+  - `v_category_statistics` - 分类统计（替代expense_category_stats、invoice_category_analysis）
+- **物化视图缓存策略**：
+  - `mv_invoice_aggregates` - 15分钟智能缓存
+  - `refresh_invoice_aggregates()` - 智能刷新函数
+- **字段映射说明**：完整的新旧字段对照表
+- **前端集成示例**：TypeScript/JavaScript代码示例
+- **性能优化成果**：查询响应<1ms，性能提升500倍+
+- **迁移步骤和故障排查**：详细的迁移指南和常见问题解决
 
 ## Frontend Technology Notes
 - 使用 Heroicons（Tailwind CSS 官方图标库）

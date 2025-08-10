@@ -25,12 +25,44 @@ export function useDashboardStats(): DashboardStatsResponse {
       setError(null)
       console.log('🔍 [DashboardStats] 获取统计数据', user.id)
 
-      // 从视图获取统计数据
-      const { data: statsData, error: statsError } = await supabase
-        .from('v_dashboard_stats')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
+      // 优先使用物化视图（带缓存），失败时降级到普通视图
+      let statsData = null
+      let statsError = null
+      
+      try {
+        // 尝试使用物化视图
+        const { data: mvData, error: mvError } = await supabase
+          .from('mv_invoice_aggregates')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        
+        if (!mvError && mvData) {
+          console.log('⚡ [DashboardStats] 使用物化视图缓存')
+          statsData = mvData
+        } else {
+          // 降级到普通视图
+          console.log('🔄 [DashboardStats] 降级到普通视图')
+          const { data: vData, error: vError } = await supabase
+            .from('v_invoice_aggregates')
+            .select('*')
+            .eq('user_id', user.id)
+            .single()
+          
+          statsData = vData
+          statsError = vError
+        }
+      } catch (error) {
+        // 最后降级到普通视图
+        const { data: vData, error: vError } = await supabase
+          .from('v_invoice_aggregates')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        
+        statsData = vData
+        statsError = vError
+      }
 
       if (statsError) {
         throw new Error(`获取统计数据失败: ${statsError.message}`)
@@ -43,16 +75,16 @@ export function useDashboardStats(): DashboardStatsResponse {
       // 直接使用视图返回的数据
       const data: DashboardStats = {
         user_id: statsData.user_id,
-        profile_id: statsData.profile_id,
-        display_name: statsData.display_name,
+        profile_id: statsData.user_id, // 使用user_id替代profile_id
+        display_name: '', // 需要从其他地方获取
         
         // 发票统计
         total_invoices: statsData.total_invoices,
         total_amount: statsData.total_amount,
         monthly_invoices: statsData.monthly_invoices,
         monthly_amount: statsData.monthly_amount,
-        verified_invoices: statsData.verified_invoices,
-        last_invoice_date: statsData.last_invoice_date,
+        verified_invoices: statsData.verified_count, // 字段名调整
+        last_invoice_date: statsData.latest_invoice_date, // 字段名调整
         
         // 报销状态统计
         unreimbursed_count: statsData.unreimbursed_count,
@@ -73,31 +105,31 @@ export function useDashboardStats(): DashboardStatsResponse {
         monthly_reimbursed_count: statsData.monthly_reimbursed_count,
         monthly_reimbursed_amount: statsData.monthly_reimbursed_amount,
         
-        // 邮箱统计
-        total_email_accounts: statsData.total_email_accounts,
-        active_email_accounts: statsData.active_email_accounts,
+        // 邮箱统计 - 新视图不包含这些字段，设置默认值
+        total_email_accounts: 0,
+        active_email_accounts: 0,
         
-        // 扫描统计
-        total_scan_jobs: statsData.total_scan_jobs,
-        completed_scan_jobs: statsData.completed_scan_jobs,
-        monthly_processed: statsData.monthly_processed,
-        last_scan_at: statsData.last_scan_at,
+        // 扫描统计 - 新视图不包含这些字段，设置默认值
+        total_scan_jobs: 0,
+        completed_scan_jobs: 0,
+        monthly_processed: 0,
+        last_scan_at: null,
         
-        // 活动统计
-        weekly_invoices: statsData.weekly_invoices,
-        daily_invoices: statsData.daily_invoices,
+        // 活动统计 - 新视图不包含这些字段，设置默认值
+        weekly_invoices: 0,
+        daily_invoices: 0,
         
         // 增长率
         invoice_growth_rate: statsData.invoice_growth_rate,
         amount_growth_rate: statsData.amount_growth_rate,
         
-        // 用户状态
-        is_active: statsData.is_active,
-        is_premium: statsData.is_premium,
-        premium_expires_at: statsData.premium_expires_at,
+        // 用户状态 - 新视图不包含这些字段，设置默认值
+        is_active: true,
+        is_premium: false,
+        premium_expires_at: null,
         
         // 时间戳
-        updated_at: statsData.updated_at
+        updated_at: new Date().toISOString()
       }
 
       console.log('✅ [DashboardStats] 统计数据获取成功', {
@@ -124,22 +156,102 @@ export function useDashboardStats(): DashboardStatsResponse {
     fetchStats()
   }, [fetchStats])
 
-  // 使用轮询替代实时订阅 - 避免WebSocket连接问题
+  // 优化的轮询策略 - 基于用户活动和缓存状态
   useEffect(() => {
     if (!user?.id) return
 
-    console.log('⏰ [DashboardStats] 设置定时刷新', user.id)
+    console.log('⏰ [DashboardStats] 设置智能刷新策略', user.id)
 
-    // 每60秒自动刷新统计数据
-    const interval = setInterval(() => {
-      console.log('🔄 [DashboardStats] 定时刷新统计数据')
-      fetchStats()
-    }, 60000) // 60秒
+    let refreshInterval = 60000 // 默认60秒
+    let lastActivity = Date.now()
+    let interval: NodeJS.Timeout
 
-    // 清理定时器
+    // 检测用户活动
+    const handleUserActivity = () => {
+      lastActivity = Date.now()
+      // 用户活跃时，加快刷新频率
+      if (refreshInterval !== 30000) {
+        refreshInterval = 30000 // 30秒
+        clearInterval(interval)
+        startPolling()
+      }
+    }
+
+    // 智能轮询逻辑
+    const startPolling = () => {
+      interval = setInterval(async () => {
+        const timeSinceActivity = Date.now() - lastActivity
+        
+        // 根据用户活动调整刷新频率
+        if (timeSinceActivity > 300000) { // 5分钟无活动
+          refreshInterval = 180000 // 3分钟
+        } else if (timeSinceActivity > 120000) { // 2分钟无活动
+          refreshInterval = 90000 // 90秒
+        } else {
+          refreshInterval = 30000 // 30秒
+        }
+
+        console.log('🔄 [DashboardStats] 智能刷新', {
+          refreshInterval: refreshInterval / 1000 + '秒',
+          timeSinceActivity: Math.round(timeSinceActivity / 1000) + '秒'
+        })
+        
+        // 调用后端智能刷新函数（带缓存控制）
+        try {
+          const { data: refreshResult } = await supabase
+            .rpc('refresh_invoice_aggregates', {
+              force_refresh: false,
+              max_age_minutes: 15
+            })
+          
+          if (refreshResult?.refreshed) {
+            console.log('✅ [DashboardStats] 缓存已刷新')
+            fetchStats()
+          } else {
+            console.log('⌛ [DashboardStats] 使用缓存数据', refreshResult?.message)
+          }
+        } catch (error) {
+          console.error('❌ [DashboardStats] 刷新失败', error)
+          fetchStats() // 降级到直接查询
+        }
+        
+        // 动态调整轮询间隔
+        if (interval && refreshInterval !== 30000) {
+          clearInterval(interval)
+          startPolling()
+        }
+      }, refreshInterval)
+    }
+
+    // 监听用户活动
+    document.addEventListener('mousemove', handleUserActivity)
+    document.addEventListener('keypress', handleUserActivity)
+    document.addEventListener('click', handleUserActivity)
+    
+    // 监听页面可见性
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log('😴 [DashboardStats] 页面隐藏，暂停刷新')
+        clearInterval(interval)
+      } else {
+        console.log('👀 [DashboardStats] 页面可见，恢复刷新')
+        fetchStats() // 立即刷新一次
+        startPolling()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // 启动轮询
+    startPolling()
+
+    // 清理
     return () => {
-      console.log('🧹 [DashboardStats] 清理定时刷新')
+      console.log('🧹 [DashboardStats] 清理智能刷新')
       clearInterval(interval)
+      document.removeEventListener('mousemove', handleUserActivity)
+      document.removeEventListener('keypress', handleUserActivity)
+      document.removeEventListener('click', handleUserActivity)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [user?.id, fetchStats])
 
