@@ -22,6 +22,12 @@ import './App.css'
 import './styles/compact-ui.css'
 import './styles/compact-design-system.css'
 import './styles/modal-compact-fix.css'
+import debugEnvironmentVariables from './utils/debugEnv'
+
+// 调试环境变量（仅在生产环境且VITE_APP_DOMAIN未定义时显示）
+if (import.meta.env.PROD || !import.meta.env.VITE_APP_DOMAIN) {
+  debugEnvironmentVariables()
+}
 
 // 创建QueryClient实例
 const queryClient = new QueryClient({
