@@ -8,6 +8,7 @@ import { useAuthContext } from '../contexts/AuthContext'
 import { useDashboardStats, generateStatCards } from '../hooks/useDashboardStats'
 import { useRecentActivities } from '../hooks/useRecentActivities'
 import { DashboardStatsSection, useStatsConfig } from '../components/dashboard/DashboardStatsSection'
+import { EmptyStateGuide } from '../components/dashboard/EmptyStateGuide'
 import CompactLayout from '../components/layout/CompactLayout'
 import { 
   CloudArrowUpIcon,
@@ -22,6 +23,7 @@ import {
 
 export function DashboardPage() {
   const { user } = useAuthContext()
+  const navigate = useNavigate()
   // 获取实时统计数据
   const { data: stats, loading: statsLoading, error: statsError, refresh } = useDashboardStats() as any
   // 获取最近活动
@@ -29,6 +31,19 @@ export function DashboardPage() {
   // 获取指标卡配置
   const { createHomepageConfig } = useStatsConfig()
   const statsConfig = createHomepageConfig()
+
+  // 检查是否是新用户（没有发票数据）
+  const isNewUser = !statsLoading && stats && stats.total_invoices === 0
+
+  // 注意：OnboardingGuard 已经处理了引导流程，这里只处理已完成引导但还没有发票的情况
+  // 如果是新用户且没有发票数据，显示空状态引导
+  if (isNewUser) {
+    return (
+      <CompactLayout compactMode="auto">
+        <EmptyStateGuide />
+      </CompactLayout>
+    )
+  }
 
   return (
     <CompactLayout compactMode="auto">
