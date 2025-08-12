@@ -22,12 +22,12 @@ export const EmptyStateGuide: React.FC = () => {
     <div className="hero min-h-screen">
       <div className="hero-content text-center px-4">
         <div className="w-full max-w-4xl">
-          <div className="avatar placeholder mb-4">
-            <div className="bg-primary text-primary-content rounded-full w-16 flex items-center justify-center">
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary text-primary-content rounded-full w-16 h-16 flex items-center justify-center">
               <Mail className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">智能发票助手</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">智能发票助手</h1>
           <p className="py-6 text-sm sm:text-base">发送邮件，AI 自动处理发票</p>
           
           <ul className="steps steps-vertical sm:steps-horizontal mb-8 w-full">
@@ -56,15 +56,15 @@ export const EmptyStateGuide: React.FC = () => {
                   <Send className="w-5 h-5" />
                   发送到
                 </h2>
-                <div className="flex items-center justify-center gap-2 w-full">
+                <div className="join w-full">
                   <input
                     type="text"
                     value={userEmail}
-                    className="input input-bordered flex-1 text-xs sm:text-sm"
+                    className="input input-bordered join-item flex-1 text-xs sm:text-sm"
                     readOnly
                   />
                   <button
-                    className="btn btn-ghost btn-sm"
+                    className="btn join-item"
                     onClick={copyToClipboard}
                     title={copySuccess ? "已复制" : "复制邮箱"}
                   >
@@ -93,7 +93,7 @@ export const EmptyStateGuide: React.FC = () => {
           </div>
           
           <button 
-            className="btn btn-primary btn-lg w-full sm:w-auto"
+            className="btn btn-primary w-full sm:w-auto"
             onClick={() => window.location.href = `mailto:${userEmail}?subject=发票`}
           >
             <Send className="w-5 h-5" />

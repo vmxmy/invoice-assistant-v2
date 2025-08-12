@@ -18,6 +18,7 @@ import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
 import { InboxPage } from './components/inbox/InboxPage'
 import PWAManager from './components/mobile/PWAManager'
+import { OnboardingGuard } from './components/onboarding/OnboardingGuard'
 import './App.css'
 import './styles/compact-ui.css'
 import './styles/compact-design-system.css'
@@ -61,12 +62,14 @@ function AppContent() {
       <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
       <Route path="/magic-link-callback" element={<MagicLinkCallbackPage />} />
       
-      {/* 受保护的路由 */}
+      {/* 受保护的路由 - 包含引导流程检查 */}
       <Route 
         path="/" 
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <OnboardingGuard>
+              <DashboardPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />
@@ -74,7 +77,9 @@ function AppContent() {
         path="/dashboard" 
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <OnboardingGuard>
+              <DashboardPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />
@@ -82,7 +87,9 @@ function AppContent() {
         path="/invoices" 
         element={
           <ProtectedRoute>
-            <InvoiceManagePage />
+            <OnboardingGuard>
+              <InvoiceManagePage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />
@@ -90,7 +97,9 @@ function AppContent() {
         path="/invoices/upload" 
         element={
           <ProtectedRoute>
-            <InvoiceUploadPage />
+            <OnboardingGuard>
+              <InvoiceUploadPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />
@@ -98,7 +107,9 @@ function AppContent() {
         path="/settings" 
         element={
           <ProtectedRoute>
-            <AccountSettingsPage />
+            <OnboardingGuard>
+              <AccountSettingsPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />
@@ -106,7 +117,9 @@ function AppContent() {
         path="/inbox" 
         element={
           <ProtectedRoute>
-            <InboxPage />
+            <OnboardingGuard>
+              <InboxPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } 
       />

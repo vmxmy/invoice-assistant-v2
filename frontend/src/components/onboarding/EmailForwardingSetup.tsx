@@ -99,12 +99,12 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
     <div className="hero min-h-screen">
       <div className="hero-content text-center px-4">
         <div className="w-full max-w-4xl">
-          <div className="avatar placeholder mb-4">
-            <div className="bg-primary text-primary-content rounded-full w-16 flex items-center justify-center">
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary text-primary-content rounded-full w-16 h-16 flex items-center justify-center">
               <Settings className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">邮件转发设置</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">邮件转发设置</h1>
           <p className="py-6 text-sm sm:text-base">配置转发规则，开始使用</p>
 
           <ul className="steps steps-vertical sm:steps-horizontal mb-8 w-full">
@@ -121,15 +121,15 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
                   <Mail className="w-5 h-5" />
                   转发地址
                 </h2>
-                <div className="flex items-center justify-center gap-2 w-full">
+                <div className="join w-full">
                   <input
                     type="text"
                     value={forwardingEmail}
-                    className="input input-bordered flex-1 text-xs sm:text-sm font-mono"
+                    className="input input-bordered join-item flex-1 text-xs sm:text-sm font-mono"
                     readOnly
                   />
                   <button
-                    className={`btn btn-ghost btn-sm ${copySuccess ? 'text-success' : ''}`}
+                    className={`btn join-item ${copySuccess ? 'text-success' : ''}`}
                     onClick={copyToClipboard}
                     title={copySuccess ? "已复制" : "复制地址"}
                   >
@@ -145,7 +145,7 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
                   <p>主题包含"发票"关键字</p>
                 </div>
                 <button
-                  className="btn btn-primary btn-lg w-full sm:w-auto mt-4"
+                  className="btn btn-primary w-full sm:w-auto mt-4"
                   onClick={() => setCurrentStep(2)}
                 >
                   下一步
@@ -183,7 +183,7 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
                     返回
                   </button>
                   <button
-                    className="btn btn-primary btn-lg"
+                    className="btn btn-primary"
                     onClick={() => setCurrentStep(3)}
                   >
                     下一步
@@ -208,7 +208,7 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
                     <pre data-prefix="内容:"><code>这是一封测试邮件</code></pre>
                   </div>
                   <button 
-                    className="btn btn-outline btn-sm w-full"
+                    className="btn btn-outline w-full"
                     onClick={() => window.location.href = `mailto:${userEmail}?subject=测试发票转发&body=这是一封测试邮件，用于验证转发规则是否正常工作。`}
                   >
                     <Mail className="w-4 h-4" />
@@ -223,7 +223,7 @@ export const EmailForwardingSetup: React.FC<EmailForwardingSetupProps> = ({ onCo
                     返回
                   </button>
                   <button
-                    className={`btn btn-primary btn-lg ${isChecking ? 'loading' : ''}`}
+                    className={`btn btn-primary ${isChecking ? 'loading' : ''}`}
                     onClick={checkSetupStatus}
                     disabled={isChecking}
                   >
