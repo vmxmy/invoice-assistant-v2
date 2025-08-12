@@ -35,7 +35,7 @@ export function useDashboardStats(): DashboardStatsResponse {
           .from('mv_invoice_aggregates')
           .select('*')
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()  // 使用 maybeSingle 处理空数据
         
         if (!mvError && mvData) {
           console.log('⚡ [DashboardStats] 使用物化视图缓存')
@@ -47,29 +47,89 @@ export function useDashboardStats(): DashboardStatsResponse {
             .from('v_invoice_aggregates')
             .select('*')
             .eq('user_id', user.id)
-            .single()
+            .maybeSingle()
           
           statsData = vData
           statsError = vError
         }
       } catch (error) {
         // 最后降级到普通视图
+        console.log('⚠️ [DashboardStats] 物化视图查询失败，使用普通视图', error)
         const { data: vData, error: vError } = await supabase
           .from('v_invoice_aggregates')
           .select('*')
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()
         
         statsData = vData
         statsError = vError
       }
 
       if (statsError) {
-        throw new Error(`获取统计数据失败: ${statsError.message}`)
+        console.warn('获取统计数据失败，使用默认值:', statsError.message)
+        statsData = null
       }
 
+      // 如果没有数据，创建默认统计数据
       if (!statsData) {
-        throw new Error('未找到统计数据')
+        console.log('用户暂无发票数据，使用默认统计值')
+        const defaultStats: DashboardStats = {
+          user_id: user.id,
+          profile_id: user.id,
+          display_name: user.email || '',
+          
+          // 发票统计 - 全部设为0
+          total_invoices: 0,
+          total_amount: 0,
+          monthly_invoices: 0,
+          monthly_amount: 0,
+          verified_invoices: 0,
+          last_invoice_date: null,
+          
+          // 报销状态统计
+          unreimbursed_count: 0,
+          reimbursed_count: 0,
+          unreimbursed_amount: 0,
+          reimbursed_amount: 0,
+          
+          // 临期和超期统计
+          due_soon_unreimbursed_count: 0,
+          due_soon_unreimbursed_amount: 0,
+          overdue_unreimbursed_count: 0,
+          overdue_unreimbursed_amount: 0,
+          oldest_unreimbursed_date: null,
+          
+          // 本月报销统计
+          monthly_reimbursed_count: 0,
+          monthly_reimbursed_amount: 0,
+          
+          // 邮箱和扫描统计
+          total_email_accounts: 0,
+          active_email_accounts: 0,
+          total_scan_jobs: 0,
+          completed_scan_jobs: 0,
+          monthly_processed: 0,
+          last_scan_at: null,
+          
+          // 活动统计
+          weekly_invoices: 0,
+          daily_invoices: 0,
+          
+          // 增长率
+          invoice_growth_rate: 0,
+          amount_growth_rate: 0,
+          
+          // 用户状态
+          is_active: true,
+          is_premium: false,
+          premium_expires_at: null,
+          
+          // 时间戳
+          updated_at: new Date().toISOString()
+        }
+        
+        setData(defaultStats)
+        return
       }
 
       // 直接使用视图返回的数据
