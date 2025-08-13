@@ -9,7 +9,8 @@ import {
   User,
   Mail,
   Menu,
-  X
+  X,
+  BarChart3
 } from 'lucide-react';
 import { useAuthContext } from "../../contexts/AuthContext"
 import ThemeSelector from '../ui/ThemeSelector';
@@ -22,6 +23,7 @@ const AppNavbar: React.FC = () => {
   const navigation = [
     { name: '首页', href: '/dashboard', icon: LayoutDashboard },
     { name: '发票管理', href: '/invoices', icon: FileText },
+    { name: '数据统计', href: '/statistics', icon: BarChart3 },
     { name: '上传发票', href: '/invoices/upload', icon: Upload },
     { name: '收件箱', href: '/inbox', icon: Mail },
   ];

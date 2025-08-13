@@ -134,7 +134,12 @@ export function DashboardPage() {
                   查看发票统计和财务分析报表
                 </p>
                 <div className="card-actions">
-                  <button className="btn btn-accent btn-block">查看统计</button>
+                  <button 
+                    className="btn btn-accent btn-block"
+                    onClick={() => navigate('/statistics')}
+                  >
+                    查看统计
+                  </button>
                 </div>
               </div>
             </div>

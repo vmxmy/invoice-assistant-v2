@@ -16,6 +16,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { InvoiceManagePage } from './pages/InvoiceManagePage'
 import InvoiceUploadPage from './pages/InvoiceUploadPage'
 import AccountSettingsPage from './pages/AccountSettingsPage'
+import { StatisticsPage } from './pages/StatisticsPage'
 import { InboxPage } from './components/inbox/InboxPage'
 import PWAManager from './components/mobile/PWAManager'
 import { OnboardingGuard } from './components/onboarding/OnboardingGuard'
@@ -119,6 +120,16 @@ function AppContent() {
           <ProtectedRoute>
             <OnboardingGuard>
               <InboxPage />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/statistics" 
+        element={
+          <ProtectedRoute>
+            <OnboardingGuard>
+              <StatisticsPage />
             </OnboardingGuard>
           </ProtectedRoute>
         } 
