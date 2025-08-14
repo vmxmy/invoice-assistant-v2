@@ -240,14 +240,16 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {topStats.first && (
               <div className="stat">
-                <div className="stat-title">第一名</div>
+                <div className="stat-title">{topStats.first.label}</div>
                 <div className="stat-value text-lg">
-                  {topStats.first.label}
-                </div>
-                <div className="stat-desc">
                   {selectedMetric === 'amount' && `¥${topStats.first.value >= 10000 ? `${(topStats.first.value / 10000).toFixed(1)}万` : topStats.first.value.toLocaleString()}`}
                   {selectedMetric === 'count' && `${topStats.first.count} 张`}
                   {selectedMetric === 'average' && `¥${(topStats.first.value / topStats.first.count).toFixed(0)}`}
+                </div>
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `${topStats.first.count} 张发票`}
+                  {selectedMetric === 'count' && `¥${topStats.first.value >= 10000 ? `${(topStats.first.value / 10000).toFixed(1)}万` : topStats.first.value.toLocaleString()}`}
+                  {selectedMetric === 'average' && `${topStats.first.count} 张发票`}
                   · {topStats.first.percentage.toFixed(1)}%
                 </div>
               </div>
@@ -255,14 +257,16 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             
             {topStats.second && (
               <div className="stat">
-                <div className="stat-title">第二名</div>
+                <div className="stat-title">{topStats.second.label}</div>
                 <div className="stat-value text-lg">
-                  {topStats.second.label}
-                </div>
-                <div className="stat-desc">
                   {selectedMetric === 'amount' && `¥${topStats.second.value >= 10000 ? `${(topStats.second.value / 10000).toFixed(1)}万` : topStats.second.value.toLocaleString()}`}
                   {selectedMetric === 'count' && `${topStats.second.count} 张`}
                   {selectedMetric === 'average' && `¥${(topStats.second.value / topStats.second.count).toFixed(0)}`}
+                </div>
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `${topStats.second.count} 张发票`}
+                  {selectedMetric === 'count' && `¥${topStats.second.value >= 10000 ? `${(topStats.second.value / 10000).toFixed(1)}万` : topStats.second.value.toLocaleString()}`}
+                  {selectedMetric === 'average' && `${topStats.second.count} 张发票`}
                   · {topStats.second.percentage.toFixed(1)}%
                 </div>
               </div>
@@ -270,14 +274,16 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             
             {topStats.third && (
               <div className="stat">
-                <div className="stat-title">第三名</div>
+                <div className="stat-title">{topStats.third.label}</div>
                 <div className="stat-value text-lg">
-                  {topStats.third.label}
-                </div>
-                <div className="stat-desc">
                   {selectedMetric === 'amount' && `¥${topStats.third.value >= 10000 ? `${(topStats.third.value / 10000).toFixed(1)}万` : topStats.third.value.toLocaleString()}`}
                   {selectedMetric === 'count' && `${topStats.third.count} 张`}
                   {selectedMetric === 'average' && `¥${(topStats.third.value / topStats.third.count).toFixed(0)}`}
+                </div>
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `${topStats.third.count} 张发票`}
+                  {selectedMetric === 'count' && `¥${topStats.third.value >= 10000 ? `${(topStats.third.value / 10000).toFixed(1)}万` : topStats.third.value.toLocaleString()}`}
+                  {selectedMetric === 'average' && `${topStats.third.count} 张发票`}
                   · {topStats.third.percentage.toFixed(1)}%
                 </div>
               </div>
@@ -290,110 +296,39 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             {/* 主图表区域 - 与月度趋势保持一致 */}
             <div className="w-full overflow-x-auto overflow-y-hidden">
               <div className="min-w-[400px] py-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* 饼图 */}
-                  <div className="flex flex-col items-center">
-                    <SimplePieChart data={currentData} size={220} />
-                    
-                    {/* 简化的图例 */}
-                    <div className="mt-4 space-y-1 w-full max-w-xs">
-                      {currentData.slice(0, 5).map((item, index) => (
-                        <div key={index} className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-2 h-2 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: item.color }}
-                            ></div>
-                            <span className="truncate">{item.label}</span>
+                {/* 饼图 - 居中显示 */}
+                <div className="flex justify-center items-center py-4">
+                  <SimplePieChart data={currentData} size={260} />
+                </div>
+                
+                {/* 子分类展示 */}
+                {currentData.some((item: any) => item.subcategories?.length > 0) && (
+                  <div className="mt-6 p-4 bg-base-200 rounded-lg">
+                    <h5 className="text-sm font-medium text-base-content/70 mb-3">子分类分布</h5>
+                    <div className="space-y-3">
+                      {currentData.slice(0, 3).map((item: any, idx) => 
+                        item.subcategories?.length > 0 && (
+                          <div key={idx}>
+                            <div className="font-medium text-sm mb-2">{item.label}</div>
+                            <div className="flex flex-wrap gap-2">
+                              {item.subcategories.slice(0, 5).map((sub: any, subIdx: number) => (
+                                <span key={subIdx} className="badge badge-outline">
+                                  {sub.name} 
+                                  <span className="ml-1 font-medium">{sub.percentage.toFixed(0)}%</span>
+                                </span>
+                              ))}
+                              {item.subcategories.length > 5 && (
+                                <span className="badge badge-ghost">
+                                  +{item.subcategories.length - 5} 更多
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <span className="font-medium text-base-content/70">
-                            {item.percentage.toFixed(1)}%
-                          </span>
-                        </div>
-                      ))}
-                      {currentData.length > 5 && (
-                        <div className="text-xs text-base-content/50 text-center pt-1">
-                          其他 {currentData.length - 5} 个分类
-                        </div>
+                        )
                       )}
                     </div>
                   </div>
-
-                  {/* 分类明细表格 */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-base-content/70 mb-3">分类明细</h4>
-                    <div className="overflow-x-auto">
-                      <table className="table table-xs">
-                        <thead>
-                          <tr>
-                            <th>分类</th>
-                            <th className="text-right">
-                              {selectedMetric === 'amount' && '金额'}
-                              {selectedMetric === 'count' && '数量'}
-                              {selectedMetric === 'average' && '均值'}
-                            </th>
-                            <th className="text-right">占比</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentData.map((item, index) => (
-                            <tr key={index}>
-                              <td>
-                                <div className="flex items-center gap-2">
-                                  <div 
-                                    className="w-2 h-2 rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: item.color }}
-                                  ></div>
-                                  <span className="truncate max-w-[120px]">{item.label}</span>
-                                </div>
-                              </td>
-                              <td className="text-right">
-                                {selectedMetric === 'amount' && (
-                                  item.value >= 10000 
-                                    ? `¥${(item.value / 10000).toFixed(1)}万`
-                                    : `¥${item.value.toLocaleString()}`
-                                )}
-                                {selectedMetric === 'count' && `${item.count} 张`}
-                                {selectedMetric === 'average' && `¥${(item.value / item.count).toFixed(0)}`}
-                              </td>
-                              <td className="text-right">
-                                {item.percentage.toFixed(1)}%
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    
-                    {/* 子分类展示 */}
-                    {currentData.some((item: any) => item.subcategories?.length > 0) && (
-                      <div className="mt-4 p-3 bg-base-200 rounded-lg">
-                        <h5 className="text-xs font-medium text-base-content/70 mb-2">子分类分布</h5>
-                        <div className="space-y-2">
-                          {currentData.slice(0, 3).map((item: any, idx) => 
-                            item.subcategories?.length > 0 && (
-                              <div key={idx} className="text-xs">
-                                <span className="font-medium">{item.label}:</span>
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {item.subcategories.slice(0, 3).map((sub: any, subIdx: number) => (
-                                    <span key={subIdx} className="badge badge-outline badge-xs">
-                                      {sub.name} ({sub.percentage.toFixed(0)}%)
-                                    </span>
-                                  ))}
-                                  {item.subcategories.length > 3 && (
-                                    <span className="badge badge-ghost badge-xs">
-                                      +{item.subcategories.length - 3}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
