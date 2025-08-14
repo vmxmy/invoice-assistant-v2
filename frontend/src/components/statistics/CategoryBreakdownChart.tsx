@@ -19,14 +19,17 @@ type SortMode = 'amount' | 'count' | 'percentage'
  * 自定义 Treemap 内容
  */
 const CustomizedContent = (props: any) => {
-  const { x, y, width, height, name, value, payload } = props
+  const { x, y, width, height, name, value, payload, root } = props
   
-  // 从 payload 中获取完整数据，包括 percentage 和 color
-  const percentage = payload?.percentage || 0
-  const color = payload?.color || 'var(--chart-primary)'
+  // 获取数据项的完整信息
+  
+  // 从不同来源获取数据
+  const itemData = payload || props
+  const percentage = itemData?.percentage || 0
+  const color = itemData?.color || 'hsl(var(--p))'
   
   // 只在矩形足够大时显示文字
-  if (width < 60 || height < 40) return (
+  if (width < 80 || height < 50) return (
     <g>
       <rect
         x={x}
@@ -62,20 +65,22 @@ const CustomizedContent = (props: any) => {
         y={y + height / 2 - 7}
         textAnchor="middle"
         fill="#fff"
-        fontSize={14}
+        fontSize={Math.min(14, width / 8)}
         fontWeight="500"
+        style={{ pointerEvents: 'none' }}
       >
-        {name}
+        {name || '未知'}
       </text>
       <text
         x={x + width / 2}
         y={y + height / 2 + 10}
         textAnchor="middle"
         fill="#fff"
-        fontSize={12}
+        fontSize={Math.min(12, width / 10)}
         fillOpacity={0.9}
+        style={{ pointerEvents: 'none' }}
       >
-        {percentage.toFixed(1)}%
+        {percentage > 0 ? `${percentage.toFixed(1)}%` : ''}
       </text>
     </g>
   )
@@ -118,18 +123,18 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   const [sortMode, setSortMode] = useState<SortMode>('amount')
   const [selectedMetric, setSelectedMetric] = useState<'amount' | 'count' | 'average'>('amount')
 
-  // 颜色配置 - 使用设计系统 tokens
+  // 颜色配置 - 使用DaisyUI主题颜色的HSL值
   const colors = [
-    'var(--chart-error)',     // red
-    'var(--chart-warning)',   // orange/yellow  
-    'var(--chart-accent)',    // accent color
-    'var(--chart-success)',   // green
-    'var(--chart-info)',      // blue/cyan
-    'var(--chart-primary)',   // primary
-    'var(--chart-secondary)', // secondary
+    'hsl(var(--er))',    // error - red
+    'hsl(var(--wa))',    // warning - orange/yellow  
+    'hsl(var(--ac))',    // accent - accent color
+    'hsl(var(--su))',    // success - green
+    'hsl(var(--in))',    // info - blue/cyan
+    'hsl(var(--p))',     // primary - primary
+    'hsl(var(--s))',     // secondary - secondary
     'hsl(var(--p) / 0.8)',    // primary variant
-    'var(--chart-neutral)',   // gray
-    'hsl(var(--a) / 0.6)'     // accent variant
+    'hsl(var(--n))',     // neutral - gray
+    'hsl(var(--ac) / 0.6)'    // accent variant
   ]
 
   // 处理扁平化数据
