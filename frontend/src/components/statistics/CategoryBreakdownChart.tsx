@@ -75,8 +75,10 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   hierarchicalData = [],
   loading = false
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('flat')
+  // 固定使用层次模式
+  const viewMode: ViewMode = 'hierarchical'
   const [sortMode, setSortMode] = useState<SortMode>('amount')
+  const [selectedMetric, setSelectedMetric] = useState<'amount' | 'count' | 'average'>('amount')
 
   // 颜色配置 - 使用设计系统 tokens
   const colors = [
@@ -152,152 +154,246 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
     )
   }
 
+  // 获取当前指标的配置
+  const getMetricConfig = () => {
+    switch (selectedMetric) {
+      case 'amount':
+        return {
+          title: '分类金额',
+          unit: '元',
+          color: 'var(--chart-success)',
+          fillColor: 'var(--chart-success-fill)',
+          variant: 'success' as const
+        }
+      case 'count':
+        return {
+          title: '分类数量',
+          unit: '张',
+          color: 'var(--chart-info)',
+          fillColor: 'var(--chart-info-fill)',
+          variant: 'info' as const
+        }
+      case 'average':
+        return {
+          title: '分类均值',
+          unit: '元',
+          color: 'var(--chart-accent)',
+          fillColor: 'var(--chart-accent-fill)',
+          variant: 'accent' as const
+        }
+    }
+  }
+
+  const metricConfig = getMetricConfig()
+
+  // 获取前三名分类的统计
+  const getTopStats = () => {
+    if (currentData.length === 0) return null
+    
+    const top3 = currentData.slice(0, 3)
+    return {
+      first: top3[0] || null,
+      second: top3[1] || null,
+      third: top3[2] || null
+    }
+  }
+
+  const topStats = getTopStats()
+
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
-        {/* 图表标题和控制 */}
+        {/* 图表标题和指标切换 - 与月度趋势保持一致 */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h3 className="text-lg font-semibold">支出分类分布</h3>
+            <h3 className="text-lg font-semibold">{metricConfig.title}分布</h3>
             <p className="text-sm text-base-content/60 mt-1">
-              {viewMode === 'flat' ? '扁平分类视图' : '层次分类视图'}
+              按类别层次结构展示
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* 视图切换 */}
-            <div className="tabs tabs-boxed">
-              <button
-                className={`tab tab-sm ${viewMode === 'flat' ? 'tab-active' : ''}`}
-                onClick={() => setViewMode('flat')}
-              >
-                扁平
-              </button>
-              <button
-                className={`tab tab-sm ${viewMode === 'hierarchical' ? 'tab-active' : ''}`}
-                onClick={() => setViewMode('hierarchical')}
-              >
-                层次
-              </button>
-            </div>
-            
-            {/* 排序方式 */}
-            <select
-              className="select select-bordered select-sm"
-              value={sortMode}
-              onChange={(e) => setSortMode(e.target.value as SortMode)}
+          {/* 指标选择器 - 与月度趋势相同的样式 */}
+          <div className="tabs tabs-boxed">
+            <button
+              className={`tab ${selectedMetric === 'amount' ? 'tab-active' : ''}`}
+              onClick={() => setSelectedMetric('amount')}
             >
-              <option value="amount">按金额排序</option>
-              <option value="count">按数量排序</option>
-              <option value="percentage">按占比排序</option>
-            </select>
+              金额
+            </button>
+            <button
+              className={`tab ${selectedMetric === 'count' ? 'tab-active' : ''}`}
+              onClick={() => setSelectedMetric('count')}
+            >
+              数量
+            </button>
+            <button
+              className={`tab ${selectedMetric === 'average' ? 'tab-active' : ''}`}
+              onClick={() => setSelectedMetric('average')}
+            >
+              均值
+            </button>
           </div>
         </div>
 
-        {currentData.length > 0 ? (
-          <div className="space-y-6">
-            {/* 主要分类统计指标卡 - 使用 DaisyUI Stats 组件 */}
-            <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
-              {currentData.slice(0, 4).map((item, index) => (
-                <div key={index} className="stat">
-                  <div className="stat-figure text-primary">
-                    <div 
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></div>
-                  </div>
-                  <div className="stat-title">{item.label}</div>
-                  <div className="stat-value text-2xl">
-                    {item.value >= 10000 
-                      ? `¥${(item.value / 10000).toFixed(1)}万`
-                      : `¥${item.value.toLocaleString()}`
-                    }
-                  </div>
-                  <div className="stat-desc">
-                    {item.count} 张发票 · {item.percentage.toFixed(1)}%
-                  </div>
+        {/* 前三名分类统计摘要 - 与月度趋势保持一致的格式 */}
+        {topStats && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            {topStats.first && (
+              <div className="stat">
+                <div className="stat-title">第一名</div>
+                <div className="stat-value text-lg">
+                  {topStats.first.label}
                 </div>
-              ))}
-            </div>
-
-            {/* 饼图和详细分类 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* 饼图 */}
-              <div className="flex flex-col items-center">
-                <SimplePieChart data={currentData} size={200} />
-                
-                {/* 图例 */}
-                <div className="mt-4 space-y-2 w-full max-w-xs">
-                  {currentData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="truncate">{item.label}</span>
-                      </div>
-                      <span className="font-medium text-base-content/70">
-                        {item.percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                  ))}
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `¥${topStats.first.value >= 10000 ? `${(topStats.first.value / 10000).toFixed(1)}万` : topStats.first.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `${topStats.first.count} 张`}
+                  {selectedMetric === 'average' && `¥${(topStats.first.value / topStats.first.count).toFixed(0)}`}
+                  · {topStats.first.percentage.toFixed(1)}%
                 </div>
               </div>
+            )}
+            
+            {topStats.second && (
+              <div className="stat">
+                <div className="stat-title">第二名</div>
+                <div className="stat-value text-lg">
+                  {topStats.second.label}
+                </div>
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `¥${topStats.second.value >= 10000 ? `${(topStats.second.value / 10000).toFixed(1)}万` : topStats.second.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `${topStats.second.count} 张`}
+                  {selectedMetric === 'average' && `¥${(topStats.second.value / topStats.second.count).toFixed(0)}`}
+                  · {topStats.second.percentage.toFixed(1)}%
+                </div>
+              </div>
+            )}
+            
+            {topStats.third && (
+              <div className="stat">
+                <div className="stat-title">第三名</div>
+                <div className="stat-value text-lg">
+                  {topStats.third.label}
+                </div>
+                <div className="stat-desc">
+                  {selectedMetric === 'amount' && `¥${topStats.third.value >= 10000 ? `${(topStats.third.value / 10000).toFixed(1)}万` : topStats.third.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `${topStats.third.count} 张`}
+                  {selectedMetric === 'average' && `¥${(topStats.third.value / topStats.third.count).toFixed(0)}`}
+                  · {topStats.third.percentage.toFixed(1)}%
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-              {/* 次要分类列表 */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-base-content/70 mb-3">其他分类明细</h4>
-                {currentData.slice(4).map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <div>
-                        <div className="font-medium text-sm">{item.label}</div>
-                        <div className="text-xs text-base-content/60">
-                          {item.count} 张发票
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-sm">
-                        ¥{item.value >= 10000 
-                          ? `${(item.value / 10000).toFixed(1)}万`
-                          : item.value.toLocaleString()
-                        }
-                      </div>
-                      <div className="text-xs text-base-content/60">
-                        {item.percentage.toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* 层次视图的子分类展示 */}
-                {viewMode === 'hierarchical' && currentData.slice(0, 4).some((item: any) => item.subcategories?.length > 0) && (
-                  <div className="mt-4 p-3 bg-base-200 rounded-lg">
-                    <h5 className="text-xs font-medium text-base-content/70 mb-2">主要子分类分布</h5>
-                    <div className="space-y-2">
-                      {currentData.slice(0, 4).map((item: any, idx) => 
-                        item.subcategories?.length > 0 && (
-                          <div key={idx} className="text-xs">
-                            <span className="font-medium">{item.label}:</span>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {item.subcategories.slice(0, 3).map((sub: any, subIdx: number) => (
-                                <span key={subIdx} className="badge badge-outline badge-xs">
-                                  {sub.name} ({sub.percentage.toFixed(0)}%)
-                                </span>
-                              ))}
-                            </div>
+        {currentData.length > 0 ? (
+          <div className="space-y-6">
+            {/* 主图表区域 - 与月度趋势保持一致 */}
+            <div className="w-full overflow-x-auto overflow-y-hidden">
+              <div className="min-w-[400px] py-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* 饼图 */}
+                  <div className="flex flex-col items-center">
+                    <SimplePieChart data={currentData} size={220} />
+                    
+                    {/* 简化的图例 */}
+                    <div className="mt-4 space-y-1 w-full max-w-xs">
+                      {currentData.slice(0, 5).map((item, index) => (
+                        <div key={index} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: item.color }}
+                            ></div>
+                            <span className="truncate">{item.label}</span>
                           </div>
-                        )
+                          <span className="font-medium text-base-content/70">
+                            {item.percentage.toFixed(1)}%
+                          </span>
+                        </div>
+                      ))}
+                      {currentData.length > 5 && (
+                        <div className="text-xs text-base-content/50 text-center pt-1">
+                          其他 {currentData.length - 5} 个分类
+                        </div>
                       )}
                     </div>
                   </div>
-                )}
+
+                  {/* 分类明细表格 */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-base-content/70 mb-3">分类明细</h4>
+                    <div className="overflow-x-auto">
+                      <table className="table table-xs">
+                        <thead>
+                          <tr>
+                            <th>分类</th>
+                            <th className="text-right">
+                              {selectedMetric === 'amount' && '金额'}
+                              {selectedMetric === 'count' && '数量'}
+                              {selectedMetric === 'average' && '均值'}
+                            </th>
+                            <th className="text-right">占比</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentData.map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-2 h-2 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: item.color }}
+                                  ></div>
+                                  <span className="truncate max-w-[120px]">{item.label}</span>
+                                </div>
+                              </td>
+                              <td className="text-right">
+                                {selectedMetric === 'amount' && (
+                                  item.value >= 10000 
+                                    ? `¥${(item.value / 10000).toFixed(1)}万`
+                                    : `¥${item.value.toLocaleString()}`
+                                )}
+                                {selectedMetric === 'count' && `${item.count} 张`}
+                                {selectedMetric === 'average' && `¥${(item.value / item.count).toFixed(0)}`}
+                              </td>
+                              <td className="text-right">
+                                {item.percentage.toFixed(1)}%
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    {/* 子分类展示 */}
+                    {currentData.some((item: any) => item.subcategories?.length > 0) && (
+                      <div className="mt-4 p-3 bg-base-200 rounded-lg">
+                        <h5 className="text-xs font-medium text-base-content/70 mb-2">子分类分布</h5>
+                        <div className="space-y-2">
+                          {currentData.slice(0, 3).map((item: any, idx) => 
+                            item.subcategories?.length > 0 && (
+                              <div key={idx} className="text-xs">
+                                <span className="font-medium">{item.label}:</span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {item.subcategories.slice(0, 3).map((sub: any, subIdx: number) => (
+                                    <span key={subIdx} className="badge badge-outline badge-xs">
+                                      {sub.name} ({sub.percentage.toFixed(0)}%)
+                                    </span>
+                                  ))}
+                                  {item.subcategories.length > 3 && (
+                                    <span className="badge badge-ghost badge-xs">
+                                      +{item.subcategories.length - 3}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
