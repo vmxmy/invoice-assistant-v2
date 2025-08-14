@@ -19,14 +19,28 @@ type SortMode = 'amount' | 'count' | 'percentage'
  * 自定义 Treemap 内容
  */
 const CustomizedContent = (props: any) => {
-  const { x, y, width, height, name, value, payload, root } = props
+  const { x, y, width, height, name, value, payload, index, depth, colors } = props
   
   // 获取数据项的完整信息
-  
-  // 从不同来源获取数据
   const itemData = payload || props
   const percentage = itemData?.percentage || 0
-  const color = itemData?.color || 'hsl(var(--p))'
+  
+  // 根据索引选择颜色，如果没有传递 colors 则使用默认颜色
+  const defaultColors = [
+    'var(--color-error)',      // error - red
+    'var(--color-warning)',    // warning - orange/yellow  
+    'var(--color-accent)',     // accent - accent color
+    'var(--color-success)',    // success - green
+    'var(--color-info)',       // info - blue/cyan
+    'var(--color-primary)',    // primary - primary
+    'var(--color-secondary)',  // secondary - secondary
+    'var(--color-neutral)',    // neutral - gray
+    '#8b5cf6',                 // purple fallback
+    '#ec4899'                  // pink fallback
+  ]
+  const colorArray = colors || defaultColors
+  
+  const color = index !== undefined ? colorArray[index % colorArray.length] : colorArray[0]
   
   // 只在矩形足够大时显示文字
   if (width < 80 || height < 50) return (
@@ -36,12 +50,9 @@ const CustomizedContent = (props: any) => {
         y={y}
         width={width}
         height={height}
-        style={{
-          fill: color,
-          stroke: '#fff',
-          strokeWidth: 2,
-          strokeOpacity: 1,
-        }}
+        fill={color}
+        stroke="var(--color-base-100)"
+        strokeWidth={2}
       />
     </g>
   )
@@ -53,21 +64,18 @@ const CustomizedContent = (props: any) => {
         y={y}
         width={width}
         height={height}
-        style={{
-          fill: color,
-          stroke: '#fff',
-          strokeWidth: 2,
-          strokeOpacity: 1,
-        }}
+        fill={color}
+        stroke="var(--color-base-100)"
+        strokeWidth={2}
       />
       <text
         x={x + width / 2}
         y={y + height / 2 - 7}
         textAnchor="middle"
-        fill="#fff"
+        fill="var(--color-base-100)"
         fontSize={Math.min(14, width / 8)}
         fontWeight="500"
-        style={{ pointerEvents: 'none' }}
+        className="pointer-events-none"
       >
         {name || '未知'}
       </text>
@@ -75,10 +83,10 @@ const CustomizedContent = (props: any) => {
         x={x + width / 2}
         y={y + height / 2 + 10}
         textAnchor="middle"
-        fill="#fff"
+        fill="var(--color-base-100)"
         fontSize={Math.min(12, width / 10)}
         fillOpacity={0.9}
-        style={{ pointerEvents: 'none' }}
+        className="pointer-events-none"
       >
         {percentage > 0 ? `${percentage.toFixed(1)}%` : ''}
       </text>
@@ -130,18 +138,18 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   const [sortMode, setSortMode] = useState<SortMode>('amount')
   const [selectedMetric, setSelectedMetric] = useState<'amount' | 'count' | 'average'>('amount')
 
-  // 颜色配置 - 使用DaisyUI主题颜色的HSL值
+  // 颜色配置 - 使用DaisyUI v5正确的CSS变量格式
   const colors = [
-    'hsl(var(--er))',    // error - red
-    'hsl(var(--wa))',    // warning - orange/yellow  
-    'hsl(var(--ac))',    // accent - accent color
-    'hsl(var(--su))',    // success - green
-    'hsl(var(--in))',    // info - blue/cyan
-    'hsl(var(--p))',     // primary - primary
-    'hsl(var(--s))',     // secondary - secondary
-    'hsl(var(--p) / 0.8)',    // primary variant
-    'hsl(var(--n))',     // neutral - gray
-    'hsl(var(--ac) / 0.6)'    // accent variant
+    'var(--color-error)',      // error - red
+    'var(--color-warning)',    // warning - orange/yellow  
+    'var(--color-accent)',     // accent - accent color
+    'var(--color-success)',    // success - green
+    'var(--color-info)',       // info - blue/cyan
+    'var(--color-primary)',    // primary - primary
+    'var(--color-secondary)',  // secondary - secondary
+    'var(--color-neutral)',    // neutral - gray
+    '#8b5cf6',                 // purple fallback
+    '#ec4899'                  // pink fallback
   ]
 
   // 处理扁平化数据
@@ -195,7 +203,8 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
         count: item.invoice_count,
         amount: item.total_amount,  // 保留原始金额
         percentage: percentage,
-        color: colors[index % colors.length]
+        color: colors[index % colors.length],
+        fill: colors[index % colors.length]  // Treemap 需要 fill 属性
       }
     })
   }
@@ -238,6 +247,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
         amount: item.primary_amount,  // 保留原始金额
         percentage: percentage,
         color: colors[index % colors.length],
+        fill: colors[index % colors.length],  // Treemap 需要 fill 属性
         subcategories: item.subcategories
       }
     })
@@ -405,18 +415,19 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             <div className="w-full overflow-x-auto overflow-y-hidden">
               <div className="min-w-[400px] py-4">
                 {/* Recharts Treemap - 矩形树图 */}
-                <ResponsiveContainer width="100%" height={320}>
-                  <Treemap
+                <div className="h-80 w-full">
+                  <ResponsiveContainer>
+                    <Treemap
                     data={currentData}
                     dataKey="value"
                     aspectRatio={4/3}
-                    stroke="#fff"
-                    fill="#8884d8"
-                    content={<CustomizedContent />}
+                    stroke="var(--color-base-100)"
+                    content={(props) => <CustomizedContent {...props} colors={colors} />}
                   >
                     <Tooltip content={<CustomTooltip selectedMetric={selectedMetric} />} />
                   </Treemap>
-                </ResponsiveContainer>
+                  </ResponsiveContainer>
+                </div>
                 
                 {/* 子分类展示 */}
                 {currentData.some((item: any) => item.subcategories?.length > 0) && (
