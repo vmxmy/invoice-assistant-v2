@@ -9,7 +9,7 @@ import type { StatisticsFilters } from '../../pages/StatisticsPage'
 interface DetailedDataTableProps {
   data?: DetailedDataItem[]
   loading?: boolean
-  filters: StatisticsFilters
+  filters?: StatisticsFilters
 }
 
 type SortField = keyof DetailedDataItem

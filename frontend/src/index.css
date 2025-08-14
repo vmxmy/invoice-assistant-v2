@@ -11,6 +11,7 @@
 }
 
 /* 自定义样式文件 */
+@import "./styles/design-tokens.css";
 @import "./styles/typography.css";
 /* components.css 和 compact-ui.css 需要单独在组件中导入，因为它们使用了 @apply */
 @import "./styles/animations.css";

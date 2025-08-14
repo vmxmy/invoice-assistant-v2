@@ -2,47 +2,33 @@
  * 独立数据统计页面
  * 提供详细的发票数据分析和可视化展示
  */
-import React, { useState } from 'react'
+import React from 'react'
 import CompactLayout from '../components/layout/CompactLayout'
-import { FilterControlPanel } from '../components/statistics/FilterControlPanel'
-import { OverviewStatsGrid } from '../components/statistics/OverviewStatsGrid'
 import { TrendAnalysisChart } from '../components/statistics/TrendAnalysisChart'
 import { CategoryBreakdownChart } from '../components/statistics/CategoryBreakdownChart'
 import { DetailedDataTable } from '../components/statistics/DetailedDataTable'
 import { useStatisticsData } from '../hooks/useStatisticsData'
 
-// 筛选器状态接口
+// 简化的筛选器接口 - 仅保留必要的时间范围
 export interface StatisticsFilters {
   dateRange: {
-    startDate?: string
-    endDate?: string
-    preset?: 'last3months' | 'last6months' | 'lastyear' | 'all'
+    preset: 'currentyear' | 'lastyear' | 'all'
   }
   categories: string[]
-  invoiceTypes: string[]
-  status: string[]
-  amountRange: {
-    min?: number
-    max?: number
-  }
 }
 
 /**
  * 统计页面主组件
  */
 export const StatisticsPage: React.FC = () => {
-  // 筛选器状态
-  const [filters, setFilters] = useState<StatisticsFilters>({
-    dateRange: { preset: 'last6months' },
-    categories: [],
-    invoiceTypes: [],
-    status: [],
-    amountRange: {}
-  })
+  // 默认显示当年年度数据
+  const filters: StatisticsFilters = {
+    dateRange: { preset: 'currentyear' },
+    categories: []
+  }
 
   // 获取统计数据
   const {
-    overviewStats,
     monthlyTrends,
     categoryStats,
     hierarchicalStats,
@@ -50,22 +36,6 @@ export const StatisticsPage: React.FC = () => {
     loading,
     error
   } = useStatisticsData(filters)
-
-  // 处理筛选器变化
-  const handleFiltersChange = (newFilters: StatisticsFilters) => {
-    setFilters(newFilters)
-  }
-
-  // 重置筛选器
-  const handleResetFilters = () => {
-    setFilters({
-      dateRange: { preset: 'last6months' },
-      categories: [],
-      invoiceTypes: [],
-      status: [],
-      amountRange: {}
-    })
-  }
 
   return (
     <CompactLayout>
@@ -78,16 +48,6 @@ export const StatisticsPage: React.FC = () => {
           <p className="text-base-content/60 mt-2">
             全面分析您的发票数据，洞察消费模式和趋势
           </p>
-        </div>
-
-        {/* 筛选器控制面板 */}
-        <div className="mb-6">
-          <FilterControlPanel
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            onReset={handleResetFilters}
-            loading={loading}
-          />
         </div>
 
         {/* 错误提示 */}
@@ -104,16 +64,6 @@ export const StatisticsPage: React.FC = () => {
 
         {/* 主内容区域 */}
         <div className="space-y-6">
-          {/* 概览统计卡片 */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">数据概览</h2>
-            <OverviewStatsGrid
-              stats={overviewStats}
-              loading={loading}
-              error={error}
-            />
-          </section>
-
           {/* 图表分析区域 */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {/* 月度趋势图 */}
@@ -152,15 +102,10 @@ export const StatisticsPage: React.FC = () => {
         <div className="mt-12 pt-6 border-t border-base-300">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-base-content/60">
             <p>
-              数据更新时间: {overviewStats?.updated_at ? 
-                new Date(overviewStats.updated_at).toLocaleString('zh-CN') : 
-                '暂无数据'
-              }
+              数据更新时间: {new Date().toLocaleString('zh-CN')}
             </p>
             <p className="mt-2 sm:mt-0">
-              统计周期: {filters.dateRange.preset === 'last3months' ? '最近3个月' :
-                       filters.dateRange.preset === 'last6months' ? '最近6个月' :
-                       filters.dateRange.preset === 'lastyear' ? '最近1年' : '全部数据'}
+              统计周期: {new Date().getFullYear()}年度
             </p>
           </div>
         </div>

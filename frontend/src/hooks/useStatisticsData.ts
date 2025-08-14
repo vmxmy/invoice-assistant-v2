@@ -76,14 +76,15 @@ const buildDateRangeFilter = (dateRange: StatisticsFilters['dateRange']) => {
 
   if (dateRange.preset) {
     switch (dateRange.preset) {
-      case 'last3months':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString().split('T')[0]
-        break
-      case 'last6months':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().split('T')[0]
+      case 'currentyear':
+        // 当年数据: 从1月1日开始
+        startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]
+        endDate = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0]
         break
       case 'lastyear':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1).toISOString().split('T')[0]
+        // 去年数据
+        startDate = new Date(now.getFullYear() - 1, 0, 1).toISOString().split('T')[0]
+        endDate = new Date(now.getFullYear() - 1, 11, 31).toISOString().split('T')[0]
         break
       case 'all':
         // 不设置日期限制
