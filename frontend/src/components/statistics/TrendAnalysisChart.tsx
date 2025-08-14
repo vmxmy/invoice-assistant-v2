@@ -296,8 +296,9 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
           {chartData.length > 0 ? (
             <div className="min-w-[400px] py-4">
               {/* Recharts 图表容器 - 响应式宽度 */}
-              <ResponsiveContainer width="100%" height={240}>
-                <AreaChart
+              <div className="h-80 w-full">
+                <ResponsiveContainer>
+                  <AreaChart
                   data={chartData}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
@@ -333,7 +334,8 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
                     fill={`url(#gradient-${selectedMetric})`}
                   />
                 </AreaChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <div className="h-64 flex items-center justify-center">
@@ -364,36 +366,6 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
           )}
         </div>
 
-        {/* 数据洞察卡片 */}
-        {insight && (
-          <div className={`bg-${insight.variant}/10 border border-${insight.variant}/20 p-4 rounded-lg mt-4`}>
-            <div className="flex items-start gap-3">
-              <div className={`text-${insight.variant} mt-0.5`}>
-                {insight.variant === 'success' ? '✅' : 
-                 insight.variant === 'warning' ? '⚠️' : 
-                 insight.variant === 'error' ? '❌' : '💡'}
-              </div>
-              <div className="flex-1">
-                <h4 className={`font-medium text-${insight.variant} mb-1`}>
-                  {selectedMetric === 'amount' ? '支出趋势分析' :
-                   selectedMetric === 'count' ? '发票数量分析' :
-                   '平均金额分析'}
-                </h4>
-                <p className="text-sm text-base-content/70 mb-3">
-                  {insight.insightText}
-                </p>
-                <div className="flex gap-2">
-                  <button className="btn btn-xs btn-outline btn-primary">
-                    {insight.actionText}
-                  </button>
-                  <button className="btn btn-xs btn-ghost">
-                    查看建议
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         
         {/* 数据点详情 */}
         {chartData.length > 0 && (
