@@ -3,6 +3,7 @@
  * 基于v_category_statistics和v_hierarchical_category_stats视图
  */
 import React, { useState } from 'react'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import type { CategoryStat, HierarchicalStat } from '../../hooks/useStatisticsData'
 
 interface CategoryBreakdownChartProps {
@@ -15,96 +16,57 @@ type ViewMode = 'flat' | 'hierarchical'
 type SortMode = 'amount' | 'count' | 'percentage'
 
 /**
- * 简单的饼图组件（使用SVG）
+ * 自定义标签组件
  */
-const SimplePieChart: React.FC<{
-  data: Array<{ label: string; value: number; color: string; percentage: number }>
-  size?: number
-}> = ({ data, size = 200 }) => {
-  const radius = size / 2 - 10
-  const centerX = size / 2
-  const centerY = size / 2
-  
-  let cumulativePercentage = 0
-  
-  const slices = data.map((item) => {
-    const startAngle = cumulativePercentage * 2 * Math.PI
-    const endAngle = (cumulativePercentage + item.percentage / 100) * 2 * Math.PI
-    const midAngle = (startAngle + endAngle) / 2
-    cumulativePercentage += item.percentage / 100
-    
-    const x1 = centerX + radius * Math.cos(startAngle)
-    const y1 = centerY + radius * Math.sin(startAngle)
-    const x2 = centerX + radius * Math.cos(endAngle)
-    const y2 = centerY + radius * Math.sin(endAngle)
-    
-    // 计算标签位置 - 在扇形中心位置
-    const labelRadius = radius * 0.7
-    const labelX = centerX + labelRadius * Math.cos(midAngle)
-    const labelY = centerY + labelRadius * Math.sin(midAngle)
-    
-    const largeArc = item.percentage > 50 ? 1 : 0
-    
-    const pathData = [
-      `M ${centerX} ${centerY}`,
-      `L ${x1} ${y1}`,
-      `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
-      'Z'
-    ].join(' ')
-    
-    return { 
-      ...item, 
-      path: pathData,
-      labelX,
-      labelY,
-      midAngle
-    }
-  })
-  
+const renderCustomizedLabel = ({
+  cx, cy, midAngle, innerRadius, outerRadius, percent, label
+}: any) => {
+  const RADIAN = Math.PI / 180
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+  // 只显示占比大于5%的标签
+  if (percent < 0.05) return null
+
   return (
-    <svg width={size} height={size} className="mx-auto">
-      {/* 绘制饼图扇形 */}
-      {slices.map((slice, index) => (
-        <g key={`slice-${index}`}>
-          <path
-            d={slice.path}
-            fill={slice.color}
-            stroke="white"
-            strokeWidth="2"
-          >
-            <title>{`${slice.label}: ${slice.percentage.toFixed(1)}%`}</title>
-          </path>
-        </g>
-      ))}
-      
-      {/* 绘制标签文字 */}
-      {slices.map((slice, index) => (
-        <g key={`label-${index}`}>
-          {/* 只显示占比大于5%的标签，避免文字重叠 */}
-          {slice.percentage >= 5 && (
-            <text
-              x={slice.labelX}
-              y={slice.labelY}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="fill-white text-xs font-medium"
-              style={{
-                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
-                pointerEvents: 'none'
-              }}
-            >
-              <tspan x={slice.labelX} dy="0">
-                {slice.label}
-              </tspan>
-              <tspan x={slice.labelX} dy="14">
-                {slice.percentage.toFixed(0)}%
-              </tspan>
-            </text>
-          )}
-        </g>
-      ))}
-    </svg>
+    <text 
+      x={x} 
+      y={y} 
+      fill="white" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      className="text-xs font-medium"
+      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}
+    >
+      {label}
+      <tspan x={x} dy={14}>{`${(percent * 100).toFixed(0)}%`}</tspan>
+    </text>
   )
+}
+
+/**
+ * 自定义 Tooltip
+ */
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0]
+    return (
+      <div className="bg-base-100 p-3 rounded-lg shadow-lg border border-base-300">
+        <p className="font-medium">{data.name}</p>
+        <p className="text-sm text-base-content/70">
+          金额：¥{data.value.toLocaleString()}
+        </p>
+        <p className="text-sm text-base-content/70">
+          数量：{data.payload.count} 张
+        </p>
+        <p className="text-sm text-primary font-medium">
+          占比：{data.payload.percentage.toFixed(1)}%
+        </p>
+      </div>
+    )
+  }
+  return null
 }
 
 /**
@@ -153,6 +115,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
     }
 
     return sortedData.slice(0, 8).map((item, index) => ({
+      name: item.category_name || '未知分类',  // Recharts 使用 name 作为默认标签
       label: item.category_name || '未知分类',
       value: item.total_amount,
       count: item.invoice_count,
@@ -166,6 +129,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
     if (!hierarchicalData || hierarchicalData.length === 0) return []
 
     return hierarchicalData.slice(0, 6).map((item, index) => ({
+      name: item.primary_category,  // Recharts 使用 name 作为默认标签
       label: item.primary_category,
       value: item.primary_amount,
       count: item.primary_count,
@@ -336,10 +300,26 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             {/* 主图表区域 - 与月度趋势保持一致 */}
             <div className="w-full overflow-x-auto overflow-y-hidden">
               <div className="min-w-[400px] py-4">
-                {/* 饼图 - 居中显示 */}
-                <div className="flex justify-center items-center py-4">
-                  <SimplePieChart data={currentData} size={260} />
-                </div>
+                {/* Recharts 饼图 - 居中显示 */}
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={currentData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomizedLabel}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {currentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
                 
                 {/* 子分类展示 */}
                 {currentData.some((item: any) => item.subcategories?.length > 0) && (
