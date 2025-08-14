@@ -5,39 +5,39 @@
 
 @layer base {
   :root {
-    /* 图表颜色系统 - 基于 HSL 语义化色彩 */
-    --chart-success: hsl(var(--su));
-    --chart-success-content: hsl(var(--suc));
-    --chart-success-fill: hsl(var(--su) / 0.1);
+    /* 图表颜色系统 - 基于 DaisyUI v5 颜色变量 */
+    --chart-success: var(--color-success);
+    --chart-success-content: var(--color-success-content);
+    --chart-success-fill: color-mix(in srgb, var(--color-success), transparent 90%);
     
-    --chart-info: hsl(var(--in));
-    --chart-info-content: hsl(var(--inc));
-    --chart-info-fill: hsl(var(--in) / 0.1);
+    --chart-info: var(--color-info);
+    --chart-info-content: var(--color-info-content);
+    --chart-info-fill: color-mix(in srgb, var(--color-info), transparent 90%);
     
-    --chart-warning: hsl(var(--wa));
-    --chart-warning-content: hsl(var(--wac));
-    --chart-warning-fill: hsl(var(--wa) / 0.1);
+    --chart-warning: var(--color-warning);
+    --chart-warning-content: var(--color-warning-content);
+    --chart-warning-fill: color-mix(in srgb, var(--color-warning), transparent 90%);
     
-    --chart-error: hsl(var(--er));
-    --chart-error-content: hsl(var(--erc));
-    --chart-error-fill: hsl(var(--er) / 0.1);
+    --chart-error: var(--color-error);
+    --chart-error-content: var(--color-error-content);
+    --chart-error-fill: color-mix(in srgb, var(--color-error), transparent 90%);
     
-    --chart-primary: hsl(var(--p));
-    --chart-primary-content: hsl(var(--pc));
-    --chart-primary-fill: hsl(var(--p) / 0.1);
+    --chart-primary: var(--color-primary);
+    --chart-primary-content: var(--color-primary-content);
+    --chart-primary-fill: color-mix(in srgb, var(--color-primary), transparent 90%);
     
-    --chart-secondary: hsl(var(--s));
-    --chart-secondary-content: hsl(var(--sc));
-    --chart-secondary-fill: hsl(var(--s) / 0.1);
+    --chart-secondary: var(--color-secondary);
+    --chart-secondary-content: var(--color-secondary-content);
+    --chart-secondary-fill: color-mix(in srgb, var(--color-secondary), transparent 90%);
     
-    --chart-accent: hsl(var(--a));
-    --chart-accent-content: hsl(var(--ac));
-    --chart-accent-fill: hsl(var(--a) / 0.1);
+    --chart-accent: var(--color-accent);
+    --chart-accent-content: var(--color-accent-content);
+    --chart-accent-fill: color-mix(in srgb, var(--color-accent), transparent 90%);
     
     /* 数据可视化专用色彩 */
-    --chart-neutral: hsl(var(--n));
-    --chart-neutral-content: hsl(var(--nc));
-    --chart-neutral-fill: hsl(var(--n) / 0.1);
+    --chart-neutral: var(--color-neutral);
+    --chart-neutral-content: var(--color-neutral-content);
+    --chart-neutral-fill: color-mix(in srgb, var(--color-neutral), transparent 90%);
     
     /* 状态指示颜色 */
     --status-positive: var(--chart-success);
@@ -45,9 +45,9 @@
     --status-neutral: var(--chart-neutral);
     
     /* 背景层次 */
-    --surface-base: hsl(var(--b1));
-    --surface-elevated: hsl(var(--b2));
-    --surface-overlay: hsl(var(--b3));
+    --surface-base: var(--color-base-100);
+    --surface-elevated: var(--color-base-200);
+    --surface-overlay: var(--color-base-300);
   }
 }
 
