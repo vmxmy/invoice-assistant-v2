@@ -281,27 +281,45 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
           </div>
         )}
 
-        {/* 统计摘要 */}
+        {/* 统计摘要 - 使用标准 DaisyUI Stats 组件 */}
         {currentData.length > 0 && (
           <div className="mt-6 pt-4 border-t border-base-300">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-sm text-base-content/60">显示分类</div>
-                <div className="font-semibold">{currentData.length}</div>
+            <div className="stats stats-vertical sm:stats-horizontal shadow-sm w-full">
+              <div className="stat">
+                <div className="stat-title">显示分类</div>
+                <div className="stat-value text-2xl">{currentData.length}</div>
+                <div className="stat-desc">
+                  共 {viewMode === 'flat' ? data.length : hierarchicalData.length} 个分类
+                </div>
               </div>
-              <div>
-                <div className="text-sm text-base-content/60">总金额</div>
-                <div className="font-semibold">¥{totalValue.toLocaleString()}</div>
+              
+              <div className="stat">
+                <div className="stat-title">总金额</div>
+                <div className="stat-value text-2xl">
+                  {totalValue >= 10000 
+                    ? `¥${(totalValue / 10000).toFixed(1)}万`
+                    : `¥${totalValue.toLocaleString()}`
+                  }
+                </div>
+                <div className="stat-desc">
+                  {currentData[0] && (
+                    <>最高: {currentData[0].label}</>
+                  )}
+                </div>
               </div>
-              <div>
-                <div className="text-sm text-base-content/60">总发票</div>
-                <div className="font-semibold">{totalCount} 张</div>
+              
+              <div className="stat">
+                <div className="stat-title">总发票</div>
+                <div className="stat-value text-2xl">{totalCount}</div>
+                <div className="stat-desc">张发票</div>
               </div>
-              <div>
-                <div className="text-sm text-base-content/60">平均金额</div>
-                <div className="font-semibold">
+              
+              <div className="stat">
+                <div className="stat-title">平均金额</div>
+                <div className="stat-value text-2xl">
                   ¥{totalCount > 0 ? (totalValue / totalCount).toFixed(0) : '0'}
                 </div>
+                <div className="stat-desc">每张发票</div>
               </div>
             </div>
           </div>
