@@ -30,12 +30,18 @@ const SimplePieChart: React.FC<{
   const slices = data.map((item) => {
     const startAngle = cumulativePercentage * 2 * Math.PI
     const endAngle = (cumulativePercentage + item.percentage / 100) * 2 * Math.PI
+    const midAngle = (startAngle + endAngle) / 2
     cumulativePercentage += item.percentage / 100
     
     const x1 = centerX + radius * Math.cos(startAngle)
     const y1 = centerY + radius * Math.sin(startAngle)
     const x2 = centerX + radius * Math.cos(endAngle)
     const y2 = centerY + radius * Math.sin(endAngle)
+    
+    // 计算标签位置 - 在扇形中心位置
+    const labelRadius = radius * 0.7
+    const labelX = centerX + labelRadius * Math.cos(midAngle)
+    const labelY = centerY + labelRadius * Math.sin(midAngle)
     
     const largeArc = item.percentage > 50 ? 1 : 0
     
@@ -46,13 +52,20 @@ const SimplePieChart: React.FC<{
       'Z'
     ].join(' ')
     
-    return { ...item, path: pathData }
+    return { 
+      ...item, 
+      path: pathData,
+      labelX,
+      labelY,
+      midAngle
+    }
   })
   
   return (
     <svg width={size} height={size} className="mx-auto">
+      {/* 绘制饼图扇形 */}
       {slices.map((slice, index) => (
-        <g key={index}>
+        <g key={`slice-${index}`}>
           <path
             d={slice.path}
             fill={slice.color}
@@ -61,6 +74,33 @@ const SimplePieChart: React.FC<{
           >
             <title>{`${slice.label}: ${slice.percentage.toFixed(1)}%`}</title>
           </path>
+        </g>
+      ))}
+      
+      {/* 绘制标签文字 */}
+      {slices.map((slice, index) => (
+        <g key={`label-${index}`}>
+          {/* 只显示占比大于5%的标签，避免文字重叠 */}
+          {slice.percentage >= 5 && (
+            <text
+              x={slice.labelX}
+              y={slice.labelY}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="fill-white text-xs font-medium"
+              style={{
+                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+                pointerEvents: 'none'
+              }}
+            >
+              <tspan x={slice.labelX} dy="0">
+                {slice.label}
+              </tspan>
+              <tspan x={slice.labelX} dy="14">
+                {slice.percentage.toFixed(0)}%
+              </tspan>
+            </text>
+          )}
         </g>
       ))}
     </svg>
