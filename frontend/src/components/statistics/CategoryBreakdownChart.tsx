@@ -3,7 +3,7 @@
  * 基于v_category_statistics和v_hierarchical_category_stats视图
  */
 import React, { useState } from 'react'
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 import type { CategoryStat, HierarchicalStat } from '../../hooks/useStatisticsData'
 
 interface CategoryBreakdownChartProps {
@@ -16,32 +16,64 @@ type ViewMode = 'flat' | 'hierarchical'
 type SortMode = 'amount' | 'count' | 'percentage'
 
 /**
- * 自定义标签组件
+ * 自定义 Treemap 内容
  */
-const renderCustomizedLabel = ({
-  cx, cy, midAngle, innerRadius, outerRadius, percent, label
-}: any) => {
-  const RADIAN = Math.PI / 180
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-  const x = cx + radius * Math.cos(-midAngle * RADIAN)
-  const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
-  // 只显示占比大于5%的标签
-  if (percent < 0.05) return null
+const CustomizedContent = (props: any) => {
+  const { x, y, width, height, name, value, percentage, color } = props
+  
+  // 只在矩形足够大时显示文字
+  if (width < 60 || height < 40) return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={{
+          fill: color,
+          stroke: '#fff',
+          strokeWidth: 2,
+          strokeOpacity: 1,
+        }}
+      />
+    </g>
+  )
 
   return (
-    <text 
-      x={x} 
-      y={y} 
-      fill="white" 
-      textAnchor={x > cx ? 'start' : 'end'} 
-      dominantBaseline="central"
-      className="text-xs font-medium"
-      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}
-    >
-      {label}
-      <tspan x={x} dy={14}>{`${(percent * 100).toFixed(0)}%`}</tspan>
-    </text>
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={{
+          fill: color,
+          stroke: '#fff',
+          strokeWidth: 2,
+          strokeOpacity: 1,
+        }}
+      />
+      <text
+        x={x + width / 2}
+        y={y + height / 2 - 7}
+        textAnchor="middle"
+        fill="#fff"
+        fontSize={14}
+        fontWeight="500"
+      >
+        {name}
+      </text>
+      <text
+        x={x + width / 2}
+        y={y + height / 2 + 10}
+        textAnchor="middle"
+        fill="#fff"
+        fontSize={12}
+        fillOpacity={0.9}
+      >
+        {percentage.toFixed(1)}%
+      </text>
+    </g>
   )
 }
 
@@ -300,25 +332,18 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             {/* 主图表区域 - 与月度趋势保持一致 */}
             <div className="w-full overflow-x-auto overflow-y-hidden">
               <div className="min-w-[400px] py-4">
-                {/* Recharts 饼图 - 居中显示 */}
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie
-                      data={currentData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={renderCustomizedLabel}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {currentData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
+                {/* Recharts Treemap - 矩形树图 */}
+                <ResponsiveContainer width="100%" height={320}>
+                  <Treemap
+                    data={currentData}
+                    dataKey="value"
+                    aspectRatio={4/3}
+                    stroke="#fff"
+                    fill="#8884d8"
+                    content={<CustomizedContent />}
+                  >
                     <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
+                  </Treemap>
                 </ResponsiveContainer>
                 
                 {/* 子分类展示 */}
