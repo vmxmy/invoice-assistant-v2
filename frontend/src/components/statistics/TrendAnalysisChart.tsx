@@ -1,9 +1,9 @@
 /**
  * 月度趋势分析图表
- * 基于v_invoice_monthly_analysis视图数据，使用SimpleLineChart组件
+ * 基于v_invoice_monthly_analysis视图数据，使用Recharts LineChart组件
  */
-import React, { useState, useEffect } from 'react'
-import { SimpleLineChart, formatMonth, formatCurrency } from '../ui/SimpleLineChart'
+import React, { useState } from 'react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import type { MonthlyTrend } from '../../hooks/useStatisticsData'
 import type { StatisticsFilters } from '../../pages/StatisticsPage'
 
@@ -16,6 +16,45 @@ interface TrendAnalysisChartProps {
 type TrendMetric = 'amount' | 'count' | 'average'
 
 /**
+ * 格式化月份显示
+ */
+const formatMonth = (monthStr: string) => {
+  const [year, month] = monthStr.split('-')
+  return `${month}月`
+}
+
+/**
+ * 格式化货币
+ */
+const formatCurrency = (value: number) => {
+  if (value >= 10000) {
+    return `¥${(value / 10000).toFixed(1)}万`
+  }
+  return `¥${value.toLocaleString()}`
+}
+
+/**
+ * 自定义Tooltip组件
+ */
+const CustomTooltip = ({ active, payload, label, metric }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0]
+    return (
+      <div className="bg-base-100 p-3 rounded-lg shadow-lg border border-base-300">
+        <p className="font-medium mb-1">{label}</p>
+        <p className="text-primary font-medium">
+          {metric === 'count' 
+            ? `${data.value} 张`
+            : formatCurrency(data.value)
+          }
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
+/**
  * 月度趋势分析图表组件
  */
 export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
@@ -24,22 +63,6 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
   filters
 }) => {
   const [selectedMetric, setSelectedMetric] = useState<TrendMetric>('amount')
-  const [chartWidth, setChartWidth] = useState(600)
-  
-  // 动态计算图表宽度
-  useEffect(() => {
-    const updateWidth = () => {
-      const container = document.querySelector('.chart-container')
-      if (container) {
-        const width = container.clientWidth - 80 // 减去padding
-        setChartWidth(Math.min(800, Math.max(300, width)))
-      }
-    }
-    
-    updateWidth()
-    window.addEventListener('resize', updateWidth)
-    return () => window.removeEventListener('resize', updateWidth)
-  }, [])
 
   // 转换数据格式以适配SimpleLineChart
   const getChartData = () => {
@@ -272,28 +295,45 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
         <div className="w-full overflow-x-auto overflow-y-hidden">
           {chartData.length > 0 ? (
             <div className="min-w-[400px] py-4">
-              {/* 图表容器 - 响应式宽度 */}
-              <div className="chart-container flex items-center justify-center mb-4">
-                <div className="w-full max-w-4xl px-4">
-                  <SimpleLineChart
-                    data={chartData}
-                    width={chartWidth}
-                    height={180}
-                    strokeColor={metricConfig.color}
-                    fillColor={metricConfig.fillColor}
-                    showDots={true}
+              {/* Recharts 图表容器 - 响应式宽度 */}
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id={`gradient-${selectedMetric}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={metricConfig.color} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={metricConfig.color} stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-base-300" />
+                  <XAxis 
+                    dataKey="month" 
+                    tickFormatter={formatMonth}
+                    className="text-xs"
+                    tick={{ fill: 'var(--bc)' }}
                   />
-                </div>
-              </div>
-              
-              {/* X轴标签 */}
-              <div className="flex justify-between items-center px-8">
-                {chartData.map((point, index) => (
-                  <div key={index} className="text-xs text-base-content/60 text-center min-w-[40px]">
-                    {formatMonth(point.month)}
-                  </div>
-                ))}
-              </div>
+                  <YAxis 
+                    tickFormatter={(value) => 
+                      selectedMetric === 'count' ? value : 
+                      value >= 10000 ? `${(value/10000).toFixed(0)}万` : value
+                    }
+                    className="text-xs"
+                    tick={{ fill: 'var(--bc)' }}
+                  />
+                  <Tooltip 
+                    content={<CustomTooltip metric={selectedMetric} />}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke={metricConfig.color}
+                    strokeWidth={2}
+                    fill={`url(#gradient-${selectedMetric})`}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           ) : (
             <div className="h-64 flex items-center justify-center">
