@@ -195,78 +195,110 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
         </div>
 
         {currentData.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 饼图 */}
-            <div className="flex flex-col items-center">
-              <SimplePieChart data={currentData} size={220} />
-              
-              {/* 图例 */}
-              <div className="mt-4 space-y-2 w-full">
-                {currentData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
+          <div className="space-y-6">
+            {/* 主要分类统计指标卡 - 使用 DaisyUI Stats 组件 */}
+            <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
+              {currentData.slice(0, 4).map((item, index) => (
+                <div key={index} className="stat">
+                  <div className="stat-figure text-primary">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                  </div>
+                  <div className="stat-title">{item.label}</div>
+                  <div className="stat-value text-2xl">
+                    {item.value >= 10000 
+                      ? `¥${(item.value / 10000).toFixed(1)}万`
+                      : `¥${item.value.toLocaleString()}`
+                    }
+                  </div>
+                  <div className="stat-desc">
+                    {item.count} 张发票 · {item.percentage.toFixed(1)}%
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 饼图和详细分类 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 饼图 */}
+              <div className="flex flex-col items-center">
+                <SimplePieChart data={currentData} size={200} />
+                
+                {/* 图例 */}
+                <div className="mt-4 space-y-2 w-full max-w-xs">
+                  {currentData.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        ></div>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      <span className="font-medium text-base-content/70">
+                        {item.percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 次要分类列表 */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-base-content/70 mb-3">其他分类明细</h4>
+                {currentData.slice(4).map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <div className="flex items-center gap-3">
                       <div 
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: item.color }}
                       ></div>
-                      <span className="truncate">{item.label}</span>
+                      <div>
+                        <div className="font-medium text-sm">{item.label}</div>
+                        <div className="text-xs text-base-content/60">
+                          {item.count} 张发票
+                        </div>
+                      </div>
                     </div>
-                    <span className="font-medium">
-                      {item.percentage.toFixed(1)}%
-                    </span>
+                    <div className="text-right">
+                      <div className="font-medium text-sm">
+                        ¥{item.value >= 10000 
+                          ? `${(item.value / 10000).toFixed(1)}万`
+                          : item.value.toLocaleString()
+                        }
+                      </div>
+                      <div className="text-xs text-base-content/60">
+                        {item.percentage.toFixed(1)}%
+                      </div>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* 详细列表 */}
-            <div className="space-y-3">
-              {currentData.map((item, index) => (
-                <div key={index} className="card bg-base-200">
-                  <div className="card-body p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-base">{item.label}</h4>
-                      <span className="badge badge-primary">
-                        {item.percentage.toFixed(1)}%
-                      </span>
+                
+                {/* 层次视图的子分类展示 */}
+                {viewMode === 'hierarchical' && currentData.slice(0, 4).some((item: any) => item.subcategories?.length > 0) && (
+                  <div className="mt-4 p-3 bg-base-200 rounded-lg">
+                    <h5 className="text-xs font-medium text-base-content/70 mb-2">主要子分类分布</h5>
+                    <div className="space-y-2">
+                      {currentData.slice(0, 4).map((item: any, idx) => 
+                        item.subcategories?.length > 0 && (
+                          <div key={idx} className="text-xs">
+                            <span className="font-medium">{item.label}:</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.subcategories.slice(0, 3).map((sub: any, subIdx: number) => (
+                                <span key={subIdx} className="badge badge-outline badge-xs">
+                                  {sub.name} ({sub.percentage.toFixed(0)}%)
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      )}
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-base-content/60">总金额:</span>
-                        <div className="font-medium">
-                          ¥{item.value.toLocaleString()}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-base-content/60">发票数:</span>
-                        <div className="font-medium">
-                          {item.count} 张
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 层次视图显示子分类 */}
-                    {viewMode === 'hierarchical' && (item as any).subcategories?.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-base-300">
-                        <div className="text-xs text-base-content/60 mb-2">子分类:</div>
-                        <div className="flex flex-wrap gap-1">
-                          {(item as any).subcategories.slice(0, 3).map((sub: any, subIndex: number) => (
-                            <span key={subIndex} className="badge badge-outline badge-xs">
-                              {sub.name} ({sub.percentage.toFixed(0)}%)
-                            </span>
-                          ))}
-                          {(item as any).subcategories.length > 3 && (
-                            <span className="badge badge-ghost badge-xs">
-                              +{(item as any).subcategories.length - 3}更多
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -277,50 +309,6 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
               <p className="text-sm text-base-content/40 mt-1">
                 请先为发票添加分类信息
               </p>
-            </div>
-          </div>
-        )}
-
-        {/* 统计摘要 - 使用标准 DaisyUI Stats 组件 */}
-        {currentData.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-base-300">
-            <div className="stats stats-vertical sm:stats-horizontal shadow-sm w-full">
-              <div className="stat">
-                <div className="stat-title">显示分类</div>
-                <div className="stat-value text-2xl">{currentData.length}</div>
-                <div className="stat-desc">
-                  共 {viewMode === 'flat' ? data.length : hierarchicalData.length} 个分类
-                </div>
-              </div>
-              
-              <div className="stat">
-                <div className="stat-title">总金额</div>
-                <div className="stat-value text-2xl">
-                  {totalValue >= 10000 
-                    ? `¥${(totalValue / 10000).toFixed(1)}万`
-                    : `¥${totalValue.toLocaleString()}`
-                  }
-                </div>
-                <div className="stat-desc">
-                  {currentData[0] && (
-                    <>最高: {currentData[0].label}</>
-                  )}
-                </div>
-              </div>
-              
-              <div className="stat">
-                <div className="stat-title">总发票</div>
-                <div className="stat-value text-2xl">{totalCount}</div>
-                <div className="stat-desc">张发票</div>
-              </div>
-              
-              <div className="stat">
-                <div className="stat-title">平均金额</div>
-                <div className="stat-value text-2xl">
-                  ¥{totalCount > 0 ? (totalValue / totalCount).toFixed(0) : '0'}
-                </div>
-                <div className="stat-desc">每张发票</div>
-              </div>
             </div>
           </div>
         )}
