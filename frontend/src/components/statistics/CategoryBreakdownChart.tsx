@@ -19,7 +19,11 @@ type SortMode = 'amount' | 'count' | 'percentage'
  * 自定义 Treemap 内容
  */
 const CustomizedContent = (props: any) => {
-  const { x, y, width, height, name, value, percentage, color } = props
+  const { x, y, width, height, name, value, payload } = props
+  
+  // 从 payload 中获取完整数据，包括 percentage 和 color
+  const percentage = payload?.percentage || 0
+  const color = payload?.color || 'var(--chart-primary)'
   
   // 只在矩形足够大时显示文字
   if (width < 60 || height < 40) return (
