@@ -89,20 +89,27 @@ const CustomizedContent = (props: any) => {
 /**
  * 自定义 Tooltip
  */
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, selectedMetric }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0]
+    const payloadData = data.payload
+    
     return (
       <div className="bg-base-100 p-3 rounded-lg shadow-lg border border-base-300">
         <p className="font-medium">{data.name}</p>
         <p className="text-sm text-base-content/70">
-          金额：¥{data.value.toLocaleString()}
+          金额：¥{payloadData.amount?.toLocaleString() || 0}
         </p>
         <p className="text-sm text-base-content/70">
-          数量：{data.payload.count} 张
+          数量：{payloadData.count} 张
+        </p>
+        <p className="text-sm text-base-content/70">
+          均值：¥{payloadData.count > 0 ? Math.round(payloadData.amount / payloadData.count).toLocaleString() : 0}
         </p>
         <p className="text-sm text-primary font-medium">
-          占比：{data.payload.percentage.toFixed(1)}%
+          {selectedMetric === 'amount' && `金额占比：${payloadData.percentage.toFixed(1)}%`}
+          {selectedMetric === 'count' && `数量占比：${payloadData.percentage.toFixed(1)}%`}
+          {selectedMetric === 'average' && `均值占比：${payloadData.percentage.toFixed(1)}%`}
         </p>
       </div>
     )
@@ -155,29 +162,85 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
         break
     }
 
-    return sortedData.slice(0, 8).map((item, index) => ({
-      name: item.category_name || '未知分类',  // Recharts 使用 name 作为默认标签
-      label: item.category_name || '未知分类',
-      value: item.total_amount,
-      count: item.invoice_count,
-      percentage: item.amount_percentage,
-      color: colors[index % colors.length]
-    }))
+    // 计算总和用于百分比计算
+    const totalAmount = data.reduce((sum, item) => sum + item.total_amount, 0)
+    const totalCount = data.reduce((sum, item) => sum + item.invoice_count, 0)
+
+    return sortedData.slice(0, 8).map((item, index) => {
+      // 根据选中指标计算百分比
+      let percentage = 0
+      let value = 0
+      
+      switch (selectedMetric) {
+        case 'amount':
+          percentage = totalAmount > 0 ? (item.total_amount / totalAmount) * 100 : 0
+          value = item.total_amount
+          break
+        case 'count':
+          percentage = totalCount > 0 ? (item.invoice_count / totalCount) * 100 : 0
+          value = item.invoice_count
+          break
+        case 'average':
+          const avgAmount = item.invoice_count > 0 ? item.total_amount / item.invoice_count : 0
+          const totalAvg = data.reduce((sum, d) => sum + (d.invoice_count > 0 ? d.total_amount / d.invoice_count : 0), 0)
+          percentage = totalAvg > 0 ? (avgAmount / totalAvg) * 100 : 0
+          value = avgAmount
+          break
+      }
+
+      return {
+        name: item.category_name || '未知分类',  // Recharts 使用 name 作为默认标签
+        label: item.category_name || '未知分类',
+        value: value,
+        count: item.invoice_count,
+        amount: item.total_amount,  // 保留原始金额
+        percentage: percentage,
+        color: colors[index % colors.length]
+      }
+    })
   }
 
   // 处理层次化数据
   const getHierarchicalData = () => {
     if (!hierarchicalData || hierarchicalData.length === 0) return []
 
-    return hierarchicalData.slice(0, 6).map((item, index) => ({
-      name: item.primary_category,  // Recharts 使用 name 作为默认标签
-      label: item.primary_category,
-      value: item.primary_amount,
-      count: item.primary_count,
-      percentage: item.primary_percentage,
-      color: colors[index % colors.length],
-      subcategories: item.subcategories
-    }))
+    // 计算总和用于百分比计算
+    const totalAmount = hierarchicalData.reduce((sum, item) => sum + item.primary_amount, 0)
+    const totalCount = hierarchicalData.reduce((sum, item) => sum + item.primary_count, 0)
+
+    return hierarchicalData.slice(0, 6).map((item, index) => {
+      // 根据选中指标计算百分比
+      let percentage = 0
+      let value = 0
+      
+      switch (selectedMetric) {
+        case 'amount':
+          percentage = totalAmount > 0 ? (item.primary_amount / totalAmount) * 100 : 0
+          value = item.primary_amount
+          break
+        case 'count':
+          percentage = totalCount > 0 ? (item.primary_count / totalCount) * 100 : 0
+          value = item.primary_count
+          break
+        case 'average':
+          const avgAmount = item.primary_count > 0 ? item.primary_amount / item.primary_count : 0
+          const totalAvg = hierarchicalData.reduce((sum, d) => sum + (d.primary_count > 0 ? d.primary_amount / d.primary_count : 0), 0)
+          percentage = totalAvg > 0 ? (avgAmount / totalAvg) * 100 : 0
+          value = avgAmount
+          break
+      }
+
+      return {
+        name: item.primary_category,  // Recharts 使用 name 作为默认标签
+        label: item.primary_category,
+        value: value,
+        count: item.primary_count,
+        amount: item.primary_amount,  // 保留原始金额
+        percentage: percentage,
+        color: colors[index % colors.length],
+        subcategories: item.subcategories
+      }
+    })
   }
 
   const currentData = viewMode === 'flat' ? getFlatData() : getHierarchicalData()
@@ -293,7 +356,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                 </div>
                 <div className="stat-desc">
                   {selectedMetric === 'amount' && `${topStats.first.count} 张发票`}
-                  {selectedMetric === 'count' && `¥${topStats.first.value >= 10000 ? `${(topStats.first.value / 10000).toFixed(1)}万` : topStats.first.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `¥${topStats.first.amount >= 10000 ? `${(topStats.first.amount / 10000).toFixed(1)}万` : topStats.first.amount.toLocaleString()}`}
                   {selectedMetric === 'average' && `${topStats.first.count} 张发票`}
                   · {topStats.first.percentage.toFixed(1)}%
                 </div>
@@ -310,7 +373,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                 </div>
                 <div className="stat-desc">
                   {selectedMetric === 'amount' && `${topStats.second.count} 张发票`}
-                  {selectedMetric === 'count' && `¥${topStats.second.value >= 10000 ? `${(topStats.second.value / 10000).toFixed(1)}万` : topStats.second.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `¥${topStats.second.amount >= 10000 ? `${(topStats.second.amount / 10000).toFixed(1)}万` : topStats.second.amount.toLocaleString()}`}
                   {selectedMetric === 'average' && `${topStats.second.count} 张发票`}
                   · {topStats.second.percentage.toFixed(1)}%
                 </div>
@@ -327,7 +390,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                 </div>
                 <div className="stat-desc">
                   {selectedMetric === 'amount' && `${topStats.third.count} 张发票`}
-                  {selectedMetric === 'count' && `¥${topStats.third.value >= 10000 ? `${(topStats.third.value / 10000).toFixed(1)}万` : topStats.third.value.toLocaleString()}`}
+                  {selectedMetric === 'count' && `¥${topStats.third.amount >= 10000 ? `${(topStats.third.amount / 10000).toFixed(1)}万` : topStats.third.amount.toLocaleString()}`}
                   {selectedMetric === 'average' && `${topStats.third.count} 张发票`}
                   · {topStats.third.percentage.toFixed(1)}%
                 </div>
@@ -351,7 +414,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                     fill="#8884d8"
                     content={<CustomizedContent />}
                   >
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip selectedMetric={selectedMetric} />} />
                   </Treemap>
                 </ResponsiveContainer>
                 
