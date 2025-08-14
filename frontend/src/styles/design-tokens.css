@@ -1,0 +1,144 @@
+/**
+ * 设计系统 - 颜色 Token
+ * 基于 DaisyUI 语义化颜色系统，支持深色主题切换
+ */
+
+@layer base {
+  :root {
+    /* 图表颜色系统 - 基于 HSL 语义化色彩 */
+    --chart-success: hsl(var(--su));
+    --chart-success-content: hsl(var(--suc));
+    --chart-success-fill: hsl(var(--su) / 0.1);
+    
+    --chart-info: hsl(var(--in));
+    --chart-info-content: hsl(var(--inc));
+    --chart-info-fill: hsl(var(--in) / 0.1);
+    
+    --chart-warning: hsl(var(--wa));
+    --chart-warning-content: hsl(var(--wac));
+    --chart-warning-fill: hsl(var(--wa) / 0.1);
+    
+    --chart-error: hsl(var(--er));
+    --chart-error-content: hsl(var(--erc));
+    --chart-error-fill: hsl(var(--er) / 0.1);
+    
+    --chart-primary: hsl(var(--p));
+    --chart-primary-content: hsl(var(--pc));
+    --chart-primary-fill: hsl(var(--p) / 0.1);
+    
+    --chart-secondary: hsl(var(--s));
+    --chart-secondary-content: hsl(var(--sc));
+    --chart-secondary-fill: hsl(var(--s) / 0.1);
+    
+    --chart-accent: hsl(var(--a));
+    --chart-accent-content: hsl(var(--ac));
+    --chart-accent-fill: hsl(var(--a) / 0.1);
+    
+    /* 数据可视化专用色彩 */
+    --chart-neutral: hsl(var(--n));
+    --chart-neutral-content: hsl(var(--nc));
+    --chart-neutral-fill: hsl(var(--n) / 0.1);
+    
+    /* 状态指示颜色 */
+    --status-positive: var(--chart-success);
+    --status-negative: var(--chart-error);
+    --status-neutral: var(--chart-neutral);
+    
+    /* 背景层次 */
+    --surface-base: hsl(var(--b1));
+    --surface-elevated: hsl(var(--b2));
+    --surface-overlay: hsl(var(--b3));
+  }
+}
+
+/* 图表色彩工具类 */
+.chart-success {
+  color: var(--chart-success);
+}
+
+.chart-info {
+  color: var(--chart-info);
+}
+
+.chart-warning {
+  color: var(--chart-warning);
+}
+
+.chart-error {
+  color: var(--chart-error);
+}
+
+.chart-primary {
+  color: var(--chart-primary);
+}
+
+.chart-secondary {
+  color: var(--chart-secondary);
+}
+
+.chart-accent {
+  color: var(--chart-accent);
+}
+
+/* 填充色工具类 */
+.fill-success {
+  fill: var(--chart-success-fill);
+}
+
+.fill-info {
+  fill: var(--chart-info-fill);
+}
+
+.fill-warning {
+  fill: var(--chart-warning-fill);
+}
+
+.fill-error {
+  fill: var(--chart-error-fill);
+}
+
+.fill-primary {
+  fill: var(--chart-primary-fill);
+}
+
+.fill-secondary {
+  fill: var(--chart-secondary-fill);
+}
+
+.fill-accent {
+  fill: var(--chart-accent-fill);
+}
+
+/* 边框色工具类 */
+.border-chart-success {
+  border-color: var(--chart-success);
+}
+
+.border-chart-info {
+  border-color: var(--chart-info);
+}
+
+.border-chart-warning {
+  border-color: var(--chart-warning);
+}
+
+.border-chart-error {
+  border-color: var(--chart-error);
+}
+
+/* 背景色工具类 */
+.bg-chart-success {
+  background-color: var(--chart-success-fill);
+}
+
+.bg-chart-info {
+  background-color: var(--chart-info-fill);
+}
+
+.bg-chart-warning {
+  background-color: var(--chart-warning-fill);
+}
+
+.bg-chart-error {
+  background-color: var(--chart-error-fill);
+}

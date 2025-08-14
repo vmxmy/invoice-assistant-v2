@@ -18,8 +18,8 @@ export const SimpleLineChart: React.FC<SimpleLineChartProps> = ({
   data,
   width = 200,
   height = 60,
-  strokeColor = 'rgb(34, 197, 94)', // green-500
-  fillColor = 'rgba(34, 197, 94, 0.1)',
+  strokeColor = 'var(--chart-primary)',
+  fillColor = 'var(--chart-primary-fill)',
   showDots = true
 }) => {
   if (!data || data.length === 0) {

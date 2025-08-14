@@ -78,18 +78,18 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>('flat')
   const [sortMode, setSortMode] = useState<SortMode>('amount')
 
-  // 颜色配置
+  // 颜色配置 - 使用设计系统 tokens
   const colors = [
-    '#ef4444', // red-500
-    '#f97316', // orange-500  
-    '#eab308', // yellow-500
-    '#22c55e', // green-500
-    '#06b6d4', // cyan-500
-    '#3b82f6', // blue-500
-    '#8b5cf6', // violet-500
-    '#ec4899', // pink-500
-    '#6b7280', // gray-500
-    '#84cc16'  // lime-500
+    'var(--chart-error)',     // red
+    'var(--chart-warning)',   // orange/yellow  
+    'var(--chart-accent)',    // accent color
+    'var(--chart-success)',   // green
+    'var(--chart-info)',      // blue/cyan
+    'var(--chart-primary)',   // primary
+    'var(--chart-secondary)', // secondary
+    'hsl(var(--p) / 0.8)',    // primary variant
+    'var(--chart-neutral)',   // gray
+    'hsl(var(--a) / 0.6)'     // accent variant
   ]
 
   // 处理扁平化数据
