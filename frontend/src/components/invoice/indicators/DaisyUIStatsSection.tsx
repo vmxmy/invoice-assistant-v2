@@ -171,7 +171,7 @@ export const createOverdueStat = (
     id: 'overdue',
     title: '逾期提醒',
     value: overdueCount,
-    desc: dueSoonCount > 0 ? `${dueSoonCount} 即将到期` : '无即将到期',
+    desc: dueSoonCount > 0 ? `${dueSoonCount} 张即将超期 90 天` : '无即将超期',
     icon: <AlertCircle className="h-8 w-8 stroke-current opacity-80" />,
     trend: overdueCount > 0 ? 'down' : 'neutral',
     onClick
@@ -193,10 +193,10 @@ export const createOverdueAmountStat = (
     title: '逾期提醒',
     value: `¥${overdueAmount.toLocaleString()}`,
     desc: overdueCount > 0 
-      ? `${overdueCount} 张已逾期${dueSoonCount > 0 ? `，${dueSoonCount} 张即将到期` : ''}` 
+      ? `${overdueCount} 张已超期 90 天${dueSoonCount > 0 ? `，${dueSoonCount} 张即将超期 90 天` : ''}` 
       : dueSoonCount > 0 
-        ? `${dueSoonCount} 张即将到期` 
-        : '无逾期发票',
+        ? `${dueSoonCount} 张即将超期 90 天` 
+        : '无超期发票',
     icon: <AlertCircle className="h-8 w-8 stroke-current opacity-80" />,
     trend: overdueAmount > 0 ? 'down' : 'neutral',
     onClick
@@ -258,7 +258,7 @@ export const createUrgentActionsStat = (
     title: '紧急处理',
     value: totalUrgent > 0 ? `${totalUrgent} 项` : '无',
     desc: totalUrgent > 0 
-      ? `${overdueCount > 0 ? `${overdueCount}张逾期` : ''}${overdueCount > 0 && dueSoonCount > 0 ? '，' : ''}${dueSoonCount > 0 ? `${dueSoonCount}张即将到期` : ''}` 
+      ? `${overdueCount > 0 ? `${overdueCount}张已超期 90 天` : ''}${overdueCount > 0 && dueSoonCount > 0 ? '，' : ''}${dueSoonCount > 0 ? `${dueSoonCount}张即将超期 90 天` : ''}` 
       : '所有发票状态正常',
     icon: <AlertCircle className="h-8 w-8 stroke-current opacity-80" />,
     trend: totalUrgent > 0 ? 'down' : 'neutral',
