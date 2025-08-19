@@ -33,7 +33,7 @@ export function debugEnvironmentVariables() {
   console.groupEnd()
   
   // 在页面上显示（仅开发模式）
-  if (import.meta.env.DEV || !import.meta.env.VITE_APP_DOMAIN) {
+  if (import.meta.env.DEV) {
     displayDebugPanel(envInfo)
   }
   
