@@ -12,6 +12,7 @@ export const PWAManager: React.FC = () => {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isDismissedPermanently, setIsDismissedPermanently] = useState(false);
 
   // PWA更新管理
   const {
@@ -32,6 +33,10 @@ export const PWAManager: React.FC = () => {
   });
 
   useEffect(() => {
+    // 检查用户是否已永久关闭安装提示
+    const dismissedPermanently = localStorage.getItem('pwa-install-dismissed') === 'true';
+    setIsDismissedPermanently(dismissedPermanently);
+
     // 检查是否已经是独立应用
     const isStandaloneMode = 
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -44,7 +49,10 @@ export const PWAManager: React.FC = () => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
-      setIsInstallable(true);
+      // 只有在用户没有选择"不再提示"时才显示
+      if (!dismissedPermanently) {
+        setIsInstallable(true);
+      }
     };
 
     // 监听应用安装成功
@@ -85,6 +93,14 @@ export const PWAManager: React.FC = () => {
     }
   };
 
+  // 处理永久关闭
+  const handleDismissPermanently = () => {
+    localStorage.setItem('pwa-install-dismissed', 'true');
+    setIsDismissedPermanently(true);
+    setIsInstallable(false);
+    toast.info('已关闭安装提示，如需安装可从浏览器菜单操作');
+  };
+
   // 处理更新
   const handleUpdate = () => {
     updateServiceWorker(true);
@@ -121,7 +137,7 @@ export const PWAManager: React.FC = () => {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handleInstall}
-                className="btn btn-sm btn-secondary flex-1"
+                className="btn btn-sm btn-secondary"
               >
                 <Download className="w-4 h-4 mr-1" />
                 立即安装
@@ -131,6 +147,12 @@ export const PWAManager: React.FC = () => {
                 className="btn btn-sm btn-ghost"
               >
                 稍后再说
+              </button>
+              <button
+                onClick={handleDismissPermanently}
+                className="btn btn-sm btn-ghost text-xs"
+              >
+                不再提示
               </button>
             </div>
           </div>

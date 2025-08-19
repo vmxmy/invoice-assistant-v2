@@ -172,8 +172,39 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     }).format(amount);
   };
 
+  // 分离金额的整数和小数部分
+  const formatCurrencyParts = (amount: number) => {
+    const formatted = new Intl.NumberFormat('zh-CN', {
+      style: 'currency',
+      currency: 'CNY',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+    
+    // 移除货币符号并分离整数和小数
+    const cleanAmount = formatted.replace('¥', '').trim();
+    const parts = cleanAmount.split('.');
+    
+    return {
+      symbol: '¥',
+      integer: parts[0] || '0',
+      decimal: parts[1] || '00'
+    };
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-CN');
+    const date = new Date(dateString);
+    // 使用短格式：MM/DD
+    return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+  };
+  
+  const formatFullDate = (dateString: string) => {
+    const date = new Date(dateString);
+    // 格式：YYYY/MM/DD
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
   };
 
   // 将旧状态映射到新的状态系统
@@ -265,6 +296,55 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
       handleConsumptionDateChange(target.value);
     }
   }, [handleConsumptionDateChange]);
+
+  // 处理日历弹窗显示位置
+  const handleCalendarPopoverToggle = useCallback((event: Event) => {
+    const popover = event.target as HTMLElement;
+    if (!popover) return;
+
+    // 使用 requestAnimationFrame 确保在 DOM 更新后执行
+    requestAnimationFrame(() => {
+      const rect = popover.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      
+      // 检查是否超出视口底部
+      const isOverflowingBottom = rect.bottom > viewportHeight;
+      const isOverflowingTop = rect.top < 0;
+      const isOverflowingRight = rect.right > viewportWidth;
+      const isOverflowingLeft = rect.left < 0;
+      
+      // 计算可用空间
+      const spaceAbove = rect.top;
+      const spaceBelow = viewportHeight - rect.bottom + rect.height;
+      
+      // 动态调整位置
+      if (isOverflowingBottom && spaceAbove > rect.height) {
+        // 如果底部溢出且上方有足够空间，向上显示
+        popover.style.top = 'auto';
+        popover.style.bottom = `${viewportHeight - rect.top + 10}px`;
+        popover.style.maxHeight = `${Math.min(spaceAbove - 20, 400)}px`;
+        popover.style.overflowY = 'auto';
+      } else if (isOverflowingBottom) {
+        // 如果底部溢出但上方空间不足，限制高度
+        popover.style.maxHeight = `${viewportHeight - rect.top - 20}px`;
+        popover.style.overflowY = 'auto';
+      }
+      
+      // 处理水平方向溢出
+      if (isOverflowingRight) {
+        popover.style.left = 'auto';
+        popover.style.right = '10px';
+      } else if (isOverflowingLeft) {
+        popover.style.left = '10px';
+      }
+      
+      // 确保弹窗始终在视口内
+      if (device.isMobile) {
+        popover.style.maxWidth = `${Math.min(viewportWidth - 20, 350)}px`;
+      }
+    });
+  }, [device.isMobile]);
 
   const handlePrint = async () => {
     if (!invoice.file_url && !invoice.file_path) {
@@ -449,21 +529,21 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             />
           </label>
           
-          {/* 右侧：三点菜单 */}
+          {/* 右侧：三点菜单 - 优化后的按钮样式 */}
           {showActions && (
-            <div className={`
-              flex-shrink-0
-              ${device.isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-              transition-opacity duration-300 ease-out
-            `}>
+            <div className="flex-shrink-0">
               {/* 单独的三点菜单 */}
               <div className="dropdown dropdown-end">
-                {/* 三点菜单触发器 - 最小化样式 */}
+                {/* 三点菜单触发器 - 使用DaisyUI按钮组件 */}
                 <label 
                   tabIndex={0} 
                   className={`
-                    cursor-pointer p-1 rounded-lg
-                    hover:bg-base-200/50 transition-colors
+                    btn btn-ghost btn-circle
+                    ${device.isMobile ? 'btn-md' : 'btn-sm'}
+                    ${device.isMobile ? 'bg-base-200/50' : 'bg-base-200/30'}
+                    hover:bg-base-300/50
+                    text-base-content/80 hover:text-base-content
+                    border border-base-300/30
                   `}
                   title="更多操作"
                   aria-label={`发票 ${invoice.invoice_number} 的操作菜单`}
@@ -471,7 +551,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-base-content/60 hover:text-base-content`} />
+                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
                 </label>
                 
                 {/* DaisyUI原生菜单结构 */}
@@ -485,49 +565,33 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   role="menu"
                   aria-labelledby={`menu-button-${invoice.id}`}
                 >
-                  <li role="none">
+                  <li>
                     <a 
-                      onClick={() => onView(invoice.id)}
+                      onClick={handlePrint}
                       className={`
-                        flex items-center gap-2 hover:bg-primary/10
+                        flex items-center gap-2 
+                        ${!invoice.file_url && !invoice.file_path ? 'opacity-50 cursor-not-allowed' : 'hover:bg-info/10'}
                         ${device.isMobile ? 'py-3' : 'py-2'}
                       `}
-                      role="menuitem"
-                      tabIndex={0}
-                      aria-label="查看发票详情"
+                      disabled={!invoice.file_url && !invoice.file_path}
                     >
-                      <Eye className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-primary`} />
-                      <span>查看详情</span>
+                      <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-info`} />
+                      <span>打印</span>
                     </a>
                   </li>
                   
                   <li>
-                      <a 
-                        onClick={handlePrint}
-                        className={`
-                          flex items-center gap-2 
-                          ${!invoice.file_url && !invoice.file_path ? 'opacity-50 cursor-not-allowed' : 'hover:bg-info/10'}
-                          ${device.isMobile ? 'py-3' : 'py-2'}
-                        `}
-                        disabled={!invoice.file_url && !invoice.file_path}
-                      >
-                        <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-info`} />
-                        <span>打印</span>
-                      </a>
-                    </li>
-                    
-                    <li>
-                      <a 
-                        onClick={() => onEdit(invoice)}
-                        className={`
-                          flex items-center gap-2 hover:bg-warning/10
-                          ${device.isMobile ? 'py-3' : 'py-2'}
-                        `}
-                      >
-                        <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
-                        <span>下载</span>
-                      </a>
-                    </li>
+                    <a 
+                      onClick={() => onEdit(invoice)}
+                      className={`
+                        flex items-center gap-2 hover:bg-warning/10
+                        ${device.isMobile ? 'py-3' : 'py-2'}
+                      `}
+                    >
+                      <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
+                      <span>下载</span>
+                    </a>
+                  </li>
                     
                     {/* daisyUI 分隔线 */}
                     <div className="divider my-1"></div>
@@ -554,246 +618,232 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           )}
         </div>
 
-        {/* 第二行：分类徽章和状态组件 */}
+        {/* 第二行：状态组件更突出，分类徽章次要 */}
         <div className="flex items-center justify-between gap-3 mb-4">
-          {/* 左侧：费用类别徽章 */}
+          {/* 左侧：状态组件 - 更突出 */}
+          <div className="flex-1">
+            {statusComponent === 'toggle' ? (
+              <InvoiceStatusToggle
+                status={currentStatus}
+                onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                size="md"
+                disabled={!onStatusChange}
+                loading={isUpdatingStatus}
+              />
+            ) : statusComponent === 'switch' ? (
+              <InvoiceStatusSwitch
+                status={currentStatus}
+                onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                size="md"
+                disabled={!onStatusChange}
+                loading={isUpdatingStatus}
+              />
+            ) : (
+              <InvoiceStatusBadge
+                status={currentStatus}
+                onStatusChange={onStatusChange ? handleStatusChange : undefined}
+                size="md"
+                interactive={!!onStatusChange}
+                showDropdownArrow={true}
+              />
+            )}
+          </div>
+          
+          {/* 右侧：费用类别徽章 - 次要 */}
           {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
             <div className={`
-              badge-compact-sm inline-flex items-center gap-1.5
+              badge-compact-md inline-flex items-center gap-1.5
               ${getCategoryBadgeStyle(invoice).className}
               shadow-sm ring-1 ring-black/5 transition-compact
               hover:shadow-sm hover:scale-105
             `}
               style={getCategoryBadgeStyle(invoice).style}
             >
-              <span className="text-current opacity-90 text-xs">{getCategoryIcon(invoice)}</span>
+              <span className="text-current opacity-90">{getCategoryIcon(invoice)}</span>
               <span className="truncate max-w-24 text-current">{getCategoryDisplayName(invoice)}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <div className="badge-compact-xs inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
-                <span className="opacity-70 text-xs">📄</span>
+              <div className="badge-compact-md inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
+                <span className="opacity-70">📄</span>
                 <span>未分类</span>
               </div>
-              <div className="badge-compact-xs bg-warning/10 text-warning ring-1 ring-warning/20">
+              <div className="badge-compact-md bg-warning/10 text-warning ring-1 ring-warning/20">
                 待分类
               </div>
             </div>
-          )}
-          
-          {/* 右侧：状态组件 */}
-          {statusComponent === 'toggle' ? (
-            <InvoiceStatusToggle
-              status={currentStatus}
-              onStatusChange={onStatusChange ? handleStatusChange : undefined}
-              size="sm"
-              disabled={!onStatusChange}
-              loading={isUpdatingStatus}
-            />
-          ) : statusComponent === 'switch' ? (
-            <InvoiceStatusSwitch
-              status={currentStatus}
-              onStatusChange={onStatusChange ? handleStatusChange : undefined}
-              size="sm"
-              disabled={!onStatusChange}
-              loading={isUpdatingStatus}
-            />
-          ) : (
-            <InvoiceStatusBadge
-              status={currentStatus}
-              onStatusChange={onStatusChange ? handleStatusChange : undefined}
-              size="sm"
-              interactive={!!onStatusChange}
-              showDropdownArrow={true}
-            />
           )}
         </div>
 
         {/* 信息内容区域 - 改进层次结构 */}
         <div className="space-y-4">
-          {/* 企业信息卡片 - 简化设计 */}
+          {/* 发票号码信息容器 - 移到最上方 */}
+          {(invoice.invoice_number || invoice.invoice_code) && (
+            <div className="flex items-start gap-3 p-3 rounded-lg">
+              <FileText className="w-4 h-4 text-base-content/60 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                {invoice.invoice_number && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-base-content/60">发票号:</span>
+                    <span className="font-mono text-sm text-base-content/80">
+                      {invoice.invoice_number}
+                    </span>
+                  </div>
+                )}
+                {invoice.invoice_code && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-base-content/60">发票代码:</span>
+                    <span className="font-mono text-sm text-base-content/80">
+                      {invoice.invoice_code}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 企业信息卡片 - 水平布局，右对齐确保名称完整显示 */}
           {(invoice.seller_name || invoice.buyer_name) && (
-            <div className="bg-base-50/30 border border-base-200/50 rounded-lg p-3">
-              
+            <div className="bg-base-100 border border-base-200 rounded-lg p-3">
               <div className="grid gap-2">
                 {invoice.seller_name && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <Building2 className="w-3.5 h-3.5 text-primary/70" />
                       <span className="text-xs text-base-content/60">销售方</span>
                     </div>
-                    <span className="text-sm font-medium text-base-content/90 truncate max-w-40">
-                      {invoice.seller_name}
-                    </span>
+                    <div className="flex-1 text-right">
+                      <span className="text-sm font-medium text-base-content break-words">
+                        {invoice.seller_name}
+                      </span>
+                    </div>
                   </div>
                 )}
                 
                 {invoice.buyer_name && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <User className="w-3.5 h-3.5 text-accent/70" />
                       <span className="text-xs text-base-content/60">购买方</span>
                     </div>
-                    <span className="text-sm font-medium text-base-content/90 truncate max-w-40">
-                      {invoice.buyer_name}
-                    </span>
+                    <div className="flex-1 text-right">
+                      <span className="text-sm font-medium text-base-content break-words">
+                        {invoice.buyer_name}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* 特殊票据信息区域 - 紧凑设计 */}
-          {isTrainTicketByCategory(invoice) && (() => {
-            const trainInfo = extractTrainTicketInfo(invoice);
-            const isValid = isValidTrainTicket(trainInfo);
-            
-            if (!isValid || !trainInfo) {
-              return (
-                <div className="bg-warning/10 border border-warning/30 rounded-lg p-2">
-                  <span className="text-xs text-warning">⚠️ 火车票信息解析失败</span>
-                </div>
-              );
-            }
-            
-            const seatStyle = getSeatTypeStyle(trainInfo.seatType);
-            const route = formatTrainRoute(trainInfo.departureStation, trainInfo.arrivalStation);
-            
-            return (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-2">
-                <div className="flex items-center gap-1 flex-wrap mb-1">
-                  <div className="badge-compact-xs badge badge-info">
-                    <span className="text-xs">🕐</span>
-                    <span className="font-medium text-xs">
-                      {trainInfo.departureTime && trainInfo.departureTimeDetail 
-                        ? `${trainInfo.departureTime} ${trainInfo.departureTimeDetail}`
-                        : trainInfo.departureTime || '时间未知'
-                      }
-                    </span>
-                  </div>
-                  <div className="badge-compact-xs badge badge-outline">
-                    <span className="text-xs">🚩</span>
-                    <span className="font-medium text-xs">{route}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 flex-wrap">
-                  <div className="badge-compact-xs badge badge-primary">
-                    <span className="text-xs">🚄</span>
-                    <span className="font-medium text-xs">{trainInfo.trainNumber}</span>
-                  </div>
-                  <div className={`badge-compact-xs badge ${seatStyle.className}`}>
-                    <span className="text-xs">{seatStyle.icon}</span>
-                    <span className="font-medium text-xs">{trainInfo.seatType}</span>
-                  </div>
-                  <div className="badge-compact-xs badge badge-neutral">
-                    <span className="text-xs">💺</span>
-                    <span className="font-medium text-xs">{trainInfo.seatNumber}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-          
-          {isFlightTicketByCategory(invoice) && (() => {
-            const flightInfo = extractFlightTicketInfo(invoice);
-            const isValid = isValidFlightTicket(flightInfo);
-            
-            if (!isValid || !flightInfo) {
-              return (
-                <div className="bg-warning/10 border border-warning/30 rounded-lg p-2">
-                  <span className="text-xs text-warning">⚠️ 飞机票信息解析失败</span>
-                </div>
-              );
-            }
-            
-            const seatClassStyle = getSeatClassStyle(flightInfo.seatClass);
-            const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
-            
-            return (
-              <div className="bg-info/10 border border-info/20 rounded-lg p-2">
-                <div className="flex items-center gap-1 flex-wrap mb-1">
-                  <div className="badge-compact-xs badge badge-info">
-                    <span className="text-xs">🕐</span>
-                    <span className="font-medium text-xs">
-                      {flightInfo.departureTime || '时间未知'}
-                    </span>
-                  </div>
-                  <div className="badge-compact-xs badge badge-outline">
-                    <span className="text-xs">✈️</span>
-                    <span className="font-medium text-xs">{route}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 flex-wrap">
-                  <div className="badge-compact-xs badge badge-primary">
-                    <span className="text-xs">✈️</span>
-                    <span className="font-medium text-xs">{flightInfo.flightNumber}</span>
-                  </div>
-                  {flightInfo.seatClass && flightInfo.seatClass.trim() && (
-                    <div className={`badge-compact-xs badge ${seatClassStyle.className}`}>
-                      <span className="text-xs">{seatClassStyle.icon}</span>
-                      <span className="font-medium text-xs">{flightInfo.seatClass}</span>
-                    </div>
-                  )}
-                  {flightInfo.seatNumber && (
-                    <div className="badge-compact-xs badge badge-neutral">
-                      <span className="text-xs">💺</span>
-                      <span className="font-medium text-xs">{flightInfo.seatNumber}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
-          
+          {/* 餐饮服务信息 - 优化设计 */}
           {invoice.invoice_type === '餐饮服务' && (
-            <div className="bg-warning/10 border border-warning/20 rounded-lg p-2">
-              <div className="flex items-center gap-1">
-                <span className="field-label">用餐：</span>
-                <div className="badge-compact-xs badge badge-warning">
-                  <span className="text-xs">🍽️</span>
-                  <span className="font-medium text-xs">晚餐</span>
-                </div>
-                <span className="text-xs text-base-content/60">4人</span>
+            <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-base-content/60">🍽️ 餐饮类型</span>
+                <span className="badge badge-sm badge-ghost">晚餐</span>
+                <span className="text-sm text-base-content/60">• 4人用餐</span>
               </div>
             </div>
           )}
 
-          {/* 金额和日期信息卡片 - 突出显示 */}
-          <div className="bg-gradient-to-r from-success/5 to-primary/5 border border-success/20 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              {/* 日期信息 - 可编辑 */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-info/70" />
-                  <span className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
-                    消费时间
-                  </span>
-                  {isUpdatingDate && (
-                    <Loader2 className="w-3 h-3 animate-spin text-info/70" />
-                  )}
+          {/* 金额、日期信息 - 优化后的 Stats 组件 */}
+          <div className={`stats ${device.isMobile ? 'stats-vertical' : 'stats-horizontal'} shadow-sm w-full bg-base-100/50 backdrop-blur-sm`}>
+            {/* 发票金额 Stat */}
+            <div className="stat px-4 py-3">
+              <div className="stat-title text-xs text-base-content/50 font-normal mb-1">发票金额</div>
+              <div className="stat-value">
+                {(() => {
+                  // 火车票特殊处理：先尝试从提取的火车票信息中获取金额
+                  let amount = 0;
+                  
+                  if (isTrainTicketByCategory(invoice)) {
+                    const trainInfo = extractTrainTicketInfo(invoice);
+                    if (trainInfo && trainInfo.fare) {
+                      amount = trainInfo.fare;
+                    } else {
+                      // 如果提取失败，尝试其他字段
+                      amount = invoice.total_amount || invoice.amount || 0;
+                    }
+                  } else {
+                    // 非火车票使用常规字段
+                    amount = invoice.total_amount || invoice.amount || 0;
+                  }
+                  
+                  // 如果金额为0，显示特殊处理
+                  if (amount === 0) {
+                    return (
+                      <span className={`${device.isMobile ? 'text-lg' : 'text-xl'} text-base-content/50`}>
+                        金额待确认
+                      </span>
+                    );
+                  }
+                  
+                  const parts = formatCurrencyParts(amount);
+                  
+                  return (
+                    <span className="flex items-baseline">
+                      <span className={`${device.isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-base-content`}>
+                        {parts.symbol}{parts.integer}
+                      </span>
+                      <span className={`${device.isMobile ? 'text-sm' : 'text-base'} text-base-content/50 font-normal`}>
+                        .{parts.decimal}
+                      </span>
+                    </span>
+                  );
+                })()}
+              </div>
+              {/* 火车票不显示含税金额 */}
+              {!isTrainTicketByCategory(invoice) && invoice.tax_amount && typeof invoice.tax_amount === 'number' && invoice.tax_amount > 0 && (
+                <div className="stat-desc text-xs text-base-content/40 mt-1">
+                  含税 {formatCurrency(invoice.tax_amount)}
                 </div>
-                
+              )}
+            </div>
+
+            {/* 消费日期 Stat */}
+            <div className="stat px-4 py-3">
+              <div className="stat-title text-xs text-base-content/50 font-normal mb-1 flex items-center gap-2">
+                <span>消费日期</span>
+                {isUpdatingDate && (
+                  <Loader2 className="w-3 h-3 animate-spin text-base-content/50" />
+                )}
+              </div>
+              <div className="stat-value">
                 {/* Cally日历组件 */}
                 {onConsumptionDateChange ? (
                   <>
                     <button
                       popoverTarget={`${calendarId}-popover`}
-                      className={`
-                        text-left text-sm font-semibold text-base-content/80 hover:text-primary transition-colors
-                        hover:underline cursor-pointer btn btn-ghost btn-xs justify-start p-0 h-auto min-h-0
-                      `}
+                      className="text-base-content hover:text-primary transition-colors cursor-pointer text-xl font-bold hover:underline decoration-dotted underline-offset-4"
                       style={{ anchorName: `--${calendarId}` }}
                       disabled={isUpdatingDate}
-                      title="点击修改消费日期"
+                      title={`点击修改消费日期`}
                     >
-                      {formatDate(invoice.consumption_date || invoice.created_at)}
+                      {formatFullDate(invoice.consumption_date || invoice.created_at)}
                     </button>
                     
                     <div
                       popover="auto"
                       id={`${calendarId}-popover`}
-                      className="dropdown bg-base-100 rounded-box shadow-lg border border-base-300 p-2"
-                      style={{ positionAnchor: `--${calendarId}` }}
+                      className="calendar-popover bg-base-100 rounded-box shadow-lg border border-base-300 p-2"
+                      style={{ 
+                        positionAnchor: `--${calendarId}`,
+                        zIndex: 9999,
+                        position: 'fixed',
+                        maxHeight: 'min(400px, 80vh)',
+                        overflowY: 'auto',
+                        inset: 'unset',
+                        top: 'anchor(bottom)',
+                        left: 'anchor(center)',
+                        transform: 'translateX(-50%)',
+                        // 使用 CSS 逻辑属性实现自适应位置
+                        positionFallback: 'flip-block flip-inline',
+                        // 备用方案：如果底部空间不足，自动翻转到顶部
+                        bottom: 'auto'
+                      }}
+                      onToggle={handleCalendarPopoverToggle}
                     >
                       <calendar-date
                         className="cally"
@@ -823,38 +873,133 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                     </div>
                   </>
                 ) : (
-                  <span className="text-sm font-semibold text-base-content/80">
-                    {formatDate(invoice.consumption_date || invoice.created_at)}
+                  <span className="text-base-content text-xl font-bold">
+                    {formatFullDate(invoice.consumption_date || invoice.created_at)}
                   </span>
                 )}
               </div>
-              
-              {/* 金额信息 */}
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-3.5 h-3.5 text-success/70" />
-                  <span className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
-                    发票金额
+              {invoice.invoice_date && (
+                <div className="stat-desc text-xs text-base-content/40 mt-1">
+                  开票日期 {formatFullDate(invoice.invoice_date)}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 火车票行程信息 - 优化设计 */}
+          {isTrainTicketByCategory(invoice) && (() => {
+            const trainInfo = extractTrainTicketInfo(invoice);
+            const isValid = isValidTrainTicket(trainInfo);
+            
+            if (!isValid || !trainInfo) {
+              return (
+                <div className="alert alert-warning py-2 px-3">
+                  <span className="text-sm">⚠️ 火车票信息解析失败</span>
+                </div>
+              );
+            }
+            
+            const seatStyle = getSeatTypeStyle(trainInfo.seatType);
+            const route = formatTrainRoute(trainInfo.departureStation, trainInfo.arrivalStation);
+            
+            return (
+              <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3 space-y-2">
+                {/* 主要信息：路线和车次 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-base-content">
+                      {route}
+                    </span>
+                    <span className="badge badge-sm badge-ghost">
+                      {trainInfo.trainNumber}
+                    </span>
+                  </div>
+                  <span className="text-sm text-base-content/70">
+                    {trainInfo.departureTime && trainInfo.departureTimeDetail 
+                      ? `${trainInfo.departureTime} ${trainInfo.departureTimeDetail}`
+                      : trainInfo.departureTime || '发车时间未知'
+                    }
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-xl font-bold text-success">
-                    {formatCurrency(
-                      invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount
-                        ? parseFloat(invoice.extracted_data.structured_data.total_amount)
-                        : (invoice.total_amount || invoice.amount || 0)
-                    )}
-                  </span>
-                  {invoice.invoice_type === '火车票' && invoice.extracted_data?.structured_data?.total_amount && (
-                    <div className="flex items-center justify-end gap-1 mt-0.5">
-                      <div className="w-1.5 h-1.5 bg-success/40 rounded-full"></div>
-                      <span className="text-xs text-success/70 font-medium">实际金额</span>
+                
+                {/* 次要信息：座位信息 */}
+                <div className="flex items-center gap-3 text-sm text-base-content/60">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{seatStyle.icon}</span>
+                    <span>{trainInfo.seatType}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">💺</span>
+                    <span>{trainInfo.seatNumber}</span>
+                  </div>
+                  {trainInfo.passengerName && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">👤</span>
+                      <span>{trainInfo.passengerName}</span>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
+          
+          {/* 飞机票行程信息 - 优化设计 */}
+          {isFlightTicketByCategory(invoice) && (() => {
+            const flightInfo = extractFlightTicketInfo(invoice);
+            const isValid = isValidFlightTicket(flightInfo);
+            
+            if (!isValid || !flightInfo) {
+              return (
+                <div className="alert alert-warning py-2 px-3">
+                  <span className="text-sm">⚠️ 飞机票信息解析失败</span>
+                </div>
+              );
+            }
+            
+            const seatClassStyle = getSeatClassStyle(flightInfo.seatClass);
+            const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
+            
+            return (
+              <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3 space-y-2">
+                {/* 主要信息：路线和航班号 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-base-content">
+                      {route}
+                    </span>
+                    <span className="badge badge-sm badge-ghost">
+                      {flightInfo.flightNumber}
+                    </span>
+                  </div>
+                  <span className="text-sm text-base-content/70">
+                    {flightInfo.departureTime || '起飞时间未知'}
+                  </span>
+                </div>
+                
+                {/* 次要信息：舱位和座位信息 */}
+                <div className="flex items-center gap-3 text-sm text-base-content/60">
+                  {flightInfo.seatClass && flightInfo.seatClass.trim() && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">{seatClassStyle.icon}</span>
+                      <span>{flightInfo.seatClass}</span>
+                    </div>
+                  )}
+                  {flightInfo.seatNumber && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">💺</span>
+                      <span>{flightInfo.seatNumber}</span>
+                    </div>
+                  )}
+                  {flightInfo.passengerName && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs">👤</span>
+                      <span>{flightInfo.passengerName}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
       </div>

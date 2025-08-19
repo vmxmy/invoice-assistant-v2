@@ -28,6 +28,7 @@ import { AdvancedSearchModal } from '../components/invoice/AdvancedSearchModal'
 import { InvoiceModal } from '../components/invoice/InvoiceModal'
 import { DeleteConfirmModal } from '../components/invoice/DeleteConfirmModal'
 import { ExportProgressModal } from '../components/invoice/ExportProgressModal'
+import { BulkActionBar } from '../components/invoice/BulkActionBar'
 import { useInvoiceExport } from '../hooks/useInvoiceExport'
 import { useTableColumns } from '../hooks/useTableColumns'
 import { useDynamicTableColumns } from '../hooks/useDynamicTableColumns'
@@ -1757,6 +1758,23 @@ export function InvoiceManagePage() {
             </div>
           </div>
         </section>
+
+      {/* 批量操作栏 - 移动端固定底部，桌面端浮动 */}
+      <BulkActionBar
+        selectedCount={selectedInvoiceIds.length}
+        totalCount={invoices.length}
+        onClearSelection={() => setRowSelection({})}
+        onDelete={handleBatchDelete}
+        onExport={handleBatchExport}
+        onMarkStatus={async (status) => {
+          // 批量更新状态
+          for (const id of selectedInvoiceIds) {
+            await handleStatusChange(id, status);
+          }
+          setRowSelection({});
+        }}
+        isVisible={selectedInvoiceIds.length > 0}
+      />
 
       {/* 移除高级搜索模态框 */}
       {/* <AdvancedSearchModal ... /> */}

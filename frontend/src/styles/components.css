@@ -6,6 +6,66 @@
 /* Tailwind CSS 已在主文件导入 */
 
 /* ===========================================
+   日历弹窗自适应定位
+   ========================================= */
+
+/* 日历弹窗自适应定位 */
+.calendar-popover {
+  /* 基础定位 */
+  position: fixed !important;
+  z-index: 9999;
+  
+  /* 最大高度限制，防止溢出视口 */
+  max-height: min(400px, 80vh);
+  overflow-y: auto;
+  
+  /* 平滑滚动 */
+  scroll-behavior: smooth;
+}
+
+/* 支持 anchor positioning 的浏览器 */
+@supports (anchor-name: --anchor) {
+  .calendar-popover {
+    /* 锚点定位 */
+    position-anchor: --anchor;
+    inset: unset;
+    
+    /* 默认显示在下方居中 */
+    top: anchor(bottom);
+    left: anchor(center);
+    transform: translateX(-50%);
+    
+    /* 自动翻转：如果下方空间不足，显示在上方 */
+    position-fallback: flip-block;
+  }
+}
+
+/* 不支持 anchor positioning 的浏览器降级方案 */
+@supports not (anchor-name: --anchor) {
+  .calendar-popover[popover]:popover-open {
+    /* 使用 JavaScript 动态调整位置 */
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .calendar-popover {
+    max-width: min(350px, calc(100vw - 20px));
+    max-height: min(350px, 60vh);
+  }
+  
+  /* 移动端固定在屏幕中央 */
+  .calendar-popover[popover]:popover-open {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* ===========================================
    阴影系统 - 专业金融应用
    ========================================= */
 
@@ -376,6 +436,11 @@
   /* ===========================================
      徽章组件样式
      ========================================= */
+
+  /* 全局徽章样式 - 防止文本换行 */
+  .badge {
+    @apply whitespace-nowrap;
+  }
 
   /* 状态徽章 */
   .badge-status {
