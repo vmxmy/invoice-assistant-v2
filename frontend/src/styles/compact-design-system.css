@@ -43,23 +43,60 @@
   @apply bg-base-100 border border-base-200/60 rounded-xl;
   @apply hover:border-primary/30 hover:shadow-md;
   @apply transition-all duration-300 ease-out relative;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  @apply p-4 lg:px-6 lg:py-5;
   min-height: auto;
-}
-
-@media (min-width: 1024px) {
-  .invoice-card-compact {
-    padding: var(--spacing-xl) var(--spacing-2xl);
-  }
 }
 
 .invoice-card-compact:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  @apply shadow-lg;
 }
 
 .invoice-card-compact.selected {
   @apply border-primary/50 bg-primary/10 shadow-lg ring-2 ring-primary/20;
+}
+
+/* ===== 发票卡片响应式布局 ===== */
+.invoice-card-body {
+  @apply p-3 sm:p-4;
+}
+
+/* ===== 响应式元素尺寸 ===== */
+.invoice-checkbox {
+  @apply checkbox checkbox-sm sm:checkbox-xs;
+}
+
+.invoice-action-btn {
+  @apply btn btn-ghost btn-circle btn-sm sm:btn-xs;
+}
+
+.invoice-icon {
+  @apply w-5 h-5 sm:w-4 sm:h-4;
+}
+
+.invoice-menu-item {
+  @apply py-3 px-4 sm:py-2 sm:px-3;
+}
+
+.invoice-dropdown-menu {
+  @apply w-52 sm:w-48 z-[9998];
+}
+
+/* ===== 发票统计样式 ===== */
+.invoice-stats {
+  @apply stats bg-base-100 stats-vertical sm:stats-horizontal shadow-sm w-full;
+}
+
+.invoice-stat-title {
+  @apply text-lg sm:text-xl text-warning font-semibold;
+}
+
+.invoice-stat-value {
+  @apply text-2xl sm:text-3xl font-bold text-primary;
+}
+
+.invoice-stat-desc {
+  @apply text-sm sm:text-base text-primary/70 font-medium;
 }
 
 /* 卡片信息区域 */
@@ -70,28 +107,19 @@
 /* 移动端适配 - 减少内边距和间距 */
 @media (max-width: 768px) {
   .invoice-card-compact {
-    padding: var(--spacing-md) var(--spacing-lg);
+    @apply px-4 py-3;
   }
 }
 
 /* 移除不再使用的样式类 */
 
-.invoice-company-section-compact {
-  @apply bg-base-100/50 border border-base-200/40 rounded-lg;
-  padding: var(--spacing-md);
-  margin-top: var(--spacing-sm);
-}
+/* ===== 发票部分样式 - 未使用，已删除 ===== */
+/* 原 invoice-company-section-compact 和 invoice-amount-section-compact 不再使用 */
 
-.invoice-amount-section-compact {
-  @apply bg-gradient-to-br from-success/5 to-primary/5;
-  @apply border border-success/20 rounded-lg;
-  padding: var(--spacing-lg);
-}
-
-/* 字段标签和值 */
+/* ===== 字段标签和值 ===== */
 .invoice-field-compact {
   @apply flex items-center justify-between;
-  min-height: var(--height-sm);
+  min-height: 1.75rem; /* 28px */
 }
 
 .field-label {
@@ -106,115 +134,37 @@
   @apply text-lg font-bold text-success;
 }
 
-/* ===== 按钮系统 ===== */
-.btn-compact-xs {
-  height: var(--height-xs);
-  min-height: var(--height-xs);
-  @apply px-2 text-xs font-medium;
-  border-radius: var(--radius-sm);
-}
+/* ===== 按钮系统 - 已迁移到 DaisyUI v5 标准 ===== */
+/* 使用 DaisyUI v5 标准按钮尺寸：btn-xs, btn-sm, btn, btn-lg, btn-xl */
 
-.btn-compact-sm {
-  height: var(--height-sm);
-  min-height: var(--height-sm);
-  @apply px-3 text-xs font-medium;
-  border-radius: var(--radius-sm);
-}
+/* ===== 徽章系统 - 已迁移到 DaisyUI v5 标准 ===== */
+/* 使用 DaisyUI v5 标准徽章尺寸：badge-xs, badge-sm, badge, badge-lg, badge-xl */
 
-.btn-compact-md {
-  height: var(--height-md);
-  min-height: var(--height-md);
-  @apply px-4 text-sm font-medium;
-  border-radius: var(--radius-md);
-}
+/* ===== 输入框系统 - 已迁移到 DaisyUI v5 标准 ===== */
+/* 使用 DaisyUI v5 标准输入框尺寸：input-xs, input-sm, input, input-lg, input-xl */
 
-.btn-compact-lg {
-  height: var(--height-lg);
-  min-height: var(--height-lg);
-  @apply px-5 text-sm font-medium;
-  border-radius: var(--radius-md);
-}
-
-.btn-compact-touch {
-  height: var(--height-xl);
-  min-height: var(--height-xl);
-  @apply px-6 text-base font-medium;
-  border-radius: var(--radius-lg);
-}
-
-/* ===== 徽章系统 ===== */
-.badge-compact-xs {
-  height: var(--height-xs);
-  @apply px-2 text-xs font-medium;
-  border-radius: var(--radius-xs);
-}
-
-.badge-compact-sm {
-  height: 1.25rem; /* 20px */
-  @apply px-2.5 text-xs font-medium;
-  border-radius: var(--radius-sm);
-}
-
-.badge-compact-md {
-  height: 1.5rem; /* 24px */
-  @apply px-3 text-sm font-medium;
-  border-radius: var(--radius-sm);
-}
-
-/* ===== 输入框系统 ===== */
-.input-compact-xs {
-  height: var(--height-xs);
-  @apply px-2 text-xs;
-  border-radius: var(--radius-sm);
-}
-
-.input-compact-sm {
-  height: var(--height-sm);
-  @apply px-3 text-xs;
-  border-radius: var(--radius-sm);
-}
-
-.input-compact-md {
-  height: var(--height-md);
-  @apply px-4 text-sm;
-  border-radius: var(--radius-md);
-}
-
-.input-compact-touch {
-  height: var(--height-xl);
-  @apply px-4 text-base;
-  border-radius: var(--radius-lg);
-}
-
-/* ===== 选择框系统 ===== */
-.checkbox-compact {
-  @apply w-4 h-4;
-}
-
-.checkbox-compact-touch {
-  @apply w-6 h-6;
-}
+/* ===== 选择框系统 - 已迁移到 DaisyUI v5 标准 ===== */
+/* 使用 DaisyUI v5 标准复选框尺寸：checkbox-xs, checkbox-sm, checkbox, checkbox-lg, checkbox-xl */
 
 /* ===== 卡片系统 ===== */
 .card-compact {
-  @apply bg-base-100 border border-base-200 rounded-lg;
-  box-shadow: var(--shadow-xs);
+  @apply bg-base-100 border border-base-200 rounded-lg shadow-sm;
 }
 
 .card-compact-sm {
-  padding: var(--spacing-md);
+  @apply p-3;
 }
 
 .card-compact-md {
-  padding: var(--spacing-lg);
+  @apply p-4;
 }
 
 .card-compact-lg {
-  padding: var(--spacing-xl);
+  @apply p-5;
 }
 
 .card-compact:hover {
-  box-shadow: var(--shadow-md);
+  @apply shadow-md;
   transform: translateY(-1px);
 }
 
@@ -259,17 +209,16 @@
 .status-component-compact {
   @apply inline-flex items-center gap-2 rounded-full;
   @apply border-2 font-medium transition-all duration-300;
-  height: var(--height-md);
-  padding: 0 var(--spacing-md);
+  @apply h-8 px-3;
   position: relative;
 }
 
 /* Toggle 状态组件样式 */
 .status-component-compact.toggle-style {
   @apply border-0 bg-transparent rounded-lg;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  @apply px-2 py-1;
   height: auto;
-  min-height: var(--height-md);
+  min-height: 2rem;
 }
 
 /* 确保下拉菜单层级正确 */
@@ -281,8 +230,7 @@
 
 @media (max-width: 768px) {
   .status-component-compact {
-    height: var(--height-lg);
-    padding: 0 var(--spacing-lg);
+    @apply h-9 px-4;
   }
 }
 
@@ -292,18 +240,8 @@
 .icon-md { @apply w-5 h-5; }
 .icon-lg { @apply w-6 h-6; }
 
-/* ===== 动画和过渡 ===== */
-.transition-compact {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-.transition-compact-slow {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
+/* ===== 动画和过渡 - 已迁移到 Tailwind 标准 ===== */
+/* 使用 Tailwind 标准：transition-all duration-200, transition-all duration-300 */
 
 /* ===== 工具类 ===== */
 .truncate-2 {
@@ -317,18 +255,8 @@
   aspect-ratio: 3 / 2;
 }
 
-/* ===== 加载状态 ===== */
-.skeleton-compact {
-  @apply skeleton h-8;
-}
-
-.skeleton-text {
-  @apply skeleton h-4 w-3/4;
-}
-
-.skeleton-text-sm {
-  @apply skeleton h-3 w-1/2;
-}
+/* ===== 加载状态 - 已迁移到 DaisyUI 标准 ===== */
+/* 使用 DaisyUI 标准：skeleton h-8, skeleton h-4 w-3/4, skeleton h-3 w-1/2 */
 
 /* ===== 三个点操作菜单专用样式 ===== */
 .more-menu-button {
@@ -375,195 +303,13 @@
 }
 
 /* ==========================================
-   按钮紧凑设计系统
+   按钮系统 - 已迁移到 DaisyUI v5 标准
    ========================================== */
-
-/* 按钮基础紧凑样式 */
-.btn-compact {
-  padding: var(--spacing-xs) var(--spacing-md);
-  height: var(--height-md);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-compact);
-  font-weight: 500;
-}
-
-/* 按钮尺寸变体 - 紧凑版本 */
-.btn-compact-xs {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  height: var(--height-xs);
-  font-size: 0.75rem;
-  min-width: 3rem;
-}
-
-.btn-compact-sm {
-  padding: var(--spacing-xs) var(--spacing-md);
-  height: var(--height-sm);
-  font-size: 0.8125rem;
-  min-width: 4rem;
-}
-
-.btn-compact-md {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  height: var(--height-md);
-  font-size: 0.875rem;
-  min-width: 5rem;
-}
-
-.btn-compact-lg {
-  padding: var(--spacing-sm) var(--spacing-xl);
-  height: var(--height-lg);
-  font-size: 0.9375rem;
-  min-width: 6rem;
-}
-
-/* 移动端触控优化按钮 */
-.btn-compact-touch {
-  padding: var(--spacing-md) var(--spacing-lg);
-  height: var(--height-xl);
-  font-size: 0.9375rem;
-  min-width: 5rem;
-}
-
-/* 图标按钮紧凑样式 */
-.btn-icon-compact {
-  padding: var(--spacing-xs);
-  width: var(--height-md);
-  height: var(--height-md);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-icon-compact.btn-xs {
-  width: var(--height-xs);
-  height: var(--height-xs);
-}
-
-.btn-icon-compact.btn-sm {
-  width: var(--height-sm);
-  height: var(--height-sm);
-}
-
-.btn-icon-compact.btn-lg {
-  width: var(--height-lg);
-  height: var(--height-lg);
-}
-
-/* 方形按钮紧凑样式 */
-.btn-square-compact {
-  padding: 0;
-  width: var(--height-md);
-  height: var(--height-md);
-  min-width: unset;
-}
-
-.btn-square-compact.btn-xs {
-  width: var(--height-xs);
-  height: var(--height-xs);
-}
-
-.btn-square-compact.btn-sm {
-  width: var(--height-sm);
-  height: var(--height-sm);
-}
-
-.btn-square-compact.btn-lg {
-  width: var(--height-lg);
-  height: var(--height-lg);
-}
-
-/* 按钮组紧凑样式 */
-.btn-group-compact {
-  gap: 0;
-}
-
-.btn-group-compact > .btn {
-  border-radius: 0;
-  margin-left: -1px;
-}
-
-.btn-group-compact > .btn:first-child {
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  margin-left: 0;
-}
-
-.btn-group-compact > .btn:last-child {
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-/* 全局按钮覆盖 - 应用紧凑样式到所有daisyUI按钮 */
-.compact-mode .btn {
-  padding: var(--spacing-xs) var(--spacing-md);
-  height: var(--height-md);
-  font-size: 0.875rem;
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  transition: all var(--transition-compact);
-}
-
-.compact-mode .btn-xs {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  height: var(--height-xs);
-  font-size: 0.75rem;
-}
-
-.compact-mode .btn-sm {
-  padding: var(--spacing-xs) var(--spacing-md);
-  height: var(--height-sm);
-  font-size: 0.8125rem;
-}
-
-.compact-mode .btn-lg {
-  padding: var(--spacing-sm) var(--spacing-xl);
-  height: var(--height-lg);
-  font-size: 0.9375rem;
-}
-
-/* 按钮内图标间距优化 */
-.compact-mode .btn .lucide,
-.compact-mode .btn svg {
-  width: 1em;
-  height: 1em;
-  margin-right: var(--spacing-xs);
-}
-
-.compact-mode .btn.btn-sm .lucide,
-.compact-mode .btn.btn-sm svg {
-  width: 0.875em;
-  height: 0.875em;
-}
-
-.compact-mode .btn.btn-xs .lucide,
-.compact-mode .btn.btn-xs svg {
-  width: 0.75em;
-  height: 0.75em;
-}
-
-/* 按钮悬停和焦点状态优化 */
-.compact-mode .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.compact-mode .btn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.compact-mode .btn:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* 禁用状态样式 */
-.compact-mode .btn:disabled,
-.compact-mode .btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
+/* 
+  原自定义按钮样式已完全迁移到 DaisyUI v5 标准组件
+  使用标准尺寸：btn-xs, btn-sm, btn, btn-lg, btn-xl
+  已删除 ~190 行自定义按钮 CSS，提升维护性和主题一致性
+*/
 
 /* ==========================================
    模态框紧凑设计系统
@@ -747,14 +493,8 @@
   }
 }
 
-/* ===== 无障碍优化 ===== */
-.focus-compact:focus {
-  @apply outline-none ring-2 ring-primary ring-offset-2;
-}
-
-.focus-compact:focus-visible {
-  @apply outline-none ring-2 ring-primary ring-offset-2;
-}
+/* ===== 无障碍优化 - 已迁移到 Tailwind 标准 ===== */
+/* 使用 Tailwind 标准：focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 */
 
 /* ===== 模态框系统 ===== */
 .modal-compact {

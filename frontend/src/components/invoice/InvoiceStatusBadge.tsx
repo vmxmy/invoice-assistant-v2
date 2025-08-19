@@ -261,12 +261,12 @@ export const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
             >
               <div className="card-compact bg-base-100/95 backdrop-blur-sm rounded-xl shadow-lg border border-base-300/50 overflow-hidden">
                 {/* 菜单标题 */}
-                <div className="bg-base-200/30 border-b border-base-200" style={{padding: 'var(--spacing-md)'}}>
+                <div className="bg-base-200/30 border-b border-base-200 p-3">
                   <p className="field-label">切换状态为</p>
                 </div>
                 
                 {/* 状态选项 */}
-                <div style={{padding: 'var(--spacing-xs)'}}>
+                <div className="p-1">
                   {availableStatuses.length > 0 ? (
                     availableStatuses.map((statusOption) => {
                       const styleClasses = generateStyleClasses(statusOption.color);
@@ -277,22 +277,21 @@ export const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
                         <motion.button
                           key={statusOption.status_code}
                           className={`
-                            w-full flex items-center btn-compact-sm rounded-lg
-                            transition-compact
+                            w-full flex items-center btn btn-sm rounded-lg gap-2 px-3 py-2
+                            transition-all duration-200
                             ${isSelected 
                               ? `${styleClasses.bgClass} ${styleClasses.borderClass} border` 
                               : 'hover:bg-base-200/50'
                             }
                           `}
-                          style={{gap: 'var(--spacing-sm)', padding: 'var(--spacing-sm) var(--spacing-md)'}}
                           onClick={() => handleStatusSelect(statusOption.status_code)}
                           whileHover={{ x: 4 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           {/* 图标 */}
                           <div className={`
-                            rounded-lg ${styleClasses.iconBgClass}
-                          `} style={{padding: 'var(--spacing-xs)'}}>
+                            rounded-lg ${styleClasses.iconBgClass} p-1
+                          `}>
                             <OptionIcon className={`icon-sm ${styleClasses.textClass}`} />
                           </div>
                           
@@ -310,10 +309,9 @@ export const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
                               className={`
-                                rounded-full flex items-center justify-center
+                                rounded-full flex items-center justify-center w-6 h-6
                                 ${styleClasses.bgClass}
                               `}
-                              style={{width: 'var(--height-xs)', height: 'var(--height-xs)'}}
                             >
                               <Check className={`icon-xs ${styleClasses.textClass}`} />
                             </motion.div>
@@ -322,14 +320,14 @@ export const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
                       );
                     })
                   ) : (
-                    <div className="text-center field-label" style={{padding: 'var(--spacing-sm) var(--spacing-md)'}}>
+                    <div className="text-center field-label py-2 px-3">
                       暂无可切换的状态
                     </div>
                   )}
                 </div>
 
                 {/* 快速操作提示 */}
-                <div className="border-t border-base-200 bg-base-200/30" style={{padding: 'var(--spacing-sm) var(--spacing-md)'}}>
+                <div className="border-t border-base-200 bg-base-200/30 py-2 px-3">
                   <p className="field-label opacity-70">
                     提示：点击状态即可快速切换
                   </p>

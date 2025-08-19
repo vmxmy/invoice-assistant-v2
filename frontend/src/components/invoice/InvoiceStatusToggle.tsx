@@ -162,11 +162,11 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
   return (
     <motion.label 
       className={`
-        status-component-compact toggle-style flex items-center cursor-pointer select-none
+        inline-flex items-center cursor-pointer select-none
         ${sizeClasses[size].container} relative
         ${!isClickable ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}
         ${isToggling ? 'pointer-events-none' : ''}
-        transition-compact
+        transition-all duration-200
       `}
       whileHover={isClickable ? { scale: 1.02 } : {}}
       whileTap={isClickable ? { scale: 0.98 } : {}}

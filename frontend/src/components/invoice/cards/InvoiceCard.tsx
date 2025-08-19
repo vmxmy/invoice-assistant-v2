@@ -482,9 +482,10 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     <motion.div 
       ref={cardRef}
       className={`
-        invoice-card-compact transition-compact-slow focus-compact group relative
+        card card-compact bg-base-100 shadow-sm border border-base-200/60 group relative
+        hover:border-primary/30 hover:shadow-md transition-all duration-300 ease-out
         ${gestureState.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.02]' : ''}
-        ${isSelected ? 'selected' : ''}
+        ${isSelected ? 'border-primary/50 bg-primary/5 shadow-lg ring-2 ring-primary/20' : ''}
       `}
       {...(device.isMobile ? touchHandlers : {})}
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -503,25 +504,26 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         layout: { duration: 0.2, ease: "easeInOut" }
       }}
     >
-      <div className="invoice-info-compact">
+      <div className="card-body invoice-card-body">
         {/* 顶部行：选择框和操作菜单 */}
         <div className="flex items-center justify-between mb-3">
           {/* 左侧：选择框 */}
           <label className={`
             cursor-pointer flex items-center justify-center flex-shrink-0
-            transition-compact hover:bg-primary/5 rounded-lg p-1
+            transition-all duration-200 hover:bg-primary/5 rounded-lg p-1
             ${isSelected ? 'bg-primary/10' : ''}
           `}
             aria-label={`选择发票 ${invoice.invoice_number}`}
           >
             <input 
               type="checkbox" 
-              className={`
-                ${device.isMobile ? 'checkbox-compact-touch' : 'checkbox-compact'}
-                checkbox border-2 border-base-300/70 
+              className="
+                invoice-checkbox
+                border-2 border-base-300/70 
                 checked:border-primary checked:bg-primary
-                focus-compact transition-compact flex-shrink-0
-              `}
+                focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 
+                transition-all duration-200 flex-shrink-0
+              "
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
               aria-checked={isSelected}
@@ -537,31 +539,29 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                 {/* 三点菜单触发器 - 使用DaisyUI按钮组件 */}
                 <label 
                   tabIndex={0} 
-                  className={`
-                    btn btn-ghost btn-circle
-                    ${device.isMobile ? 'btn-md' : 'btn-sm'}
-                    ${device.isMobile ? 'bg-base-200/50' : 'bg-base-200/30'}
+                  className="
+                    invoice-action-btn
                     hover:bg-base-300/50
                     text-base-content/80 hover:text-base-content
                     border border-base-300/30
-                  `}
+                  "
                   title="更多操作"
                   aria-label={`发票 ${invoice.invoice_number} 的操作菜单`}
                   role="button"
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <MoreVertical className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                  <MoreVertical className="invoice-icon" />
                 </label>
                 
                 {/* DaisyUI原生菜单结构 */}
                 <ul 
                   tabIndex={0} 
-                  className={`
+                  className="
                     dropdown-content menu p-2 shadow bg-base-100 rounded-box
-                    ${device.isMobile ? 'w-52' : 'w-48'} z-[9998]
+                    invoice-dropdown-menu
                     border border-base-300/50
-                  `}
+                  "
                   role="menu"
                   aria-labelledby={`menu-button-${invoice.id}`}
                 >
@@ -569,13 +569,13 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                     <a 
                       onClick={handlePrint}
                       className={`
-                        flex items-center gap-2 
+                        flex items-center gap-2 rounded-md
                         ${!invoice.file_url && !invoice.file_path ? 'opacity-50 cursor-not-allowed' : 'hover:bg-info/10'}
-                        ${device.isMobile ? 'py-3' : 'py-2'}
+                        invoice-menu-item
                       `}
                       disabled={!invoice.file_url && !invoice.file_path}
                     >
-                      <Printer className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-info`} />
+                      <Printer className="invoice-icon text-info" />
                       <span>打印</span>
                     </a>
                   </li>
@@ -583,12 +583,12 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   <li>
                     <a 
                       onClick={() => onEdit(invoice)}
-                      className={`
-                        flex items-center gap-2 hover:bg-warning/10
-                        ${device.isMobile ? 'py-3' : 'py-2'}
-                      `}
+                      className="
+                        flex items-center gap-2 hover:bg-warning/10 rounded-md
+                        invoice-menu-item
+                      "
                     >
-                      <Download className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'} text-warning`} />
+                      <Download className="invoice-icon text-warning" />
                       <span>下载</span>
                     </a>
                   </li>
@@ -603,12 +603,12 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                             onDelete(invoice);
                           }
                         }}
-                        className={`
-                          flex items-center gap-2 text-error hover:bg-error/10
-                          ${device.isMobile ? 'py-3' : 'py-2'}
-                        `}
+                        className="
+                          flex items-center gap-2 text-error hover:bg-error/10 rounded-md
+                          invoice-menu-item
+                        "
                       >
-                        <Trash2 className={`${device.isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                        <Trash2 className="invoice-icon" />
                         <span>删除</span>
                       </a>
                     </li>
@@ -652,23 +652,21 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           {/* 右侧：费用类别徽章 - 次要 */}
           {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
             <div className={`
-              badge-compact-md inline-flex items-center gap-1.5
+              inline-flex items-center gap-1.5
               ${getCategoryBadgeStyle(invoice).className}
-              shadow-sm ring-1 ring-black/5 transition-compact
-              hover:shadow-sm hover:scale-105
+              transition-all duration-200 hover:scale-105
             `}
-              style={getCategoryBadgeStyle(invoice).style}
             >
-              <span className="text-current opacity-90">{getCategoryIcon(invoice)}</span>
-              <span className="truncate max-w-24 text-current">{getCategoryDisplayName(invoice)}</span>
+              <span className="opacity-90">{getCategoryIcon(invoice)}</span>
+              <span className="truncate max-w-24">{getCategoryDisplayName(invoice)}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <div className="badge-compact-md inline-flex items-center gap-1 bg-base-200/50 text-base-content/60 ring-1 ring-base-300/30">
+              <div className="badge badge-ghost badge-sm inline-flex items-center gap-1">
                 <span className="opacity-70">📄</span>
                 <span>未分类</span>
               </div>
-              <div className="badge-compact-md bg-warning/10 text-warning ring-1 ring-warning/20">
+              <div className="badge badge-warning badge-outline badge-sm">
                 待分类
               </div>
             </div>
@@ -749,7 +747,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           )}
 
           {/* 金额、日期信息 - 优化后的 Stats 组件 */}
-          <div className={`stats ${device.isMobile ? 'stats-vertical' : 'stats-horizontal'} shadow-sm w-full bg-base-100/50 backdrop-blur-sm`}>
+          <div className="invoice-stats">
             {/* 发票金额 Stat */}
             <div className="stat px-4 py-3">
               <div className="stat-title text-xs text-base-content/50 font-normal mb-1">发票金额</div>
@@ -774,7 +772,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   // 如果金额为0，显示特殊处理
                   if (amount === 0) {
                     return (
-                      <span className={`${device.isMobile ? 'text-lg' : 'text-xl'} text-base-content/50`}>
+                      <span className="invoice-stat-title">
                         金额待确认
                       </span>
                     );
@@ -784,10 +782,10 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   
                   return (
                     <span className="flex items-baseline">
-                      <span className={`${device.isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-base-content`}>
+                      <span className="invoice-stat-value">
                         {parts.symbol}{parts.integer}
                       </span>
-                      <span className={`${device.isMobile ? 'text-sm' : 'text-base'} text-base-content/50 font-normal`}>
+                      <span className="invoice-stat-desc">
                         .{parts.decimal}
                       </span>
                     </span>
@@ -816,7 +814,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   <>
                     <button
                       popoverTarget={`${calendarId}-popover`}
-                      className="text-base-content hover:text-primary transition-colors cursor-pointer text-xl font-bold hover:underline decoration-dotted underline-offset-4"
+                      className="btn btn-ghost btn-sm p-0 h-auto min-h-0 text-primary hover:text-primary-focus transition-colors text-xl font-bold hover:underline decoration-dotted underline-offset-4"
                       style={{ anchorName: `--${calendarId}` }}
                       disabled={isUpdatingDate}
                       title={`点击修改消费日期`}
@@ -873,7 +871,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                     </div>
                   </>
                 ) : (
-                  <span className="text-base-content text-xl font-bold">
+                  <span className="text-primary text-xl font-bold">
                     {formatFullDate(invoice.consumption_date || invoice.created_at)}
                   </span>
                 )}

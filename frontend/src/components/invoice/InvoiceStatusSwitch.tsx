@@ -146,10 +146,10 @@ export const InvoiceStatusSwitch: React.FC<InvoiceStatusSwitchProps> = ({
   return (
     <motion.button
       className={`
-        status-component-compact ${sizeClasses[size].container} ${sizeClasses[size].gap}
-        transition-compact ${currentStyles.bg} ${currentStyles.border} ${currentStyles.shadow}
+        inline-flex items-center ${sizeClasses[size].container} ${sizeClasses[size].gap}
+        transition-all duration-200 ${currentStyles.bg} ${currentStyles.border} ${currentStyles.shadow}
         ${isClickable 
-          ? 'cursor-pointer hover:shadow-md active:scale-[0.98] select-none focus-compact' 
+          ? 'cursor-pointer hover:shadow-md active:scale-[0.98] select-none focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2' 
           : 'cursor-default opacity-50'
         }
         ${isToggling ? 'pointer-events-none' : ''}
@@ -259,7 +259,7 @@ export const QuickInvoiceStatusSwitch: React.FC<{
   return (
     <motion.button
       className={`
-        relative ${sizeClasses[size]} rounded-full transition-compact focus-compact
+        relative ${sizeClasses[size]} rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
         ${isReimbursed 
           ? 'bg-success shadow-success/20' 
           : 'bg-base-300'

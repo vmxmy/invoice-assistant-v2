@@ -159,82 +159,82 @@ export function getCategoryColor(invoice: Invoice): string {
 }
 
 /**
- * 获取分类徽章的自定义样式（背景颜色和文字颜色）
+ * 获取分类徽章的 DaisyUI v5 标准样式
  */
 export function getCategoryBadgeStyle(invoice: Invoice): { className: string; style?: React.CSSProperties } {
   if (invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) {
     const categoryName = invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name
     
-    // 根据分类名称返回对应的自定义颜色
-    const categoryStyleMap: Record<string, { backgroundColor: string; color: string }> = {
-      // 交通类 - 蓝紫色系
-      '交通': { backgroundColor: '#8b5cf6', color: '#ffffff' },
-      '高铁': { backgroundColor: '#7c3aed', color: '#ffffff' },
-      '飞机': { backgroundColor: '#6366f1', color: '#ffffff' },
-      '出租车': { backgroundColor: '#3b82f6', color: '#ffffff' },
-      '火车票': { backgroundColor: '#7c3aed', color: '#ffffff' },
-      '机票': { backgroundColor: '#6366f1', color: '#ffffff' },
-      '客运车票': { backgroundColor: '#5b21b6', color: '#ffffff' },
-      '地铁票': { backgroundColor: '#4c1d95', color: '#ffffff' },
+    // 使用 DaisyUI v5 标准主题样式类映射
+    const categoryStyleMap: Record<string, string> = {
+      // 交通类 - 使用 primary 和相关变体
+      '交通': 'badge-primary',
+      '高铁': 'badge-primary',
+      '飞机': 'badge-primary',
+      '出租车': 'badge-info',
+      '火车票': 'badge-primary',
+      '机票': 'badge-primary',
+      '客运车票': 'badge-primary',
+      '地铁票': 'badge-primary',
       
-      // 住宿类 - 绿色系
-      '住宿': { backgroundColor: '#10b981', color: '#ffffff' },
-      '酒店': { backgroundColor: '#059669', color: '#ffffff' },
-      '民宿': { backgroundColor: '#16a34a', color: '#ffffff' },
-      '住宿服务': { backgroundColor: '#15803d', color: '#ffffff' },
-      '酒店发票': { backgroundColor: '#059669', color: '#ffffff' },
+      // 住宿类 - 使用 success 系列
+      '住宿': 'badge-success',
+      '酒店': 'badge-success',
+      '民宿': 'badge-success',
+      '住宿服务': 'badge-success',
+      '酒店发票': 'badge-success',
       
-      // 餐饮类 - 橙黄色系
-      '餐饮': { backgroundColor: '#f59e0b', color: '#ffffff' },
-      '餐饮服务': { backgroundColor: '#d97706', color: '#ffffff' },
-      '食品': { backgroundColor: '#ea580c', color: '#ffffff' },
-      '外卖': { backgroundColor: '#dc2626', color: '#ffffff' },
+      // 餐饮类 - 使用 warning 系列
+      '餐饮': 'badge-warning',
+      '餐饮服务': 'badge-warning',
+      '食品': 'badge-warning',
+      '外卖': 'badge-error',
       
-      // 办公类 - 蓝色系
-      '办公': { backgroundColor: '#0ea5e9', color: '#ffffff' },
-      '咨询': { backgroundColor: '#0284c7', color: '#ffffff' },
-      '印章': { backgroundColor: '#0369a1', color: '#ffffff' },
-      '办公用品': { backgroundColor: '#0891b2', color: '#ffffff' },
-      '服务费': { backgroundColor: '#075985', color: '#ffffff' },
+      // 办公类 - 使用 info 系列
+      '办公': 'badge-info',
+      '咨询': 'badge-info',
+      '印章': 'badge-info',
+      '办公用品': 'badge-info',
+      '服务费': 'badge-info',
       
-      // 医疗健康类 - 红色系
-      '医疗': { backgroundColor: '#dc2626', color: '#ffffff' },
-      '药品': { backgroundColor: '#b91c1c', color: '#ffffff' },
-      '体检': { backgroundColor: '#991b1b', color: '#ffffff' },
+      // 医疗健康类 - 使用 error 系列
+      '医疗': 'badge-error',
+      '药品': 'badge-error',
+      '体检': 'badge-error',
       
-      // 教育培训类 - 紫色系
-      '教育': { backgroundColor: '#9333ea', color: '#ffffff' },
-      '培训': { backgroundColor: '#7e22ce', color: '#ffffff' },
-      '学费': { backgroundColor: '#6b21a8', color: '#ffffff' },
+      // 教育培训类 - 使用 secondary 系列
+      '教育': 'badge-secondary',
+      '培训': 'badge-secondary',
+      '学费': 'badge-secondary',
       
-      // 娱乐消费类 - 粉色系
-      '娱乐': { backgroundColor: '#ec4899', color: '#ffffff' },
-      '购物': { backgroundColor: '#db2777', color: '#ffffff' },
-      '电影': { backgroundColor: '#be185d', color: '#ffffff' },
+      // 娱乐消费类 - 使用 accent 系列
+      '娱乐': 'badge-accent',
+      '购物': 'badge-accent',
+      '电影': 'badge-accent',
       
-      // 通讯网络类 - 青色系
-      '通讯': { backgroundColor: '#06b6d4', color: '#ffffff' },
-      '网络': { backgroundColor: '#0891b2', color: '#ffffff' },
-      '电话费': { backgroundColor: '#0e7490', color: '#ffffff' },
+      // 通讯网络类 - 使用 info 系列
+      '通讯': 'badge-info',
+      '网络': 'badge-info',
+      '电话费': 'badge-info',
       
-      // 其他类 - 灰色系
-      '其他': { backgroundColor: '#6b7280', color: '#ffffff' },
-      '未知类型': { backgroundColor: '#6b7280', color: '#ffffff' },
-      '杂费': { backgroundColor: '#52525b', color: '#ffffff' }
+      // 其他类 - 使用 neutral 系列
+      '其他': 'badge-neutral',
+      '未知类型': 'badge-neutral',
+      '杂费': 'badge-neutral'
     }
     
-    const style = categoryStyleMap[categoryName]
-    if (style) {
+    const badgeVariant = categoryStyleMap[categoryName]
+    if (badgeVariant) {
       return {
-        className: 'badge badge-sm font-medium h-5 gap-1',
-        style: style
+        className: `badge ${badgeVariant} badge-sm font-medium h-5 gap-1`
       }
     }
     
-    // 默认使用 accent 色
+    // 默认使用 accent 主题色
     return { className: 'badge badge-accent badge-sm font-medium h-5 gap-1' }
   }
   
+  // 未分类使用 ghost 样式
   return { className: 'badge badge-ghost badge-sm font-medium h-5 gap-1' }
 }
 
