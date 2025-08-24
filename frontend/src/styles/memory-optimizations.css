@@ -1,0 +1,401 @@
+/* 内存优化相关的CSS样式 */
+
+/* 低内存模式样式 */
+.low-memory-mode {
+  /* 减少阴影和渐变效果 */
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  
+  /* 简化边框样式 */
+  --border-radius: 4px;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+  
+  /* 减少透明度效果 */
+  --bg-opacity: 1;
+  --text-opacity: 1;
+  --border-opacity: 1;
+}
+
+.low-memory-mode * {
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* 关键内存模式样式 */
+.critical-memory-mode {
+  /* 继承低内存模式 */
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  
+  /* 进一步简化 */
+  --border-radius: 2px;
+  --border-radius-md: 2px;
+  --border-radius-lg: 4px;
+  
+  /* 移除所有动画 */
+  --animation-duration: 0s;
+  --transition-duration: 0s;
+}
+
+.critical-memory-mode *,
+.critical-memory-mode *::before,
+.critical-memory-mode *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* 动画控制 */
+.no-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.reduced-animations * {
+  animation-duration: 0.1s !important;
+  transition-duration: 0.1s !important;
+}
+
+/* 虚拟滚动优化 */
+.force-virtual-scrolling {
+  contain: layout style paint;
+}
+
+.force-virtual-scrolling .list-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.force-virtual-scrolling .list-item {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+/* 懒加载优化 */
+.aggressive-lazy-loading img {
+  loading: lazy;
+  decoding: async;
+}
+
+.aggressive-lazy-loading img:not([src]) {
+  background-color: #f3f4f6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21,15 16,10 5,21'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
+}
+
+/* GPU优化控制 */
+.low-memory-mode .gpu-heavy {
+  transform: none !important;
+  will-change: auto !important;
+  backface-visibility: visible !important;
+}
+
+/* 内存调试面板样式 */
+.memory-debug-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.memory-debug-panel .panel-content {
+  background: white;
+  margin: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-height: calc(100vh - 4rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-debug-panel .panel-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.memory-debug-panel .panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* 性能指标显示 */
+.memory-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.memory-stat-card {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.memory-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.memory-stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* 内存压力指示器 */
+.memory-pressure-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.memory-pressure-low {
+  background-color: #10b981;
+}
+
+.memory-pressure-medium {
+  background-color: #f59e0b;
+}
+
+.memory-pressure-high {
+  background-color: #ef4444;
+}
+
+.memory-pressure-critical {
+  background-color: #dc2626;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 内存图表样式 */
+.memory-chart {
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+}
+
+.memory-chart-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.memory-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.memory-chart-legend-color {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+/* 清理按钮样式 */
+.cleanup-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cleanup-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cleanup-button-conservative {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.cleanup-button-conservative:hover {
+  background-color: #2563eb;
+}
+
+.cleanup-button-aggressive {
+  background-color: #ef4444;
+  color: white;
+}
+
+.cleanup-button-aggressive:hover {
+  background-color: #dc2626;
+}
+
+.cleanup-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 通知样式 */
+.memory-notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9998;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  min-width: 300px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.memory-notification-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.memory-notification-error {
+  border-left: 4px solid #ef4444;
+}
+
+.memory-notification-success {
+  border-left: 4px solid #10b981;
+}
+
+.memory-notification-info {
+  border-left: 4px solid #3b82f6;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .memory-debug-panel {
+    margin: 0;
+  }
+  
+  .memory-debug-panel .panel-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  
+  .memory-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .cleanup-buttons {
+    justify-content: center;
+  }
+  
+  .memory-notification {
+    left: 1rem;
+    right: 1rem;
+    min-width: auto;
+  }
+}
+
+/* 打印时隐藏调试面板 */
+@media print {
+  .memory-debug-panel,
+  .memory-notification {
+    display: none !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .memory-debug-panel .panel-content {
+    border: 2px solid #000;
+  }
+  
+  .memory-stat-card {
+    border: 1px solid #000;
+  }
+  
+  .cleanup-button {
+    border: 1px solid #000;
+  }
+}
+
+/* 减少动画偏好设置支持 */
+@media (prefers-reduced-motion: reduce) {
+  .memory-notification {
+    animation: none;
+  }
+  
+  .memory-pressure-critical {
+    animation: none;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .memory-debug-panel .panel-content {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .memory-stat-card {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+  
+  .memory-stat-value {
+    color: #f9fafb;
+  }
+  
+  .memory-stat-label {
+    color: #d1d5db;
+  }
+  
+  .memory-chart {
+    background: #374151;
+    border-color: #4b5563;
+  }
+  
+  .memory-notification {
+    background: #1f2937;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+}

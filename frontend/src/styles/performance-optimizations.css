@@ -1,0 +1,312 @@
+/**
+ * 移动端性能优化CSS
+ * 包含GPU硬件加速、触摸优化、滚动优化等样式
+ */
+
+/* ===== GPU硬件加速 ===== */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.gpu-layer {
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+/* 3D变换优化 */
+.transform-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* ===== 触摸优化 ===== */
+.touch-optimized {
+  /* 移除触摸高亮 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* 优化触摸响应 */
+  touch-action: manipulation;
+  
+  /* 最小触摸目标 */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 触摸反馈 */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-feedback::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  pointer-events: none;
+}
+
+.touch-feedback:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* ===== 滚动优化 ===== */
+.scroll-optimized {
+  /* 硬件加速滚动 */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  
+  /* GPU优化 */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  
+  /* 隐藏滚动条但保持功能 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scroll-optimized::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* 惯性滚动 */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* 平滑滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+.smooth-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* ===== 视口优化 ===== */
+.viewport-optimized {
+  /* 安全区域适配 */
+  padding-top: max(env(safe-area-inset-top), 20px);
+  padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ===== 性能优化类 ===== */
+.mobile-optimized {
+  /* 基础性能优化 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* 布局优化 */
+  contain: layout style paint;
+  
+  /* 减少重绘 */
+  will-change: auto;
+}
+
+/* 内容可见性优化 */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* 虚拟滚动容器 */
+.virtual-scroll-container {
+  transform: translateZ(0);
+  will-change: transform;
+  contain: strict;
+}
+
+/* 图片优化 */
+.optimized-image {
+  /* 硬件解码 */
+  image-rendering: -webkit-optimize-contrast;
+  
+  /* GPU加速 */
+  transform: translateZ(0);
+  
+  /* 避免布局抖动 */
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* ===== 动画性能优化 ===== */
+.animate-gpu {
+  /* 仅使用transform和opacity进行动画 */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* 优化的过渡效果 */
+.optimized-transition {
+  transition-property: transform, opacity, filter;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* 防止动画时的文本模糊 */
+.crisp-text {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== 响应式性能优化 ===== */
+@media (max-width: 768px) {
+  .mobile-performance-wrapper {
+    /* 移动端特定优化 */
+    contain: layout style paint;
+    transform: translateZ(0);
+  }
+  
+  /* 减少移动端动画复杂度 */
+  .mobile-simple-animation {
+    animation-duration: 0.2s;
+    animation-timing-function: ease-out;
+  }
+  
+  /* 优化移动端字体渲染 */
+  .mobile-text-optimization {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    font-synthesis: none;
+  }
+}
+
+/* ===== 低性能设备优化 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .performance-wrapper,
+  .mobile-optimized,
+  .animate-gpu {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 慢速网络优化 */
+@media (prefers-reduced-data: reduce) {
+  .data-saver-optimized {
+    /* 禁用非关键动画 */
+    animation: none !important;
+    transition: none !important;
+    
+    /* 简化视觉效果 */
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* ===== 调试辅助 ===== */
+.performance-debug {
+  position: relative;
+}
+
+.performance-debug::after {
+  content: 'GPU';
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 255, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 0 0 0 4px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* 开发环境显示性能信息 */
+@media (prefers-color-scheme: dark) {
+  .performance-debug::after {
+    background: rgba(0, 255, 0, 0.9);
+    color: black;
+  }
+}
+
+/* ===== 兼容性回退 ===== */
+@supports not (transform: translateZ(0)) {
+  .hardware-accelerated,
+  .gpu-layer,
+  .mobile-optimized {
+    /* 降级到CPU渲染 */
+    transform: none;
+  }
+}
+
+@supports not (-webkit-overflow-scrolling: touch) {
+  .scroll-optimized,
+  .momentum-scroll {
+    /* 降级滚动 */
+    -webkit-overflow-scrolling: auto;
+  }
+}
+
+@supports not (content-visibility: auto) {
+  .content-visibility-auto {
+    /* 降级到普通渲染 */
+    content-visibility: visible;
+  }
+}
+
+/* ===== 特殊设备优化 ===== */
+/* iPhone X+ 适配 */
+@supports (padding: max(0px)) {
+  .safe-area-insets {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+/* 横屏优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-optimized {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .high-dpi-optimized {
+    /* 高DPI屏幕的优化 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
