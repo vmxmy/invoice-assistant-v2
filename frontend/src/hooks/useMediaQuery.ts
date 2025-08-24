@@ -12,7 +12,9 @@ export const BREAKPOINTS = {
   lg: '(min-width: 1024px)',
   xl: '(min-width: 1280px)',
   '2xl': '(min-width: 1536px)',
-  // 移动端检测
+  // 精确移动端断点检测
+  mobileSmall: '(max-width: 480px)',     // 小屏手机 - 单列布局
+  mobileLarge: '(min-width: 481px) and (max-width: 640px)', // 大屏手机 - 双列布局
   mobile: '(max-width: 767px)',
   tablet: '(min-width: 768px) and (max-width: 1023px)',
   desktop: '(min-width: 1024px)',
@@ -86,6 +88,10 @@ export function useDeviceDetection() {
   const isShortScreen = useMediaQuery(BREAKPOINTS.shortScreen);
   const isTallScreen = useMediaQuery(BREAKPOINTS.tallScreen);
 
+  // 精确移动端断点检测
+  const isMobileSmall = useMediaQuery(BREAKPOINTS.mobileSmall);
+  const isMobileLarge = useMediaQuery(BREAKPOINTS.mobileLarge);
+
   // 具体断点检测
   const isSm = useMediaQuery(BREAKPOINTS.sm);
   const isMd = useMediaQuery(BREAKPOINTS.md);
@@ -99,6 +105,10 @@ export function useDeviceDetection() {
     isTablet, 
     isDesktop,
     isTouchDevice,
+    
+    // 精确移动端断点
+    isMobileSmall,  // ≤480px - 单列布局
+    isMobileLarge,  // 481px-640px - 双列布局
     
     // 屏幕方向
     isPortrait,
@@ -134,6 +144,14 @@ export function useDeviceDetection() {
     
     // 屏幕空间受限的设备
     hasLimitedSpace: isMobile || isShortScreen,
+    
+    // 响应式网格列数计算
+    getGridColumns: () => {
+      if (isMobileSmall) return 1;        // ≤480px: 1列
+      if (isMobileLarge) return 2;        // 481px-640px: 2列  
+      if (isTablet) return 2;             // 平板: 2列
+      return 4;                           // 桌面: 4列
+    },
     
     // 当前设备类型（字符串）
     deviceType: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'

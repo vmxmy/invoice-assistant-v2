@@ -58,7 +58,9 @@
 
 /* ===== 发票卡片响应式布局 ===== */
 .invoice-card-body {
-  @apply p-3 sm:p-4;
+  @apply p-4 sm:p-5 lg:p-6;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===== 响应式元素尺寸 ===== */

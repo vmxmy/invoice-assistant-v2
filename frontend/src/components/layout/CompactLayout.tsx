@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import AppNavbar from './AppNavbar';
 import { useDeviceDetection } from '../../hooks/useMediaQuery';
+import { NavigationProvider } from '../navigation/NavigationProvider';
+import ResponsiveNavigationSystem from '../navigation/ResponsiveNavigationSystem';
 
 interface CompactLayoutProps {
   children: React.ReactNode;
   useNewNavbar?: boolean;
+  useResponsiveNavigation?: boolean;
   compactMode?: 'auto' | 'always' | 'never';
   className?: string;
+  // 新的导航相关属性
+  showBackButton?: boolean;
+  pageTitle?: string;
+  showSearch?: boolean;
+  showActions?: boolean;
+  customTopNavbar?: React.ReactNode;
 }
 
 interface CompactModeSettings {
@@ -17,8 +26,14 @@ interface CompactModeSettings {
 const CompactLayout: React.FC<CompactLayoutProps> = ({ 
   children, 
   useNewNavbar = true,
+  useResponsiveNavigation = true,
   compactMode: propCompactMode,
-  className = ''
+  className = '',
+  showBackButton,
+  pageTitle,
+  showSearch,
+  showActions,
+  customTopNavbar
 }) => {
   const device = useDeviceDetection();
   const [settings, setSettings] = useState<CompactModeSettings>({
@@ -76,6 +91,27 @@ const CompactLayout: React.FC<CompactLayoutProps> = ({
     ? 'xl-ultra-compact' // 超宽屏幕上的极致紧凑
     : '';
 
+  // 如果启用响应式导航系统
+  if (useResponsiveNavigation) {
+    return (
+      <NavigationProvider>
+        <ResponsiveNavigationSystem
+          className={`${compactClasses} ${className}`}
+          customTopNavbar={customTopNavbar}
+          showBackButton={showBackButton}
+          pageTitle={pageTitle}
+          showSearch={showSearch}
+          showActions={showActions}
+        >
+          <div className={containerClasses}>
+            {children}
+          </div>
+        </ResponsiveNavigationSystem>
+      </NavigationProvider>
+    );
+  }
+
+  // 传统导航模式（保持向后兼容）
   return (
     <div className={`min-h-screen bg-base-200 ${compactClasses} ${className}`}>
       {useNewNavbar && (
