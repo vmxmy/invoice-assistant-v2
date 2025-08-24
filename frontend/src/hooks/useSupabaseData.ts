@@ -268,6 +268,71 @@ export const useBatchRestoreInvoices = () => {
   })
 }
 
+export const useBatchDeleteInvoices = () => {
+  const { user } = useAuthContext()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (invoiceIds: string[]) => {
+      if (!user?.id) throw new Error('用户未登录')
+      return InvoiceService.batchDeleteInvoices(invoiceIds, user.id)
+    },
+    onSuccess: (result) => {
+      if (result.error) {
+        toast.error(`批量删除失败: ${result.error}`)
+        return
+      }
+      
+      const { successCount, failedIds } = result.data!
+      if (successCount > 0) {
+        toast.success(`已删除 ${successCount} 张发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
+      }
+      
+      // 刷新相关查询缓存
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.invoices(user?.id || '', undefined)
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['deletedInvoices', user?.id || '']
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(`批量删除失败: ${error.message}`)
+    }
+  })
+}
+
+export const useBatchUpdateInvoiceStatus = () => {
+  const { user } = useAuthContext()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ invoiceIds, newStatus }: { invoiceIds: string[], newStatus: string }) => {
+      if (!user?.id) throw new Error('用户未登录')
+      return InvoiceService.batchUpdateInvoiceStatus(invoiceIds, user.id, newStatus)
+    },
+    onSuccess: (result, { newStatus }) => {
+      if (result.error) {
+        toast.error(`批量状态更新失败: ${result.error}`)
+        return
+      }
+      
+      const { successCount, failedIds } = result.data!
+      if (successCount > 0) {
+        toast.success(`已更新 ${successCount} 张发票状态为"${newStatus}"${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
+      }
+      
+      // 刷新发票列表缓存
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.invoices(user?.id || '', undefined)
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(`批量状态更新失败: ${error.message}`)
+    }
+  })
+}
+
 export const useBatchPermanentlyDeleteInvoices = () => {
   const { user } = useAuthContext()
   const queryClient = useQueryClient()

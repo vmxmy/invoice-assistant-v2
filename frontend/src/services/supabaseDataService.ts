@@ -249,6 +249,61 @@ export class InvoiceService {
   }
 
   /**
+   * 批量更新发票状态 - 使用Supabase批量API优化
+   */
+  static async batchUpdateInvoiceStatus(
+    invoiceIds: string[], 
+    userId: string, 
+    newStatus: string
+  ): Promise<ServiceResponse<{successCount: number, failedIds: string[]}>> {
+    try {
+      if (!invoiceIds || invoiceIds.length === 0) {
+        return {
+          data: { successCount: 0, failedIds: [] },
+          error: null
+        }
+      }
+
+      // 使用Supabase批量update API
+      const { data, error } = await supabase
+        .from('invoices')
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', invoiceIds)  // 批量条件：ID在列表中
+        .eq('user_id', userId)  // 安全检查：只能操作用户自己的发票
+        .select('id')  // 只返回ID，减少数据传输
+
+      if (error) {
+        console.error('批量更新发票状态失败:', error)
+        return {
+          data: null,
+          error: error.message
+        }
+      }
+
+      // 计算成功和失败的数量
+      const successfulIds = data?.map(item => item.id) || []
+      const successCount = successfulIds.length
+      const failedIds = invoiceIds.filter(id => !successfulIds.includes(id))
+
+      console.log(`✅ 批量状态更新完成: ${successCount}成功, ${failedIds.length}失败, 新状态: ${newStatus}`)
+      
+      return {
+        data: { successCount, failedIds },
+        error: null
+      }
+    } catch (error) {
+      console.error('批量更新发票状态失败:', error)
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : '未知错误'
+      }
+    }
+  }
+
+  /**
    * 删除发票（软删除，移至回收站）
    */
   static async deleteInvoice(invoiceId: string, userId: string): Promise<ServiceResponse<boolean>> {
@@ -271,6 +326,61 @@ export class InvoiceService {
       return { data: true, error: null }
     } catch (error) {
       console.error('删除发票失败:', error)
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : '未知错误'
+      }
+    }
+  }
+
+  /**
+   * 批量删除发票（软删除，移至回收站）- 使用Supabase批量API优化
+   */
+  static async batchDeleteInvoices(invoiceIds: string[], userId: string): Promise<ServiceResponse<{successCount: number, failedIds: string[]}>> {
+    try {
+      if (!invoiceIds || invoiceIds.length === 0) {
+        return {
+          data: { successCount: 0, failedIds: [] },
+          error: null
+        }
+      }
+
+      const deletedAt = new Date().toISOString()
+
+      // 使用Supabase批量update API - 一次请求处理所有发票
+      const { data, error } = await supabase
+        .from('invoices')
+        .update({ 
+          status: 'deleted',
+          deleted_at: deletedAt,
+          updated_at: deletedAt
+        })
+        .in('id', invoiceIds)  // 批量条件：ID在列表中
+        .eq('user_id', userId)  // 安全检查：只能操作用户自己的发票
+        .neq('status', 'deleted')  // 不能重复删除
+        .select('id')  // 只返回ID，减少数据传输
+
+      if (error) {
+        console.error('批量删除发票失败:', error)
+        return {
+          data: null,
+          error: error.message
+        }
+      }
+
+      // 计算成功和失败的数量
+      const successfulIds = data?.map(item => item.id) || []
+      const successCount = successfulIds.length
+      const failedIds = invoiceIds.filter(id => !successfulIds.includes(id))
+
+      console.log(`✅ 批量软删除完成: ${successCount}成功, ${failedIds.length}失败`)
+      
+      return {
+        data: { successCount, failedIds },
+        error: null
+      }
+    } catch (error) {
+      console.error('批量删除发票失败:', error)
       return {
         data: null,
         error: error instanceof Error ? error.message : '未知错误'
@@ -416,23 +526,45 @@ export class InvoiceService {
   }
 
   /**
-   * 批量恢复发票
+   * 批量恢复发票 - 使用Supabase批量API优化
    */
   static async batchRestoreInvoices(invoiceIds: string[], userId: string): Promise<ServiceResponse<{successCount: number, failedIds: string[]}>> {
     try {
-      const results = await Promise.allSettled(
-        invoiceIds.map(id => this.restoreInvoice(id, userId))
-      )
+      if (!invoiceIds || invoiceIds.length === 0) {
+        return {
+          data: { successCount: 0, failedIds: [] },
+          error: null
+        }
+      }
 
-      const successCount = results.filter(result => 
-        result.status === 'fulfilled' && result.value.data === true
-      ).length
+      // 使用Supabase批量update API - 一次请求处理所有发票
+      const { data, error, count } = await supabase
+        .from('invoices')
+        .update({ 
+          status: 'unreimbursed',  // 恢复为未报销状态
+          deleted_at: null,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', invoiceIds)  // 批量条件：ID在列表中
+        .eq('user_id', userId)  // 安全检查：只能操作用户自己的发票
+        .eq('status', 'deleted')  // 只能恢复已删除的发票
+        .select('id')  // 只返回ID，减少数据传输
 
-      const failedIds = invoiceIds.filter((id, index) => 
-        results[index].status === 'rejected' || 
-        (results[index].status === 'fulfilled' && (results[index] as any).value.data !== true)
-      )
+      if (error) {
+        console.error('批量恢复发票失败:', error)
+        return {
+          data: null,
+          error: error.message
+        }
+      }
 
+      // 计算成功和失败的数量
+      const successfulIds = data?.map(item => item.id) || []
+      const successCount = successfulIds.length
+      const failedIds = invoiceIds.filter(id => !successfulIds.includes(id))
+
+      console.log(`✅ 批量恢复完成: ${successCount}成功, ${failedIds.length}失败`)
+      
       return {
         data: { successCount, failedIds },
         error: null
@@ -447,23 +579,77 @@ export class InvoiceService {
   }
 
   /**
-   * 批量永久删除发票
+   * 批量永久删除发票 - 使用Supabase批量API优化
    */
   static async batchPermanentlyDeleteInvoices(invoiceIds: string[], userId: string): Promise<ServiceResponse<{successCount: number, failedIds: string[]}>> {
     try {
-      const results = await Promise.allSettled(
-        invoiceIds.map(id => this.permanentlyDeleteInvoice(id, userId))
-      )
+      if (!invoiceIds || invoiceIds.length === 0) {
+        return {
+          data: { successCount: 0, failedIds: [] },
+          error: null
+        }
+      }
 
-      const successCount = results.filter(result => 
-        result.status === 'fulfilled' && result.value.data === true
-      ).length
+      // 第一步：批量获取要删除的发票信息（用于后续清理文件）
+      const { data: invoicesToDelete, error: fetchError } = await supabase
+        .from('invoices')
+        .select('id, file_path, file_hash')
+        .in('id', invoiceIds)
+        .eq('user_id', userId)
+        .eq('status', 'deleted')
 
-      const failedIds = invoiceIds.filter((id, index) => 
-        results[index].status === 'rejected' || 
-        (results[index].status === 'fulfilled' && (results[index] as any).value.data !== true)
-      )
+      if (fetchError) {
+        return {
+          data: null,
+          error: `获取发票信息失败: ${fetchError.message}`
+        }
+      }
 
+      const validInvoiceIds = invoicesToDelete?.map(inv => inv.id) || []
+      const failedIds = invoiceIds.filter(id => !validInvoiceIds.includes(id))
+
+      if (validInvoiceIds.length === 0) {
+        return {
+          data: { successCount: 0, failedIds: invoiceIds },
+          error: null
+        }
+      }
+
+      // 第二步：批量删除数据库记录
+      const { error: deleteError } = await supabase
+        .from('invoices')
+        .delete()
+        .in('id', validInvoiceIds)
+        .eq('user_id', userId)
+        .eq('status', 'deleted')
+
+      if (deleteError) {
+        return {
+          data: null,
+          error: `批量删除数据库记录失败: ${deleteError.message}`
+        }
+      }
+
+      // 第三步：异步清理存储文件（不阻塞主流程）
+      this.cleanupInvoiceFilesAsync(invoicesToDelete || [])
+
+      // 第四步：批量清理哈希记录
+      if (validInvoiceIds.length > 0) {
+        await supabase
+          .from('file_hashes')
+          .delete()
+          .in('invoice_id', validInvoiceIds)
+          .eq('user_id', userId)
+          .then(({ error }) => {
+            if (error) {
+              console.warn('批量清理哈希记录部分失败:', error)
+            }
+          })
+      }
+
+      const successCount = validInvoiceIds.length
+      console.log(`✅ 批量永久删除完成: ${successCount}成功, ${failedIds.length}失败`)
+      
       return {
         data: { successCount, failedIds },
         error: null
@@ -474,6 +660,32 @@ export class InvoiceService {
         data: null,
         error: error instanceof Error ? error.message : '未知错误'
       }
+    }
+  }
+
+  /**
+   * 异步清理发票文件（不阻塞主流程）
+   */
+  private static async cleanupInvoiceFilesAsync(invoices: {file_path?: string}[]): Promise<void> {
+    try {
+      const filePaths = invoices
+        .map(inv => inv.file_path)
+        .filter((path): path is string => Boolean(path))
+      
+      if (filePaths.length === 0) return
+
+      // 批量删除存储文件
+      const { error } = await supabase.storage
+        .from('invoice-files')
+        .remove(filePaths)
+      
+      if (error) {
+        console.warn('批量删除存储文件部分失败:', error)
+      } else {
+        console.log(`🗑️ 已清理 ${filePaths.length} 个存储文件`)
+      }
+    } catch (error) {
+      console.error('异步文件清理失败:', error)
     }
   }
 
