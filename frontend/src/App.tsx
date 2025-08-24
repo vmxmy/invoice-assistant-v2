@@ -20,10 +20,13 @@ import { StatisticsPage } from './pages/StatisticsPage'
 import { InboxPage } from './components/inbox/InboxPage'
 import PWAManager from './components/mobile/PWAManager'
 import { OnboardingGuard } from './components/onboarding/OnboardingGuard'
+import { AnimationProvider } from './animations/AnimationProvider'
+import { AnimationDemoPage } from './pages/AnimationDemoPage'
 import './App.css'
 import './styles/compact-ui.css'
 import './styles/compact-design-system.css'
 import './styles/modal-compact-fix.css'
+import './styles/animations.css'
 import debugEnvironmentVariables from './utils/debugEnv'
 
 // 调试环境变量（仅在开发环境显示）
@@ -134,6 +137,16 @@ function AppContent() {
           </ProtectedRoute>
         } 
       />
+      <Route 
+        path="/animation-demo" 
+        element={
+          <ProtectedRoute>
+            <OnboardingGuard>
+              <AnimationDemoPage />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        } 
+      />
       
       {/* 默认重定向 */}
       <Route path="*" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
@@ -146,10 +159,12 @@ function App() {
     <div className="compact-mode">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router>
-            <AppContent />
-            <PWAManager />
-          </Router>
+          <AnimationProvider fallbackToCSS={true} debugMode={import.meta.env.DEV}>
+            <Router>
+              <AppContent />
+              <PWAManager />
+            </Router>
+          </AnimationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </div>

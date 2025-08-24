@@ -1,86 +1,214 @@
 /* ===========================================
-   动画系统配置
-   统一的过渡和动画效果管理
+   高性能移动端动画系统 CSS
+   60fps 流畅动画体验，支持用户偏好和无障碍访问
    ========================================= */
 
 /* ===========================================
-   全局过渡配置
+   全局动画变量和配置
    ========================================= */
 
 :root {
-  /* 过渡时长 */
-  --transition-fast: 150ms;
-  --transition-normal: 300ms;
-  --transition-slow: 500ms;
+  /* 基础动画时长 */
+  --animation-instant: 0.1s;
+  --animation-fast: 0.15s;
+  --animation-normal: 0.25s;
+  --animation-slow: 0.35s;
+  --animation-extended: 0.5s;
   
-  /* 缓动函数 */
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* 动画缩放因子（由JS动态设置） */
+  --animation-scale: 1;
+  --animation-duration-multiplier: 1;
+  
+  /* 性能优化的缓动函数 */
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* GPU加速设置 */
+  --gpu-acceleration: auto;
+  --will-change-base: transform, opacity;
+  
+  /* 动画播放状态（页面不可见时暂停） */
+  --animation-play-state: running;
+  
+  /* 性能等级相关 */
+  --use-simple-animations: 0;
+  --animation-performance: high;
 }
 
 /* ===========================================
-   基础过渡类
+   GPU优化的基础过渡类
    ========================================= */
 
-.transition-all {
-  transition-property: all;
-  transition-timing-function: var(--ease-in-out);
-  transition-duration: var(--transition-normal);
+/* 高性能过渡基类 */
+.gpu-optimized {
+  will-change: var(--will-change-base);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0); /* 触发GPU加速 */
 }
 
-.transition-colors {
-  transition-property: color, background-color, border-color;
-  transition-timing-function: var(--ease-in-out);
-  transition-duration: var(--transition-normal);
-}
-
-.transition-opacity {
-  transition-property: opacity;
-  transition-timing-function: var(--ease-in-out);
-  transition-duration: var(--transition-normal);
+.transition-optimized {
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: calc(var(--animation-normal) * var(--animation-scale) * var(--animation-duration-multiplier));
+  animation-play-state: var(--animation-play-state);
 }
 
 .transition-transform {
   transition-property: transform;
-  transition-timing-function: var(--ease-out);
-  transition-duration: var(--transition-normal);
+  transition-timing-function: var(--ease-swift);
+  transition-duration: calc(var(--animation-fast) * var(--animation-scale) * var(--animation-duration-multiplier));
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: calc(var(--animation-normal) * var(--animation-scale) * var(--animation-duration-multiplier));
+  will-change: opacity;
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: calc(var(--animation-normal) * var(--animation-scale) * var(--animation-duration-multiplier));
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: calc(var(--animation-normal) * var(--animation-scale) * var(--animation-duration-multiplier));
 }
 
 /* ===========================================
-   页面过渡动画
+   高性能页面切换动画
    ========================================= */
 
-/* 淡入淡出 */
-.page-enter {
-  animation: pageEnter var(--transition-normal) var(--ease-out) forwards;
+/* iOS风格水平滑动 */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%) translateZ(0);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0) translateZ(0);
+    opacity: 1;
+  }
 }
 
-.page-exit {
-  animation: pageExit var(--transition-normal) var(--ease-in) forwards;
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0) translateZ(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%) translateZ(0);
+    opacity: 0.8;
+  }
 }
 
-@keyframes pageEnter {
+/* Material Design风格垂直滑动 */
+@keyframes slideUpEnter {
+  from {
+    transform: translateY(100%) translateZ(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpExit {
+  from {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-50%) translateZ(0);
+    opacity: 0;
+  }
+}
+
+/* 优雅的淡入淡出 */
+@keyframes fadeEnter {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: scale(0.98) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateZ(0);
   }
 }
 
-@keyframes pageExit {
+@keyframes fadeExit {
   from {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateZ(0);
   }
   to {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: scale(1.02) translateZ(0);
   }
+}
+
+/* 缩放切换动画 */
+@keyframes scaleEnter {
+  from {
+    transform: scale(0.95) translateZ(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleExit {
+  from {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9) translateZ(0);
+    opacity: 0;
+  }
+}
+
+/* 页面切换类名 */
+.page-slide-horizontal-enter {
+  animation: slideInFromRight calc(var(--animation-normal) * var(--animation-scale)) var(--ease-swift) both;
+}
+
+.page-slide-horizontal-exit {
+  animation: slideOutToLeft calc(var(--animation-fast) * var(--animation-scale)) var(--ease-swift) both;
+}
+
+.page-slide-vertical-enter {
+  animation: slideUpEnter calc(var(--animation-normal) * var(--animation-scale)) var(--ease-swift) both;
+}
+
+.page-slide-vertical-exit {
+  animation: slideUpExit calc(var(--animation-fast) * var(--animation-scale)) var(--ease-sharp) both;
+}
+
+.page-fade-enter {
+  animation: fadeEnter calc(var(--animation-normal) * var(--animation-scale)) var(--ease-smooth) both;
+}
+
+.page-fade-exit {
+  animation: fadeExit calc(var(--animation-fast) * var(--animation-scale)) var(--ease-sharp) both;
+}
+
+.page-scale-enter {
+  animation: scaleEnter calc(var(--animation-normal) * var(--animation-scale)) var(--ease-bounce) both;
+}
+
+.page-scale-exit {
+  animation: scaleExit calc(var(--animation-fast) * var(--animation-scale)) var(--ease-sharp) both;
 }
 
 /* ===========================================
@@ -401,15 +529,280 @@
 }
 
 /* ===========================================
-   无障碍性 - 减少动画
+   性能优化和响应式动画
    ========================================= */
 
+/* 简化动画模式（低性能设备） */
+@media (max-width: 768px), (prefers-reduced-motion: no-preference) and (max-resolution: 1dppx) {
+  :root[data-simple-animations="true"] {
+    --animation-scale: 0.7;
+    --animation-performance: low;
+  }
+  
+  :root[data-simple-animations="true"] .complex-animation {
+    display: none;
+  }
+  
+  :root[data-simple-animations="true"] .parallax-effect {
+    transform: none !important;
+  }
+}
+
+/* 高刷新率屏幕优化 */
+@media (min-resolution: 2dppx) {
+  :root {
+    --animation-scale: 1.1;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .hover-effect:hover {
+    transform: none;
+  }
+  
+  .touch-optimized {
+    transform: scale(1.02);
+    transition: transform calc(var(--animation-fast) * var(--animation-scale)) var(--ease-swift);
+  }
+}
+
+/* 性能降级样式 */
+.performance-low * {
+  animation-duration: calc(var(--animation-fast) * var(--animation-scale)) !important;
+  transition-duration: calc(var(--animation-fast) * var(--animation-scale)) !important;
+}
+
+.performance-disabled * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* GPU加速控制 */
+.gpu-acceleration-disabled {
+  will-change: auto !important;
+  transform: none !important;
+}
+
+.gpu-acceleration-enabled {
+  will-change: var(--will-change-base);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ===========================================
+   现代化加载动画
+   ========================================= */
+
+/* 脉冲骨架屏动画 */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.skeleton-shimmer {
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 468px 100%;
+}
+
+/* 现代旋转加载器 */
+@keyframes modernSpin {
+  from {
+    transform: rotate(0deg) translateZ(0);
+  }
+  to {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+.modern-spinner {
+  animation: modernSpin 1s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* 弹跳点加载动画 */
+@keyframes bounceDot {
+  0%, 80%, 100% {
+    transform: scale(0) translateZ(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+}
+
+.bounce-dot {
+  animation: bounceDot 1.4s ease-in-out infinite both;
+}
+
+.bounce-dot:nth-child(1) { animation-delay: -0.32s; }
+.bounce-dot:nth-child(2) { animation-delay: -0.16s; }
+.bounce-dot:nth-child(3) { animation-delay: 0s; }
+
+/* 波浪加载动画 */
+@keyframes wave {
+  0%, 40%, 100% {
+    transform: scaleY(0.4) translateZ(0);
+  }
+  20% {
+    transform: scaleY(1.0) translateZ(0);
+  }
+}
+
+.wave-bar {
+  animation: wave 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+  will-change: transform;
+}
+
+.wave-bar:nth-child(1) { animation-delay: 0s; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+/* ===========================================
+   微交互动画优化
+   ========================================= */
+
+/* 按钮按压反馈 */
+.button-press {
+  transition: transform calc(var(--animation-instant) * var(--animation-scale)) var(--ease-sharp),
+              box-shadow calc(var(--animation-fast) * var(--animation-scale)) var(--ease-smooth);
+  will-change: transform, box-shadow;
+}
+
+.button-press:active {
+  transform: scale(0.95) translateZ(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片悬浮效果 */
+.card-hover {
+  transition: transform calc(var(--animation-normal) * var(--animation-scale)) var(--ease-smooth),
+              box-shadow calc(var(--animation-normal) * var(--animation-scale)) var(--ease-smooth);
+  will-change: transform, box-shadow;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.02) translateZ(0);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 输入框聚焦动画 */
+.input-focus {
+  transition: all calc(var(--animation-normal) * var(--animation-scale)) var(--ease-smooth);
+  will-change: border-color, box-shadow;
+}
+
+.input-focus:focus {
+  transform: scale(1.01) translateZ(0);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===========================================
+   无障碍访问支持
+   ========================================= */
+
+/* 减少动画设置 */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --animation-duration-multiplier: 0.01;
+    --animation-scale: 0.01;
+  }
+  
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+  
+  /* 保留重要的状态指示动画 */
+  .critical-feedback,
+  .loading-essential,
+  .error-indicator {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .skeleton-shimmer {
+    background: repeating-linear-gradient(90deg, #000 0, #333 25%, #000 50%);
+  }
+  
+  .loading-indicator {
+    border-color: currentColor;
+    border-top-color: transparent;
+  }
+}
+
+/* 暗色主题动画调整 */
+@media (prefers-color-scheme: dark) {
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  }
+}
+
+/* ===========================================
+   性能监控和调试工具
+   ========================================= */
+
+/* 动画性能指示器 */
+.animation-performance-indicator {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.animation-performance-indicator.visible {
+  opacity: 1;
+}
+
+.animation-performance-indicator.excellent {
+  background: #10b981;
+  color: white;
+}
+
+.animation-performance-indicator.good {
+  background: #3b82f6;
+  color: white;
+}
+
+.animation-performance-indicator.fair {
+  background: #f59e0b;
+  color: white;
+}
+
+.animation-performance-indicator.poor {
+  background: #ef4444;
+  color: white;
+}
+
+/* 开发模式动画边界显示 */
+.debug-mode .animated-element {
+  outline: 1px dashed rgba(255, 0, 0, 0.3);
+}
+
+.debug-mode .gpu-accelerated {
+  outline: 1px dashed rgba(0, 255, 0, 0.3);
 }
