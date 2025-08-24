@@ -1,0 +1,380 @@
+/**
+ * 移动端增强样式 - 专门针对发票管理页面的移动端优化
+ */
+
+/* ===== 移动端表格容器优化 ===== */
+.mobile-table-container {
+  /* 启用硬件加速 */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  
+  /* 优化滚动性能 */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overflow-anchor: none; /* 防止滚动跳动 */
+  
+  /* 触摸优化 */
+  touch-action: manipulation;
+}
+
+/* 移动端表格样式 */
+.mobile-table-container table {
+  /* 性能优化 */
+  contain: layout style paint;
+  will-change: auto;
+}
+
+.mobile-table-container th {
+  /* 粘性头部性能优化 */
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+.mobile-table-container td {
+  /* 内容容器优化 */
+  contain: layout style paint;
+}
+
+/* ===== 移动端卡片网格优化 ===== */
+.mobile-card-grid {
+  /* 启用硬件加速 */
+  transform: translateZ(0);
+  will-change: transform;
+  
+  /* 网格布局优化 */
+  contain: layout style;
+  
+  /* 触摸滚动优化 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 卡片容器优化 */
+.mobile-invoice-card {
+  /* 性能优化 */
+  contain: layout style paint;
+  will-change: transform, opacity;
+  
+  /* 触摸反馈优化 */
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-invoice-card:active {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* ===== 触控优化 ===== */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+/* 防止iOS输入框缩放 */
+.mobile-input {
+  font-size: 16px !important;
+  transform: scale(1);
+}
+
+.mobile-input:focus {
+  transform: scale(1);
+  zoom: 1;
+}
+
+/* ===== 动画优化 ===== */
+.mobile-transition {
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+}
+
+/* 视图切换动画 */
+@keyframes mobileSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes mobileSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.mobile-slide-in {
+  animation: mobileSlideIn 0.3s ease-out;
+}
+
+.mobile-slide-out {
+  animation: mobileSlideOut 0.3s ease-out;
+}
+
+/* ===== 虚拟滚动优化 ===== */
+.virtual-scroll-container {
+  /* 启用硬件加速 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* 优化重绘 */
+  contain: layout style paint;
+  content-visibility: auto;
+  
+  /* 滚动性能 */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* 虚拟滚动项目 */
+.virtual-scroll-item {
+  contain: layout style paint size;
+  will-change: transform;
+}
+
+/* ===== 长列表性能优化 ===== */
+.long-list-optimization {
+  /* 内容可见性优化 - 仅渲染可见内容 */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 150px; /* 预估高度 */
+}
+
+/* 表格行优化 */
+.optimized-table-row {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* 卡片项目优化 */
+.optimized-card-item {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px; /* 预估卡片高度 */
+}
+
+/* ===== 手势响应优化 ===== */
+.gesture-container {
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 滑动操作反馈 */
+.swipe-indicator {
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+.swipe-left {
+  transform: translateX(-10px);
+  background-color: rgba(var(--primary), 0.1);
+}
+
+.swipe-right {
+  transform: translateX(10px);
+  background-color: rgba(var(--success), 0.1);
+}
+
+/* ===== 批量操作面板优化 ===== */
+.mobile-batch-panel {
+  /* 固定定位优化 */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  
+  /* 安全区域适配 */
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  
+  /* 性能优化 */
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout style paint;
+  
+  /* 显示/隐藏动画 */
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.mobile-batch-panel.hidden {
+  transform: translateY(100%);
+}
+
+.mobile-batch-panel.visible {
+  transform: translateY(0);
+}
+
+/* ===== 搜索模态框优化 ===== */
+.mobile-search-modal {
+  /* 全屏模态框优化 */
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  
+  /* 安全区域适配 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  
+  /* 性能优化 */
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout style paint;
+  
+  /* 背景模糊 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 搜索输入框优化 */
+.mobile-search-input {
+  /* 防止iOS自动缩放 */
+  font-size: 16px !important;
+  
+  /* 触摸优化 */
+  touch-action: manipulation;
+  
+  /* 性能优化 */
+  will-change: contents;
+}
+
+/* ===== 性能监控指示器 ===== */
+.performance-indicator {
+  position: fixed;
+  top: env(safe-area-inset-top, 20px);
+  right: 20px;
+  z-index: 9999;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  pointer-events: none;
+}
+
+/* ===== 响应式断点优化 ===== */
+@media screen and (max-width: 480px) {
+  /* 小屏手机优化 */
+  .mobile-table-container {
+    font-size: 12px;
+  }
+  
+  .mobile-card-grid {
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .mobile-touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  /* 大屏手机/小平板优化 */
+  .mobile-table-container {
+    font-size: 14px;
+  }
+  
+  .mobile-card-grid {
+    gap: 12px;
+    padding: 12px;
+  }
+}
+
+/* ===== 深色模式适配 ===== */
+@media (prefers-color-scheme: dark) {
+  .mobile-table-container th {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .mobile-batch-panel {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+/* ===== 无障碍优化 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-transition,
+  .mobile-slide-in,
+  .mobile-slide-out,
+  .virtual-scroll-container,
+  .swipe-indicator,
+  .mobile-batch-panel {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .mobile-invoice-card {
+    border: 1px solid;
+  }
+  
+  .mobile-batch-panel {
+    border-top: 1px solid;
+  }
+}
+
+/* ===== 打印样式优化 ===== */
+@media print {
+  .mobile-batch-panel,
+  .mobile-search-modal,
+  .performance-indicator {
+    display: none !important;
+  }
+  
+  .mobile-table-container {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  .mobile-card-grid {
+    break-inside: avoid;
+  }
+  
+  .mobile-invoice-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* ===== 调试样式（仅开发环境） ===== */
+.debug-mobile-layout {
+  outline: 2px dashed rgba(255, 0, 0, 0.3);
+  position: relative;
+}
+
+.debug-mobile-layout::before {
+  content: attr(data-debug);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  pointer-events: none;
+  z-index: 10000;
+}
