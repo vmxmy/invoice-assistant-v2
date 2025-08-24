@@ -10,14 +10,18 @@ import {
   Save,
   Edit2,
   Eye,
-  CheckCircle
+  CheckCircle,
+  Trash2,
+  Share2
 } from 'lucide-react';
 import { useInvoice, useUpdateInvoice } from '../../../hooks/useInvoices';
 import { AdaptiveInvoiceFields } from '../fields/AdaptiveInvoiceFields';
 import { InvoiceDetailSkeleton } from '../../ui/SkeletonLoader';
 import { LoadingButton } from '../../ui/LoadingButton';
 import { SuccessAnimation } from '../../ui/SuccessAnimation';
+import { MobileOptimizedModal } from '../../ui/MobileOptimizedModal';
 import { useExport } from '../../../hooks/useExport';
+import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import DownloadProgressModal from '../../ui/DownloadProgressModal';
 import { notify } from '../../../utils/notifications';
 import type { Invoice } from '../../../types';
@@ -55,6 +59,9 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
   onSuccess,
   onModeChange
 }) => {
+  // 设备检测
+  const device = useDeviceDetection();
+  
   // 状态管理
   const [currentMode, setCurrentMode] = useState<ModalMode>(mode);
   const [editData, setEditData] = useState<EditFormData>({});
@@ -154,34 +161,17 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
     }
   }, [invoice, isOpen]);
 
-  // 键盘事件处理
+  // 数据自动保存（移动端优化）
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
+    if (!device.isMobile || currentMode !== 'edit' || !invoice) return;
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
+    const saveTimer = setTimeout(() => {
+      // 自动保存逻辑（可选实现）
+      console.log('🔄 [UnifiedInvoiceModal] 移动端自动保存检查');
+    }, 5000);
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen]);
-
-  // 控制模态框显示
-  useEffect(() => {
-    const modal = document.getElementById('unified-invoice-modal') as HTMLDialogElement;
-    if (modal) {
-      if (isOpen && invoiceId) {
-        modal.showModal();
-      } else {
-        modal.close();
-      }
-    }
-  }, [isOpen, invoiceId]);
+    return () => clearTimeout(saveTimer);
+  }, [editData, device.isMobile, currentMode, invoice]);
 
   // 获取状态标签样式
   const getStatusBadge = (status: string) => {
@@ -364,7 +354,43 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
   // 处理下载
   const handleDownload = async () => {
     if (!invoice) return;
+    if (device.isMobile) {
+      // 移动端触觉反馈
+      if ('vibrate' in navigator) {
+        navigator.vibrate([10]);
+      }
+    }
     await downloadSingle(invoice);
+  };
+
+  // 处理删除（新增功能）
+  const handleDelete = async () => {
+    if (!invoice) return;
+    
+    // TODO: 实现删除功能
+    console.log('🗑️ [UnifiedInvoiceModal] 删除发票:', invoice.id);
+    notify.info('删除功能待实现');
+  };
+
+  // 处理分享（新增功能）
+  const handleShare = async () => {
+    if (!invoice) return;
+    
+    if (navigator.share && device.isMobile) {
+      try {
+        await navigator.share({
+          title: `发票 - ${invoice.invoice_number || '未知'}`,
+          text: `发票金额: ¥${invoice.total_amount || 0}`,
+          url: window.location.href
+        });
+      } catch (error) {
+        console.log('分享取消或失败');
+      }
+    } else {
+      // 降级到复制链接
+      navigator.clipboard?.writeText(window.location.href);
+      notify.success('链接已复制到剪贴板');
+    }
   };
 
   // 处理关闭
@@ -380,160 +406,161 @@ export const UnifiedInvoiceModal: React.FC<UnifiedInvoiceModalProps> = ({
     handleModeChange('view');
   };
 
+  // 更多操作菜单选项
+  const moreOptions = [
+    {
+      label: '分享',
+      icon: <Share2 className="w-4 h-4" />,
+      onClick: handleShare
+    },
+    {
+      label: '删除',
+      icon: <Trash2 className="w-4 h-4" />,
+      onClick: handleDelete,
+      variant: 'error' as const
+    }
+  ];
+
+  // 底部操作按钮
+  const renderBottomActions = () => {
+    if (currentMode === 'view') {
+      return (
+        <>
+          <button className="btn" onClick={handleClose}>
+            关闭
+          </button>
+          {invoice && (
+            <>
+              <button 
+                className="btn btn-primary"
+                onClick={() => handleModeChange('edit')}
+              >
+                <Edit2 className="w-4 h-4" />
+                编辑
+              </button>
+              <LoadingButton
+                variant="success"
+                icon={<Download className="w-4 h-4" />}
+                onClick={handleDownload}
+                isLoading={isExporting}
+                loadingText="下载中..."
+                disabled={isExporting}
+              >
+                下载
+              </LoadingButton>
+            </>
+          )}
+        </>
+      );
+    } else {
+      return (
+        <>
+          <button
+            className="btn"
+            onClick={handleCancelEdit}
+            disabled={updateInvoiceMutation.isPending}
+          >
+            取消
+          </button>
+          <button
+            className="btn btn-outline"
+            onClick={() => handleModeChange('view')}
+            disabled={updateInvoiceMutation.isPending}
+          >
+            <Eye className="w-4 h-4" />
+            预览
+          </button>
+          <LoadingButton
+            variant="primary"
+            icon={<Save className="w-4 h-4" />}
+            onClick={handleSave}
+            isLoading={updateInvoiceMutation.isPending}
+            loadingText="保存中..."
+            disabled={updateInvoiceMutation.isPending}
+          >
+            保存
+          </LoadingButton>
+        </>
+      );
+    }
+  };
+
   return (
     <>
-      <dialog id="unified-invoice-modal" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box w-full max-w-4xl mx-4 sm:mx-auto h-[90vh] sm:h-auto">
-          {/* 关闭按钮 */}
-          <form method="dialog">
-            <button 
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={handleClose}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </form>
-
-          {/* 标题 */}
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            {currentMode === 'edit' ? '编辑发票' : '发票详情'}
-          </h3>
-
-          {/* 内容区域 */}
-          <div className="py-4 overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(80vh-180px)]">
-            {isLoading ? (
-              <InvoiceDetailSkeleton />
-            ) : error ? (
-              // 错误状态
-              <div className="text-center py-8">
-                <div className="flex flex-col items-center gap-4">
-                  <AlertCircle className="w-12 h-12 text-error" />
-                  <div>
-                    <h3 className="text-lg font-medium text-base-content/60 mb-2">
-                      加载失败
-                    </h3>
-                    <p className="text-base-content/40 mb-4">
-                      {error?.message || '获取发票详情时出现错误'}
-                    </p>
-                    <button 
-                      className="btn btn-primary btn-sm"
-                      onClick={() => refetch()}
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      重试
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : invoice ? (
-              <div className="space-y-4">
-                {/* 状态和来源标签 */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <div className={`badge ${getStatusBadge(invoice.status).class} gap-2`}>
-                    <Clock className="w-3 h-3" />
-                    {getStatusBadge(invoice.status).text}
-                  </div>
-                  {invoice.source && (
-                    <div className={`badge ${getSourceBadge(invoice.source).class} gap-2`}>
-                      {React.createElement(getSourceBadge(invoice.source).icon, { className: "w-3 h-3" })}
-                      {getSourceBadge(invoice.source).text}
-                    </div>
-                  )}
-                  {invoice.processing_status && (
-                    <div className="badge badge-outline gap-2">
-                      <span className="loading loading-spinner loading-xs"></span>
-                      {invoice.processing_status}
-                    </div>
-                  )}
-                  {invoice.is_verified && (
-                    <div className="badge badge-success gap-2">
-                      <CheckCircle className="w-3 h-3" />
-                      已验证
-                    </div>
-                  )}
-                </div>
-                
-                {/* 使用自适应字段组件显示发票信息 */}
-                <AdaptiveInvoiceFields
-                  invoice={invoice}
-                  mode={currentMode}
-                  editData={currentMode === 'edit' ? editData : undefined}
-                  onFieldChange={handleFieldChange}
-                  errors={errors}
-                  onRemoveTag={handleRemoveTag}
-                  onAddTag={handleAddTag}
-                />
-              </div>
-            ) : null}
-          </div>
-
-          {/* 操作按钮 */}
-          <div className="modal-action">
-            {currentMode === 'view' ? (
-              // 查看模式按钮
-              <>
-                <button className="btn" onClick={handleClose}>关闭</button>
-                {invoice && (
-                  <>
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => handleModeChange('edit')}
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      编辑
-                    </button>
-                    <LoadingButton
-                      variant="success"
-                      icon={<Download className="w-4 h-4" />}
-                      onClick={handleDownload}
-                      isLoading={isExporting}
-                      loadingText="下载中..."
-                      disabled={isExporting}
-                    >
-                      下载
-                    </LoadingButton>
-                  </>
-                )}
-              </>
-            ) : (
-              // 编辑模式按钮
-              <>
-                <button
-                  className="btn"
-                  onClick={handleCancelEdit}
-                  disabled={updateInvoiceMutation.isPending}
+      <MobileOptimizedModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title={currentMode === 'edit' ? '编辑发票' : '发票详情'}
+        showMoreButton={currentMode === 'view' && !!invoice}
+        moreOptions={moreOptions}
+        enableSwipeToClose={true}
+        bottomActions={renderBottomActions()}
+      >
+        {isLoading ? (
+          <InvoiceDetailSkeleton />
+        ) : error ? (
+          // 错误状态
+          <div className="text-center py-8">
+            <div className="flex flex-col items-center gap-4">
+              <AlertCircle className="w-12 h-12 text-error" />
+              <div>
+                <h3 className="text-lg font-medium text-base-content/60 mb-2">
+                  加载失败
+                </h3>
+                <p className="text-base-content/40 mb-4">
+                  {error?.message || '获取发票详情时出现错误'}
+                </p>
+                <button 
+                  className="btn btn-primary btn-sm"
+                  onClick={() => refetch()}
                 >
-                  取消
+                  <RefreshCw className="w-4 h-4" />
+                  重试
                 </button>
-                <button
-                  className="btn btn-outline"
-                  onClick={() => handleModeChange('view')}
-                  disabled={updateInvoiceMutation.isPending}
-                >
-                  <Eye className="w-4 h-4" />
-                  预览
-                </button>
-                <LoadingButton
-                  variant="primary"
-                  icon={<Save className="w-4 h-4" />}
-                  onClick={handleSave}
-                  isLoading={updateInvoiceMutation.isPending}
-                  loadingText="保存中..."
-                  disabled={updateInvoiceMutation.isPending}
-                >
-                  保存
-                </LoadingButton>
-              </>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* 背景遮罩 */}
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={handleClose}>close</button>
-        </form>
-      </dialog>
+        ) : invoice ? (
+          <div className="space-y-4">
+            {/* 状态和来源标签 */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div className={`badge ${getStatusBadge(invoice.status).class} gap-2`}>
+                <Clock className="w-3 h-3" />
+                {getStatusBadge(invoice.status).text}
+              </div>
+              {invoice.source && (
+                <div className={`badge ${getSourceBadge(invoice.source).class} gap-2`}>
+                  {React.createElement(getSourceBadge(invoice.source).icon, { className: "w-3 h-3" })}
+                  {getSourceBadge(invoice.source).text}
+                </div>
+              )}
+              {invoice.processing_status && (
+                <div className="badge badge-outline gap-2">
+                  <span className="loading loading-spinner loading-xs"></span>
+                  {invoice.processing_status}
+                </div>
+              )}
+              {invoice.is_verified && (
+                <div className="badge badge-success gap-2">
+                  <CheckCircle className="w-3 h-3" />
+                  已验证
+                </div>
+              )}
+            </div>
+            
+            {/* 使用自适应字段组件显示发票信息 */}
+            <AdaptiveInvoiceFields
+              invoice={invoice}
+              mode={currentMode}
+              editData={currentMode === 'edit' ? editData : undefined}
+              onFieldChange={handleFieldChange}
+              errors={errors}
+              onRemoveTag={handleRemoveTag}
+              onAddTag={handleAddTag}
+            />
+          </div>
+        ) : null}
+      </MobileOptimizedModal>
 
       {/* 下载进度模态框 */}
       {isOpen && (

@@ -17,6 +17,8 @@ import toast from 'react-hot-toast';
 import { supabase } from '../../../lib/supabase';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { useGestures } from '../../../hooks/useGestures';
+import { useTouchFeedback } from '../../../hooks/useTouchFeedback';
+import { hapticPresets } from '../../../services/hapticFeedbackManager';
 import { InvoiceStatusBadge, type InvoiceStatus } from '../InvoiceStatusBadge';
 import { InvoiceStatusSwitch } from '../InvoiceStatusSwitch';
 import { InvoiceStatusToggle } from '../InvoiceStatusToggle';
@@ -160,6 +162,40 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
   const device = useDeviceDetection();
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // 触摸反馈配置
+  const touchFeedback = useTouchFeedback(
+    {
+      ripple: true,
+      rippleColor: 'rgb(var(--fallback-p))',
+      rippleOpacity: 0.1,
+      longPress: true,
+      longPressThreshold: 600,
+      haptic: true,
+      hapticTap: 'light',
+      hapticLongPress: 'medium',
+      mobileOnly: true, // 只在移动端启用
+    },
+    {
+      onTap: () => {
+        if (!isSelected) {
+          onView(invoice);
+          hapticPresets.buttonTap(); // 触发查看动作的触觉反馈
+        }
+      },
+      onLongPress: () => {
+        // 长按选择/取消选择发票
+        onSelect(invoice.id);
+        hapticPresets.itemSelect(); // 触发选择动作的触觉反馈
+      },
+      onLongPressStart: () => {
+        // 长按开始时的视觉提示可以在这里添加
+      },
+      onLongPressCancel: () => {
+        // 长按取消时的处理
+      },
+    }
+  );
+
   // 同步外部状态变化（实时订阅更新）
   useEffect(() => {
     setCurrentStatus(invoice.status);
@@ -246,15 +282,18 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
       
       if (success) {
         toast.success(`已标记为${statusLabel}`);
+        hapticPresets.actionSuccess(); // 成功触觉反馈
       } else {
         // 失败时回滚状态
         setCurrentStatus(oldStatus);
         toast.error('状态更新失败，请重试');
+        hapticPresets.actionError(); // 错误触觉反馈
       }
     } catch (error) {
       // 异常时回滚状态
       setCurrentStatus(oldStatus);
       toast.error('状态更新失败，请重试');
+      hapticPresets.actionError(); // 错误触觉反馈
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -349,8 +388,11 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
   const handlePrint = async () => {
     if (!invoice.file_url && !invoice.file_path) {
       toast.error('PDF文件未找到，无法打印');
+      hapticPresets.actionError(); // 错误触觉反馈
       return;
     }
+    
+    hapticPresets.buttonTap(); // 操作开始触觉反馈
     
     try {
       // 生成带权限的临时访问URL
@@ -386,22 +428,26 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         } catch (urlError) {
           console.error('URL验证失败:', urlError);
           toast.error('PDF链接格式无效');
+          hapticPresets.actionError(); // 错误触觉反馈
           return;
         }
       }
       
       if (!signedUrl) {
         toast.error('无法获取PDF访问链接');
+        hapticPresets.actionError(); // 错误触觉反馈
         return;
       }
       
       // 在新窗口中打开PDF文件，添加安全属性
       window.open(signedUrl, '_blank', 'noopener,noreferrer');
       toast.success('已在新窗口中打开PDF文件');
+      hapticPresets.actionSuccess(); // 成功触觉反馈
       
     } catch (error) {
       console.error('PDF打印失败:', error);
       toast.error(`PDF访问失败: ${error.message}`);
+      hapticPresets.actionError(); // 错误触觉反馈
     }
   };
 
@@ -443,7 +489,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     return '📄';
   };
 
-  // 使用手势处理钩子
+  // 使用增强的手势处理钩子（保持兼容性）
   const { touchHandlers, gestureState } = useGestures(
     {
       onSwipeLeft: () => {
@@ -451,6 +497,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         if (cardRef.current && device.isMobile) {
           const moreButton = cardRef.current.querySelector('[role="button"]') as HTMLElement;
           moreButton?.click();
+          hapticPresets.buttonTap(); // 添加触觉反馈
         }
       },
       onSwipeRight: () => {
@@ -461,6 +508,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             // 选择第一个可转换的状态
             const nextStatus = statusConfig.can_transition_to[0];
             handleStatusChange(nextStatus);
+            hapticPresets.switchToggle(); // 添加状态切换的触觉反馈
           }
         }
       },
@@ -468,6 +516,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         // 长按 - 选择卡片
         if (device.isMobile) {
           onSelect(invoice.id);
+          hapticPresets.itemSelect(); // 添加选择的触觉反馈
         }
       },
     },
@@ -483,16 +532,18 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
       ref={cardRef}
       className={`
         card card-compact bg-base-100 shadow-sm border border-base-200/60 group relative
-        hover:border-primary/30 hover:shadow-md transition-all duration-300 ease-out
-        ${gestureState.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.02]' : ''}
+        hover:border-primary/30 hover:shadow-md transition-all duration-300 ease-out overflow-hidden
+        w-full
+        ${gestureState.isLongPressing || touchFeedback.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.01]' : ''}
         ${isSelected ? 'border-primary/50 bg-primary/5 shadow-lg ring-2 ring-primary/20' : ''}
+        ${touchFeedback.isPressed ? 'bg-primary/5' : ''}
       `}
-      {...(device.isMobile ? touchHandlers : {})}
+      {...(device.isMobile ? { ...touchHandlers, ...touchFeedback } : {})}
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       whileHover={{ 
-        scale: device.isMobile ? 1 : 1.005,
+        scale: device.isMobile ? 1 : 1.002,
         transition: { duration: 0.2, ease: "easeOut" }
       }}
       whileTap={{ 
@@ -504,7 +555,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         layout: { duration: 0.2, ease: "easeInOut" }
       }}
     >
-      <div className="card-body invoice-card-body">
+      <div className="card-body invoice-card-body w-full">
         {/* 顶部行：选择框和操作菜单 */}
         <div className="flex items-center justify-between mb-3">
           {/* 左侧：选择框 */}
@@ -658,7 +709,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             `}
             >
               <span className="opacity-90">{getCategoryIcon(invoice)}</span>
-              <span className="truncate max-w-24">{getCategoryDisplayName(invoice)}</span>
+              <span className="truncate max-w-32">{getCategoryDisplayName(invoice)}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -1000,6 +1051,22 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           })()}
 
         </div>
+
+        {/* 触摸反馈涟漪效果 */}
+        {device.isMobile && touchFeedback.rippleElements?.map((ripple) => (
+          <span
+            key={ripple.key}
+            style={ripple.style}
+          />
+        ))}
+
+        {/* 长按进度指示器 */}
+        {device.isMobile && touchFeedback.isLongPressing && (
+          <div 
+            className="absolute inset-[-2px] pointer-events-none rounded-lg border-2 border-transparent"
+            style={touchFeedback.longPressProgressStyle}
+          />
+        )}
       </div>
     </motion.div>
   );

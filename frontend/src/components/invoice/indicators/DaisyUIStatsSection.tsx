@@ -56,15 +56,22 @@ export const DaisyUIStatsSection: React.FC<DaisyUIStatsSectionProps> = ({
     return icon;
   };
 
-  // 响应式统计布局类 - 使用系统统一样式
+  // 精确响应式统计布局类 - 基于设备类型和屏幕宽度
   const getStatsClass = () => {
     const baseClass = 'stats bg-base-100 shadow-lg border border-base-200';
+    
+    // 移动端 (≤480px): 垂直单列布局
     if (device.isMobile) {
-      // 移动端垂直布局
-      return `${baseClass} stats-vertical lg:stats-horizontal w-full ${className}`;
+      return `${baseClass} stats-vertical w-full ${className} mobile-stats-vertical`;
     }
-    // 桌面端水平布局
-    return `${baseClass} w-full ${className}`;
+    
+    // 平板端 (481px-768px): 2x2 网格布局
+    if (device.isTablet) {
+      return `${baseClass} w-full ${className} tablet-stats-grid`;
+    }
+    
+    // 桌面端 (≥769px): 水平单行布局
+    return `${baseClass} w-full ${className} desktop-stats-horizontal`;
   };
 
   if (loading) {
@@ -93,12 +100,14 @@ export const DaisyUIStatsSection: React.FC<DaisyUIStatsSectionProps> = ({
       {stats.map((stat, index) => (
         <motion.div 
           key={stat.id}
-          className={`stat ${stat.onClick ? 'cursor-pointer hover:bg-base-200/50 transition-all duration-200' : ''}`}
+          className={`stat ${stat.onClick ? 'cursor-pointer hover:bg-base-200/50 transition-all duration-200' : ''} ${
+            device.isTouchDevice ? 'min-h-[44px] gesture-feedback' : ''
+          }`}
           onClick={stat.onClick}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05 }}
-          whileHover={stat.onClick ? { scale: 1.02 } : {}}
+          whileHover={stat.onClick && !device.isTouchDevice ? { scale: 1.02 } : {}}
           whileTap={stat.onClick ? { scale: 0.98 } : {}}
         >
           {stat.icon && (
@@ -106,15 +115,21 @@ export const DaisyUIStatsSection: React.FC<DaisyUIStatsSectionProps> = ({
               {getIconElement(stat.icon)}
             </div>
           )}
-          <div className="stat-title text-base-content/70 font-medium">{stat.title}</div>
-          <div className="stat-value text-base-content">
+          <div className={`stat-title text-base-content/70 font-medium ${
+            device.isMobile ? 'text-xs' : 'text-sm'
+          }`}>{stat.title}</div>
+          <div className={`stat-value text-base-content ${
+            device.isMobile ? 'text-lg' : 'text-2xl'
+          }`}>
             {stat.value}
           </div>
           {(stat.desc || stat.trendValue) && (
-            <div className="stat-desc flex items-center gap-1 text-base-content/60">
+            <div className={`stat-desc flex items-center gap-1 text-base-content/60 ${
+              device.isMobile ? 'text-xs flex-wrap' : 'text-sm'
+            }`}>
               {stat.trend && getTrendIcon(stat.trend)}
               {stat.trendValue && <span className="font-semibold">{stat.trendValue}</span>}
-              {stat.desc && <span>{stat.desc}</span>}
+              {stat.desc && <span className={device.isMobile ? 'line-clamp-2' : ''}>{stat.desc}</span>}
             </div>
           )}
         </motion.div>

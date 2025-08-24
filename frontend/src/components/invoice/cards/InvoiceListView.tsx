@@ -145,8 +145,8 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
 
   return (
     <div>
-      {/* 发票列表 - 始终使用网格卡片视图 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* 发票列表 - 响应式网格卡片视图 */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
         {invoices.map((invoice) => (
           <InvoiceCard
             key={invoice.id}

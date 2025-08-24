@@ -1,7 +1,8 @@
-// React Query hooks for invoice management
+// React Query hooks for invoice management - 网络优化版本
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { invoiceService } from '../services/invoice'
 import { logger } from '../utils/logger'
+import { useNetworkQuery, useNetworkMutation } from './useNetworkRequest'
 // import { transformInvoiceData, transformInvoiceList } from '../utils/invoiceDataTransform'
 
 // 查询键常量
@@ -14,16 +15,16 @@ export const INVOICE_KEYS = {
   stats: () => [...INVOICE_KEYS.all, 'stats'] as const,
 }
 
-// 获取发票列表
+// 获取发票列表 - 网络优化版本
 export const useInvoices = (params?: { 
   skip?: number
   limit?: number
   seller_name?: string
   invoice_number?: string 
 }) => {
-  return useQuery({
-    queryKey: INVOICE_KEYS.list(params),
-    queryFn: async () => {
+  return useNetworkQuery(
+    INVOICE_KEYS.list(params),
+    async () => {
       const response = await invoiceService.list(params)
       // 不再需要前端数据转换
       // if (response.data?.items) {
@@ -31,11 +32,27 @@ export const useInvoices = (params?: {
       // }
       return response.data
     },
-    staleTime: 1 * 60 * 1000, // 1分钟内不重新获取（减少缓存时间）
-    placeholderData: { items: [], total: 0 }, // 提供占位数据
-    refetchOnWindowFocus: true, // 窗口获得焦点时刷新
-    refetchOnMount: true, // 组件挂载时刷新
-  })
+    {
+      // 网络优化选项
+      skipOnSlowNetwork: false, // 发票列表是关键数据，慢网络下也要加载
+      enableMetrics: true,
+      
+      // 查询选项
+      placeholderData: { items: [], total: 0 },
+      
+      // 网络变化回调
+      onNetworkChange: (networkInfo) => {
+        if (networkInfo.connectionQuality === 'poor') {
+          logger.log('🐌 [useInvoices] 网络较慢，发票列表加载可能较慢');
+        }
+      },
+      
+      // 重试回调
+      onRetry: (attempt, error) => {
+        logger.warn(`🔄 [useInvoices] 发票列表加载重试 (${attempt}次):`, error.message);
+      }
+    }
+  )
 }
 
 // 手动刷新发票列表
@@ -82,40 +99,70 @@ export const useInvoiceStats = () => {
 
 // useCreateInvoice hook 已删除 - 使用 InvoiceUploadPage 中的 uploadMutation 替代
 
-// 更新发票 mutation
+// 更新发票 mutation - 网络优化版本
 export const useUpdateInvoice = () => {
   const queryClient = useQueryClient()
   
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+  return useNetworkMutation<any, Error, { id: string; data: any }>(
+    async ({ id, data }) => {
       const response = await invoiceService.update(id, data)
       return response.data
     },
-    onSuccess: (data) => {
-      // 更新相关缓存
-      queryClient.setQueryData(INVOICE_KEYS.detail(data.id), data)
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-      logger.log('✅ 发票更新成功:', data.id)
-    },
-    onError: (error: any) => {
-      let errorMessage = '发票更新失败'
+    {
+      // 网络优化选项
+      skipOnOffline: true, // 离线时不允许更新操作
+      enableMetrics: true,
       
-      if (error.status === 404) {
-        errorMessage = '发票不存在或已被删除'
-      } else if (error.status === 403) {
-        errorMessage = '没有权限修改此发票'
-      } else if (error.status === 400) {
-        errorMessage = '数据格式不正确'
-      } else if (error.status >= 500) {
-        errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '发票更新失败'
+      // 重试配置
+      retryConfig: {
+        maxAttempts: 2, // 更新操作谨慎重试
+        baseDelay: 1000,
+        maxDelay: 5000,
+        backoffFactor: 2,
+        jitterRange: 200
+      },
+      
+      // 成功回调
+      onSuccess: (data, variables) => {
+        // 更新相关缓存
+        queryClient.setQueryData(INVOICE_KEYS.detail(data.id), data)
+        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
+        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
+        logger.log('✅ 发票更新成功:', data.id)
+      },
+      
+      // 错误回调
+      onError: (error: any, variables) => {
+        let errorMessage = '发票更新失败'
+        
+        if (error.status === 404) {
+          errorMessage = '发票不存在或已被删除'
+        } else if (error.status === 403) {
+          errorMessage = '没有权限修改此发票'
+        } else if (error.status === 400) {
+          errorMessage = '数据格式不正确'
+        } else if (error.status >= 500) {
+          errorMessage = '服务器错误，请稍后重试'
+        } else {
+          errorMessage = error.message || '发票更新失败'
+        }
+        
+        logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
+      },
+      
+      // 网络状态变化回调
+      onNetworkChange: (networkInfo) => {
+        if (!networkInfo.isOnline) {
+          logger.warn('📵 [useUpdateInvoice] 网络离线，更新操作将被阻止');
+        }
+      },
+      
+      // 重试回调
+      onRetry: (attempt, error) => {
+        logger.warn(`🔄 [useUpdateInvoice] 发票更新重试 (${attempt}次):`, error.message);
       }
-      
-      logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
-    },
-  })
+    }
+  )
 }
 
 // 删除发票 mutation

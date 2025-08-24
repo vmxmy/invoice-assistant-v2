@@ -1,9 +1,11 @@
 /**
  * 通用仪表板指标卡组件
  * 可在首页和发票管理页共用
+ * 移动端响应式优化版本
  */
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDeviceDetection } from '../../hooks/useMediaQuery'
 import { 
   DaisyUIStatsSection,
   type StatItem,
@@ -152,18 +154,19 @@ export const DashboardStatsSection: React.FC<DashboardStatsSectionProps> = ({
   className = ""
 }) => {
   const navigate = useNavigate()
+  const device = useDeviceDetection()
   const statsItems = generateStatsItems(stats, config, navigate)
   
   return (
     <section className={`mb-6 sm:mb-8 ${className}`}>
-      {/* 标题和状态指示器 */}
+      {/* 标题和状态指示器 - 移动端优化 */}
       {showTitle && (
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">{title}</h2>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-2 sm:space-y-0">
+          <h2 className="text-lg sm:text-xl font-bold">{title}</h2>
           {showStatusIndicator && (
-            <div className="flex items-center gap-4">
-              {/* 实时状态指示器 */}
-              <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 sm:gap-4 ${device.isMobile ? 'self-start' : ''}`}>
+              {/* 实时状态指示器 - 移动端简化 */}
+              <div className="flex items-center gap-1 sm:gap-2">
                 <div className={`w-2 h-2 rounded-full ${
                   error ? 'bg-error animate-pulse' : 
                   loading ? 'bg-warning animate-pulse' : 
@@ -175,7 +178,7 @@ export const DashboardStatsSection: React.FC<DashboardStatsSectionProps> = ({
                    '实时同步'}
                 </span>
               </div>
-              {error && (
+              {error && !device.isMobile && (
                 <div className="alert alert-error alert-sm">
                   <span className="text-xs">📡 数据加载失败</span>
                 </div>
@@ -185,14 +188,22 @@ export const DashboardStatsSection: React.FC<DashboardStatsSectionProps> = ({
         </div>
       )}
       
-      {/* 指标卡片 */}
+      {/* 移动端错误提示 */}
+      {error && device.isMobile && (
+        <div className="alert alert-error alert-sm mb-4">
+          <span className="text-xs">📡 数据加载失败</span>
+        </div>
+      )}
+      
+      {/* 指标卡片 - 响应式优化 */}
       <DaisyUIStatsSection 
         stats={statsItems}
         loading={loading}
+        className={device.isMobile ? 'mobile-stats-optimized' : ''}
       />
       
-      {/* 最后更新时间 */}
-      {showLastUpdated && stats?.updated_at && (
+      {/* 最后更新时间 - 移动端优化 */}
+      {showLastUpdated && stats?.updated_at && !device.isMobile && (
         <div className="mt-4 text-xs text-base-content/50 text-center">
           最后更新: {new Date(stats.updated_at).toLocaleString('zh-CN')}
         </div>

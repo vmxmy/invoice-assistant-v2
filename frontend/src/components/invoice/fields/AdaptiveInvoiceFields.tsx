@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, X } from 'lucide-react';
+import { AlertCircle, X, Eye, EyeOff, Calendar } from 'lucide-react';
 import type { Invoice } from '../../../types';
 import { 
   getInvoiceConfig, 
@@ -9,6 +9,8 @@ import {
   type FieldGroup
 } from '../../../config/invoiceFieldsConfig';
 import { CategorySelector } from '../CategorySelector';
+import { MobileInput, MobileTagInput } from '../../ui/MobileOptimizedForm';
+import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 
 interface AdaptiveInvoiceFieldsProps {
   invoice: Invoice;
@@ -31,6 +33,7 @@ const FieldRenderer: React.FC<{
   onAddTag?: (tag: string) => void;
 }> = ({ field, value, mode, error, onChange, onRemoveTag, onAddTag }) => {
   const IconComponent = field.icon;
+  const device = useDeviceDetection();
   
   // 所有Hooks必须在顶部定义，不能在条件语句中
   const [tagInput, setTagInput] = React.useState('');
@@ -284,80 +287,20 @@ const FieldRenderer: React.FC<{
     );
   }
 
-  // 标签字段
+  // 标签字段 - 使用移动端优化的标签组件
   if (field.type === 'tags') {
     const tags = Array.isArray(value) ? value : [];
 
-    const handleAddTag = () => {
-      const tag = tagInput.trim();
-      if (tag && !tags.includes(tag) && onAddTag) {
-        onAddTag(tag);
-        setTagInput('');
-      }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleAddTag();
-      }
-    };
-
     return (
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text flex items-center gap-2">
-            <IconComponent className="w-4 h-4" />
-            {field.label}
-            {field.required && <span className="text-error">*</span>}
-          </span>
-        </label>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="input input-bordered flex-1"
-            placeholder={field.placeholder || '输入标签后按回车添加'}
-          />
-          <button
-            type="button"
-            onClick={handleAddTag}
-            className="btn btn-outline btn-primary"
-          >
-            添加
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2 min-h-[2.5rem] p-2 bg-base-200 rounded-lg">
-          {tags.length === 0 ? (
-            <span className="text-base-content/50 text-sm">暂无标签</span>
-          ) : (
-            tags.map((tag: string, index: number) => (
-              <div key={index} className="badge badge-primary gap-1">
-                {tag}
-                {onRemoveTag && (
-                  <button
-                    type="button"
-                    onClick={() => onRemoveTag(tag)}
-                    className="btn btn-ghost btn-xs p-0 h-4 w-4"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-        {error && (
-          <label className="label">
-            <span className="label-text-alt text-error flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {error}
-            </span>
-          </label>
-        )}
-      </div>
+      <MobileTagInput
+        label={field.label}
+        tags={tags}
+        onAddTag={(tag) => onAddTag?.(tag)}
+        onRemoveTag={(tag) => onRemoveTag?.(tag)}
+        placeholder={field.placeholder || '输入标签后按回车添加'}
+        required={field.required}
+        error={error}
+      />
     );
   }
 
@@ -395,37 +338,25 @@ const FieldRenderer: React.FC<{
     );
   }
 
-  // 文本区域
+  // 文本区域 - 使用移动端优化的输入组件
   if (field.type === 'textarea') {
     return (
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text flex items-center gap-2">
-            <IconComponent className="w-4 h-4" />
-            {field.label}
-            {field.required && <span className="text-error">*</span>}
-          </span>
-        </label>
-        <textarea
-          value={inputValue}
-          onChange={(e) => onChange?.(e.target.value)}
-          className={`textarea textarea-bordered h-24 ${error ? 'textarea-error' : ''}`}
-          placeholder={field.placeholder}
-        />
-        {error && (
-          <label className="label">
-            <span className="label-text-alt text-error flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {error}
-            </span>
-          </label>
-        )}
-      </div>
+      <MobileInput
+        type="textarea"
+        label={field.label}
+        value={inputValue}
+        onChange={onChange || (() => {})}
+        placeholder={field.placeholder}
+        required={field.required}
+        error={error}
+        icon={<IconComponent className="w-4 h-4" />}
+        rows={4}
+      />
     );
   }
 
-  // 普通输入字段
-  const getInputType = () => {
+  // 普通输入字段 - 使用移动端优化的输入组件
+  const getInputType = (): 'text' | 'email' | 'number' | 'tel' | 'url' | 'date' => {
     switch (field.type) {
       case 'number':
       case 'currency':
@@ -437,52 +368,38 @@ const FieldRenderer: React.FC<{
     }
   };
 
-  const getInputProps = () => {
-    const props: any = {
-      type: getInputType(),
-      value: inputValue,
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value),
-      className: `input input-bordered ${error ? 'input-error' : ''}`,
-      placeholder: field.placeholder
-    };
-
-    if (field.type === 'number' || field.type === 'currency') {
-      props.step = '0.01';
-      if (field.validation?.min !== undefined) props.min = field.validation.min;
-      if (field.validation?.max !== undefined) props.max = field.validation.max;
+  const getInputMode = () => {
+    switch (field.type) {
+      case 'number':
+      case 'currency':
+        return 'numeric' as const;
+      case 'tel':
+        return 'tel' as const;
+      case 'email':
+        return 'email' as const;
+      case 'url':
+        return 'url' as const;
+      default:
+        return 'text' as const;
     }
-
-    if (field.type === 'date') {
-      props.max = new Date().toISOString().split('T')[0]; // 限制最大日期为今天
-    }
-
-    return props;
   };
 
   return (
-    <div className="form-control">
-      <label className="label">
-        <span className="label-text flex items-center gap-2">
-          <IconComponent className="w-4 h-4" />
-          {field.label}
-          {field.required && <span className="text-error">*</span>}
-        </span>
-      </label>
-      <input {...getInputProps()} />
-      {error && (
-        <label className="label">
-          <span className="label-text-alt text-error flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
-            {error}
-          </span>
-        </label>
-      )}
-      {field.description && !error && (
-        <label className="label">
-          <span className="label-text-alt text-base-content/60">{field.description}</span>
-        </label>
-      )}
-    </div>
+    <MobileInput
+      type={getInputType()}
+      label={field.label}
+      value={inputValue}
+      onChange={onChange || (() => {})}
+      placeholder={field.placeholder}
+      required={field.required}
+      error={error}
+      description={field.description}
+      icon={<IconComponent className="w-4 h-4" />}
+      min={field.validation?.min}
+      max={field.validation?.max}
+      step={field.type === 'number' || field.type === 'currency' ? 0.01 : undefined}
+      inputMode={getInputMode()}
+    />
   );
 };
 
@@ -498,6 +415,7 @@ const FieldGroupRenderer: React.FC<{
   onAddTag?: (key: string, tag: string) => void;
 }> = ({ group, invoice, mode, editData, onFieldChange, errors, onRemoveTag, onAddTag }) => {
   const GroupIcon = group.icon;
+  const device = useDeviceDetection();
 
   // 检查分组是否应该显示
   if (group.showWhen && !group.showWhen(invoice)) {
@@ -513,15 +431,29 @@ const FieldGroupRenderer: React.FC<{
     return null;
   }
 
+  // 响应式网格布局
+  const getGridClasses = () => {
+    if (device.isMobile) {
+      return 'grid grid-cols-1 gap-4';
+    }
+    
+    // 桌面端根据模式调整
+    if (mode === 'edit') {
+      return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    }
+    
+    return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+  };
+
   return (
-    <div className="card bg-base-100 shadow-sm">
+    <div className={`card bg-base-100 shadow-sm ${device.isMobile ? 'mobile-field-group' : ''}`}>
       <div className="card-body">
         <h3 className="card-title text-base flex items-center gap-2">
           <GroupIcon className="w-5 h-5 text-primary" />
           {group.title}
         </h3>
         
-        <div className={`grid grid-cols-1 ${mode === 'edit' ? 'md:grid-cols-2' : 'md:grid-cols-2'} gap-4 mt-3`}>
+        <div className={`${getGridClasses()} mt-3`}>
           {visibleFields.map((field) => {
             const value = mode === 'edit' && editData 
               ? editData[field.key] 
@@ -553,10 +485,23 @@ const FieldGroupRenderer: React.FC<{
               });
             }
 
+            // 计算字段跨列
+            const getFieldSpanClass = () => {
+              // 移动端始终单列
+              if (device.isMobile) return '';
+              
+              // 桌面端某些字段跨列
+              if (field.type === 'textarea' || field.key === 'invoice_details') {
+                return 'md:col-span-2';
+              }
+              
+              return '';
+            };
+
             return (
               <div 
                 key={field.key} 
-                className={field.type === 'textarea' || field.key === 'invoice_details' ? 'md:col-span-2' : ''}
+                className={getFieldSpanClass()}
               >
                 <FieldRenderer
                   field={field}
@@ -572,6 +517,30 @@ const FieldGroupRenderer: React.FC<{
           })}
         </div>
       </div>
+      
+      {/* 移动端样式 */}
+      <style jsx>{`
+        .mobile-field-group .card-body {
+          padding: 1rem;
+        }
+        
+        .mobile-field-group .card-title {
+          font-size: 1rem;
+          margin-bottom: 0.75rem;
+        }
+        
+        /* 触控设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+          .mobile-field-group {
+            border-radius: 12px;
+            margin-bottom: 1rem;
+          }
+          
+          .mobile-field-group .card-body {
+            padding: 1.25rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

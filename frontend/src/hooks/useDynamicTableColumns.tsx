@@ -6,6 +6,8 @@
 import { useMemo } from 'react'
 import { createColumnHelper, type ColumnDef } from '@tanstack/react-table'
 import { useTableColumns, type TableColumn } from './useTableColumns'
+import { useDeviceDetection } from './useMediaQuery'
+import { ExtendedColumnMeta, COLUMN_PRIORITIES } from '../types/table'
 
 // 视图数据结构 - 来自 invoice_management_view
 interface Invoice {
@@ -111,30 +113,95 @@ export const useDynamicTableColumns = ({
   isExporting = false
 }: UseDynamicTableColumnsOptions) => {
   const { allColumns, loading, error } = useTableColumns({ tableName })
+  const device = useDeviceDetection()
   const columnHelper = createColumnHelper<Invoice>()
+
+  // 列优先级和移动端配置映射
+  const getColumnMeta = (field: TableColumn): ExtendedColumnMeta => {
+    // 基于字段名确定优先级
+    let priority: 'essential' | 'important' | 'optional' = 'optional'
+    let width = 120
+    let minWidth = 60
+    let maxWidth = 200
+
+    switch (field.field) {
+      case 'select':
+        priority = 'essential'
+        width = 50
+        minWidth = 40
+        maxWidth = 60
+        break
+      case 'invoice_number':
+      case 'consumption_date':
+      case 'seller_name':
+      case 'total_amount':
+      case 'status':
+        priority = 'essential'
+        width = field.field === 'invoice_number' ? 140 : 
+               field.field === 'total_amount' ? 100 : 120
+        break
+      case 'buyer_name':
+      case 'invoice_type':
+      case 'processing_status':
+      case 'expense_category':
+        priority = 'important'
+        width = 110
+        break
+      case 'actions':
+        priority = 'essential'
+        width = device.isMobile ? 120 : 150
+        minWidth = device.isMobile ? 100 : 120
+        maxWidth = device.isMobile ? 140 : 180
+        break
+      default:
+        priority = 'optional'
+        width = 100
+    }
+
+    return {
+      priority,
+      width,
+      minWidth,
+      maxWidth,
+      truncate: device.isMobile && !['actions', 'select'].includes(field.field),
+      truncateLength: device.isMobile ? 15 : 25,
+      showTooltip: device.isMobile && field.field !== 'actions',
+      align: ['total_amount', 'amount', 'tax_amount'].includes(field.field) ? 'right' : 'left',
+      sticky: field.field === 'select' ? 'left' : 
+              field.field === 'actions' ? 'right' : false,
+      weight: COLUMN_PRIORITIES[priority].defaultWeight,
+      hideable: !['select', 'actions'].includes(field.field)
+    }
+  }
 
   const columns = useMemo<ColumnDef<Invoice>[]>(() => {
     const dynamicColumns: ColumnDef<Invoice>[] = []
 
     // 选择列 - 固定
+    const selectMeta = getColumnMeta({ field: 'select' } as TableColumn)
     dynamicColumns.push({
       id: 'select',
       enableHiding: false,
+      meta: selectMeta,
       header: ({ table }) => (
-        <input
-          type="checkbox"
-          className="checkbox"
-          checked={table.getIsAllPageRowsSelected()}
-          onChange={table.getToggleAllPageRowsSelectedHandler()}
-        />
+        <div className={device.isMobile ? 'flex justify-center' : ''}>
+          <input
+            type="checkbox"
+            className={`checkbox ${device.isMobile ? 'checkbox-sm' : ''}`}
+            checked={table.getIsAllPageRowsSelected()}
+            onChange={table.getToggleAllPageRowsSelectedHandler()}
+          />
+        </div>
       ),
       cell: ({ row }) => (
-        <input
-          type="checkbox" 
-          className="checkbox"
-          checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-        />
+        <div className={device.isMobile ? 'flex justify-center' : ''}>
+          <input
+            type="checkbox" 
+            className={`checkbox ${device.isMobile ? 'checkbox-sm' : ''}`}
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+          />
+        </div>
       ),
     })
 
@@ -145,10 +212,13 @@ export const useDynamicTableColumns = ({
         return
       }
 
+      const columnMeta = getColumnMeta(field)
       const column: ColumnDef<Invoice> = {
         accessorKey: field.field,
         // 恢复列隐藏功能
-        enableHiding: true,
+        enableHiding: columnMeta.hideable,
+        // 添加移动端元数据
+        meta: columnMeta,
         // 恢复过滤函数
         filterFn: field.type === 'date' || field.type === 'datetime' ? 'dateRange' :
                   field.type === 'number' ? 'numberRange' :
@@ -206,28 +276,30 @@ export const useDynamicTableColumns = ({
     })
 
     // 操作列 - 固定
+    const actionsMeta = getColumnMeta({ field: 'actions' } as TableColumn)
     dynamicColumns.push({
       id: 'actions',
-      header: '操作',
+      header: device.isMobile ? '操作' : '操作',
       enableHiding: false,
+      meta: actionsMeta,
       cell: ({ row }) => (
-        <div className="flex gap-1">
+        <div className={`flex gap-1 ${device.isMobile ? 'justify-end' : ''}`}>
           <button
-            className="btn btn-ghost btn-xs"
+            className={`btn btn-ghost ${device.isMobile ? 'btn-xs' : 'btn-sm'}`}
             onClick={() => onViewInvoice?.(row.original.id)}
             title="查看详情"
           >
             👁️
           </button>
           <button
-            className="btn btn-ghost btn-xs"
+            className={`btn btn-ghost ${device.isMobile ? 'btn-xs' : 'btn-sm'}`}
             onClick={() => onEditInvoice?.(row.original.id)}
             title="编辑发票"
           >
             ✏️
           </button>
           <button
-            className="btn btn-ghost btn-xs"
+            className={`btn btn-ghost ${device.isMobile ? 'btn-xs' : 'btn-sm'}`}
             onClick={() => onExportInvoice?.(row.original)}
             disabled={isExporting}
             title="导出发票"
@@ -235,7 +307,7 @@ export const useDynamicTableColumns = ({
             📥
           </button>
           <button
-            className="btn btn-ghost btn-xs text-error"
+            className={`btn btn-ghost ${device.isMobile ? 'btn-xs text-error' : 'btn-sm text-error'}`}
             onClick={() => onDeleteInvoice?.(row.original.id)}
             title="删除发票"
           >
@@ -246,7 +318,7 @@ export const useDynamicTableColumns = ({
     })
 
     return dynamicColumns
-  }, [allColumns, onViewInvoice, onEditInvoice, onExportInvoice, onDeleteInvoice, isExporting])
+  }, [allColumns, onViewInvoice, onEditInvoice, onExportInvoice, onDeleteInvoice, isExporting, device, getColumnMeta])
 
   return {
     columns,

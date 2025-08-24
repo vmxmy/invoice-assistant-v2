@@ -252,3 +252,5 @@ export function InboxPage() {
     </Layout>
   )
 }
+
+export default InboxPage;

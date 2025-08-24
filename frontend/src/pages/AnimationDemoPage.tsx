@@ -523,3 +523,5 @@ export const AnimationDemoPage: React.FC = () => {
     </PageTransitions>
   );
 };
+
+export default AnimationDemoPage;
