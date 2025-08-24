@@ -1,0 +1,446 @@
+/**
+ * 触摸反馈样式增强
+ * 为统一触摸反馈系统提供额外的CSS样式支持
+ */
+
+/* ==========================================
+   涟漪效果增强样式
+   ========================================== */
+
+/* 涟漪动画关键帧 */
+@keyframes ripple-expand {
+  from {
+    transform: scale(0);
+    opacity: var(--ripple-opacity, 0.3);
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-expand-fast {
+  from {
+    transform: scale(0);
+    opacity: var(--ripple-opacity, 0.2);
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 涟漪容器基础样式 */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0); /* GPU 加速 */
+  backface-visibility: hidden;
+}
+
+/* 涟漪元素样式 */
+.ripple-element {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  animation: ripple-expand 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ripple-element.fast {
+  animation: ripple-expand-fast 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ripple-element.slow {
+  animation: ripple-expand 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   长按反馈样式
+   ========================================== */
+
+/* 长按进度环动画 */
+@keyframes long-press-progress {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 长按脉冲效果 */
+@keyframes long-press-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+/* 长按容器基础样式 */
+.long-press-container {
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.long-press-container.active {
+  animation: long-press-pulse 2s infinite;
+}
+
+/* 长按进度指示器 */
+.long-press-progress {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* 圆环进度样式 */
+.long-press-progress.ring {
+  background: conic-gradient(
+    rgb(var(--fallback-p)) var(--progress, 0%),
+    transparent var(--progress, 0%)
+  );
+  mask: radial-gradient(circle closest-side, transparent 98%, black 100%);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 98%, black 100%);
+}
+
+/* 填充进度样式 */
+.long-press-progress.fill {
+  background: linear-gradient(
+    to right,
+    rgb(var(--fallback-p) / 0.2) var(--progress, 0%),
+    transparent var(--progress, 0%)
+  );
+}
+
+/* 脉冲进度样式 */
+.long-press-progress.pulse {
+  opacity: calc(0.8 + var(--progress, 0) * 0.2);
+  transform: scale(calc(1 + var(--progress, 0) * 0.05));
+}
+
+/* ==========================================
+   触摸状态样式
+   ========================================== */
+
+/* 触摸按下状态 */
+.touch-pressed {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: all 0.1s ease-out;
+}
+
+/* 触摸悬停状态（桌面端） */
+@media (hover: hover) {
+  .touch-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgb(var(--fallback-bc) / 0.15);
+    transition: all 0.2s ease-out;
+  }
+}
+
+/* 触摸激活状态 */
+.touch-active {
+  background: rgb(var(--fallback-p) / 0.05);
+  transform: scale(0.98);
+  transition: all 0.1s ease-out;
+}
+
+/* ==========================================
+   组件特定的触摸反馈样式
+   ========================================== */
+
+/* 按钮触摸反馈 */
+.btn.touch-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.touch-feedback:active {
+  transform: scale(0.95);
+}
+
+/* 卡片触摸反馈 */
+.card.touch-feedback {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+}
+
+.card.touch-feedback:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgb(var(--fallback-bc) / 0.1);
+}
+
+.card.touch-feedback.pressed {
+  background: rgb(var(--fallback-p) / 0.03);
+}
+
+/* 列表项触摸反馈 */
+.list-item.touch-feedback {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+}
+
+.list-item.touch-feedback:active {
+  background: rgb(var(--fallback-bc) / 0.05);
+  transform: translateX(2px);
+}
+
+/* 导航项触摸反馈 */
+.nav-item.touch-feedback {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.nav-item.touch-feedback:active {
+  background: rgb(var(--fallback-p) / 0.1);
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   无障碍支持样式
+   ========================================== */
+
+/* 焦点指示器 */
+.touch-feedback:focus-visible {
+  outline: 2px solid rgb(var(--fallback-p));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 屏幕阅读器专用 */
+.touch-feedback-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ripple-element {
+    opacity: 0.8 !important;
+  }
+  
+  .long-press-progress.ring {
+    border: 2px solid rgb(var(--fallback-p));
+  }
+  
+  .touch-feedback:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}
+
+/* ==========================================
+   性能优化样式
+   ========================================== */
+
+/* GPU 加速优化 */
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+/* 动画性能优化 */
+.performance-optimized {
+  contain: layout style paint;
+}
+
+.performance-optimized * {
+  contain: layout;
+}
+
+/* 降级模式（低性能设备） */
+.low-performance .ripple-element {
+  animation: none !important;
+  display: none !important;
+}
+
+.low-performance .long-press-progress {
+  animation: none !important;
+  background: rgb(var(--fallback-p) / 0.2) !important;
+}
+
+/* ==========================================
+   响应式适配
+   ========================================== */
+
+/* 移动端优化 */
+@media (hover: none) and (pointer: coarse) {
+  .touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* 触摸区域最小尺寸 */
+  .touch-feedback.btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .touch-feedback.btn-sm {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  
+  .touch-feedback.btn-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .ripple-element {
+    animation-duration: 400ms;
+  }
+  
+  .long-press-container {
+    --long-press-threshold: 600ms;
+  }
+}
+
+/* 桌面端适配 */
+@media (min-width: 1025px) {
+  .ripple-element {
+    animation-duration: 300ms;
+  }
+  
+  .touch-feedback:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgb(var(--fallback-bc) / 0.1);
+  }
+}
+
+/* ==========================================
+   暗色模式适配
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .ripple-element {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .long-press-progress.ring {
+    background: conic-gradient(
+      rgb(var(--fallback-p)) var(--progress, 0%),
+      rgba(255, 255, 255, 0.1) var(--progress, 0%)
+    );
+  }
+  
+  .touch-active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* ==========================================
+   减少动画偏好支持
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple-element,
+  .long-press-progress,
+  .touch-feedback {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .touch-feedback:active {
+    opacity: 0.7;
+    transform: none;
+  }
+  
+  .long-press-container.active {
+    opacity: 0.8;
+    animation: none !important;
+  }
+}
+
+/* ==========================================
+   调试模式样式
+   ========================================== */
+
+.touch-feedback-debug .ripple-element {
+  border: 1px solid red;
+  background: rgba(255, 0, 0, 0.2) !important;
+}
+
+.touch-feedback-debug .long-press-progress {
+  border: 1px solid blue;
+}
+
+.touch-feedback-debug .touch-feedback {
+  outline: 1px solid green;
+}
+
+/* ==========================================
+   自定义属性（CSS变量）
+   ========================================== */
+
+:root {
+  /* 涟漪效果变量 */
+  --ripple-color: currentColor;
+  --ripple-opacity: 0.3;
+  --ripple-scale: 2.5;
+  --ripple-duration: 600ms;
+  
+  /* 长按反馈变量 */
+  --long-press-threshold: 500ms;
+  --long-press-move-tolerance: 10px;
+  
+  /* 触觉反馈变量 */
+  --haptic-light-duration: 5ms;
+  --haptic-medium-duration: 10ms;
+  --haptic-heavy-duration: 15ms;
+  
+  /* 性能变量 */
+  --performance-mode: auto; /* auto | optimized | reduced */
+}
+
+/* 性能模式适配 */
+[data-performance-mode="reduced"] .ripple-element {
+  display: none;
+}
+
+[data-performance-mode="reduced"] .long-press-progress {
+  animation: none;
+  background: rgb(var(--fallback-p) / 0.2);
+}
+
+[data-performance-mode="optimized"] .ripple-element {
+  animation-duration: 300ms;
+}
+
+[data-performance-mode="optimized"] .touch-feedback {
+  transition-duration: 0.1s;
+}
