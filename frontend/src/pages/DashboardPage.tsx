@@ -319,16 +319,6 @@ export function DashboardPage() {
           </div>
         </section>
 
-        {/* 移动端快速操作按钮 - 浮动操作按钮 */}
-        {device.isMobile && (
-          <button 
-            className="fab btn btn-primary btn-circle fixed bottom-6 right-6 z-50 w-14 h-14 shadow-lg"
-            onClick={() => navigate('/invoices/upload')}
-            aria-label="快速上传发票"
-          >
-            <PlusIcon className="w-6 h-6" />
-          </button>
-        )}
 
         </div>
       </div>
