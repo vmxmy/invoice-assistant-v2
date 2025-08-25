@@ -1789,11 +1789,6 @@ export function InvoiceManagePage() {
                     <span className="text-sm text-base-content/60">
                       显示 {invoices.length} / {totalCount} 条记录 (第 {pagination.pageIndex + 1} 页)
                     </span>
-                    <div className={`badge badge-sm ${
-                      !error ? 'badge-success' : 'badge-error'
-                    }`}>
-                      {!error ? '✅ 数据已加载' : '❌ 加载失败'}
-                    </div>
                   </div>
                 </div>
               </div>
