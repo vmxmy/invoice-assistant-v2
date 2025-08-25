@@ -43,7 +43,15 @@
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
     "start:local": "npm run env:local && npm run dev",
-    "start:staging": "npm run env:staging && npm run dev"
+    "start:staging": "npm run env:staging && npm run dev",
+    "mobile:build": "npm run build && npx cap sync",
+    "mobile:android": "npm run mobile:build && npx cap run android",
+    "mobile:ios": "npm run mobile:build && npx cap run ios",
+    "mobile:android:dev": "npx cap run android --livereload --external",
+    "mobile:ios:dev": "npx cap run ios --livereload --external",
+    "mobile:sync": "npx cap sync",
+    "mobile:open:android": "npx cap open android",
+    "mobile:open:ios": "npx cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
