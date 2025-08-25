@@ -17,6 +17,19 @@ if (import.meta.env.DEV) {
   logger.info('🚀 启动纯Supabase架构模式')
 }
 
+// 暂时禁用Service Worker注册用于调试
+// if (import.meta.env.PROD) {
+//   if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('/sw.js', { scope: '/' })
+//       .then(registration => {
+//         logger.info('PWA: Service Worker 注册成功', registration)
+//       })
+//       .catch(error => {
+//         logger.error('PWA: Service Worker 注册失败', error)
+//       })
+//   }
+// }
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

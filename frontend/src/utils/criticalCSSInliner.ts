@@ -143,7 +143,7 @@ export function preloadCriticalResources(): void {
     // 这些资源会在实际需要时才由浏览器或Vite自动加载
     // { href: '/fonts/inter-var.woff2', as: 'font', type: 'font/woff2' },
     // { href: '/icons/icon-192x192.png', as: 'image' },
-    // { href: '/js/react-core.js', as: 'script' },
+    // 移除硬编码的chunk名称，让Vite自动处理
   ];
   
   criticalResources.forEach(resource => {
@@ -174,35 +174,16 @@ export function preloadDeviceSpecificResources(): void {
   const effectiveType = connection?.effectiveType || '4g';
   const slowConnection = ['slow-2g', '2g', '3g'].includes(effectiveType);
   
-  if (isMobile && !slowConnection) {
-    // 移动端快速网络：预加载移动端专用资源
-    const mobileResources = [
-      '/js/mobile-components.js',
-      '/css/mobile-optimizations.css',
-    ];
-    
-    mobileResources.forEach(href => {
-      const link = document.createElement('link');
-      link.rel = 'modulepreload';
-      link.href = href;
-      document.head.appendChild(link);
-    });
-  }
+  // 移除硬编码的资源预加载，让Vite和浏览器自动处理
+  // 这避免了404错误和不必要的网络请求
   
-  // 慢速网络：仅预加载关键资源
-  if (slowConnection) {
-    const criticalOnly = [
-      '/js/react-core.js',
-      '/css/critical.css',
-    ];
-    
-    criticalOnly.forEach(href => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.href = href;
-      link.as = href.endsWith('.css') ? 'style' : 'script';
-      document.head.appendChild(link);
-    });
+  // 可以根据设备类型调整其他优化策略
+  if (isMobile) {
+    // 移动端优化：设置viewport优化
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+    }
   }
 }
 

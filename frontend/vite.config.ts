@@ -6,17 +6,44 @@ import { execSync } from 'child_process'
 
 // https://vite.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react/jsx-runtime'],
+    exclude: [],
+  },
   plugins: [
     tailwindcss(),
     react(),
+    // PWA配置
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'autoUpdate', 
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // 排除源文件和开发文件
-        globIgnores: ['**/src/**/*', '**/*.tsx', '**/*.ts', '**/node_modules/**/*'],
+        globIgnores: [
+          '**/src/**/*', 
+          '**/*.tsx', 
+          '**/*.ts', 
+          '**/node_modules/**/*',
+          '**/@react-refresh',
+          '**/@vite-plugin-pwa/**/*',
+          '**/@vite/**/*'
+        ],
         // 排除存在CSS类名问题的文件，避免Service Worker构建错误
         dontCacheBustURLsMatching: /\.(js|css)$/,
+        // 排除开发时依赖和Vite内部资源
+        navigateFallbackDenylist: [
+          /^\/@react-refresh/,
+          /^\/@vite-plugin-pwa/,
+          /^\/@vite/,
+          /^\/src\//,
+          /\.tsx?$/,
+          /^\/node_modules/
+        ],
+        // 清理策略 - 防止缓存开发资源
+        cleanupOutdatedCaches: true,
+        // 客户端声明 - 立即激活新版本
+        clientsClaim: true,
+        skipWaiting: true,
         // 最大文件大小限制，避免大文件导致的问题
         maximumFileSizeToCacheInBytes: 3000000,
         runtimeCaching: [
@@ -193,9 +220,13 @@ export default defineConfig({
       },
       devOptions: {
         enabled: false, // 在开发环境下禁用Service Worker，避免缓存干扰
-        type: 'module',
-        navigateFallbackAllowlist: [/^index.html$/]
-      }
+        type: 'module'
+      },
+      // 生产模式配置
+      injectRegister: 'auto', // 让Vite自动处理注册
+      includeAssets: ['favicon.ico', 'favicon.svg', 'icons/*.png', 'invoice-icon.svg'],
+      // 确保只在生产环境启用
+      disable: process.env.NODE_ENV === 'development'
     })
   ],
   server: {
@@ -203,8 +234,8 @@ export default defineConfig({
     open: true
   },
   build: {
-    // 生产环境优化
-    minify: 'terser',
+    // 生产环境优化 - 使用esbuild避免React 19兼容性问题
+    minify: 'esbuild',
     sourcemap: false,
     // 优化预加载策略以减少警告
     modulePreload: {
@@ -230,65 +261,8 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // 优化代码分割 - 移动端性能优化
-        manualChunks: (id) => {
-          // 核心依赖 - 始终加载
-          if (id.includes('react') || id.includes('react-dom')) {
-            return 'react-core';
-          }
-          if (id.includes('react-router')) {
-            return 'router';
-          }
-          
-          // 数据层 - 按需加载
-          if (id.includes('@tanstack/react-query')) {
-            return 'data-layer';
-          }
-          if (id.includes('@supabase/supabase-js')) {
-            return 'supabase';
-          }
-          
-          // UI 库 - 移动端优化分包
-          if (id.includes('framer-motion')) {
-            return 'animations';
-          }
-          if (id.includes('lucide-react') || id.includes('@heroicons')) {
-            return 'icons';
-          }
-          if (id.includes('daisyui') || id.includes('tailwindcss')) {
-            return 'ui-system';
-          }
-          
-          // 图表和可视化 - 懒加载
-          if (id.includes('recharts') || id.includes('chart')) {
-            return 'charts';
-          }
-          
-          // 移动端专用组件
-          if (id.includes('/mobile/') || id.includes('mobile-')) {
-            return 'mobile-components';
-          }
-          
-          // 表格组件 - 桌面端为主
-          if (id.includes('@tanstack/react-table') || id.includes('react-window')) {
-            return 'table-components';
-          }
-          
-          // 文件处理 - 按需加载
-          if (id.includes('react-dropzone') || id.includes('jszip')) {
-            return 'file-processing';
-          }
-          
-          // 工具库
-          if (id.includes('date-fns') || id.includes('axios')) {
-            return 'utilities';
-          }
-          
-          // 其他 node_modules
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
+        // 暂时禁用手动代码分割，让Vite自动处理以避免React 19的模块加载问题
+        manualChunks: undefined,
         // 文件命名规范
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',

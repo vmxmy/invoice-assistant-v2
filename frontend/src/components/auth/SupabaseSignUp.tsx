@@ -83,6 +83,7 @@ const SupabaseSignUp: React.FC = () => {
                 onChange={(e) => setDisplayName(e.target.value)}
                 disabled={loading}
                 required
+                autoComplete="name"
               />
             </div>
             
@@ -98,6 +99,7 @@ const SupabaseSignUp: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
                 required
+                autoComplete="email"
               />
             </div>
             
@@ -114,6 +116,7 @@ const SupabaseSignUp: React.FC = () => {
                 disabled={loading}
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </div>
             
@@ -129,6 +132,7 @@ const SupabaseSignUp: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
                 required
+                autoComplete="new-password"
               />
             </div>
 

@@ -109,6 +109,7 @@ const SupabaseSignIn: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
                 required
+                autoComplete="username"
               />
             </div>
             
@@ -125,6 +126,7 @@ const SupabaseSignIn: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   required={!showMagicLink}
+                  autoComplete="current-password"
                 />
               </div>
             )}

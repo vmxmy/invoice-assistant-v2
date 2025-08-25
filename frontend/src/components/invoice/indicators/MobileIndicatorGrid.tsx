@@ -1,4 +1,4 @@
-import React, { Children } from 'react';
+import React from 'react';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 
 interface MobileIndicatorGridProps {
@@ -13,7 +13,7 @@ export const MobileIndicatorGrid: React.FC<MobileIndicatorGridProps> = ({
   enableScroll = true
 }) => {
   const device = useDeviceDetection();
-  const childrenArray = Children.toArray(children);
+  const childrenArray = React.Children.toArray(children);
   const childCount = childrenArray.length;
 
   // 移动端布局 - 小屏幕
