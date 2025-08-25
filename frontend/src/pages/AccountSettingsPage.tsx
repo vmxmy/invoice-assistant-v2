@@ -26,13 +26,16 @@ import {
   Volume2,
   Globe,
   Smartphone,
-  ChevronRight
+  ChevronRight,
+  Info
 } from 'lucide-react';
 import { useAuthContext } from "../contexts/AuthContext"
 import { supabase } from '../lib/supabase';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { useDeviceDetection } from '../hooks/useMediaQuery';
 import { MobileInput, MobileOptimizedForm } from '../components/ui/MobileOptimizedForm';
+import { VersionModal } from '../components/common/VersionDisplay';
+import { getVersionInfo, getFullVersionString } from '../config/version';
 import toast from 'react-hot-toast';
 import Layout from '../components/layout/Layout';
 
@@ -64,6 +67,7 @@ const AccountSettingsPage: React.FC = () => {
   const [pushNotifications, setPushNotifications] = useState(false);
   
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
 
   // 初始化表单数据
   React.useEffect(() => {
@@ -1057,6 +1061,76 @@ const AccountSettingsPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* 系统信息 */}
+                  <div className="card bg-base-200">
+                    <div className="card-body">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <Info className="w-5 h-5" />
+                        系统信息
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium">应用版本:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm">v{getVersionInfo().version}</span>
+                              <button 
+                                onClick={() => setShowVersionModal(true)}
+                                className="btn btn-ghost btn-xs"
+                                title="查看详细版本信息"
+                              >
+                                详情
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">构建时间:</span>
+                            <span className="text-sm">{new Date(getVersionInfo().buildTime).toLocaleDateString('zh-CN')}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">运行环境:</span>
+                            <span className={`badge badge-sm ${
+                              getVersionInfo().environment === 'production' ? 'badge-success' : 'badge-warning'
+                            }`}>
+                              {getVersionInfo().environment}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">浏览器:</span>
+                            <span className="text-sm">{navigator.userAgent.split(' ')[0] || 'Unknown'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">设备类型:</span>
+                            <span className="text-sm">{device.deviceType}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">屏幕分辨率:</span>
+                            <span className="text-sm">{window.screen.width}×{window.screen.height}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-base-300">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-base-content/60">
+                            完整版本: {getFullVersionString()}
+                          </span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(getFullVersionString());
+                              toast.success('版本信息已复制到剪贴板');
+                            }}
+                            className="btn btn-ghost btn-sm"
+                          >
+                            复制
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1578,6 +1652,12 @@ const AccountSettingsPage: React.FC = () => {
           }
         `}</style>
       )}
+      
+      {/* 版本信息模态框 */}
+      <VersionModal 
+        isOpen={showVersionModal} 
+        onClose={() => setShowVersionModal(false)} 
+      />
     </Layout>
   );
 };

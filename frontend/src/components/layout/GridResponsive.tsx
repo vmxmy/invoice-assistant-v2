@@ -2,7 +2,7 @@
  * 响应式Grid工具组件
  * 提供断点感知的布局控制
  */
-import React from 'react'
+import React, { Children } from 'react'
 
 // 响应式断点配置
 export const breakpoints = {
@@ -90,7 +90,7 @@ export function MasonryGrid({
       className={`columns-${columns.sm} md:columns-${columns.md} lg:columns-${columns.lg} ${className}`}
       style={{ columnGap: gap }}
     >
-      {React.Children.map(children, (child, index) => (
+      {Children.map(children, (child, index) => (
         <div key={index} className="break-inside-avoid mb-4">
           {child}
         </div>

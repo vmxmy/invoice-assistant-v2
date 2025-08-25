@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, Children } from 'react';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 
@@ -18,7 +18,7 @@ const MobileIndicatorGridComponent: React.FC<MobileIndicatorGridProps> = ({
   enableScroll = true
 }) => {
   const device = useDeviceDetection();
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
   const childCount = childrenArray.length;
 
   // 使用useMemo缓存网格类计算
@@ -84,8 +84,8 @@ const MobileIndicatorGridComponent: React.FC<MobileIndicatorGridProps> = ({
 // 使用React.memo优化性能
 export const MobileIndicatorGridV2 = React.memo(MobileIndicatorGridComponent, (prevProps, nextProps) => {
   // 只有当children真正改变时才重新渲染
-  const prevChildrenArray = React.Children.toArray(prevProps.children);
-  const nextChildrenArray = React.Children.toArray(nextProps.children);
+  const prevChildrenArray = Children.toArray(prevProps.children);
+  const nextChildrenArray = Children.toArray(nextProps.children);
   
   return (
     prevChildrenArray.length === nextChildrenArray.length &&

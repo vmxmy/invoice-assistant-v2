@@ -1,7 +1,7 @@
 {
   "name": "invoice-assist-frontend",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.0.3",
   "description": "智能发票管理系统前端应用",
   "author": "Invoice Assist Team",
   "license": "MIT",
@@ -51,7 +51,13 @@
     "mobile:ios:dev": "npx cap run ios --livereload --external",
     "mobile:sync": "npx cap sync",
     "mobile:open:android": "npx cap open android",
-    "mobile:open:ios": "npx cap open ios"
+    "mobile:open:ios": "npx cap open ios",
+    "version:patch": "node scripts/update-version.cjs patch",
+    "version:minor": "node scripts/update-version.cjs minor",
+    "version:major": "node scripts/update-version.cjs major",
+    "version:set": "node scripts/update-version.cjs custom",
+    "prebuild": "node scripts/update-version.cjs patch",
+    "build:release": "npm run version:patch && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
