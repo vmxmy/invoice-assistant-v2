@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { supabase } from '../../../lib/supabase';
 import { useDeviceDetection } from '../../../hooks/useMediaQuery';
 import { useGestures } from '../../../hooks/useGestures';
+import { usePassiveGestures } from '../../../hooks/usePassiveGestures';
 import { useTouchFeedback } from '../../../hooks/useTouchFeedback';
 import { hapticPresets } from '../../../services/hapticFeedbackManager';
 import { InvoiceStatusBadge, type InvoiceStatus } from '../InvoiceStatusBadge';
@@ -120,6 +121,7 @@ interface InvoiceCardProps {
   onConsumptionDateChange?: (invoiceId: string, newDate: string) => Promise<boolean>;
   showActions?: boolean;
   statusComponent?: 'badge' | 'switch' | 'toggle'; // 控制使用哪种状态组件
+  compact?: boolean; // 紧凑模式
 }
 
 const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
@@ -132,7 +134,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
   onStatusChange,
   onConsumptionDateChange,
   showActions = true,
-  statusComponent = 'toggle' // 默认使用 toggle 组件
+  statusComponent = 'toggle', // 默认使用 toggle 组件
+  compact = false // 默认非紧凑模式
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isEditingDate, setIsEditingDate] = useState(false);
@@ -178,7 +181,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     {
       onTap: () => {
         if (!isSelected) {
-          onView(invoice);
+          onView(invoice.id);
           hapticPresets.buttonTap(); // 触发查看动作的触觉反馈
         }
       },
@@ -489,8 +492,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     return '📄';
   };
 
-  // 使用增强的手势处理钩子（保持兼容性）
-  const { touchHandlers, gestureState } = useGestures(
+  // 使用优化的passive手势处理（移动端）或传统手势处理（桌面端）
+  const { touchHandlers, gestureState } = device.isMobile ? {} : useGestures(
     {
       onSwipeLeft: () => {
         // 左滑 - 显示操作菜单
@@ -523,22 +526,101 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
     {
       swipeThreshold: 60,
       longPressDelay: 500,
-      preventScroll: true,
+      preventScroll: false, // 改为false以支持passive优化
     }
   );
 
+  // 移动端使用passive手势处理
+  const { setGestureRef, gestureState: passiveGestureState } = usePassiveGestures(
+    {
+      onSwipeLeft: () => {
+        // 左滑 - 显示操作菜单
+        if (cardRef.current && device.isMobile) {
+          const moreButton = cardRef.current.querySelector('[role="button"]') as HTMLElement;
+          moreButton?.click();
+          hapticPresets.buttonTap(); // 添加触觉反馈
+        }
+      },
+      onSwipeRight: () => {
+        // 右滑 - 切换到下一个可用状态
+        if (onStatusChange && device.isMobile) {
+          const statusConfig = getStatusConfig(currentStatus);
+          if (statusConfig && statusConfig.can_transition_to && statusConfig.can_transition_to.length > 0) {
+            // 选择第一个可转换的状态
+            const nextStatus = statusConfig.can_transition_to[0];
+            handleStatusChange(nextStatus);
+            hapticPresets.switchToggle(); // 添加状态切换的触觉反馈
+          }
+        }
+      },
+      onLongPress: () => {
+        // 长按 - 选择卡片
+        if (device.isMobile) {
+          onSelect(invoice.id);
+          hapticPresets.itemSelect(); // 添加选择的触觉反馈
+        }
+      },
+    },
+    {
+      swipeThreshold: 60,
+      longPressDelay: 500,
+    }
+  );
+
+  // 合并手势状态
+  const finalGestureState = device.isMobile ? passiveGestureState : (gestureState || { isLongPressing: false, isSwiping: false });
+
+  // 设置手势ref回调
+  const setCardRef = useCallback((element: HTMLDivElement | null) => {
+    cardRef.current = element;
+    if (device.isMobile && element) {
+      setGestureRef(element);
+    }
+  }, [device.isMobile, setGestureRef]);
+
+  // 提取touchFeedback中的事件处理器
+  const {
+    onMouseDown,
+    onMouseUp,
+    onMouseMove,
+    onMouseLeave,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd,
+    onTouchCancel,
+    onKeyDown,
+    onKeyUp,
+    onClick,
+    ...touchFeedbackProps
+  } = touchFeedback;
+
+  // 只传递有效的事件处理器到DOM
+  const validEventHandlers = {
+    ...(onMouseDown && { onMouseDown }),
+    ...(onMouseUp && { onMouseUp }),
+    ...(onMouseMove && { onMouseMove }),
+    ...(onMouseLeave && { onMouseLeave }),
+    ...(onTouchStart && { onTouchStart }),
+    ...(onTouchMove && { onTouchMove }),
+    ...(onTouchEnd && { onTouchEnd }),
+    ...(onTouchCancel && { onTouchCancel }),
+    ...(onKeyDown && { onKeyDown }),
+    ...(onKeyUp && { onKeyUp }),
+    ...(onClick && { onClick }),
+  };
+
   return (
     <motion.div 
-      ref={cardRef}
+      ref={setCardRef}
       className={`
         card card-compact bg-base-100 shadow-sm border border-base-200/60 group relative
         hover:border-primary/30 hover:shadow-md transition-all duration-300 ease-out overflow-hidden
         w-full
-        ${gestureState.isLongPressing || touchFeedback.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.01]' : ''}
+        ${finalGestureState.isLongPressing || touchFeedback.isLongPressing ? 'ring-2 ring-primary/20 shadow-lg scale-[1.01]' : ''}
         ${isSelected ? 'border-primary/50 bg-primary/5 shadow-lg ring-2 ring-primary/20' : ''}
         ${touchFeedback.isPressed ? 'bg-primary/5' : ''}
       `}
-      {...(device.isMobile ? { ...touchHandlers, ...touchFeedback } : {})}
+      {...(!device.isMobile ? { ...touchHandlers, ...validEventHandlers } : validEventHandlers)}
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
@@ -555,9 +637,9 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
         layout: { duration: 0.2, ease: "easeInOut" }
       }}
     >
-      <div className="card-body invoice-card-body w-full">
-        {/* 顶部行：选择框和操作菜单 */}
-        <div className="flex items-center justify-between mb-3">
+      <div className={`card-body w-full ${compact ? 'p-2' : ''}`}>
+        {/* 顶部行：选择框、发票号码和操作菜单 */}
+        <div className={`flex items-center justify-between ${compact ? 'mb-2' : 'mb-3'}`}>
           {/* 左侧：选择框 */}
           <label className={`
             cursor-pointer flex items-center justify-center flex-shrink-0
@@ -568,19 +650,28 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           >
             <input 
               type="checkbox" 
-              className="
-                invoice-checkbox
+              className={`
+                ${compact ? 'checkbox-xs' : 'checkbox-sm'}
                 border-2 border-base-300/70 
                 checked:border-primary checked:bg-primary
                 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 
                 transition-all duration-200 flex-shrink-0
-              "
+              `}
               checked={isSelected}
               onChange={() => onSelect(invoice.id)}
               aria-checked={isSelected}
               aria-describedby={`invoice-${invoice.id}-info`}
             />
           </label>
+          
+          {/* 中间：发票号码 */}
+          {invoice.invoice_number && (
+            <div className="flex-1 text-center px-2">
+              <span className={`font-mono ${compact ? 'text-xs' : 'text-sm'} text-base-content/80 truncate block`}>
+                {invoice.invoice_number}
+              </span>
+            </div>
+          )}
           
           {/* 右侧：三点菜单 - 优化后的按钮样式 */}
           {showActions && (
@@ -590,19 +681,17 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                 {/* 三点菜单触发器 - 使用DaisyUI按钮组件 */}
                 <label 
                   tabIndex={0} 
-                  className="
-                    invoice-action-btn
-                    hover:bg-base-300/50
+                  className={`
+                    ${compact ? 'btn btn-xs btn-ghost' : 'btn btn-sm btn-ghost'}
                     text-base-content/80 hover:text-base-content
-                    border border-base-300/30
-                  "
+                  `}
                   title="更多操作"
                   aria-label={`发票 ${invoice.invoice_number} 的操作菜单`}
                   role="button"
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <MoreVertical className="invoice-icon" />
+                  <MoreVertical className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
                 </label>
                 
                 {/* DaisyUI原生菜单结构 */}
@@ -626,7 +715,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                       `}
                       disabled={!invoice.file_url && !invoice.file_path}
                     >
-                      <Printer className="invoice-icon text-info" />
+                      <Printer className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} text-info`} />
                       <span>打印</span>
                     </a>
                   </li>
@@ -639,7 +728,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                         invoice-menu-item
                       "
                     >
-                      <Download className="invoice-icon text-warning" />
+                      <Download className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} text-warning`} />
                       <span>下载</span>
                     </a>
                   </li>
@@ -659,7 +748,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                           invoice-menu-item
                         "
                       >
-                        <Trash2 className="invoice-icon" />
+                        <Trash2 className={`${compact ? 'w-3 h-3' : 'w-4 h-4'}`} />
                         <span>删除</span>
                       </a>
                     </li>
@@ -669,15 +758,15 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           )}
         </div>
 
-        {/* 第二行：状态组件更突出，分类徽章次要 */}
-        <div className="flex items-center justify-between gap-3 mb-4">
-          {/* 左侧：状态组件 - 更突出 */}
-          <div className="flex-1">
+        {/* 第二行：状态组件更突出，分类徽章次要 - 移动端分两行 */}
+        <div className={`${compact ? 'mb-2' : 'mb-4'} ${device.isMobile ? (compact ? 'space-y-1.5' : 'space-y-3') : 'flex items-center justify-between gap-3'}`}>
+          {/* 状态组件 - 移动端独占一行 */}
+          <div className={device.isMobile ? 'w-full' : 'flex-1'}>
             {statusComponent === 'toggle' ? (
               <InvoiceStatusToggle
                 status={currentStatus}
                 onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                size="md"
+                size={compact ? "sm" : "md"}
                 disabled={!onStatusChange}
                 loading={isUpdatingStatus}
               />
@@ -685,7 +774,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
               <InvoiceStatusSwitch
                 status={currentStatus}
                 onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                size="md"
+                size={compact ? "sm" : "md"}
                 disabled={!onStatusChange}
                 loading={isUpdatingStatus}
               />
@@ -693,83 +782,64 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
               <InvoiceStatusBadge
                 status={currentStatus}
                 onStatusChange={onStatusChange ? handleStatusChange : undefined}
-                size="md"
+                size={compact ? "sm" : "md"}
                 interactive={!!onStatusChange}
                 showDropdownArrow={true}
               />
             )}
           </div>
           
-          {/* 右侧：费用类别徽章 - 次要 */}
-          {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
-            <div className={`
-              inline-flex items-center gap-1.5
-              ${getCategoryBadgeStyle(invoice).className}
-              transition-all duration-200 hover:scale-105
-            `}
-            >
-              <span className="opacity-90">{getCategoryIcon(invoice)}</span>
-              <span className="truncate max-w-32">{getCategoryDisplayName(invoice)}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <div className="badge badge-ghost badge-sm inline-flex items-center gap-1">
-                <span className="opacity-70">📄</span>
-                <span>未分类</span>
+          {/* 费用类别徽章 - 移动端第二行，右对齐 */}
+          <div className={device.isMobile ? 'flex justify-end' : 'flex-shrink-0'}>
+            {(invoice.expense_category || invoice.primary_category_name || invoice.secondary_category_name) ? (
+              <div className={`
+                inline-flex items-center ${compact ? 'gap-1' : 'gap-1.5'}
+                ${getCategoryBadgeStyle(invoice).className}
+                ${compact ? 'badge-xs' : 'badge-sm'}
+                transition-all duration-200 hover:scale-105
+              `}
+              >
+                <span className="opacity-90">{getCategoryIcon(invoice)}</span>
+                <span className={`truncate ${device.isMobile ? (compact ? 'max-w-16' : 'max-w-24') : (compact ? 'max-w-24' : 'max-w-32')}`}>{getCategoryDisplayName(invoice)}</span>
               </div>
-              <div className="badge badge-warning badge-outline badge-sm">
-                待分类
+            ) : (
+              <div className={`flex items-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
+                <div className={`badge badge-ghost ${compact ? 'badge-xs' : 'badge-sm'} inline-flex items-center gap-1`}>
+                  <span className="opacity-70">📄</span>
+                  <span>未分类</span>
+                </div>
+                <div className={`badge badge-warning badge-outline ${compact ? 'badge-xs' : 'badge-sm'}`}>
+                  待分类
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* 信息内容区域 - 改进层次结构 */}
-        <div className="space-y-4">
-          {/* 发票号码信息容器 - 移到最上方 */}
-          {(invoice.invoice_number || invoice.invoice_code) && (
-            <div className="flex items-start gap-3 p-3 rounded-lg">
-              <FileText className="w-4 h-4 text-base-content/60 mt-0.5" />
-              <div className="flex flex-col gap-1">
-                {invoice.invoice_number && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-base-content/60">发票号:</span>
-                    <span className="font-mono text-sm text-base-content/80">
-                      {invoice.invoice_number}
-                    </span>
-                  </div>
-                )}
-                {invoice.invoice_code && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-base-content/60">发票代码:</span>
-                    <span className="font-mono text-sm text-base-content/80">
-                      {invoice.invoice_code}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+        {/* 信息内容区域 - 改进层次结构，移动端紧凑间距 */}
+        <div className={device.isMobile ? (compact ? 'space-y-1.5' : 'space-y-3') : (compact ? 'space-y-2' : 'space-y-4')}>
 
-          {/* 企业信息卡片 - 水平布局，右对齐确保名称完整显示 */}
+          {/* 企业信息卡片 - 紧凑模式优化 */}
           {(invoice.seller_name || invoice.buyer_name) && (
-            <div className="bg-base-100 border border-base-200 rounded-lg p-3">
-              <div className="grid gap-2">
+            <div className={`bg-base-100 border border-base-200 rounded ${compact ? 'p-2' : 'rounded-lg p-3'}`}>
+              <div className={`${compact ? 'space-y-1' : 'grid gap-2'}`}>
+                {/* 移动端和紧凑模式优先显示销售方 */}
                 {invoice.seller_name && (
                   <div className="flex items-start gap-2">
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Building2 className="w-3.5 h-3.5 text-primary/70" />
-                      <span className="text-xs text-base-content/60">销售方</span>
+                      <Building2 className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-primary/70`} />
+                      <span className={`${compact ? 'text-[10px]' : 'text-xs'} text-base-content/60`}>销售方</span>
                     </div>
                     <div className="flex-1 text-right">
-                      <span className="text-sm font-medium text-base-content break-words">
+                      <span className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-base-content break-words`}>
                         {invoice.seller_name}
                       </span>
                     </div>
                   </div>
                 )}
                 
-                {invoice.buyer_name && (
+                {/* 桌面端显示购买方，移动端和紧凑模式隐藏 */}
+                {invoice.buyer_name && !device.isMobile && !compact && (
                   <div className="flex items-start gap-2">
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <User className="w-3.5 h-3.5 text-accent/70" />
@@ -786,8 +856,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             </div>
           )}
 
-          {/* 餐饮服务信息 - 优化设计 */}
-          {invoice.invoice_type === '餐饮服务' && (
+          {/* 餐饮服务信息 - 移动端和紧凑模式隐藏 */}
+          {invoice.invoice_type === '餐饮服务' && !device.isMobile && !compact && (
             <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3">
               <div className="flex items-center gap-3">
                 <span className="text-sm text-base-content/60">🍽️ 餐饮类型</span>
@@ -798,10 +868,9 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
           )}
 
           {/* 金额、日期信息 - 优化后的 Stats 组件 */}
-          <div className="invoice-stats">
+          <div className={`${compact ? 'stats stats-horizontal shadow-sm' : 'stats shadow'} w-full`}>
             {/* 发票金额 Stat */}
-            <div className="stat px-4 py-3">
-              <div className="stat-title text-xs text-base-content/50 font-normal mb-1">发票金额</div>
+            <div className={`stat ${compact ? 'px-2 py-1.5' : 'px-4 py-3'} flex-1`}>
               <div className="stat-value">
                 {(() => {
                   // 火车票特殊处理：先尝试从提取的火车票信息中获取金额
@@ -823,7 +892,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   // 如果金额为0，显示特殊处理
                   if (amount === 0) {
                     return (
-                      <span className="invoice-stat-title">
+                      <span className={`${compact ? 'text-base' : 'text-lg'} text-base-content/60`}>
                         金额待确认
                       </span>
                     );
@@ -833,39 +902,36 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   
                   return (
                     <span className="flex items-baseline">
-                      <span className="invoice-stat-value">
+                      <span className={`${compact ? 'text-lg' : 'text-2xl'} font-bold`}>
                         {parts.symbol}{parts.integer}
                       </span>
-                      <span className="invoice-stat-desc">
+                      <span className={`${compact ? 'text-sm' : 'text-lg'} opacity-75`}>
                         .{parts.decimal}
                       </span>
                     </span>
                   );
                 })()}
               </div>
-              {/* 火车票不显示含税金额 */}
-              {!isTrainTicketByCategory(invoice) && invoice.tax_amount && typeof invoice.tax_amount === 'number' && invoice.tax_amount > 0 && (
-                <div className="stat-desc text-xs text-base-content/40 mt-1">
+              {/* 火车票不显示含税金额，移动端和紧凑模式也隐藏含税信息 - 移到第二行 */}
+              {!device.isMobile && !compact && !isTrainTicketByCategory(invoice) && invoice.tax_amount && typeof invoice.tax_amount === 'number' && invoice.tax_amount > 0 && (
+                <div className={`${compact ? 'text-[10px]' : 'text-xs'} text-base-content/40 mt-0.5`}>
                   含税 {formatCurrency(invoice.tax_amount)}
                 </div>
               )}
             </div>
 
             {/* 消费日期 Stat */}
-            <div className="stat px-4 py-3">
-              <div className="stat-title text-xs text-base-content/50 font-normal mb-1 flex items-center gap-2">
-                <span>消费日期</span>
+            <div className={`stat ${compact ? 'px-2 py-1.5' : 'px-4 py-3'} flex-1`}>
+              <div className="stat-value flex items-center gap-2">
                 {isUpdatingDate && (
-                  <Loader2 className="w-3 h-3 animate-spin text-base-content/50" />
+                  <Loader2 className={`${compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} animate-spin text-base-content/50`} />
                 )}
-              </div>
-              <div className="stat-value">
                 {/* Cally日历组件 */}
                 {onConsumptionDateChange ? (
                   <>
                     <button
                       popoverTarget={`${calendarId}-popover`}
-                      className="btn btn-ghost btn-sm p-0 h-auto min-h-0 text-primary hover:text-primary-focus transition-colors text-xl font-bold hover:underline decoration-dotted underline-offset-4"
+                      className={`btn btn-ghost btn-sm p-0 h-auto min-h-0 text-primary hover:text-primary-focus transition-colors ${compact ? 'text-lg' : 'text-xl'} font-bold hover:underline decoration-dotted underline-offset-4`}
                       style={{ anchorName: `--${calendarId}` }}
                       disabled={isUpdatingDate}
                       title={`点击修改消费日期`}
@@ -922,12 +988,13 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                     </div>
                   </>
                 ) : (
-                  <span className="text-primary text-xl font-bold">
+                  <span className={`text-primary ${compact ? 'text-lg' : 'text-xl'} font-bold`}>
                     {formatFullDate(invoice.consumption_date || invoice.created_at)}
                   </span>
                 )}
               </div>
-              {invoice.invoice_date && (
+              {/* 移动端和紧凑模式隐藏开票日期 */}
+              {!device.isMobile && !compact && invoice.invoice_date && (
                 <div className="stat-desc text-xs text-base-content/40 mt-1">
                   开票日期 {formatFullDate(invoice.invoice_date)}
                 </div>
@@ -952,18 +1019,18 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             const route = formatTrainRoute(trainInfo.departureStation, trainInfo.arrivalStation);
             
             return (
-              <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3 space-y-2">
+              <div className={`bg-base-100/50 backdrop-blur-sm rounded ${compact ? 'p-2 space-y-1' : 'rounded-lg p-3 space-y-2'}`}>
                 {/* 主要信息：路线和车次 */}
-                <div className="flex items-center justify-between">
+                <div className={`flex items-center ${compact ? 'flex-col gap-1' : 'justify-between'}`}>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-base-content">
+                    <span className={`${compact ? 'text-sm' : 'text-base'} font-bold text-base-content`}>
                       {route}
                     </span>
-                    <span className="badge badge-sm badge-ghost">
+                    <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
                       {trainInfo.trainNumber}
                     </span>
                   </div>
-                  <span className="text-sm text-base-content/70">
+                  <span className={`${compact ? 'text-xs' : 'text-sm'} text-base-content/70`}>
                     {trainInfo.departureTime && trainInfo.departureTimeDetail 
                       ? `${trainInfo.departureTime} ${trainInfo.departureTimeDetail}`
                       : trainInfo.departureTime || '发车时间未知'
@@ -971,8 +1038,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   </span>
                 </div>
                 
-                {/* 次要信息：座位信息 */}
-                <div className="flex items-center gap-3 text-sm text-base-content/60">
+                {/* 次要信息：座位信息 - 紧凑模式和移动端简化 */}
+                <div className={`flex items-center flex-wrap text-base-content/60 ${device.isMobile || compact ? 'gap-2 text-xs' : 'gap-3 text-sm'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs">{seatStyle.icon}</span>
                     <span>{trainInfo.seatType}</span>
@@ -981,7 +1048,8 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                     <span className="text-xs">💺</span>
                     <span>{trainInfo.seatNumber}</span>
                   </div>
-                  {trainInfo.passengerName && (
+                  {/* 移动端和紧凑模式隐藏乘客姓名 */}
+                  {!device.isMobile && !compact && trainInfo.passengerName && (
                     <div className="flex items-center gap-1">
                       <span className="text-xs">👤</span>
                       <span>{trainInfo.passengerName}</span>
@@ -1009,24 +1077,24 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             const route = formatFlightRoute(flightInfo.departureAirport, flightInfo.arrivalAirport);
             
             return (
-              <div className="bg-base-100/50 backdrop-blur-sm rounded-lg p-3 space-y-2">
-                {/* 主要信息：路线和航班号 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-base-content">
+              <div className={`bg-base-100/50 backdrop-blur-sm rounded ${compact ? 'p-2 space-y-1' : (device.isMobile ? 'rounded-lg p-2 space-y-2' : 'rounded-lg p-3 space-y-2')}`}>
+                {/* 主要信息：路线和航班号 - 紧凑模式和移动端垂直布局 */}
+                <div className={`flex ${device.isMobile || compact ? 'flex-col gap-1' : 'items-center justify-between'}`}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`font-bold text-base-content ${device.isMobile || compact ? 'text-sm' : 'text-base'}`}>
                       {route}
                     </span>
-                    <span className="badge badge-sm badge-ghost">
+                    <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
                       {flightInfo.flightNumber}
                     </span>
                   </div>
-                  <span className="text-sm text-base-content/70">
+                  <span className={`text-base-content/70 ${device.isMobile || compact ? 'text-xs self-start' : 'text-sm'}`}>
                     {flightInfo.departureTime || '起飞时间未知'}
                   </span>
                 </div>
                 
-                {/* 次要信息：舱位和座位信息 */}
-                <div className="flex items-center gap-3 text-sm text-base-content/60">
+                {/* 次要信息：舱位和座位信息 - 紧凑模式和移动端优化间距 */}
+                <div className={`flex items-center flex-wrap text-base-content/60 ${device.isMobile || compact ? 'gap-2 text-xs' : 'gap-3 text-sm'}`}>
                   {flightInfo.seatClass && flightInfo.seatClass.trim() && (
                     <div className="flex items-center gap-1">
                       <span className="text-xs">{seatClassStyle.icon}</span>
@@ -1042,7 +1110,7 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                   {flightInfo.passengerName && (
                     <div className="flex items-center gap-1">
                       <span className="text-xs">👤</span>
-                      <span>{flightInfo.passengerName}</span>
+                      <span className={(device.isMobile || compact) ? 'truncate max-w-16' : ''}>{flightInfo.passengerName}</span>
                     </div>
                   )}
                 </div>

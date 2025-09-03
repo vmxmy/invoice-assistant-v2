@@ -194,8 +194,8 @@ export const useGestures = (
         if (distance > swipeThreshold / 2) {
           setState(prev => ({ ...prev, isSwiping: true }));
           
-          // 阻止滚动
-          if (preventScroll) {
+          // 阻止滚动 - 但要小心使用以保持passive优化
+          if (preventScroll && !e.defaultPrevented) {
             e.preventDefault();
           }
         }
