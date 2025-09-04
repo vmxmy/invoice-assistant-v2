@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        BUILD_MODE: production
+    ports:
+      - "${PORT:-3000}:8080"
+    environment:
+      # Supabase Configuration
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_SUPABASE_SERVICE_KEY=${VITE_SUPABASE_SERVICE_KEY}
+      
+      # Database Configuration
+      - DB_URL=${DB_URL}
+      
+      # App Configuration - Production
+      - VITE_APP_ENV=production
+      - VITE_APP_NAME=${VITE_APP_NAME:-Invoice Assistant}
+      - VITE_APP_VERSION=${VITE_APP_VERSION:-2.0.22}
+      
+      # API Configuration
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      
+      # Feature Flags - Production
+      - VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS:-true}
+      - VITE_ENABLE_DEBUG=${VITE_ENABLE_DEBUG:-false}
+      
+    volumes:
+      - nginx_cache_prod:/var/cache/nginx
+      - nginx_logs:/var/log/nginx
+    restart: always
+    networks:
+      - production-network
+    
+    # Production health check
+    healthcheck:
+      test: |
+        curl -f http://localhost:8080/health || exit 1
+        curl -f http://localhost:8080/ | grep -q "Invoice Assistant" || exit 1
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    
+    # Production resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1024M
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+      # Rolling update strategy
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: pause
+        order: stop-first
+
+  # Production monitoring
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    ports:
+      - "9113:9113"
+    command:
+      - -nginx.scrape-uri=http://frontend:8080/nginx_status
+    networks:
+      - production-network
+    depends_on:
+      - frontend
+    restart: always
+
+  # Log aggregator (optional)
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    volumes:
+      - nginx_logs:/var/log/nginx:ro
+      - ./fluentd.conf:/fluentd/etc/fluent.conf
+    networks:
+      - production-network
+    depends_on:
+      - frontend
+    restart: always
+
+volumes:
+  nginx_cache_prod:
+  nginx_logs:
+
+networks:
+  production-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16

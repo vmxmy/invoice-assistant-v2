@@ -1,0 +1,456 @@
+name: 📊 Build Performance Monitoring
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+  schedule:
+    # Run weekly on Sundays at 6 AM UTC
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/invoice-assistant-frontend
+
+jobs:
+  # Build performance benchmarking
+  build-performance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      actions: write
+    outputs:
+      build-time: ${{ steps.benchmark.outputs.build-time }}
+      image-size: ${{ steps.benchmark.outputs.image-size }}
+      cache-hit-rate: ${{ steps.benchmark.outputs.cache-hit-rate }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build performance benchmark
+      - name: Run build benchmark
+        id: benchmark
+        run: |
+          echo "Starting build performance benchmark..."
+          
+          # Record start time
+          start_time=$(date +%s)
+          
+          # Build with cache
+          echo "=== Building with cache ===" 
+          docker buildx build \
+            --file frontend/docker/Dockerfile \
+            --platform linux/amd64 \
+            --cache-from type=gha,scope=build-perf \
+            --cache-to type=gha,mode=max,scope=build-perf \
+            --tag temp-build:cache \
+            --load \
+            frontend/ \
+            2>&1 | tee build-with-cache.log
+          
+          # Record cache build time
+          cache_build_time=$(($(date +%s) - start_time))
+          
+          # Clear buildx cache for clean build
+          docker buildx prune -f
+          
+          # Build without cache
+          echo "=== Building without cache ==="
+          start_time=$(date +%s)
+          docker buildx build \
+            --file frontend/docker/Dockerfile \
+            --platform linux/amd64 \
+            --no-cache \
+            --tag temp-build:no-cache \
+            --load \
+            frontend/ \
+            2>&1 | tee build-without-cache.log
+          
+          # Record no-cache build time
+          no_cache_build_time=$(($(date +%s) - start_time))
+          
+          # Get image sizes
+          cache_size=$(docker images temp-build:cache --format "{{.Size}}")
+          no_cache_size=$(docker images temp-build:no-cache --format "{{.Size}}")
+          
+          # Calculate cache hit rate (simplified estimation)
+          cache_hit_rate=$(echo "scale=2; (($no_cache_build_time - $cache_build_time) / $no_cache_build_time) * 100" | bc -l)
+          
+          # Output results
+          echo "build-time-cache=$cache_build_time" >> $GITHUB_OUTPUT
+          echo "build-time-no-cache=$no_cache_build_time" >> $GITHUB_OUTPUT
+          echo "build-time=$cache_build_time" >> $GITHUB_OUTPUT
+          echo "image-size=$cache_size" >> $GITHUB_OUTPUT
+          echo "cache-hit-rate=$cache_hit_rate" >> $GITHUB_OUTPUT
+          
+          # Create performance report
+          cat << EOF > build-performance.json
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "build_time_cache": $cache_build_time,
+            "build_time_no_cache": $no_cache_build_time,
+            "image_size": "$cache_size",
+            "cache_hit_rate": $cache_hit_rate,
+            "runner": "ubuntu-latest"
+          }
+          EOF
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_id }}
+          path: |
+            build-with-cache.log
+            build-without-cache.log
+            build-performance.json
+
+  # Image size analysis
+  image-analysis:
+    runs-on: ubuntu-latest
+    needs: build-performance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for analysis
+        run: |
+          docker buildx build \
+            --file frontend/docker/Dockerfile \
+            --platform linux/amd64 \
+            --tag analysis:latest \
+            --load \
+            frontend/
+
+      - name: Analyze image layers
+        run: |
+          echo "=== Image Layer Analysis ===" > image-analysis.txt
+          docker history analysis:latest >> image-analysis.txt
+          echo "" >> image-analysis.txt
+          
+          echo "=== Image Size Breakdown ===" >> image-analysis.txt
+          docker images analysis:latest --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" >> image-analysis.txt
+          echo "" >> image-analysis.txt
+          
+          # Use dive for detailed analysis if available
+          if command -v dive &> /dev/null; then
+            echo "=== Detailed Layer Analysis (Dive) ===" >> image-analysis.txt
+            dive analysis:latest --ci >> image-analysis.txt
+          fi
+          
+          cat image-analysis.txt
+
+      - name: Upload image analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-analysis-${{ github.run_id }}
+          path: image-analysis.txt
+
+  # Performance comparison
+  performance-comparison:
+    runs-on: ubuntu-latest
+    needs: build-performance
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Compare with main branch
+        run: |
+          echo "Current build time: ${{ needs.build-performance.outputs.build-time }}s"
+          echo "Current image size: ${{ needs.build-performance.outputs.image-size }}"
+          echo "Cache hit rate: ${{ needs.build-performance.outputs.cache-hit-rate }}%"
+          
+          # In a real scenario, you would fetch historical data and compare
+          # For now, we'll create a simple report
+          cat << EOF > performance-comparison.md
+          # 📊 Build Performance Comparison
+          
+          ## Current Build Metrics
+          - **Build Time**: ${{ needs.build-performance.outputs.build-time }}s
+          - **Image Size**: ${{ needs.build-performance.outputs.image-size }}
+          - **Cache Hit Rate**: ${{ needs.build-performance.outputs.cache-hit-rate }}%
+          
+          ## Performance Status
+          $(if [ ${{ needs.build-performance.outputs.build-time }} -lt 300 ]; then
+            echo "✅ Build time is within acceptable limits (<5 minutes)"
+          elif [ ${{ needs.build-performance.outputs.build-time }} -lt 600 ]; then
+            echo "⚠️ Build time is moderate (5-10 minutes)"
+          else
+            echo "❌ Build time is slow (>10 minutes)"
+          fi)
+          
+          ## Recommendations
+          - Consider optimizing Dockerfile layers if build time >10 minutes
+          - Monitor image size growth over time
+          - Ensure cache hit rate stays above 60%
+          
+          EOF
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('performance-comparison.md', 'utf8');
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.data.find(
+              comment => comment.body.includes('📊 Build Performance Comparison')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: report
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: report
+              });
+            }
+
+  # Performance trends (store historical data)
+  performance-trends:
+    runs-on: ubuntu-latest
+    needs: build-performance
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout performance data repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: performance-data
+          path: performance-data
+          token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Setup performance tracking
+        run: |
+          # Create performance data branch if it doesn't exist
+          if [ ! -d "performance-data" ]; then
+            mkdir performance-data
+            cd performance-data
+            git init
+            git remote add origin https://github.com/${{ github.repository }}.git
+            git checkout -b performance-data
+            mkdir -p data
+            echo "# Performance Data" > README.md
+            echo "data/" > .gitignore
+          fi
+
+      - name: Store performance data
+        run: |
+          cd performance-data
+          
+          # Create data directory if it doesn't exist
+          mkdir -p data
+          
+          # Store current performance data
+          cat << EOF > data/performance-$(date +%Y%m%d-%H%M%S).json
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "build_time": ${{ needs.build-performance.outputs.build-time }},
+            "image_size": "${{ needs.build-performance.outputs.image-size }}",
+            "cache_hit_rate": ${{ needs.build-performance.outputs.cache-hit-rate }},
+            "workflow_run_id": "${{ github.run_id }}"
+          }
+          EOF
+          
+          # Generate trend report
+          echo "# Performance Trends" > performance-trends.md
+          echo "" >> performance-trends.md
+          echo "## Latest Metrics" >> performance-trends.md
+          echo "- Build Time: ${{ needs.build-performance.outputs.build-time }}s" >> performance-trends.md
+          echo "- Image Size: ${{ needs.build-performance.outputs.image-size }}" >> performance-trends.md
+          echo "- Cache Hit Rate: ${{ needs.build-performance.outputs.cache-hit-rate }}%" >> performance-trends.md
+          echo "" >> performance-trends.md
+          echo "Updated: $(date -u)" >> performance-trends.md
+          
+          # Commit if there are changes
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No performance data changes to commit"
+          else
+            git commit -m "Add performance data for commit ${{ github.sha }}"
+            git push origin performance-data
+          fi
+
+  # Performance alerts
+  performance-alerts:
+    runs-on: ubuntu-latest
+    needs: build-performance
+    if: always()
+    steps:
+      - name: Check performance thresholds
+        run: |
+          build_time=${{ needs.build-performance.outputs.build-time }}
+          cache_hit_rate=${{ needs.build-performance.outputs.cache-hit-rate }}
+          
+          # Define thresholds
+          MAX_BUILD_TIME=600  # 10 minutes
+          MIN_CACHE_HIT_RATE=50  # 50%
+          
+          alerts=()
+          
+          if [ "$build_time" -gt "$MAX_BUILD_TIME" ]; then
+            alerts+=("🚨 Build time exceeded threshold: ${build_time}s > ${MAX_BUILD_TIME}s")
+          fi
+          
+          if [ "$(echo "$cache_hit_rate < $MIN_CACHE_HIT_RATE" | bc -l)" -eq 1 ]; then
+            alerts+=("⚠️ Cache hit rate below threshold: ${cache_hit_rate}% < ${MIN_CACHE_HIT_RATE}%")
+          fi
+          
+          if [ ${#alerts[@]} -eq 0 ]; then
+            echo "✅ All performance metrics within acceptable thresholds"
+            exit 0
+          fi
+          
+          # Create alert message
+          echo "PERFORMANCE_ALERTS<<EOF" >> $GITHUB_ENV
+          echo "# 🚨 Performance Alert" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "The following performance issues were detected:" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          for alert in "${alerts[@]}"; do
+            echo "- $alert" >> $GITHUB_ENV
+          done
+          echo "" >> $GITHUB_ENV
+          echo "**Commit**: \`${{ github.sha }}\`" >> $GITHUB_ENV
+          echo "**Workflow**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "PERFORMANCE_ALERT_NEEDED=true" >> $GITHUB_ENV
+
+      - name: Create performance alert issue
+        if: env.PERFORMANCE_ALERT_NEEDED == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const alertBody = process.env.PERFORMANCE_ALERTS;
+            
+            // Check if there's already an open performance alert issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'performance-alert'
+            });
+            
+            if (issues.data.length === 0) {
+              // Create new performance alert issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Performance Alert - Build Metrics Exceeded Thresholds',
+                body: alertBody,
+                labels: ['performance-alert', 'high-priority']
+              });
+            } else {
+              // Update existing issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: alertBody + '\n\n---\n\n' + issues.data[0].body
+              });
+            }
+
+  # Generate performance report
+  performance-report:
+    runs-on: ubuntu-latest
+    needs: [build-performance, image-analysis]
+    if: always()
+    steps:
+      - name: Generate comprehensive report
+        run: |
+          cat << EOF > performance-report.md
+          # 📊 Build Performance Report
+          
+          **Generated**: $(date -u)  
+          **Commit**: \`${{ github.sha }}\`  
+          **Branch**: \`${{ github.ref_name }}\`  
+          **Workflow**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          ## 🏗️ Build Metrics
+          
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | Build Time | ${{ needs.build-performance.outputs.build-time }}s | $(if [ ${{ needs.build-performance.outputs.build-time }} -lt 300 ]; then echo "✅ Good"; elif [ ${{ needs.build-performance.outputs.build-time }} -lt 600 ]; then echo "⚠️ Moderate"; else echo "❌ Slow"; fi) |
+          | Image Size | ${{ needs.build-performance.outputs.image-size }} | $(echo "📦 Recorded") |
+          | Cache Hit Rate | ${{ needs.build-performance.outputs.cache-hit-rate }}% | $(if (( $(echo "${{ needs.build-performance.outputs.cache-hit-rate }} > 50" | bc -l) )); then echo "✅ Good"; else echo "⚠️ Low"; fi) |
+          
+          ## 📈 Performance Targets
+          
+          - ✅ **Build Time**: < 5 minutes (300s)
+          - ✅ **Cache Hit Rate**: > 50%
+          - ✅ **Image Size**: Monitor for growth
+          
+          ## 💡 Optimization Recommendations
+          
+          ### Build Time Optimization
+          - Use multi-stage builds to separate build and runtime dependencies
+          - Optimize Dockerfile layer ordering for better caching
+          - Consider using smaller base images
+          
+          ### Cache Optimization
+          - Ensure package.json changes don't invalidate all subsequent layers
+          - Use .dockerignore to exclude unnecessary files
+          - Implement registry cache for CI/CD builds
+          
+          ### Image Size Optimization
+          - Remove unnecessary packages and files
+          - Use alpine or distroless base images
+          - Implement image compression
+          
+          ## 📋 Artifacts
+          
+          - [Build Logs](../../../actions/runs/${{ github.run_id }}/artifacts)
+          - [Image Analysis](../../../actions/runs/${{ github.run_id }}/artifacts)
+          
+          ---
+          
+          *This report is automatically generated by GitHub Actions*
+          EOF
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report-${{ github.run_id }}
+          path: performance-report.md

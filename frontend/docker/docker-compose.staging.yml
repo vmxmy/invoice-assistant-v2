@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        BUILD_MODE: staging
+    ports:
+      - "${PORT:-3001}:8080"
+    environment:
+      # Supabase Configuration
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_SUPABASE_SERVICE_KEY=${VITE_SUPABASE_SERVICE_KEY}
+      
+      # Database Configuration
+      - DB_URL=${DB_URL}
+      
+      # App Configuration - Staging
+      - VITE_APP_ENV=staging
+      - VITE_APP_NAME=${VITE_APP_NAME:-Invoice Assistant (Staging)}
+      - VITE_APP_VERSION=${VITE_APP_VERSION:-2.0.22}
+      
+      # API Configuration
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      
+      # Feature Flags - Staging
+      - VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS:-false}
+      - VITE_ENABLE_DEBUG=${VITE_ENABLE_DEBUG:-true}
+      
+    volumes:
+      - nginx_cache_staging:/var/cache/nginx
+    restart: unless-stopped
+    networks:
+      - staging-network
+    
+    # Enhanced health check for staging
+    healthcheck:
+      test: |
+        curl -f http://localhost:8080/health || exit 1
+        curl -f http://localhost:8080/ | grep -q "Invoice Assistant" || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    
+    # Resource limits for staging
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # Staging-specific services
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    ports:
+      - "9113:9113"
+    command:
+      - -nginx.scrape-uri=http://frontend:8080/nginx_status
+    networks:
+      - staging-network
+    depends_on:
+      - frontend
+
+volumes:
+  nginx_cache_staging:
+
+networks:
+  staging-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
