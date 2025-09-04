@@ -1,11 +1,12 @@
-// React Query hooks for invoice management - 网络优化版本
+// 优化版React Query hooks - 使用统一查询键和精确缓存管理
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { invoiceService } from '../services/invoice'
 import { logger } from '../utils/logger'
 import { useNetworkQuery, useNetworkMutation } from './useNetworkRequest'
+import { QueryKeys, QueryOptions, NetworkOptions } from '../utils/queryKeys'
 // import { transformInvoiceData, transformInvoiceList } from '../utils/invoiceDataTransform'
 
-// 查询键常量
+// 查询键常量 - 为了兼容性保留，但推荐使用QueryKeys
 export const INVOICE_KEYS = {
   all: ['invoices'] as const,
   lists: () => [...INVOICE_KEYS.all, 'list'] as const,
@@ -15,6 +16,13 @@ export const INVOICE_KEYS = {
   stats: () => [...INVOICE_KEYS.all, 'stats'] as const,
 }
 
+// 获取当前用户ID的辅助函数
+function getCurrentUserId(): string {
+  // 这里应该从认证上下文获取，但为了保持兼容性，使用默认值
+  // TODO: 实现从认证上下文获取用户ID
+  return 'current-user'
+}
+
 // 获取发票列表 - 网络优化版本
 export const useInvoices = (params?: { 
   skip?: number
@@ -22,14 +30,12 @@ export const useInvoices = (params?: {
   seller_name?: string
   invoice_number?: string 
 }) => {
+  const userId = getCurrentUserId() // 获取当前用户ID
+  
   return useNetworkQuery(
-    INVOICE_KEYS.list(params),
+    QueryKeys.invoiceList(userId, params), // 使用统一查询键
     async () => {
       const response = await invoiceService.list(params)
-      // 不再需要前端数据转换
-      // if (response.data?.items) {
-      //   response.data.items = transformInvoiceList(response.data.items)
-      // }
       return response.data
     },
     {
@@ -39,6 +45,9 @@ export const useInvoices = (params?: {
       
       // 查询选项
       placeholderData: { items: [], total: 0 },
+      
+      // 使用统一的选项配置
+      ...QueryOptions.moderate,
       
       // 网络变化回调
       onNetworkChange: (networkInfo) => {
@@ -55,53 +64,68 @@ export const useInvoices = (params?: {
   )
 }
 
-// 手动刷新发票列表
+// 手动刷新发票列表 - 优化版
 export const useRefreshInvoices = () => {
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
   
   return () => {
-    // 清除所有发票相关缓存
-    queryClient.removeQueries({ queryKey: INVOICE_KEYS.all })
-    // 重新获取数据
-    queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.all })
+    // 使用统一查询键精确刷新
+    queryClient.removeQueries({ 
+      queryKey: QueryKeys.invoiceList(userId),
+      exact: false 
+    })
+    queryClient.invalidateQueries({ 
+      queryKey: QueryKeys.invoiceList(userId),
+      exact: false
+    })
+    
+    // 同时刷新统计数据
+    queryClient.invalidateQueries({
+      queryKey: QueryKeys.dashboardStats(userId)
+    })
+    
     logger.log('🔄 手动刷新发票数据')
   }
 }
 
-// 获取单个发票详情
+// 获取单个发票详情 - 优化版
 export const useInvoice = (id: string) => {
+  const userId = getCurrentUserId()
+  
   return useQuery({
-    queryKey: INVOICE_KEYS.detail(id),
+    queryKey: QueryKeys.invoice(userId, id), // 使用统一查询键
     queryFn: async () => {
       const response = await invoiceService.get(id)
-      // 不再需要前端数据转换
-      // if (response.data) {
-      //   response.data = transformInvoiceData(response.data)
-      // }
       return response.data
     },
     enabled: !!id, // 只有在有ID时才执行
-    staleTime: 5 * 60 * 1000, // 5分钟内不重新获取
+    ...QueryOptions.stable, // 使用稳定数据选项
+    ...NetworkOptions.optimized,
   })
 }
 
-// 获取发票统计
+// 获取发票统计 - 优化版
 export const useInvoiceStats = () => {
+  const userId = getCurrentUserId()
+  
   return useQuery({
-    queryKey: INVOICE_KEYS.stats(),
+    queryKey: QueryKeys.invoiceStats(userId), // 使用统一查询键
     queryFn: async () => {
       const response = await invoiceService.stats()
       return response.data
     },
-    staleTime: 10 * 60 * 1000, // 10分钟内不重新获取
+    ...QueryOptions.frequent, // 统计数据需要频繁更新
+    ...NetworkOptions.optimized,
   })
 }
 
 // useCreateInvoice hook 已删除 - 使用 InvoiceUploadPage 中的 uploadMutation 替代
 
-// 更新发票 mutation - 网络优化版本
+// 更新发票 mutation - 优化版
 export const useUpdateInvoice = () => {
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
   
   return useNetworkMutation<any, Error, { id: string; data: any }>(
     async ({ id, data }) => {
@@ -110,41 +134,83 @@ export const useUpdateInvoice = () => {
     },
     {
       // 网络优化选项
-      skipOnOffline: true, // 离线时不允许更新操作
+      skipOnOffline: true,
       enableMetrics: true,
       
       // 重试配置
       retryConfig: {
-        maxAttempts: 2, // 更新操作谨慎重试
+        maxAttempts: 2,
         baseDelay: 1000,
         maxDelay: 5000,
         backoffFactor: 2,
         jitterRange: 200
       },
       
-      // 成功回调
-      onSuccess: (data, variables) => {
-        // 更新相关缓存
-        queryClient.setQueryData(INVOICE_KEYS.detail(data.id), data)
-        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
-        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
-        logger.log('✅ 发票更新成功:', data.id)
+      // 乐观更新
+      onMutate: async (variables) => {
+        // 取消相关查询
+        await queryClient.cancelQueries({
+          queryKey: QueryKeys.invoice(userId, variables.id)
+        })
+        
+        // 获取当前数据
+        const previousInvoice = queryClient.getQueryData(
+          QueryKeys.invoice(userId, variables.id)
+        )
+        
+        // 乐观更新
+        queryClient.setQueryData(
+          QueryKeys.invoice(userId, variables.id),
+          (old: any) => ({ ...old, ...variables.data })
+        )
+        
+        return { previousInvoice }
       },
       
-      // 错误回调
-      onError: (error: any, variables) => {
-        let errorMessage = '发票更新失败'
+      // 成功回调 - 精确缓存管理
+      onSuccess: (data, variables, context) => {
+        // 直接设置新数据
+        if (data) {
+          queryClient.setQueryData(
+            QueryKeys.invoice(userId, variables.id),
+            data
+          )
+        }
         
+        // 精确失效相关列表和统计
+        queryClient.invalidateQueries({ 
+          queryKey: QueryKeys.invoiceList(userId),
+          exact: false,
+          refetchType: 'active'
+        })
+        
+        // 如果更新了关键字段，更新统计
+        if (variables.data.status || variables.data.amount) {
+          queryClient.invalidateQueries({ 
+            queryKey: QueryKeys.dashboardStats(userId)
+          })
+        }
+        
+        logger.log('✅ 发票更新成功:', data?.id || variables.id)
+      },
+      
+      // 错误处理
+      onError: (error: any, variables, context) => {
+        // 回滚乐观更新
+        if (context?.previousInvoice) {
+          queryClient.setQueryData(
+            QueryKeys.invoice(userId, variables.id),
+            context.previousInvoice
+          )
+        }
+        
+        let errorMessage = '发票更新失败'
         if (error.status === 404) {
           errorMessage = '发票不存在或已被删除'
         } else if (error.status === 403) {
           errorMessage = '没有权限修改此发票'
-        } else if (error.status === 400) {
-          errorMessage = '数据格式不正确'
         } else if (error.status >= 500) {
           errorMessage = '服务器错误，请稍后重试'
-        } else {
-          errorMessage = error.message || '发票更新失败'
         }
         
         logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')
@@ -165,66 +231,80 @@ export const useUpdateInvoice = () => {
   )
 }
 
-// 删除发票 mutation
+// 删除发票 mutation - 优化版
 export const useDeleteInvoice = () => {
   const queryClient = useQueryClient()
+  const userId = getCurrentUserId()
   
   return useMutation({
     mutationFn: async (id: string) => {
       await invoiceService.delete(id)
       return { id }
     },
-    onSuccess: (_, id) => {
-      // 移除特定发票的缓存
-      queryClient.removeQueries({ queryKey: INVOICE_KEYS.detail(id) })
+    
+    // 乐观删除：立即从界面移除
+    onMutate: async (id) => {
+      // 取消相关查询
+      await queryClient.cancelQueries({
+        queryKey: QueryKeys.invoiceList(userId),
+        exact: false
+      })
       
-      // 立即更新列表缓存，移除已删除的发票
+      // 获取当前数据以便回滚
+      const previousData = queryClient.getQueriesData({
+        queryKey: QueryKeys.invoiceList(userId),
+        exact: false
+      })
+      
+      // 乐观删除：从列表中移除
       queryClient.setQueriesData(
-        { queryKey: INVOICE_KEYS.lists() },
+        { queryKey: QueryKeys.invoiceList(userId), exact: false },
         (oldData: any) => {
-          if (!oldData) return oldData
-          
+          if (!oldData || !oldData.items) return oldData
           return {
             ...oldData,
-            items: oldData.items?.filter((item: any) => item.id !== id) || [],
+            items: oldData.items.filter((item: any) => item.id !== id),
             total: Math.max(0, (oldData.total || 1) - 1)
           }
         }
       )
       
-      // 使列表查询失效，确保下次获取最新数据
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
-      queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
+      return { previousData }
+    },
+    
+    onSuccess: (_, id, context) => {
+      // 移除单个发票的缓存
+      queryClient.removeQueries({ 
+        queryKey: QueryKeys.invoice(userId, id) 
+      })
+      
+      // 更新统计数据
+      queryClient.invalidateQueries({ 
+        queryKey: QueryKeys.dashboardStats(userId) 
+      })
       
       logger.log('✅ 发票删除成功:', id)
     },
-    onError: (error: any, id) => {
-      let errorMessage = '发票删除失败'
+    
+    onError: (error: any, id, context) => {
+      // 回滚乐观删除
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
       
+      let errorMessage = '发票删除失败'
       if (error.status === 404) {
         errorMessage = '发票不存在或已被删除'
-        
-        // 如果发票不存在，也从缓存中移除
-        queryClient.removeQueries({ queryKey: INVOICE_KEYS.detail(id) })
-        queryClient.setQueriesData(
-          { queryKey: INVOICE_KEYS.lists() },
-          (oldData: any) => {
-            if (!oldData) return oldData
-            return {
-              ...oldData,
-              items: oldData.items?.filter((item: any) => item.id !== id) || [],
-              total: Math.max(0, (oldData.total || 1) - 1)
-            }
-          }
-        )
-        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.lists() })
-        queryClient.invalidateQueries({ queryKey: INVOICE_KEYS.stats() })
+        // 404时也认为成功，清理缓存
+        queryClient.removeQueries({ 
+          queryKey: QueryKeys.invoice(userId, id) 
+        })
       } else if (error.status === 403) {
         errorMessage = '没有权限删除此发票'
       } else if (error.status >= 500) {
         errorMessage = '服务器错误，请稍后重试'
-      } else {
-        errorMessage = error.message || '发票删除失败'
       }
       
       logger.error('❌', errorMessage, error.status ? `(${error.status})` : '')

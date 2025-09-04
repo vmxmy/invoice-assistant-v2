@@ -16,9 +16,9 @@ declare global {
 
 // 默认版本信息
 export const VERSION_INFO: VersionInfo = {
-  version: '2.0.20', // 主版本.次版本.修订版本
-  buildTime: '2025-09-03T03:36:11.356Z',
-  commitHash: '862e751e0b62e1bbe0afc972451ba6009c46faa2', // 在构建时替换为实际commit hash
+  version: '2.0.22', // 主版本.次版本.修订版本
+  buildTime: '2025-09-03T21:44:53.694Z',
+  commitHash: 'f7d092cf065f9da1f00560add51555d504f69cbb', // 在构建时替换为实际commit hash
   environment: import.meta.env.MODE || 'development'
 };
 

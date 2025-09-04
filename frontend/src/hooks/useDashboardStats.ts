@@ -1,31 +1,147 @@
 /**
- * 仪表板统计数据Hook
- * 使用Supabase Realtime订阅实时更新
+ * 优化版仪表板统计数据Hook
+ * 使用React Query内置功能，移除复杂轮询逻辑，提升性能
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useAuthContext } from '../contexts/AuthContext'
-import type { DashboardStats, DashboardStatsResponse, RealtimeStatsPayload } from '../types/dashboard.types'
+import { QueryKeys, QueryOptions, NetworkOptions } from '../utils/queryKeys'
+import type { DashboardStats, DashboardStatsResponse } from '../types/dashboard.types'
+
+/**
+ * 转换统计数据的辅助函数
+ */
+function transformStatsData(statsData: any, userId: string, email: string): DashboardStats {
+  // 如果没有数据，返回默认统计数据
+  if (!statsData) {
+    console.log('用户暂无发票数据，使用默认统计值')
+    return {
+      user_id: userId,
+      profile_id: userId,
+      display_name: email,
+      
+      // 发票统计 - 全部设为0
+      total_invoices: 0,
+      total_amount: 0,
+      monthly_invoices: 0,
+      monthly_amount: 0,
+      verified_invoices: 0,
+      last_invoice_date: null,
+      
+      // 报销状态统计
+      unreimbursed_count: 0,
+      reimbursed_count: 0,
+      unreimbursed_amount: 0,
+      reimbursed_amount: 0,
+      
+      // 临期和超期统计
+      due_soon_unreimbursed_count: 0,
+      due_soon_unreimbursed_amount: 0,
+      overdue_unreimbursed_count: 0,
+      overdue_unreimbursed_amount: 0,
+      oldest_unreimbursed_date: null,
+      
+      // 本月报销统计
+      monthly_reimbursed_count: 0,
+      monthly_reimbursed_amount: 0,
+      
+      // 邮箱和扫描统计
+      total_email_accounts: 0,
+      active_email_accounts: 0,
+      total_scan_jobs: 0,
+      completed_scan_jobs: 0,
+      monthly_processed: 0,
+      last_scan_at: null,
+      
+      // 活动统计
+      weekly_invoices: 0,
+      daily_invoices: 0,
+      
+      // 增长率
+      invoice_growth_rate: 0,
+      amount_growth_rate: 0,
+      
+      // 用户状态
+      is_active: true,
+      is_premium: false,
+      premium_expires_at: null,
+      
+      // 时间戳
+      updated_at: new Date().toISOString()
+    }
+  }
+
+  // 处理有数据的情况，映射字段名
+  return {
+    user_id: statsData.user_id,
+    profile_id: statsData.user_id,
+    display_name: email,
+    
+    // 发票统计
+    total_invoices: statsData.total_invoices || 0,
+    total_amount: statsData.total_amount || 0,
+    monthly_invoices: statsData.monthly_invoices || 0,
+    monthly_amount: statsData.monthly_amount || 0,
+    verified_invoices: statsData.verified_count || 0,
+    last_invoice_date: statsData.latest_invoice_date || null,
+    
+    // 报销状态统计
+    unreimbursed_count: statsData.unreimbursed_count || 0,
+    reimbursed_count: statsData.reimbursed_count || 0,
+    unreimbursed_amount: statsData.unreimbursed_amount || 0,
+    reimbursed_amount: statsData.reimbursed_amount || 0,
+    
+    // 临期和超期统计
+    due_soon_unreimbursed_count: statsData.due_soon_unreimbursed_count || 0,
+    due_soon_unreimbursed_amount: statsData.due_soon_unreimbursed_amount || 0,
+    overdue_unreimbursed_count: statsData.overdue_unreimbursed_count || 0,
+    overdue_unreimbursed_amount: statsData.overdue_unreimbursed_amount || 0,
+    oldest_unreimbursed_date: statsData.oldest_unreimbursed_date || null,
+    
+    // 本月报销统计
+    monthly_reimbursed_count: statsData.monthly_reimbursed_count || 0,
+    monthly_reimbursed_amount: statsData.monthly_reimbursed_amount || 0,
+    
+    // 邮箱统计 - 新视图不包含这些字段，设置默认值
+    total_email_accounts: 0,
+    active_email_accounts: 0,
+    
+    // 扫描统计 - 新视图不包含这些字段，设置默认值
+    total_scan_jobs: 0,
+    completed_scan_jobs: 0,
+    monthly_processed: 0,
+    last_scan_at: null,
+    
+    // 活动统计 - 新视图不包含这些字段，设置默认值
+    weekly_invoices: 0,
+    daily_invoices: 0,
+    
+    // 增长率
+    invoice_growth_rate: statsData.invoice_growth_rate || 0,
+    amount_growth_rate: statsData.amount_growth_rate || 0,
+    
+    // 用户状态 - 新视图不包含这些字段，设置默认值
+    is_active: true,
+    is_premium: false,
+    premium_expires_at: null,
+    
+    // 时间戳
+    updated_at: new Date().toISOString()
+  }
+}
 
 export function useDashboardStats(): DashboardStatsResponse {
   const { user } = useAuthContext()
-  const [data, setData] = useState<DashboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
 
-  // 获取统计数据 - 使用v_dashboard_stats视图
-  const fetchStats = useCallback(async () => {
-    if (!user?.id) {
-      setData(null)
-      setLoading(false)
-      return
-    }
-
-    try {
-      setError(null)
+  // 使用React Query优化的统计数据获取
+  const queryResult = useQuery({
+    queryKey: QueryKeys.dashboardStats(user?.id || ''),
+    queryFn: async (): Promise<DashboardStats> => {
+      if (!user?.id) throw new Error('用户未登录')
+      
       console.log('🔍 [DashboardStats] 获取统计数据', user.id)
-
-      // 优先使用物化视图（带缓存），失败时降级到普通视图
+      
+      // 优先使用物化视图，失败时降级到普通视图
       let statsData = null
       let statsError = null
       
@@ -35,7 +151,7 @@ export function useDashboardStats(): DashboardStatsResponse {
           .from('mv_invoice_aggregates')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle()  // 使用 maybeSingle 处理空数据
+          .maybeSingle()
         
         if (!mvError && mvData) {
           console.log('⚡ [DashboardStats] 使用物化视图缓存')
@@ -70,261 +186,58 @@ export function useDashboardStats(): DashboardStatsResponse {
         statsData = null
       }
 
-      // 如果没有数据，创建默认统计数据
-      if (!statsData) {
-        console.log('用户暂无发票数据，使用默认统计值')
-        const defaultStats: DashboardStats = {
-          user_id: user.id,
-          profile_id: user.id,
-          display_name: user.email || '',
-          
-          // 发票统计 - 全部设为0
-          total_invoices: 0,
-          total_amount: 0,
-          monthly_invoices: 0,
-          monthly_amount: 0,
-          verified_invoices: 0,
-          last_invoice_date: null,
-          
-          // 报销状态统计
-          unreimbursed_count: 0,
-          reimbursed_count: 0,
-          unreimbursed_amount: 0,
-          reimbursed_amount: 0,
-          
-          // 临期和超期统计
-          due_soon_unreimbursed_count: 0,
-          due_soon_unreimbursed_amount: 0,
-          overdue_unreimbursed_count: 0,
-          overdue_unreimbursed_amount: 0,
-          oldest_unreimbursed_date: null,
-          
-          // 本月报销统计
-          monthly_reimbursed_count: 0,
-          monthly_reimbursed_amount: 0,
-          
-          // 邮箱和扫描统计
-          total_email_accounts: 0,
-          active_email_accounts: 0,
-          total_scan_jobs: 0,
-          completed_scan_jobs: 0,
-          monthly_processed: 0,
-          last_scan_at: null,
-          
-          // 活动统计
-          weekly_invoices: 0,
-          daily_invoices: 0,
-          
-          // 增长率
-          invoice_growth_rate: 0,
-          amount_growth_rate: 0,
-          
-          // 用户状态
-          is_active: true,
-          is_premium: false,
-          premium_expires_at: null,
-          
-          // 时间戳
-          updated_at: new Date().toISOString()
-        }
-        
-        setData(defaultStats)
-        return
-      }
-
-      // 直接使用视图返回的数据
-      const data: DashboardStats = {
-        user_id: statsData.user_id,
-        profile_id: statsData.user_id, // 使用user_id替代profile_id
-        display_name: '', // 需要从其他地方获取
-        
-        // 发票统计
-        total_invoices: statsData.total_invoices,
-        total_amount: statsData.total_amount,
-        monthly_invoices: statsData.monthly_invoices,
-        monthly_amount: statsData.monthly_amount,
-        verified_invoices: statsData.verified_count, // 字段名调整
-        last_invoice_date: statsData.latest_invoice_date, // 字段名调整
-        
-        // 报销状态统计
-        unreimbursed_count: statsData.unreimbursed_count,
-        reimbursed_count: statsData.reimbursed_count,
-        unreimbursed_amount: statsData.unreimbursed_amount,
-        reimbursed_amount: statsData.reimbursed_amount,
-        
-        // 临期未报销统计（60天）
-        due_soon_unreimbursed_count: statsData.due_soon_unreimbursed_count,
-        due_soon_unreimbursed_amount: statsData.due_soon_unreimbursed_amount,
-        
-        // 超期未报销统计（90天）
-        overdue_unreimbursed_count: statsData.overdue_unreimbursed_count,
-        overdue_unreimbursed_amount: statsData.overdue_unreimbursed_amount,
-        oldest_unreimbursed_date: statsData.oldest_unreimbursed_date,
-        
-        // 本月报销统计
-        monthly_reimbursed_count: statsData.monthly_reimbursed_count,
-        monthly_reimbursed_amount: statsData.monthly_reimbursed_amount,
-        
-        // 邮箱统计 - 新视图不包含这些字段，设置默认值
-        total_email_accounts: 0,
-        active_email_accounts: 0,
-        
-        // 扫描统计 - 新视图不包含这些字段，设置默认值
-        total_scan_jobs: 0,
-        completed_scan_jobs: 0,
-        monthly_processed: 0,
-        last_scan_at: null,
-        
-        // 活动统计 - 新视图不包含这些字段，设置默认值
-        weekly_invoices: 0,
-        daily_invoices: 0,
-        
-        // 增长率
-        invoice_growth_rate: statsData.invoice_growth_rate,
-        amount_growth_rate: statsData.amount_growth_rate,
-        
-        // 用户状态 - 新视图不包含这些字段，设置默认值
-        is_active: true,
-        is_premium: false,
-        premium_expires_at: null,
-        
-        // 时间戳
-        updated_at: new Date().toISOString()
-      }
-
+      // 返回处理后的数据或默认数据
+      return transformStatsData(statsData, user.id, user.email || '')
+    },
+    enabled: !!user?.id,
+    ...QueryOptions.frequent, // 使用预设的频繁更新选项
+    ...NetworkOptions.optimized, // 使用网络优化选项
+    
+    // 智能轮询：基于页面可见性和用户活跃度
+    refetchInterval: (data, query) => {
+      if (!data) return 60 * 1000 // 无数据时60秒刷新
+      
+      // 检查数据新鲜度
+      const lastUpdate = query.dataUpdatedAt || 0
+      const timeSinceUpdate = Date.now() - lastUpdate
+      
+      // 数据较新时降低刷新频率
+      if (timeSinceUpdate < 2 * 60 * 1000) return 120 * 1000 // 2分钟内的数据，2分钟后刷新
+      return 60 * 1000 // 默认1分钟刷新
+    },
+    
+    refetchIntervalInBackground: false, // 后台不刷新
+    refetchOnWindowFocus: true, // 窗口获得焦点时刷新
+    
+    // 数据转换和错误处理
+    select: (data) => data,
+    onError: (err) => {
+      console.error('❌ [DashboardStats] 获取统计数据失败:', err)
+    },
+    onSuccess: (data) => {
       console.log('✅ [DashboardStats] 统计数据获取成功', {
         totalInvoices: data.total_invoices,
         monthlyInvoices: data.monthly_invoices,
         monthlyAmount: data.monthly_amount,
         dueSoonCount: data.due_soon_unreimbursed_count,
-        dueSoonAmount: data.due_soon_unreimbursed_amount,
-        overdueCount: data.overdue_unreimbursed_count,
-        overdueAmount: data.overdue_unreimbursed_amount
+        overdueCount: data.overdue_unreimbursed_count
       })
-      setData(data)
-    } catch (err) {
-      console.error('❌ [DashboardStats] 获取统计数据失败:', err)
-      setError(err as Error)
-      setData(null)
-    } finally {
-      setLoading(false)
     }
-  }, [user?.id])
+  })
 
-  // 初始化数据获取
-  useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
-
-  // 优化的轮询策略 - 基于用户活动和缓存状态
-  useEffect(() => {
-    if (!user?.id) return
-
-    console.log('⏰ [DashboardStats] 设置智能刷新策略', user.id)
-
-    let refreshInterval = 60000 // 默认60秒
-    let lastActivity = Date.now()
-    let interval: NodeJS.Timeout
-
-    // 检测用户活动
-    const handleUserActivity = () => {
-      lastActivity = Date.now()
-      // 用户活跃时，加快刷新频率
-      if (refreshInterval !== 30000) {
-        refreshInterval = 30000 // 30秒
-        clearInterval(interval)
-        startPolling()
-      }
-    }
-
-    // 智能轮询逻辑
-    const startPolling = () => {
-      interval = setInterval(async () => {
-        const timeSinceActivity = Date.now() - lastActivity
-        
-        // 根据用户活动调整刷新频率
-        if (timeSinceActivity > 300000) { // 5分钟无活动
-          refreshInterval = 180000 // 3分钟
-        } else if (timeSinceActivity > 120000) { // 2分钟无活动
-          refreshInterval = 90000 // 90秒
-        } else {
-          refreshInterval = 30000 // 30秒
-        }
-
-        console.log('🔄 [DashboardStats] 智能刷新', {
-          refreshInterval: refreshInterval / 1000 + '秒',
-          timeSinceActivity: Math.round(timeSinceActivity / 1000) + '秒'
-        })
-        
-        // 调用后端智能刷新函数（带缓存控制）
-        try {
-          const { data: refreshResult } = await supabase
-            .rpc('refresh_invoice_aggregates', {
-              force_refresh: false,
-              max_age_minutes: 15
-            })
-          
-          if (refreshResult?.refreshed) {
-            console.log('✅ [DashboardStats] 缓存已刷新')
-            fetchStats()
-          } else {
-            console.log('⌛ [DashboardStats] 使用缓存数据', refreshResult?.message)
-          }
-        } catch (error) {
-          console.error('❌ [DashboardStats] 刷新失败', error)
-          fetchStats() // 降级到直接查询
-        }
-        
-        // 动态调整轮询间隔
-        if (interval && refreshInterval !== 30000) {
-          clearInterval(interval)
-          startPolling()
-        }
-      }, refreshInterval)
-    }
-
-    // 监听用户活动
-    document.addEventListener('mousemove', handleUserActivity)
-    document.addEventListener('keypress', handleUserActivity)
-    document.addEventListener('click', handleUserActivity)
-    
-    // 监听页面可见性
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        console.log('😴 [DashboardStats] 页面隐藏，暂停刷新')
-        clearInterval(interval)
-      } else {
-        console.log('👀 [DashboardStats] 页面可见，恢复刷新')
-        fetchStats() // 立即刷新一次
-        startPolling()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    // 启动轮询
-    startPolling()
-
-    // 清理
-    return () => {
-      console.log('🧹 [DashboardStats] 清理智能刷新')
-      clearInterval(interval)
-      document.removeEventListener('mousemove', handleUserActivity)
-      document.removeEventListener('keypress', handleUserActivity)
-      document.removeEventListener('click', handleUserActivity)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [user?.id, fetchStats])
+  // 提取查询结果
+  const { data, error, isLoading, refetch } = queryResult
 
   // 手动刷新统计数据
-  const refresh = useCallback(() => {
-    setLoading(true)
-    fetchStats()
-  }, [fetchStats])
+  const refresh = () => {
+    console.log('🔄 [DashboardStats] 手动刷新统计数据')
+    refetch()
+  }
 
   return {
     data,
     error,
-    loading,
+    loading: isLoading,
     refresh
   } as DashboardStatsResponse & { refresh: () => void }
 }
