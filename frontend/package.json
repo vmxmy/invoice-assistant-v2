@@ -1,7 +1,7 @@
 {
   "name": "invoice-assist-frontend",
   "private": false,
-  "version": "2.0.22",
+  "version": "2.0.32",
   "description": "智能发票管理系统前端应用",
   "author": "Invoice Assist Team",
   "license": "MIT",
@@ -63,6 +63,7 @@
     "@capacitor/android": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
     "@heroicons/react": "^2.2.0",
+    "@shadcn/ui": "^0.0.4",
     "@supabase/supabase-js": "^2.50.3",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
@@ -109,6 +110,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "shadcn": "^3.2.1",
     "typescript-eslint": "^8.34.1"
   }
 }

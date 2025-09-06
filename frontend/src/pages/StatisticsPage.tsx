@@ -4,8 +4,6 @@
  */
 import React from 'react'
 import CompactLayout from '../components/layout/CompactLayout'
-import { TrendAnalysisChart } from '../components/statistics/TrendAnalysisChart'
-import { CategoryBreakdownChart } from '../components/statistics/CategoryBreakdownChart'
 import { DetailedDataTable } from '../components/statistics/DetailedDataTable'
 import { useStatisticsData } from '../hooks/useStatisticsData'
 
@@ -64,27 +62,13 @@ export const StatisticsPage: React.FC = () => {
 
         {/* 主内容区域 */}
         <div className="space-y-6">
-          {/* 图表分析区域 */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {/* 月度趋势图 */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4">月度趋势</h2>
-              <TrendAnalysisChart
-                data={monthlyTrends}
-                loading={loading}
-                filters={filters}
-              />
-            </section>
 
-            {/* 分类分布图 */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4">分类分布</h2>
-              <CategoryBreakdownChart
-                data={categoryStats}
-                hierarchicalData={hierarchicalStats}
-                loading={loading}
-              />
-            </section>
+          {/* 图表功能已移除 */}
+          <div className="card bg-base-100 shadow-lg">
+            <div className="card-body text-center py-12">
+              <h3 className="text-lg font-semibold mb-2">图表功能已移除</h3>
+              <p className="text-base-content/60">ECharts相关的图表组件已被移除</p>
+            </div>
           </div>
 
           {/* 详细数据表格 */}

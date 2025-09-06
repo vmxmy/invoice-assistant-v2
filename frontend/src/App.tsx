@@ -9,7 +9,6 @@ import { AuthProvider, useAuthContext } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import PWAManager from './components/mobile/PWAManager'
 import { OnboardingGuard } from './components/onboarding/OnboardingGuard'
-import { AnimationProvider } from './animations/AnimationProvider'
 import PageSuspense from './components/common/PageSuspense'
 import { createLazyPage, pagePreloader } from './utils/lazyPageLoader'
 import './App.css'
@@ -40,7 +39,6 @@ const InvoiceManagePage = createLazyPage(() => import('./pages/InvoiceManagePage
 const InvoiceUploadPage = createLazyPage(() => import('./pages/InvoiceUploadPage'));
 const AccountSettingsPage = createLazyPage(() => import('./pages/AccountSettingsPage'));
 const StatisticsPage = createLazyPage(() => import('./pages/StatisticsPage'));
-const AnimationDemoPage = createLazyPage(() => import('./pages/AnimationDemoPage'));
 
 // 认证相关页面（同步加载以确保快速响应）
 import { LoginPage } from './pages/LoginPage'
@@ -189,18 +187,6 @@ function AppContent() {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/animation-demo" 
-        element={
-          <ProtectedRoute>
-            <OnboardingGuard>
-              <PageSuspense>
-                <AnimationDemoPage />
-              </PageSuspense>
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } 
-      />
       
       {/* 默认重定向 */}
       <Route path="*" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
@@ -213,13 +199,11 @@ function App() {
     <div className="compact-mode">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <AnimationProvider fallbackToCSS={true} debugMode={import.meta.env.DEV}>
             <Router>
               <AppContent />
               <IntelligentPreloader />
               <PWAManager />
             </Router>
-          </AnimationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </div>

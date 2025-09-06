@@ -193,17 +193,10 @@ export function useDashboardStats(): DashboardStatsResponse {
     ...QueryOptions.frequent, // 使用预设的频繁更新选项
     ...NetworkOptions.optimized, // 使用网络优化选项
     
-    // 智能轮询：基于页面可见性和用户活跃度
-    refetchInterval: (data, query) => {
+    // 智能轮询：简化版本，避免复杂的query参数访问
+    refetchInterval: (data) => {
       if (!data) return 60 * 1000 // 无数据时60秒刷新
-      
-      // 检查数据新鲜度
-      const lastUpdate = query.dataUpdatedAt || 0
-      const timeSinceUpdate = Date.now() - lastUpdate
-      
-      // 数据较新时降低刷新频率
-      if (timeSinceUpdate < 2 * 60 * 1000) return 120 * 1000 // 2分钟内的数据，2分钟后刷新
-      return 60 * 1000 // 默认1分钟刷新
+      return 120 * 1000 // 有数据时2分钟刷新一次
     },
     
     refetchIntervalInBackground: false, // 后台不刷新

@@ -226,10 +226,14 @@ export function DashboardPage() {
           </div>
         </section>
 
-        {/* 最近活动 - 移动端响应式优化 */}
-        <section>
-          <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6">最近活动</h2>
-          <div className="card bg-base-100 shadow-xl">
+        {/* 区域统计和最近活动 - 双栏布局 */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 sm:mb-12">
+          {/* 区域统计地图 */}
+          
+          {/* 最近活动 */}
+          <div className="lg:col-span-2">
+            <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6">最近活动</h2>
+            <div className="card bg-base-100 shadow-xl">
             <div className="card-body p-4 sm:p-6">
               {activitiesLoading ? (
                 <div className="flex justify-center py-8 sm:py-12">
@@ -273,6 +277,7 @@ export function DashboardPage() {
               )}
             </div>
           </div>
+        </div>
         </section>
 
         {/* 公告区域 - 移动端响应式优化 */}

@@ -4,6 +4,7 @@ import { invoiceService } from '../services/invoice'
 import { logger } from '../utils/logger'
 import { useNetworkQuery, useNetworkMutation } from './useNetworkRequest'
 import { QueryKeys, QueryOptions, NetworkOptions } from '../utils/queryKeys'
+// import { useExtractRegionFromInvoiceNumber } from './useInvoiceRegions' // 已移除
 // import { transformInvoiceData, transformInvoiceList } from '../utils/invoiceDataTransform'
 
 // 查询键常量 - 为了兼容性保留，但推荐使用QueryKeys
@@ -28,7 +29,9 @@ export const useInvoices = (params?: {
   skip?: number
   limit?: number
   seller_name?: string
-  invoice_number?: string 
+  invoice_number?: string
+  region_code?: string      // 新增：地区代码筛选
+  province_name?: string    // 新增：省份名称筛选
 }) => {
   const userId = getCurrentUserId() // 获取当前用户ID
   
@@ -104,6 +107,11 @@ export const useInvoice = (id: string) => {
     ...NetworkOptions.optimized,
   })
 }
+
+/**
+ * 获取单个发票详情（包含地区信息） - 增强版
+ * 已移除：useInvoiceWithRegion 功能（依赖于已删除的 useExtractRegionFromInvoiceNumber）
+ */
 
 // 获取发票统计 - 优化版
 export const useInvoiceStats = () => {

@@ -166,6 +166,18 @@ export interface FieldDefinition {
 }
 
 /**
+ * 发票区域信息接口
+ * 对应后端 InvoiceRegionInfo
+ */
+export interface InvoiceRegionInfo {
+  region_code: string;        // 地区代码，如3100、5100等
+  region_name: string;        // 地区名称，如"上海市"、"四川省"
+  province_name: string;      // 省份名称
+  region_type?: string;       // 地区类型：province、municipality、autonomous_region、special_city
+  level?: number;             // 级别：1-省级，2-市级
+}
+
+/**
  * 基础发票模型接口
  * 对应后端 BaseInvoice
  */
@@ -177,6 +189,12 @@ export interface BaseInvoice {
   total_amount?: number;
   seller_name: string;
   buyer_name: string;
+  
+  // 地区信息 - 新增
+  region_code?: string;       // 地区代码
+  region_name?: string;       // 地区名称
+  province_name?: string;     // 省份名称
+  region_info?: InvoiceRegionInfo; // 完整地区信息
   
   // 扩展字段存储
   extended_fields: Record<string, any>;
@@ -428,6 +446,8 @@ export interface InvoiceFilters {
   amount_max?: number;
   seller_name?: string;
   buyer_name?: string;
+  region_code?: string;        // 地区代码筛选
+  province_name?: string;      // 省份名称筛选
 }
 
 /**
