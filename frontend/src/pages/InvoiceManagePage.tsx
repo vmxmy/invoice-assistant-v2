@@ -687,13 +687,13 @@ export function InvoiceManagePage() {
 
   // 选择使用哪种列定义
   const columns = useDynamicColumns ? dynamicColumns : simpleColumns
-  const fieldsCount = useDynamicColumns ? dynamicFieldsCount : simpleColumns.length
+  const fieldsCount = useDynamicColumns ? dynamicFieldsCount : simpleColumns?.length || 0
   
   console.log('📋 列定义选择:', {
     useDynamicColumns,
-    dynamicColumnsCount: dynamicColumns.length,
-    simpleColumnsCount: simpleColumns.length,
-    selectedColumnsCount: columns.length,
+    dynamicColumnsCount: dynamicColumns?.length || 0,
+    simpleColumnsCount: simpleColumns?.length || 0,
+    selectedColumnsCount: columns?.length || 0,
     dynamicColumnsLoading,
     dynamicColumnsError
   })
@@ -1182,8 +1182,8 @@ export function InvoiceManagePage() {
 
   // 直接使用真实数据，移除循环依赖
   console.log('📊 使用发票数据:', {
-    invoiceCount: invoices.length,
-    columnsCount: columns.length,
+    invoiceCount: invoices?.length || 0,
+    columnsCount: columns?.length || 0,
     firstInvoice: invoices[0] ? {
       id: invoices[0].id,
       invoice_number: invoices[0].invoice_number,
@@ -1278,8 +1278,8 @@ export function InvoiceManagePage() {
 
   // 详细调试表格数据问题
   console.log('🔍 表格调试信息:', {
-    invoiceCount: invoices.length,
-    columnsCount: columns.length,
+    invoiceCount: invoices?.length || 0,
+    columnsCount: columns?.length || 0,
     stateLoaded,
     tableExists: !!table,
     dynamicColumnsLoading,
@@ -1532,11 +1532,11 @@ export function InvoiceManagePage() {
   useEffect(() => {
     if (device.isMobile) {
       // 设置性能监控指标
-      mobilePerformanceMonitor.setMetric('listItemCount', invoices.length)
+      mobilePerformanceMonitor.setMetric('listItemCount', invoices?.length || 0)
       mobilePerformanceMonitor.setMetric('viewMode', viewMode)
       mobilePerformanceMonitor.setMetric('deviceType', device.deviceType)
     }
-  }, [device.isMobile, invoices.length, viewMode, device.deviceType])
+  }, [device.isMobile, invoices?.length, viewMode, device.deviceType])
 
   // 移除活跃筛选数量计算
   // const activeFilterCount = Object.values(searchFilters).filter(value =>
@@ -1558,7 +1558,7 @@ export function InvoiceManagePage() {
             <div>
               <h1 className="text-3xl font-bold">发票管理</h1>
               <p className="text-base-content/60 mt-2">
-                共 {totalCount} 张发票，当前页显示 {invoices.length} 条记录
+                共 {totalCount} 张发票，当前页显示 {invoices?.length || 0} 条记录
                 {(globalFilter || Object.keys(searchFilters).length > 0) && (
                   <span>
                     (已应用筛选条件)
@@ -1787,7 +1787,7 @@ export function InvoiceManagePage() {
                   
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-base-content/60">
-                      显示 {invoices.length} / {totalCount} 条记录 (第 {pagination.pageIndex + 1} 页)
+                      显示 {invoices?.length || 0} / {totalCount} 条记录 (第 {pagination.pageIndex + 1} 页)
                     </span>
                   </div>
                 </div>
@@ -1934,9 +1934,9 @@ export function InvoiceManagePage() {
                       </div>
                       
                       {/* 性能提示 */}
-                      {invoices.length > 50 && (
+                      {invoices?.length || 0 > 50 && (
                         <div className="text-center text-xs text-base-content/60">
-                          已优化 {invoices.length} 行数据的滚动性能
+                          已优化 {invoices?.length || 0} 行数据的滚动性能
                         </div>
                       )}
                       
@@ -2017,12 +2017,12 @@ export function InvoiceManagePage() {
                   {device.isMobile && (
                     <div className="mt-6 space-y-3">
                       {/* 性能指示器 */}
-                      {invoices.length > 20 && (
+                      {invoices?.length || 0 > 20 && (
                         <div className="text-center">
                           <div className="inline-flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-full">
                             <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                             <span className="text-xs text-base-content/60">
-                              已优化加载 {invoices.length} / {totalCount} 张发票
+                              已优化加载 {invoices?.length || 0} / {totalCount} 张发票
                             </span>
                           </div>
                         </div>
@@ -2044,7 +2044,7 @@ export function InvoiceManagePage() {
                       )}
                       
                       {/* 无限滚动提示 */}
-                      {invoices.length < totalCount && (
+                      {invoices?.length || 0 < totalCount && (
                         <div className="text-center py-4">
                           <div className="text-xs text-base-content/50">
                             下拉或翻页加载更多发票
@@ -2057,7 +2057,7 @@ export function InvoiceManagePage() {
               )}
 
               {/* 空状态 */}
-              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && invoices.length === 0 && (
+              {!loading && !dynamicColumnsLoading && !error && !dynamicColumnsError && stateLoaded && invoices?.length || 0 === 0 && (
                 <div className="p-12 text-center">
                   <div className="text-6xl mb-4">📄</div>
                   <h3 className="text-xl font-bold mb-2">暂无发票数据</h3>
@@ -2133,7 +2133,7 @@ export function InvoiceManagePage() {
       {/* 批量操作栏 - 移动端固定底部，桌面端浮动 */}
       <BulkActionBar
         selectedCount={selectedInvoiceIds.length}
-        totalCount={invoices.length}
+        totalCount={invoices?.length || 0}
         onClearSelection={() => setRowSelection({})}
         onDelete={handleBatchDelete}
         onExport={handleBatchExport}
@@ -2227,7 +2227,7 @@ export function InvoiceManagePage() {
         {/* 性能监控指示器 (仅开发环境) */}
         {process.env.NODE_ENV === 'development' && device.isMobile && (
           <div className="performance-indicator">
-            {invoices.length}项 | {viewMode} | {device.deviceType}
+            {invoices?.length || 0}项 | {viewMode} | {device.deviceType}
           </div>
         )}
       </div>
