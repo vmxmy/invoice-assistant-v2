@@ -1,7 +1,7 @@
 {
   "name": "invoice-assist-frontend",
   "private": false,
-  "version": "2.0.37",
+  "version": "2.0.41",
   "description": "智能发票管理系统前端应用",
   "author": "Invoice Assist Team",
   "license": "MIT",
@@ -79,6 +79,8 @@
     "cally": "^0.8.0",
     "daisyui": "^5.0.43",
     "date-fns": "^4.1.0",
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.2",
     "framer-motion": "^12.23.12",
     "jszip": "^3.10.1",
     "lucide-react": "^0.542.0",

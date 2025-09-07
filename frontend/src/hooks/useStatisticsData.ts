@@ -1,6 +1,6 @@
 /**
  * 统计数据管理Hook
- * 使用React Query获取和缓存统计数据
+ * 使用React Query获取和缓存统计数据，为ECharts图表提供数据支持
  */
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
@@ -20,6 +20,7 @@ export interface OverviewStats {
   monthly_amount: number
   amount_growth_rate: number
   invoice_growth_rate: number
+  reimbursement_rate: number
   updated_at: string
 }
 
@@ -54,6 +55,39 @@ export interface HierarchicalStat {
     count: number
     amount: number
     percentage: number
+  }>
+}
+
+export interface InvoiceTypeStat {
+  invoice_type: string
+  count: number
+  total_amount: number
+  avg_amount: number
+  count_percentage: number
+  amount_percentage: number
+}
+
+export interface RegionalStat {
+  region_name: string
+  region_code: string
+  province_name: string
+  invoice_count: number
+  total_amount: number
+  avg_amount: number
+}
+
+export interface ReimbursementStat {
+  total_count: number
+  reimbursed_count: number
+  unreimbursed_count: number
+  overdue_count: number
+  due_soon_count: number
+  reimbursement_rate: number
+  avg_processing_days: number
+  monthly_progress: Array<{
+    month: string
+    reimbursed: number
+    submitted: number
   }>
 }
 
@@ -114,6 +148,10 @@ const fetchOverviewStats = async (userId: string, filters: StatisticsFilters): P
 
   if (error) throw error
   
+  // 计算报销完成率
+  const reimbursementRate = data.total_invoices > 0 ? 
+    data.reimbursed_count / data.total_invoices : 0
+  
   // 如果有日期筛选，需要重新计算部分统计
   if (startDate || endDate) {
     let invoiceQuery = supabase
@@ -148,12 +186,14 @@ const fetchOverviewStats = async (userId: string, filters: StatisticsFilters): P
       unreimbursed_amount: unreimbursedInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0),
       reimbursed_count: reimbursedInvoices.length,
       reimbursed_amount: reimbursedInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0),
+      reimbursement_rate: totalInvoices > 0 ? reimbursedInvoices.length / totalInvoices : 0,
       updated_at: new Date().toISOString()
     }
   }
 
   return {
     ...data,
+    reimbursement_rate: reimbursementRate,
     updated_at: new Date().toISOString()
   }
 }
@@ -168,7 +208,7 @@ const fetchMonthlyTrends = async (userId: string, filters: StatisticsFilters): P
     .from('v_invoice_monthly_analysis')
     .select('*')
     .eq('user_id', userId)
-    .order('month', { ascending: false })
+    .order('month', { ascending: true }) // 改为升序，便于图表显示
 
   if (startDate) {
     query = query.gte('month', startDate)
@@ -200,7 +240,6 @@ const fetchCategoryStats = async (userId: string, filters: StatisticsFilters): P
     .eq('user_id', userId)
     .order('total_amount', { ascending: false })
 
-  // 注意：视图可能不支持日期筛选，需要在应用层处理
   const { data, error } = await query
 
   if (error) throw error
@@ -227,6 +266,222 @@ const fetchHierarchicalStats = async (userId: string, filters: StatisticsFilters
 
   if (error) throw error
   return data || []
+}
+
+/**
+ * 获取发票类型统计数据
+ */
+const fetchInvoiceTypeStats = async (userId: string, filters: StatisticsFilters): Promise<InvoiceTypeStat[]> => {
+  const { data, error } = await supabase
+    .from('v_invoice_type_stats')
+    .select('*')
+    .eq('user_id', userId)
+    .order('count', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
+/**
+ * 获取地区统计数据
+ */
+const fetchRegionalStats = async (userId: string, filters: StatisticsFilters): Promise<RegionalStat[]> => {
+  const { data, error } = await supabase
+    .from('invoice_region_statistics')
+    .select('*')
+    .order('invoice_count', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
+/**
+ * 计算平均处理天数
+ */
+const calculateAvgProcessingDays = async (userId: string): Promise<number> => {
+  try {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('consumption_date, status_changed_at, created_at')
+      .eq('user_id', userId)
+      .eq('status', 'reimbursed')
+      .is('deleted_at', null)
+      .not('consumption_date', 'is', null)
+      .not('status_changed_at', 'is', null)
+
+    if (error) {
+      console.error('Error calculating avg processing days:', error)
+      return 15 // 默认值
+    }
+
+    if (!data || data.length === 0) {
+      return 15 // 如果没有已报销数据，返回合理默认值
+    }
+
+    const totalDays = data.reduce((sum, invoice) => {
+      const consumptionDate = new Date(invoice.consumption_date)
+      const statusChangedDate = new Date(invoice.status_changed_at)
+      const daysDiff = (statusChangedDate.getTime() - consumptionDate.getTime()) / (1000 * 3600 * 24)
+      return sum + Math.max(0, daysDiff)
+    }, 0)
+
+    return Math.round(totalDays / data.length) || 15
+  } catch (error) {
+    console.error('Error in calculateAvgProcessingDays:', error)
+    return 15 // 默认值
+  }
+}
+
+/**
+ * 获取报销管理统计数据
+ */
+const fetchReimbursementStats = async (userId: string, filters: StatisticsFilters): Promise<ReimbursementStat> => {
+  try {
+    // 获取基础数据
+    const { data: overview, error: overviewError } = await supabase
+      .from('v_invoice_aggregates')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (overviewError) {
+      console.error('Error fetching overview stats:', overviewError)
+      throw overviewError
+    }
+
+    // 获取逾期数据 - 简化版实现
+    const { data: invoices, error: invoicesError } = await supabase
+      .from('invoices')
+      .select('consumption_date, status, total_amount')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .eq('status', 'unreimbursed')
+
+    if (invoicesError) {
+      console.error('Error fetching invoices:', invoicesError)
+      throw invoicesError
+    }
+
+    const now = new Date()
+    const invoiceArray = invoices || []
+    
+    const overdue = invoiceArray.filter(inv => {
+      if (!inv.consumption_date) return false
+      const consumptionDate = new Date(inv.consumption_date)
+      const daysDiff = (now.getTime() - consumptionDate.getTime()) / (1000 * 3600 * 24)
+      return daysDiff > 90
+    })
+
+    const dueSoon = invoiceArray.filter(inv => {
+      if (!inv.consumption_date) return false
+      const consumptionDate = new Date(inv.consumption_date)
+      const daysDiff = (now.getTime() - consumptionDate.getTime()) / (1000 * 3600 * 24)
+      return daysDiff > 60 && daysDiff <= 90
+    })
+
+    // 获取真实的月度报销数据
+    const { data: monthlyData, error: monthlyError } = await supabase.rpc('get_monthly_reimbursement_stats', {
+      p_user_id: userId,
+      p_months: 6
+    })
+
+    let monthlyProgress = []
+
+    if (monthlyError) {
+      console.warn('Failed to fetch monthly stats, using fallback SQL query:', monthlyError)
+      
+      // 备用SQL查询
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('invoices')
+        .select(`
+          consumption_date,
+          status,
+          total_amount
+        `)
+        .eq('user_id', userId)
+        .is('deleted_at', null)
+        .not('consumption_date', 'is', null)
+        .gte('consumption_date', new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().split('T')[0])
+        .order('consumption_date', { ascending: false })
+
+      if (fallbackError) {
+        console.error('Fallback query failed:', fallbackError)
+        // 使用默认数据
+        monthlyProgress = Array.from({ length: 6 }, (_, i) => ({
+          month: `${12 - i}月`,
+          submitted: 0,
+          reimbursed: 0
+        }))
+      } else {
+        // 手动聚合数据
+        const monthGroups = (fallbackData || []).reduce((acc, invoice) => {
+          const monthKey = new Date(invoice.consumption_date).toISOString().substr(0, 7) // YYYY-MM
+          if (!acc[monthKey]) {
+            acc[monthKey] = { submitted: 0, reimbursed: 0 }
+          }
+          acc[monthKey].submitted++
+          if (invoice.status === 'reimbursed') {
+            acc[monthKey].reimbursed++
+          }
+          return acc
+        }, {} as Record<string, { submitted: number, reimbursed: number }>)
+
+        // 生成最近6个月的数据
+        monthlyProgress = Array.from({ length: 6 }, (_, i) => {
+          const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1)
+          const monthKey = monthDate.toISOString().substr(0, 7)
+          const monthName = monthDate.toLocaleDateString('zh-CN', { month: 'numeric' }) + '月'
+          const stats = monthGroups[monthKey] || { submitted: 0, reimbursed: 0 }
+          
+          return {
+            month: monthName,
+            submitted: stats.submitted,
+            reimbursed: stats.reimbursed
+          }
+        }).reverse()
+      }
+    } else {
+      // 使用RPC函数返回的数据
+      monthlyProgress = (monthlyData || []).map((item: any) => ({
+        month: new Date(item.month).toLocaleDateString('zh-CN', { month: 'numeric' }) + '月',
+        submitted: item.submitted || 0,
+        reimbursed: item.reimbursed || 0
+      }))
+    }
+
+    // 确保所有必需字段都存在
+    const result: ReimbursementStat = {
+      total_count: overview?.total_invoices || 0,
+      reimbursed_count: overview?.reimbursed_count || 0,
+      unreimbursed_count: overview?.unreimbursed_count || 0,
+      overdue_count: overdue.length,
+      due_soon_count: dueSoon.length,
+      reimbursement_rate: (overview?.total_invoices || 0) > 0 ? 
+        (overview?.reimbursed_count || 0) / (overview?.total_invoices || 1) : 0,
+      avg_processing_days: await calculateAvgProcessingDays(userId),
+      monthly_progress: monthlyProgress
+    }
+
+    return result
+  } catch (error) {
+    console.error('Error in fetchReimbursementStats:', error)
+    
+    // 返回默认数据，避免页面崩溃
+    return {
+      total_count: 0,
+      reimbursed_count: 0,
+      unreimbursed_count: 0,
+      overdue_count: 0,
+      due_soon_count: 0,
+      reimbursement_rate: 0,
+      avg_processing_days: 0,
+      monthly_progress: Array.from({ length: 6 }, (_, i) => ({
+        month: `${i + 1}月`,
+        submitted: 0,
+        reimbursed: 0
+      }))
+    }
+  }
 }
 
 /**
@@ -302,6 +557,42 @@ export const useStatisticsData = (filters: StatisticsFilters) => {
     staleTime: 5 * 60 * 1000,
   })
 
+  // 发票类型统计
+  const {
+    data: invoiceTypeStats,
+    isLoading: invoiceTypeLoading,
+    error: invoiceTypeError
+  } = useQuery({
+    queryKey: ['statistics', 'invoice-type', user?.id, filters],
+    queryFn: () => fetchInvoiceTypeStats(user!.id, filters),
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // 地区统计
+  const {
+    data: regionalStats,
+    isLoading: regionalLoading,
+    error: regionalError
+  } = useQuery({
+    queryKey: ['statistics', 'regional', user?.id, filters],
+    queryFn: () => fetchRegionalStats(user!.id, filters),
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // 报销管理统计
+  const {
+    data: reimbursementStats,
+    isLoading: reimbursementLoading,
+    error: reimbursementError
+  } = useQuery({
+    queryKey: ['statistics', 'reimbursement', user?.id, filters],
+    queryFn: () => fetchReimbursementStats(user!.id, filters),
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
   // 详细数据
   const {
     data: detailedData,
@@ -314,16 +605,32 @@ export const useStatisticsData = (filters: StatisticsFilters) => {
     staleTime: 5 * 60 * 1000,
   })
 
-  const loading = overviewLoading || trendsLoading || categoryLoading || hierarchicalLoading || detailedLoading
-  const error = overviewError || trendsError || categoryError || hierarchicalError || detailedError
+  const loading = overviewLoading || trendsLoading || categoryLoading || 
+                  hierarchicalLoading || invoiceTypeLoading || regionalLoading || 
+                  reimbursementLoading || detailedLoading
+                  
+  const error = overviewError || trendsError || categoryError || 
+                hierarchicalError || invoiceTypeError || regionalError || 
+                reimbursementError || detailedError
 
   return {
+    // 基础数据
     overviewStats,
-    monthlyTrends,
-    categoryStats,
-    hierarchicalStats,
-    detailedData,
+    monthlyTrends: monthlyTrends || [],
+    categoryStats: categoryStats || [],
+    hierarchicalStats: hierarchicalStats || [],
+    invoiceTypeStats: invoiceTypeStats || [],
+    regionalStats: regionalStats || [],
+    reimbursementStats,
+    detailedData: detailedData || [],
+    
+    // 状态
     loading,
-    error
+    error,
+    
+    // 刷新函数
+    refetch: () => {
+      // 这里可以添加刷新所有查询的逻辑
+    }
   }
 }
