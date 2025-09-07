@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # 开发环境服务
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      cache_from:
+        - node:20-alpine
+      # 使用 BuildKit 构建
+    container_name: invoice-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    profiles:
+      - dev
+
+  # 生产环境服务
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      cache_from:
+        - node:20-alpine
+        - nginx:alpine
+    container_name: invoice-frontend-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    profiles:
+      - prod
+
+  # 构建环境服务（仅用于构建）
+  frontend-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+      cache_from:
+        - node:20-alpine
+    container_name: invoice-frontend-builder
+    volumes:
+      - ./dist:/app/dist
+    profiles:
+      - build
+
+networks:
+  default:
+    driver: bridge
+
+# 使用 Docker Compose 的缓存机制
+x-common-variables: &common-variables
+  NODE_OPTIONS: "--max-old-space-size=4096"
+  
+x-build-args: &build-args
+  BUILDKIT_INLINE_CACHE: 1

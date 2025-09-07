@@ -1,14 +1,15 @@
 # 多阶段构建 - 开发和生产环境通用
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制依赖文件
+# 复制依赖文件（优化缓存）
 COPY package*.json ./
 
-# 安装依赖
-RUN npm ci
+# 安装依赖 - 使用 BuildKit 缓存挂载
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --silent
 
 # 复制源代码
 COPY . .
@@ -20,7 +21,8 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # 构建阶段
 FROM base AS builder
-RUN npm run build
+RUN --mount=type=cache,target=/root/.npm \
+    npm run build
 
 # 生产环境
 FROM nginx:alpine AS production

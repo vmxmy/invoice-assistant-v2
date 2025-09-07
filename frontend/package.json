@@ -1,7 +1,7 @@
 {
   "name": "invoice-assist-frontend",
   "private": false,
-  "version": "2.0.41",
+  "version": "2.0.43",
   "description": "智能发票管理系统前端应用",
   "author": "Invoice Assist Team",
   "license": "MIT",
@@ -99,7 +99,6 @@
     "terser": "^5.43.1",
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
-    "vite-plugin-pwa": "^1.0.2",
     "workbox-window": "^7.3.0"
   },
   "devDependencies": {

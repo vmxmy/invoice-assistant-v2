@@ -69,12 +69,21 @@ export const useTableColumns = ({ tableName, enabled = true }: UseTableColumnsOp
 
       // 直接使用 RPC 返回的结构化数据
       console.log('✅ RPC 查询成功，获取到字段数据:', columnsData)
+      // 检查是否包含地理信息字段
+      const regionFields = (columnsData as TableColumnsResponse).allColumns?.filter(col => 
+        col.field.includes('issuer_region')
+      )
+      console.log('🌍 RPC返回的地理信息字段:', regionFields)
       setData(columnsData as TableColumnsResponse)
     } catch (err) {
       console.warn('🚨 获取字段信息失败，使用静态数据 fallback:', err)
       // 出错时使用静态数据作为 fallback
       const staticData = getStaticColumnsData()
+      const staticRegionFields = staticData.allColumns.filter(col => 
+        col.field.includes('issuer_region')
+      )
       console.log('📦 使用静态 fallback 数据:', staticData)
+      console.log('🌍 静态数据的地理信息字段:', staticRegionFields)
       setData(staticData)
     } finally {
       setLoading(false)
@@ -204,9 +213,11 @@ function getStaticColumnsData(): TableColumnsResponse {
     { field: 'remarks', label: '备注', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 17 },
     { field: 'expense_category', label: '费用类别', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 18 },
     { field: 'category_path', label: '分类路径', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 19 },
-    { field: 'file_path', label: '文件路径', dataType: 'character varying', type: 'text', nullable: true, sortable: false, filterable: false, searchable: false, category: 'metadata', priority: 20 },
-    { field: 'created_at', label: '创建时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 21 },
-    { field: 'updated_at', label: '更新时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 22 }
+    { field: 'issuer_region_code', label: '地区代码', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 20 },
+    { field: 'issuer_region_name', label: '发行地区', dataType: 'character varying', type: 'text', nullable: true, sortable: true, filterable: true, searchable: true, category: 'metadata', priority: 21 },
+    { field: 'file_path', label: '文件路径', dataType: 'character varying', type: 'text', nullable: true, sortable: false, filterable: false, searchable: false, category: 'metadata', priority: 23 },
+    { field: 'created_at', label: '创建时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 24 },
+    { field: 'updated_at', label: '更新时间', dataType: 'timestamptz', type: 'datetime', nullable: false, sortable: true, filterable: true, searchable: false, category: 'metadata', priority: 25 }
   ]
 
   const allColumns = [...coreFields, ...financialFields, ...metadataFields].sort((a, b) => (a.priority || 999) - (b.priority || 999))
@@ -221,7 +232,7 @@ function getStaticColumnsData(): TableColumnsResponse {
     },
     allColumns,
     // 更新默认可见列，包含视图的重要字段
-    defaultVisible: ['invoice_number', 'consumption_date', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source', 'expense_category', 'remarks'],
+    defaultVisible: ['invoice_number', 'consumption_date', 'seller_name', 'buyer_name', 'total_amount', 'status', 'source', 'expense_category', 'issuer_region_name', 'remarks'],
     metadata: {
       generatedAt: new Date().toISOString(),
       version: '2.0', // 更新版本号

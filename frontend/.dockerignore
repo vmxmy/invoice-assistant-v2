@@ -98,8 +98,7 @@ docs/
 *.backup
 *.orig
 
-# Package manager files
-package-lock.json
+# Package manager files (keep package-lock.json for reproducible builds)
 yarn.lock
 pnpm-lock.yaml
 
@@ -110,3 +109,7 @@ scripts/
 
 # Analytics and monitoring
 .sentry/
+
+# Additional archived content
+archived/
+dev-dist/

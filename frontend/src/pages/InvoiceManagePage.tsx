@@ -677,7 +677,7 @@ export function InvoiceManagePage() {
     error: dynamicColumnsError,
     fieldsCount: dynamicFieldsCount
   } = useDynamicTableColumns({
-    tableName: 'invoices',
+    tableName: 'v_invoice_detail',
     onViewInvoice: handleViewInvoice,
     onEditInvoice: handleEditInvoice,
     onExportInvoice: handleExportInvoice,
@@ -696,6 +696,15 @@ export function InvoiceManagePage() {
     selectedColumnsCount: columns?.length || 0,
     dynamicColumnsLoading,
     dynamicColumnsError
+  })
+  
+  // 添加用户和数据调试
+  console.log('👤 用户和数据调试:', {
+    userId: user?.id,
+    userEmail: user?.email,
+    invoicesResponseRaw: invoicesResponse,
+    serverFilters,
+    pagination
   })
 
   // 旧的硬编码列定义 - 现在被动态生成的列替代
@@ -1678,21 +1687,12 @@ export function InvoiceManagePage() {
                   {/* 智能视图切换控件 - 优化动画和交互 */}
                   {canSwitchToTableView ? (
                     // 设备支持表格视图时显示完整切换控件
-                    <div className="join relative">
-                      {/* 背景指示器动画 */}
-                      <div className={`
-                        absolute inset-0 bg-primary/20 rounded-lg transition-transform duration-300 ease-out
-                        ${viewMode === ViewMode.TABLE ? 'translate-x-0' : 'translate-x-full'}
-                        w-1/2
-                      `} />
-                      
+                    <div className="join view-mode-switcher">
                       <button
-                        className={`btn join-item no-zoom relative z-10 ${
-                          device.isMobile ? 'btn-md min-h-[44px]' : 'btn-sm'
-                        } ${
+                        className={`join-item btn ${device.isMobile ? 'btn-md min-h-[44px]' : 'btn-sm'} ${
                           viewMode === ViewMode.TABLE 
-                            ? 'btn-active text-primary-content' 
-                            : 'bg-transparent hover:bg-base-200'
+                            ? 'btn-primary' 
+                            : 'btn-ghost'
                         } ${
                           isViewTransitioning ? 'loading' : ''
                         }`}
@@ -1710,12 +1710,10 @@ export function InvoiceManagePage() {
                       </button>
                       
                       <button
-                        className={`btn join-item no-zoom relative z-10 ${
-                          device.isMobile ? 'btn-md min-h-[44px]' : 'btn-sm'
-                        } ${
+                        className={`join-item btn ${device.isMobile ? 'btn-md min-h-[44px]' : 'btn-sm'} ${
                           viewMode === ViewMode.GRID 
-                            ? 'btn-active text-primary-content' 
-                            : 'bg-transparent hover:bg-base-200'
+                            ? 'btn-primary' 
+                            : 'btn-ghost'
                         } ${
                           isViewTransitioning ? 'loading' : ''
                         }`}
@@ -1750,14 +1748,7 @@ export function InvoiceManagePage() {
                     </div>
                   )}
 
-                  {/* 字段配置器 - 移动端隐藏，桌面端显示 */}
-                  {!device.isMobile && viewMode === ViewMode.TABLE && (
-                    <FieldSelector
-                      table={table}
-                      columns={table?.getAllColumns()}
-                      onVisibilityChange={setColumnVisibility}
-                    />
-                  )}
+                  {/* 字段配置器 - 已隐藏 */}
                 </div>
               </div>
             </div>

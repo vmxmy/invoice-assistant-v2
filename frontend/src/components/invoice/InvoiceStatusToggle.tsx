@@ -128,6 +128,9 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
       icon: 'w-5 h-5'
     }
   };
+  
+  // 确保size有效，提供默认值
+  const validSize = (size && sizeClasses[size]) ? size : 'md';
 
   // 状态颜色配置
   const getToggleColorClass = (color: string, isChecked: boolean) => {
@@ -148,10 +151,10 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
   if (statusesLoading || loading) {
     return (
       <div className={`
-        flex items-center ${sizeClasses[size].container}
+        flex items-center ${sizeClasses[validSize].container}
         opacity-60 pointer-events-none
       `}>
-        <Loader2 className={`${sizeClasses[size].icon} animate-spin text-base-content/50`} />
+        <Loader2 className={`${sizeClasses[validSize].icon} animate-spin text-base-content/50`} />
         <span>加载中...</span>
       </div>
     );
@@ -163,7 +166,7 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
     <motion.label 
       className={`
         inline-flex items-center cursor-pointer select-none
-        ${sizeClasses[size].container} relative
+        ${sizeClasses[validSize].container} relative
         ${!isClickable ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}
         ${isToggling ? 'pointer-events-none' : ''}
         transition-all duration-200
@@ -185,7 +188,7 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
           transition={currentConfig.icon === AlertCircle ? { duration: 2, repeat: Infinity, ease: "linear" } : {}}
         >
           <CurrentIcon className={`
-            ${sizeClasses[size].icon}
+            ${sizeClasses[validSize].icon}
             ${currentConfig.color === 'success' ? 'text-success' : 
               currentConfig.color === 'warning' ? 'text-warning' :
               currentConfig.color === 'info' ? 'text-info' : 
@@ -202,7 +205,7 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
         type="checkbox" 
         className={`
           toggle transition-all duration-300
-          ${sizeClasses[size].toggle}
+          ${sizeClasses[validSize].toggle}
           ${getToggleColorClass(currentConfig.color, currentConfig.toggleState)}
           ${!isClickable ? 'opacity-50' : ''}
         `}
@@ -221,7 +224,7 @@ export const InvoiceStatusToggle: React.FC<InvoiceStatusToggleProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <Loader2 className={`${sizeClasses[size].icon} animate-spin text-primary`} />
+          <Loader2 className={`${sizeClasses[validSize].icon} animate-spin text-primary`} />
         </motion.div>
       )}
     </motion.label>

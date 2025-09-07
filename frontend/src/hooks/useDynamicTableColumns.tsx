@@ -211,6 +211,7 @@ export const useDynamicTableColumns = ({
       if (['id', 'user_id', 'deleted_at'].includes(field.field)) {
         return
       }
+      
 
       const columnMeta = getColumnMeta(field)
       const column: ColumnDef<Invoice> = {
@@ -455,6 +456,37 @@ function renderFilterInput(field: TableColumn, column: any) {
 // 辅助函数：渲染单元格内容
 function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
   const value = getValue()
+  
+  // 优先处理对象类型，防止React渲染错误
+  if (value && typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    // 处理分类信息对象 {code, icon, name, color, level}
+    if (value.name) {
+      return <span className="badge badge-outline badge-sm">{String(value.name)}</span>
+    }
+    if (value.label) {
+      return <span className="badge badge-outline badge-sm">{String(value.label)}</span>
+    }
+    if (value.current) {
+      return <span className="badge badge-outline badge-sm">{String(value.current)}</span>
+    }
+    if (value.title) {
+      return <span>{String(value.title)}</span>
+    }
+    
+    // 处理地理信息对象
+    if (value.province) {
+      return <span>{String(value.province)}</span>
+    }
+    
+    // 作为最后的备选方案，转换为JSON字符串
+    try {
+      const jsonStr = JSON.stringify(value)
+      const truncated = jsonStr.length > 30 ? jsonStr.substring(0, 30) + '...' : jsonStr
+      return <span className="text-xs text-base-content/60" title={jsonStr}>{truncated}</span>
+    } catch {
+      return <span className="text-xs text-base-content/60">[复杂对象]</span>
+    }
+  }
 
   switch (field.type) {
     case 'date':
@@ -512,6 +544,42 @@ function renderCell(field: TableColumn, getValue: () => any, invoice: Invoice) {
     }
     
     default: {
+      // 处理复杂对象类型（防止React渲染错误）
+      if (value && typeof value === 'object' && value !== null) {
+        // 处理分类信息对象 {code, icon, name, color, level}
+        if (field.field.includes('category') && (value.name || value.current)) {
+          return <span className="badge badge-outline badge-sm">{value.name || value.current || '未分类'}</span>
+        }
+        // 处理地理信息对象
+        if (field.field.includes('region') && value.province) {
+          return <span>{value.province}</span>
+        }
+        // 处理数组类型
+        if (Array.isArray(value)) {
+          return <span>{value.join(', ')}</span>
+        }
+        // 处理具有name属性的对象（如分类对象）
+        if (value.name) {
+          return <span>{String(value.name)}</span>
+        }
+        // 处理具有label或title属性的对象
+        if (value.label || value.title) {
+          return <span>{String(value.label || value.title)}</span>
+        }
+        // 处理具有current属性的对象
+        if (value.current) {
+          return <span>{String(value.current)}</span>
+        }
+        // 如果是JSON对象，显示为JSON字符串（截断）
+        try {
+          const jsonStr = JSON.stringify(value)
+          const truncated = jsonStr.length > 50 ? jsonStr.substring(0, 50) + '...' : jsonStr
+          return <span className="text-xs text-base-content/60" title={jsonStr}>{truncated}</span>
+        } catch {
+          return <span className="text-xs text-base-content/60">[对象]</span>
+        }
+      }
+
       // 特殊处理发票号码，显示类型信息
       if (field.field === 'invoice_number') {
         return (

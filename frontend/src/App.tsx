@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuthContext } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import PWAManager from './components/mobile/PWAManager'
 import { OnboardingGuard } from './components/onboarding/OnboardingGuard'
 import PageSuspense from './components/common/PageSuspense'
 import { createLazyPage, pagePreloader } from './utils/lazyPageLoader'
@@ -202,7 +201,6 @@ function App() {
             <Router>
               <AppContent />
               <IntelligentPreloader />
-              <PWAManager />
             </Router>
         </AuthProvider>
       </QueryClientProvider>

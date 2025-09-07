@@ -1,8 +1,5 @@
 // 移动端组件导出索引
 
-// PWA管理
-export { PWAManager } from './PWAManager';
-
 // 虚拟滚动
 export { VirtualizedInvoiceList } from './VirtualizedInvoiceList';
 
@@ -73,7 +70,6 @@ export { default as ZoomableView } from './ZoomableView';
 export { default as GestureExamples } from './GestureExamples';
 
 // 类型导出
-export type { BeforeInstallPromptEvent } from './PWAManager';
 export type { UploadedFile } from './MobileFileUpload';
 export type { 
   ValidationConfig, 

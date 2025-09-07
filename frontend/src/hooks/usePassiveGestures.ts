@@ -53,27 +53,43 @@ export const usePassiveGestures = (
     isSwiping: false,
   });
 
-  // 触觉反馈
+  // 触觉反馈 - 使用ref避免依赖数组变化
   const triggerVibration = useCallback(() => {
-    if (enableVibration && 'vibrate' in navigator) {
+    if (configRef.current.enableVibration && 'vibrate' in navigator) {
       try {
-        navigator.vibrate(vibrationDuration);
+        navigator.vibrate(configRef.current.vibrationDuration);
       } catch (error) {
         console.warn('Vibration failed:', error);
       }
     }
-  }, [enableVibration, vibrationDuration]);
+  }, []); // 空依赖数组，完全稳定
 
   const clearLongPressTimer = useCallback(() => {
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
-  }, []);
+  }, []); // 空依赖数组保持稳定
 
   // 稳定化handlers引用
   const stableHandlers = useRef(handlers);
   stableHandlers.current = handlers;
+
+  // 稳定化所有配置参数
+  const configRef = useRef({ 
+    longPressDelay, 
+    swipeThreshold, 
+    tapTimeout, 
+    enableVibration, 
+    vibrationDuration 
+  });
+  configRef.current = { 
+    longPressDelay, 
+    swipeThreshold, 
+    tapTimeout, 
+    enableVibration, 
+    vibrationDuration 
+  };
 
   // 使用原生事件监听器避免React的事件系统
   const attachPassiveListeners = useCallback((element: HTMLElement) => {
@@ -112,7 +128,7 @@ export const usePassiveGestures = (
           setState(prev => ({ ...prev, isLongPressing: true }));
           stableHandlers.current.onLongPress?.();
           triggerVibration();
-        }, longPressDelay);
+        }, configRef.current.longPressDelay);
       }
     };
 
@@ -130,7 +146,7 @@ export const usePassiveGestures = (
         longPressTimer = null;
         
         // 检查滑动方向
-        if (distance > swipeThreshold / 2) {
+        if (distance > configRef.current.swipeThreshold / 2) {
           isSwiping = true;
           setState(prev => ({ ...prev, isSwiping: true }));
         }
@@ -160,7 +176,7 @@ export const usePassiveGestures = (
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       // 检查滑动手势
-      if (isSwiping && distance > swipeThreshold && deltaTime < 300) {
+      if (isSwiping && distance > configRef.current.swipeThreshold && deltaTime < 300) {
         const absX = Math.abs(deltaX);
         const absY = Math.abs(deltaY);
 
@@ -180,7 +196,7 @@ export const usePassiveGestures = (
           }
         }
         triggerVibration();
-      } else if (distance < 10 && deltaTime < tapTimeout) {
+      } else if (distance < 10 && deltaTime < configRef.current.tapTimeout) {
         // 点击手势
         stableHandlers.current.onTap?.();
       }
@@ -219,12 +235,7 @@ export const usePassiveGestures = (
       element.removeEventListener('touchend', handleTouchEnd);
       element.removeEventListener('touchcancel', handleTouchCancel);
     };
-  }, [
-    longPressDelay,
-    swipeThreshold,
-    tapTimeout,
-    triggerVibration
-  ]);
+  }, []); // 空依赖数组，所有参数都通过ref访问
 
   // Ref回调函数
   const setRef = useCallback((element: HTMLElement | null) => {
