@@ -140,3 +140,6 @@ supabase/functions/*ocr*
 
 # Claude Code settings
 .claude/settings.local.json
+
+# Scripts directory (temporary development/debug scripts)
+scripts/
