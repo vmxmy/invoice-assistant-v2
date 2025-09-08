@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm ci --silent --only=production && \
     npm ci --silent
 
-# 复制源代码
+# 复制源代码 (排除通过 .dockerignore 指定的文件)
 COPY . .
 
 # 构建生产版本 - 使用缓存挂载

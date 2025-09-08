@@ -102,8 +102,19 @@ docs/
 yarn.lock
 pnpm-lock.yaml
 
-# Only include essential scripts
+# Scripts directory (temporary development scripts) - EXPLICITLY EXCLUDED
 scripts/
+../scripts/
+
+# Test and debug files - EXPLICITLY EXCLUDED  
+test-*
+*test*
+debug-*
+analyze-*
+*debug*
+*analyze*
+
+# Essential scripts exceptions (if needed in future)
 !scripts/env-switch.js
 !scripts/update-version.cjs
 

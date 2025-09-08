@@ -7,12 +7,24 @@ on:
       - 'frontend/**'
       - '.github/workflows/docker-build-enhanced.yml'
       - 'Dockerfile*'
+    paths-ignore:
+      - 'scripts/**'
+      - '**/*.md'
+      - '**/test-*'
+      - '**/debug-*'
+      - '**/analyze-*'
   pull_request:
     branches: [main]
     paths:
       - 'frontend/**' 
       - '.github/workflows/docker-build-enhanced.yml'
       - 'Dockerfile*'
+    paths-ignore:
+      - 'scripts/**'
+      - '**/*.md'
+      - '**/test-*'
+      - '**/debug-*'
+      - '**/analyze-*'
   workflow_dispatch:
     inputs:
       environment:
