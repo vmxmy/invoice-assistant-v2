@@ -1,7 +1,7 @@
 {
   "name": "invoice-assist-frontend",
   "private": false,
-  "version": "2.0.43",
+  "version": "2.0.45",
   "description": "智能发票管理系统前端应用",
   "author": "Invoice Assist Team",
   "license": "MIT",
@@ -62,6 +62,7 @@
   "dependencies": {
     "@capacitor/android": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
+    "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
     "@shadcn/ui": "^0.0.4",
     "@supabase/supabase-js": "^2.50.3",
