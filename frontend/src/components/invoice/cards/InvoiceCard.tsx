@@ -1125,12 +1125,6 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                       {invoice.seller_name}
                     </div>
                   )}
-                  {/* 含税信息 - 桌面端显示 */}
-                  {!device.isMobile && !compact && !isTrainTicketByCategory(invoice) && invoice.tax_amount && typeof invoice.tax_amount === 'number' && invoice.tax_amount > 0 && (
-                    <div className={`${compact ? 'text-[10px]' : 'text-xs'} text-base-content/40 mt-0.5`}>
-                      含税 {formatCurrency(invoice.tax_amount)}
-                    </div>
-                  )}
                 </div>
 
                 {/* 消费日期 Stat */}
@@ -1213,12 +1207,6 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
                       {invoice.buyer_name}
                     </div>
                   )}
-                  {/* 移动端和紧凑模式隐藏开票日期 */}
-                  {!device.isMobile && !compact && invoice.invoice_date && (
-                    <div className="stat-desc text-xs text-base-content/40 mt-1">
-                      开票日期 {formatFullDate(invoice.invoice_date)}
-                    </div>
-                  )}
                 </div>
               </>
             )}
@@ -1242,28 +1230,38 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             
             return (
               <div className={`bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg ${compact ? 'p-2' : 'p-3'} border-l-4 border-blue-400`}>
-                {/* 火车票信息 - 单行紧凑显示 */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-lg">🚄</span>
-                    <div className="flex items-center gap-1 min-w-0">
+                {/* 火车票信息 - 两行布局 */}
+                <div className="space-y-2">
+                  {/* 第一行：行程路线 + 时间 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="text-lg">🚄</span>
                       <span className={`${compact ? 'text-sm' : 'text-base'} font-medium text-base-content truncate`}>
                         {route}
                       </span>
-                      <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
-                        {trainInfo.trainNumber}
-                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`${compact ? 'text-xs' : 'text-sm'} text-base-content/70`}>
-                      {trainInfo.departureTime || '时间未知'}
+                    <span className={`${compact ? 'text-xs' : 'text-sm'} text-base-content/70 flex-shrink-0`}>
+                      {trainInfo.departureTimeDetail || trainInfo.departureTime || '时间未知'}
                     </span>
-                    {trainInfo.seatNumber && (
-                      <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-outline`}>
-                        {trainInfo.seatNumber}
-                      </span>
-                    )}
+                  </div>
+                  
+                  {/* 第二行：其他信息（车次、座位号等） */}
+                  <div className="flex items-center justify-between gap-2 ml-7">
+                    <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
+                      {trainInfo.trainNumber}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {trainInfo.seatNumber && (
+                        <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-outline`}>
+                          {trainInfo.seatNumber}
+                        </span>
+                      )}
+                      {trainInfo.seatType && (
+                        <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-primary badge-outline`}>
+                          {trainInfo.seatType}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1288,28 +1286,38 @@ const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({
             
             return (
               <div className={`bg-gradient-to-r from-sky-50 to-sky-100 dark:from-sky-900/20 dark:to-sky-800/20 rounded-lg ${compact ? 'p-2' : 'p-3'} border-l-4 border-sky-400`}>
-                {/* 飞机票信息 - 单行紧凑显示 */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-lg">✈️</span>
-                    <div className="flex items-center gap-1 min-w-0">
+                {/* 飞机票信息 - 两行布局 */}
+                <div className="space-y-2">
+                  {/* 第一行：行程路线 + 时间 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="text-lg">✈️</span>
                       <span className={`${compact ? 'text-sm' : 'text-base'} font-medium text-base-content truncate`}>
                         {route}
                       </span>
-                      <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
-                        {flightInfo.flightNumber}
-                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`${compact ? 'text-xs' : 'text-sm'} text-base-content/70`}>
-                      {flightInfo.departureTime || '时间未知'}
+                    <span className={`${compact ? 'text-xs' : 'text-sm'} text-base-content/70 flex-shrink-0`}>
+                      {flightInfo.departureTimeDetail || flightInfo.departureTime || '时间未知'}
                     </span>
-                    {flightInfo.seatNumber && (
-                      <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-outline`}>
-                        {flightInfo.seatNumber}
-                      </span>
-                    )}
+                  </div>
+                  
+                  {/* 第二行：其他信息（航班号、座位号、舱位等） */}
+                  <div className="flex items-center justify-between gap-2 ml-7">
+                    <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-ghost`}>
+                      {flightInfo.flightNumber}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {flightInfo.seatNumber && (
+                        <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-outline`}>
+                          {flightInfo.seatNumber}
+                        </span>
+                      )}
+                      {flightInfo.seatClass && (
+                        <span className={`badge ${compact ? 'badge-xs' : 'badge-sm'} badge-secondary badge-outline`}>
+                          {flightInfo.seatClass}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
