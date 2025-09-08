@@ -197,9 +197,15 @@ jobs:
           cache-to: |
             type=gha,mode=max,scope=${{ github.ref_name }}
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache-${{ github.ref_name }},mode=max
-          # BuildKit 优化选项
+          # 环境特定的构建参数
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            VITE_SUPABASE_URL=${{ needs.build-info.outputs.environment == 'production' && secrets.VITE_SUPABASE_URL_PROD || secrets.VITE_SUPABASE_URL_STAGING }}
+            VITE_SUPABASE_ANON_KEY=${{ needs.build-info.outputs.environment == 'production' && secrets.VITE_SUPABASE_ANON_KEY_PROD || secrets.VITE_SUPABASE_ANON_KEY_STAGING }}
+            VITE_APP_ENV=${{ needs.build-info.outputs.environment }}
+            VITE_APP_NAME=${{ vars.VITE_APP_NAME || '发票助手' }}
+            VITE_APP_VERSION=${{ vars.VITE_APP_VERSION || '2.0.0' }}
+            VITE_DEBUG_MODE=${{ needs.build-info.outputs.environment == 'production' && vars.VITE_DEBUG_MODE_PROD || vars.VITE_DEBUG_MODE_STAGING || 'false' }}
           # 使用内联缓存和本地缓存
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push=true,annotation-index.org.opencontainers.image.description="Optimized build with multi-layer caching"
 
