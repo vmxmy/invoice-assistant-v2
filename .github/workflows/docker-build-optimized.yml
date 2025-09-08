@@ -43,15 +43,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Detect changes
         id: changes
         run: |
-          if git diff HEAD~1 --name-only | grep -E '^frontend/' > /dev/null; then
-            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          # 检查是否有足够的提交历史
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            # 有提交历史，检查变更
+            if git diff HEAD~1 --name-only | grep -E '^frontend/' > /dev/null; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            # 没有足够的提交历史（首次提交等），默认部署
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine environment
