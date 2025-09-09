@@ -1,25 +1,21 @@
 /**
  * 趋势分析图表组件
- * 展示月度趋势和增长率分析
+ * 展示月度趋势和增长率分析 - 使用 Recharts
  */
 import React from 'react'
 import BaseChart from './BaseChart'
-import { getCurrentThemeColors, getSemanticColor } from '../../utils/daisyUIColors'
-
-// 生成带透明度的颜色
-function getColorWithOpacity(baseColor: string, opacity: number): string {
-  if (baseColor.startsWith('hsl(')) {
-    return baseColor.replace('hsl(', 'hsla(').replace(')', `, ${opacity})`)
-  }
-  if (baseColor.startsWith('#')) {
-    const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0')
-    return baseColor + alpha
-  }
-  if (baseColor.startsWith('rgb(')) {
-    return baseColor.replace('rgb(', 'rgba(').replace(')', `, ${opacity})`)
-  }
-  return baseColor
-}
+import { CHART_COLORS, DATA_TYPE_COLORS } from './chartColors'
+import { 
+  ComposedChart, 
+  Line, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend,
+  ResponsiveContainer
+} from 'recharts'
 
 interface MonthlyData {
   month: string
@@ -35,259 +31,194 @@ interface TrendAnalysisChartProps {
 }
 
 const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({
-  data,
+  data = [],
   loading = false
 }) => {
-  const colors = getCurrentThemeColors()
-
-  // 月度趋势组合图配置
-  const trendOption = {
-    title: {
-      text: '月度趋势分析',
-      left: 'left',
-      textStyle: {
-        color: colors.neutral,
-        fontSize: 16,
-        fontWeight: 600
-      }
-    },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'cross',
-        crossStyle: {
-          color: colors.neutral
-        }
-      },
-      backgroundColor: colors.base,
-      borderColor: colors.neutral,
-      textStyle: {
-        color: colors.neutral
-      }
-    },
-    legend: {
-      data: ['发票数量', '总金额(万元)'],
-      top: 'top',
-      right: 'right',
-      textStyle: {
-        color: colors.neutral
-      }
-    },
-    xAxis: {
-      type: 'category',
-      data: data.map(d => d.month),
-      axisPointer: {
-        type: 'shadow'
-      },
-      axisLine: {
-        lineStyle: {
-          color: getColorWithOpacity(colors.neutral, 0.3)
-        }
-      },
-      axisLabel: {
-        color: getColorWithOpacity(colors.neutral, 0.8)
-      }
-    },
-    yAxis: [
-      {
-        type: 'value',
-        name: '发票数量',
-        position: 'left',
-        axisLabel: {
-          formatter: '{value}',
-          color: getColorWithOpacity(colors.neutral, 0.8)
-        },
-        axisLine: {
-          lineStyle: {
-            color: colors.primary
-          }
-        },
-        splitLine: {
-          lineStyle: {
-            color: getColorWithOpacity(colors.neutral, 0.1)
-          }
-        }
-      },
-      {
-        type: 'value',
-        name: '金额(万元)',
-        position: 'right',
-        axisLabel: {
-          formatter: '{value}万',
-          color: getColorWithOpacity(colors.neutral, 0.8)
-        },
-        axisLine: {
-          lineStyle: {
-            color: colors.secondary
-          }
-        }
-      }
-    ],
-    series: [
-      {
-        name: '发票数量',
-        type: 'bar',
-        yAxisIndex: 0,
-        data: data.map(d => d.invoiceCount),
-        itemStyle: {
-          color: colors.primary,
-          borderRadius: [4, 4, 0, 0]
-        },
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowColor: colors.primary
-          }
-        }
-      },
-      {
-        name: '总金额(万元)',
-        type: 'line',
-        yAxisIndex: 1,
-        data: data.map(d => (d.totalAmount / 10000).toFixed(1)),
-        smooth: true,
-        lineStyle: {
-          color: colors.secondary,
-          width: 3
-        },
-        itemStyle: {
-          color: colors.secondary,
-          borderWidth: 2
-        },
-        areaStyle: {
-          color: getColorWithOpacity(colors.secondary, 0.1)
-        }
-      }
-    ]
+  // 自定义 Tooltip
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-base-100 border border-base-300 rounded-lg p-3 shadow-lg">
+          <p className="font-medium mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name === 'invoiceCount' && `票数: ${entry.value}张`}
+              {entry.name === 'totalAmount' && `金额: ¥${entry.value?.toLocaleString() || '0'}`}
+              {entry.name === 'countGrowthRate' && `票数增长: ${entry.value > 0 ? '+' : ''}${entry.value}%`}
+              {entry.name === 'amountGrowthRate' && `金额增长: ${entry.value > 0 ? '+' : ''}${entry.value}%`}
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
   }
 
-  // 增长率柱状图配置
-  const growthOption = {
-    title: {
-      text: '月度增长率对比',
-      left: 'left',
-      textStyle: {
-        color: colors.neutral,
-        fontSize: 16,
-        fontWeight: 600
-      }
-    },
-    tooltip: {
-      trigger: 'axis',
-      formatter: function(params: any) {
-        let result = params[0].name + '<br/>'
-        params.forEach((param: any) => {
-          const value = param.value
-          const color = value >= 0 ? colors.success : colors.error
-          result += `${param.seriesName}: <span style="color: ${color}">${value > 0 ? '+' : ''}${value}%</span><br/>`
-        })
-        return result
-      },
-      backgroundColor: colors.base,
-      borderColor: colors.neutral,
-      textStyle: {
-        color: colors.neutral
-      }
-    },
-    legend: {
-      data: ['数量增长率', '金额增长率'],
-      top: 'top',
-      right: 'right',
-      textStyle: {
-        color: colors.neutral
-      }
-    },
-    xAxis: {
-      type: 'category',
-      data: data.slice(1).map(d => d.month), // 跳过第一个月（没有增长率数据）
-      axisLine: {
-        lineStyle: {
-          color: getColorWithOpacity(colors.neutral, 0.3)
-        }
-      },
-      axisLabel: {
-        color: getColorWithOpacity(colors.neutral, 0.8)
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '增长率(%)',
-      axisLabel: {
-        formatter: '{value}%',
-        color: getColorWithOpacity(colors.neutral, 0.8)
-      },
-      axisLine: {
-        lineStyle: {
-          color: getColorWithOpacity(colors.neutral, 0.3)
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: getColorWithOpacity(colors.neutral, 0.1)
-        }
-      }
-    },
-    series: [
-      {
-        name: '数量增长率',
-        type: 'bar',
-        data: data.slice(1).map(d => d.countGrowthRate || 0),
-        itemStyle: {
-          color: function(params: any) {
-            return getSemanticColor(params.value, 'growth')
-          },
-          borderRadius: [4, 4, 0, 0]
-        },
-        label: {
-          show: true,
-          position: 'top',
-          formatter: '{c}%',
-          color: colors.neutral,
-          fontSize: 10
-        }
-      },
-      {
-        name: '金额增长率',
-        type: 'bar',
-        data: data.slice(1).map(d => d.amountGrowthRate || 0),
-        itemStyle: {
-          color: function(params: any) {
-            return getSemanticColor(params.value, 'growth')
-          },
-          borderRadius: [4, 4, 0, 0]
-        },
-        label: {
-          show: true,
-          position: 'top',
-          formatter: '{c}%',
-          color: colors.neutral,
-          fontSize: 10
-        }
-      }
-    ]
+  // 格式化Y轴金额
+  const formatAmount = (value: number) => {
+    if (!value || value <= 0) return '0'
+    if (value >= 10000) {
+      return `${(value / 10000).toFixed(1)}万`
+    }
+    return `${value.toLocaleString()}`
   }
 
   return (
     <div className="space-y-6">
-      {/* 月度趋势图 */}
+      {/* 月度趋势组合图 */}
       <div className="card bg-base-100 shadow-md">
         <div className="card-body">
-          <BaseChart
-            option={trendOption}
-            height={400}
-            loading={loading}
-          />
+          <h3 className="card-title text-base-content mb-4">月度趋势分析</h3>
+          <BaseChart height={400} loading={loading}>
+            <ComposedChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+              <XAxis 
+                dataKey="month" 
+                axisLine={false}
+                tickLine={false}
+                className="text-xs"
+              />
+              <YAxis 
+                yAxisId="left"
+                axisLine={false}
+                tickLine={false}
+                className="text-xs"
+                tickFormatter={formatAmount}
+              />
+              <YAxis 
+                yAxisId="right"
+                orientation="right"
+                axisLine={false}
+                tickLine={false}
+                className="text-xs"
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              
+              {/* 柱状图显示金额 */}
+              <Bar 
+                yAxisId="left"
+                dataKey="totalAmount" 
+                name="总金额"
+                fill={DATA_TYPE_COLORS.revenue}
+                opacity={0.8}
+                radius={[4, 4, 0, 0]}
+              />
+              
+              {/* 线图显示票数 */}
+              <Line 
+                yAxisId="right"
+                type="monotone" 
+                dataKey="invoiceCount" 
+                name="票数"
+                stroke={CHART_COLORS.secondary}
+                strokeWidth={3}
+                dot={{ fill: CHART_COLORS.secondary, strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, fill: CHART_COLORS.secondary }}
+              />
+            </ComposedChart>
+          </BaseChart>
         </div>
       </div>
 
-      {/* 增长率对比图 */}
+      {/* 增长率分析 */}
       <div className="card bg-base-100 shadow-md">
         <div className="card-body">
-          <BaseChart
-            option={growthOption}
-            height={350}
-            loading={loading}
-          />
+          <h3 className="card-title text-base-content mb-4">增长率分析</h3>
+          <BaseChart height={300} loading={loading}>
+            <ComposedChart data={data.filter(item => item.countGrowthRate !== undefined)}>
+              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+              <XAxis 
+                dataKey="month" 
+                axisLine={false}
+                tickLine={false}
+                className="text-xs"
+              />
+              <YAxis 
+                axisLine={false}
+                tickLine={false}
+                className="text-xs"
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              
+              {/* 票数增长率 */}
+              <Line 
+                type="monotone" 
+                dataKey="countGrowthRate" 
+                name="票数增长率"
+                stroke={CHART_COLORS.success}
+                strokeWidth={2}
+                dot={{ fill: CHART_COLORS.success, strokeWidth: 2, r: 3 }}
+              />
+              
+              {/* 金额增长率 */}
+              <Line 
+                type="monotone" 
+                dataKey="amountGrowthRate" 
+                name="金额增长率"
+                stroke={CHART_COLORS.warning}
+                strokeWidth={2}
+                dot={{ fill: CHART_COLORS.warning, strokeWidth: 2, r: 3 }}
+              />
+              
+              {/* 零增长参考线 */}
+              <Line 
+                type="monotone" 
+                dataKey={() => 0} 
+                name="零增长线"
+                stroke={CHART_COLORS.neutralContent}
+                strokeWidth={1}
+                strokeDasharray="5 5"
+                dot={false}
+                legendType="none"
+              />
+            </ComposedChart>
+          </BaseChart>
+        </div>
+      </div>
+
+      {/* 数据统计表 */}
+      <div className="card bg-base-100 shadow-md">
+        <div className="card-body">
+          <h3 className="card-title text-base-content mb-4">详细数据</h3>
+          <div className="overflow-x-auto">
+            <table className="table table-zebra table-sm">
+              <thead>
+                <tr>
+                  <th>月份</th>
+                  <th>票数</th>
+                  <th>总金额</th>
+                  <th>票数增长</th>
+                  <th>金额增长</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item) => (
+                  <tr key={item.month}>
+                    <td>{item.month}</td>
+                    <td>{item.invoiceCount}张</td>
+                    <td>¥{item.totalAmount?.toLocaleString() || '0'}</td>
+                    <td>
+                      {item.countGrowthRate !== undefined ? (
+                        <span className={`badge ${item.countGrowthRate > 0 ? 'badge-success' : item.countGrowthRate < 0 ? 'badge-error' : 'badge-neutral'}`}>
+                          {item.countGrowthRate > 0 ? '+' : ''}{item.countGrowthRate}%
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td>
+                      {item.amountGrowthRate !== undefined ? (
+                        <span className={`badge ${item.amountGrowthRate > 0 ? 'badge-success' : item.amountGrowthRate < 0 ? 'badge-error' : 'badge-neutral'}`}>
+                          {item.amountGrowthRate > 0 ? '+' : ''}{item.amountGrowthRate}%
+                        </span>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -58,7 +58,7 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           ui: ['@headlessui/react', 'framer-motion', 'lucide-react'],
           utils: ['date-fns', 'clsx', 'axios'],
-          charts: ['echarts', 'echarts-for-react']
+          charts: ['recharts']
         }
       }
     }

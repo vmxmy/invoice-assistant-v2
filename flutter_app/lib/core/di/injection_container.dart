@@ -1,0 +1,64 @@
+import 'package:get_it/get_it.dart';
+
+// 数据层
+import '../../data/datasources/invoice_remote_datasource.dart';
+import '../../data/repositories/invoice_repository_impl.dart';
+
+// 领域层
+import '../../domain/repositories/invoice_repository.dart';
+import '../../domain/usecases/get_invoices_usecase.dart';
+import '../../domain/usecases/get_invoice_detail_usecase_production.dart';
+import '../../domain/usecases/get_invoice_stats_usecase.dart';
+import '../../domain/usecases/delete_invoice_usecase.dart';
+import '../../domain/usecases/update_invoice_status_usecase.dart';
+
+// 表现层
+import '../../presentation/bloc/invoice_bloc.dart';
+
+/// 全局依赖注入容器
+final sl = GetIt.instance;
+
+/// 初始化所有依赖
+Future<void> init() async {
+  //! 表现层 (Presentation Layer)
+  // BLoCs
+  sl.registerFactory(
+    () => InvoiceBloc(
+      getInvoicesUseCase: sl(),
+      getInvoiceDetailUseCase: sl(),
+      getInvoiceStatsUseCase: sl(),
+      deleteInvoiceUseCase: sl(),
+      updateInvoiceStatusUseCase: sl(),
+    ),
+  );
+
+  //! 领域层 (Domain Layer)
+  // Use cases
+  sl.registerLazySingleton(() => GetInvoicesUseCase(sl()));
+  sl.registerLazySingleton(() => GetInvoiceDetailUseCaseProduction(sl()));
+  sl.registerLazySingleton(() => GetInvoiceStatsUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteInvoiceUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateInvoiceStatusUseCase(sl()));
+
+  //! 数据层 (Data Layer)
+  // Repositories
+  sl.registerLazySingleton<InvoiceRepository>(
+    () => InvoiceRepositoryImpl(sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<InvoiceRemoteDataSource>(
+    () => InvoiceRemoteDataSourceImpl(),
+  );
+
+  //! 外部依赖 (External Dependencies)
+  // 这里可以注册外部服务，如网络客户端、本地存储等
+  
+  //! 核心服务 (Core Services)
+  // 这里可以注册核心服务，如网络检查、错误处理等
+}
+
+/// 重置所有注册的依赖 (主要用于测试)
+Future<void> reset() async {
+  await sl.reset();
+}

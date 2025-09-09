@@ -35,17 +35,12 @@ export const LazyEmailDetailModal = withLazyLoading(
   { name: 'EmailDetailModal' }
 );
 
-// 懒加载账户模态框
-export const LazyAddAccountModal = withLazyLoading(
-  () => import('../modals/AddAccountModal'),
-  { name: 'AddAccountModal' }
-);
 
 // 创建条件渲染的懒加载模态框
 export const ConditionalLazyModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  modalType: 'invoice' | 'delete' | 'search' | 'export' | 'email' | 'account';
+  modalType: 'invoice' | 'delete' | 'search' | 'export' | 'email';
   props?: any;
 }> = ({ isOpen, onClose, modalType, props = {} }) => {
   if (!isOpen) return null;
@@ -56,7 +51,6 @@ export const ConditionalLazyModal: React.FC<{
     search: LazyAdvancedSearchModal,
     export: LazyExportProgressModal,
     email: LazyEmailDetailModal,
-    account: LazyAddAccountModal,
   };
 
   const ModalComponent = modalComponents[modalType];

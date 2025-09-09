@@ -11,7 +11,6 @@ import { useStatisticsData } from '../hooks/useStatisticsData'
 import OverviewDashboard from '../components/charts/OverviewDashboard'
 import TrendAnalysisChart from '../components/charts/TrendAnalysisChart'
 import CategoryAnalysisChart from '../components/charts/CategoryAnalysisChart'
-import InvoiceTypeChart from '../components/charts/InvoiceTypeChart'
 import RegionalAnalysisChart from '../components/charts/RegionalAnalysisChart'
 import ReimbursementChart from '../components/charts/ReimbursementChart'
 
@@ -44,7 +43,6 @@ export const StatisticsPage: React.FC = () => {
     monthlyTrends,
     categoryStats,
     hierarchicalStats,
-    invoiceTypeStats,
     regionalStats,
     reimbursementStats,
     detailedData,
@@ -57,9 +55,7 @@ export const StatisticsPage: React.FC = () => {
     { id: 'overview', label: '概览仪表盘', icon: '📊' },
     { id: 'trends', label: '趋势分析', icon: '📈' },
     { id: 'categories', label: '分类分析', icon: '🏷️' },
-    { id: 'types', label: '类型分析', icon: '📄' },
     { id: 'regions', label: '地区分析', icon: '🗺️' },
-    { id: 'reimbursement', label: '报销管理', icon: '💰' },
     { id: 'details', label: '详细数据', icon: '📋' }
   ]
 
@@ -70,7 +66,7 @@ export const StatisticsPage: React.FC = () => {
 
   // 转换数据格式以适配图表组件
   const getOverviewData = () => {
-    if (!overviewStats) return null
+    if (!overviewStats || !reimbursementStats) return null
     return {
       totalInvoices: overviewStats.total_invoices,
       totalAmount: overviewStats.total_amount,
@@ -78,6 +74,8 @@ export const StatisticsPage: React.FC = () => {
       monthlyInvoices: overviewStats.monthly_invoices,
       reimbursedCount: overviewStats.reimbursed_count,
       unreimbursedCount: overviewStats.unreimbursed_count,
+      overdueCount: reimbursementStats.overdue_count,
+      dueSoonCount: reimbursementStats.due_soon_count,
       reimbursementRate: overviewStats.reimbursement_rate,
       monthlyGrowthRate: overviewStats.amount_growth_rate || 0
     }
@@ -103,21 +101,18 @@ export const StatisticsPage: React.FC = () => {
     }))
   }
 
-  const getInvoiceTypeData = () => {
-    return invoiceTypeStats.map(stat => ({
-      type: stat.invoice_type,
-      count: stat.count,
-      amount: stat.total_amount,
-      avgAmount: stat.avg_amount,
-      percentage: stat.count_percentage
-    }))
-  }
 
   const getRegionalData = () => {
-    return regionalStats.map(stat => ({
-      name: stat.region_name,
-      value: stat.total_amount,
+    // 过滤掉发票数量为0的区域，并转换为正确的数据格式
+    const filteredStats = regionalStats.filter(stat => stat.invoice_count > 0)
+    const totalAmount = filteredStats.reduce((sum, stat) => sum + stat.total_amount, 0)
+    
+    return filteredStats.map(stat => ({
+      region: stat.region_name,
       count: stat.invoice_count,
+      amount: stat.total_amount,
+      percentage: totalAmount > 0 ? (stat.total_amount / totalAmount) * 100 : 0,
+      avgAmount: stat.invoice_count > 0 ? stat.total_amount / stat.invoice_count : 0,
       code: stat.region_code,
       province: stat.province_name
     }))
@@ -232,16 +227,6 @@ export const StatisticsPage: React.FC = () => {
             </div>
           )}
 
-          {/* 类型分析 */}
-          {activeTab === 'types' && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">发票类型分析</h2>
-              <InvoiceTypeChart 
-                data={getInvoiceTypeData()}
-                loading={loading}
-              />
-            </div>
-          )}
 
           {/* 地区分析 */}
           {activeTab === 'regions' && (
@@ -254,34 +239,6 @@ export const StatisticsPage: React.FC = () => {
             </div>
           )}
 
-          {/* 报销管理 */}
-          {activeTab === 'reimbursement' && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">报销管理</h2>
-              {reimbursementStats ? (
-                <ReimbursementChart 
-                  data={{
-                    totalCount: reimbursementStats.total_count,
-                    reimbursedCount: reimbursementStats.reimbursed_count,
-                    unreimbursedCount: reimbursementStats.unreimbursed_count,
-                    overdueCount: reimbursementStats.overdue_count,
-                    dueSoonCount: reimbursementStats.due_soon_count,
-                    reimbursementRate: reimbursementStats.reimbursement_rate,
-                    avgProcessingDays: reimbursementStats.avg_processing_days,
-                    monthlyProgress: reimbursementStats.monthly_progress
-                  }}
-                  loading={loading}
-                />
-              ) : (
-                <div className="card bg-base-100 shadow-md">
-                  <div className="card-body text-center py-12">
-                    <div className="loading loading-spinner loading-lg"></div>
-                    <p className="mt-4">正在加载报销数据...</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* 详细数据表格 */}
           {activeTab === 'details' && (
