@@ -224,17 +224,13 @@ export const useDeleteInvoice = () => {
         return
       }
       
-      toast.success('发票已移至回收站')
+      toast.success('发票已永久删除')
       
       // 清除单个发票的缓存
       queryClient.removeQueries({ 
         queryKey: QueryKeys.invoice(user!.id, invoiceId) 
       })
       
-      // 更新已删除发票列表
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
-      })
       
       // 更新统计数据
       queryClient.invalidateQueries({
@@ -255,125 +251,9 @@ export const useDeleteInvoice = () => {
   })
 }
 
-export const useRestoreInvoice = () => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (invoiceId: string) => {
-      if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.restoreInvoice(invoiceId, user.id)
-    },
-    onSuccess: (result) => {
-      if (result.error) {
-        toast.error(`恢复发票失败: ${result.error}`)
-        return
-      }
-      
-      toast.success('发票恢复成功')
-      // 精确缓存管理
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
-      })
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.invoiceList(user!.id),
-        exact: false
-      })
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.dashboardStats(user!.id)
-      })
-    },
-    onError: (error: Error) => {
-      toast.error(`恢复发票失败: ${error.message}`)
-    }
-  })
-}
 
-export const useDeletedInvoices = (page: number = 1, pageSize: number = 20) => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
 
-  // 移除轮询逻辑，使用React Query的内置功能
-
-  return useQuery({
-    queryKey: QueryKeys.trashedInvoices(user?.id || '', { page, pageSize }),
-    queryFn: () => {
-      if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.getDeletedInvoices(user.id, page, pageSize)
-    },
-    enabled: !!user?.id,
-    ...QueryOptions.moderate,
-    ...NetworkOptions.optimized,
-    
-    // 精简的刷新策略
-    refetchInterval: 2 * 60 * 1000, // 2分钟刷新一次（用于更新剩余天数）
-    refetchIntervalInBackground: false, // 后台不刷新
-  })
-}
-
-export const usePermanentlyDeleteInvoice = () => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (invoiceId: string) => {
-      if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.permanentlyDeleteInvoice(invoiceId, user.id)
-    },
-    onSuccess: (result) => {
-      if (result.error) {
-        toast.error(`永久删除失败: ${result.error}`)
-        return
-      }
-      
-      toast.success('发票已永久删除')
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
-      })
-    },
-    onError: (error: Error) => {
-      toast.error(`永久删除失败: ${error.message}`)
-    }
-  })
-}
-
-export const useBatchRestoreInvoices = () => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (invoiceIds: string[]) => {
-      if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.batchRestoreInvoices(invoiceIds, user.id)
-    },
-    onSuccess: (result) => {
-      if (result.error) {
-        toast.error(`批量恢复失败: ${result.error}`)
-        return
-      }
-      
-      const { successCount, failedIds } = result.data!
-      if (successCount > 0) {
-        toast.success(`成功恢复 ${successCount} 个发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
-      }
-      
-      // 精确缓存管理
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
-      })
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.invoiceList(user!.id),
-        exact: false
-      })
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.dashboardStats(user!.id)
-      })
-    },
-    onError: (error: Error) => {
-      toast.error(`批量恢复失败: ${error.message}`)
-    }
-  })
-}
 
 export const useBatchDeleteInvoices = () => {
   const { user } = useAuthContext()
@@ -392,16 +272,13 @@ export const useBatchDeleteInvoices = () => {
       
       const { successCount, failedIds } = result.data!
       if (successCount > 0) {
-        toast.success(`已删除 ${successCount} 张发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
+        toast.success(`已永久删除 ${successCount} 张发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
       }
       
       // 精确缓存管理
       queryClient.invalidateQueries({
         queryKey: QueryKeys.invoiceList(user!.id),
         exact: false
-      })
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
       })
       queryClient.invalidateQueries({
         queryKey: QueryKeys.dashboardStats(user!.id)
@@ -448,36 +325,6 @@ export const useBatchUpdateInvoiceStatus = () => {
   })
 }
 
-export const useBatchPermanentlyDeleteInvoices = () => {
-  const { user } = useAuthContext()
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (invoiceIds: string[]) => {
-      if (!user?.id) throw new Error('用户未登录')
-      return InvoiceService.batchPermanentlyDeleteInvoices(invoiceIds, user.id)
-    },
-    onSuccess: (result) => {
-      if (result.error) {
-        toast.error(`批量删除失败: ${result.error}`)
-        return
-      }
-      
-      const { successCount, failedIds } = result.data!
-      if (successCount > 0) {
-        toast.success(`成功删除 ${successCount} 个发票${failedIds.length > 0 ? `，${failedIds.length} 个失败` : ''}`)
-      }
-      
-      // 精确缓存管理
-      queryClient.invalidateQueries({
-        queryKey: QueryKeys.trashedInvoices(user!.id)
-      })
-    },
-    onError: (error: Error) => {
-      toast.error(`批量删除失败: ${error.message}`)
-    }
-  })
-}
 
 export const useInvoiceOCR = () => {
   return useMutation({

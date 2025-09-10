@@ -29,6 +29,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
+    "knip": "mv CLAUDE.md /tmp/CLAUDE_temp.md 2>/dev/null || true && knip && mv /tmp/CLAUDE_temp.md CLAUDE.md 2>/dev/null || true",
+    "knip:files": "mv CLAUDE.md /tmp/CLAUDE_temp.md 2>/dev/null || true && knip --files && mv /tmp/CLAUDE_temp.md CLAUDE.md 2>/dev/null || true",
+    "knip:deps": "mv CLAUDE.md /tmp/CLAUDE_temp.md 2>/dev/null || true && knip --dependencies && mv /tmp/CLAUDE_temp.md CLAUDE.md 2>/dev/null || true",
     "preview": "vite preview",
     "deploy": "./scripts/deploy.sh",
     "deploy:prod": "./scripts/deploy.sh production",
@@ -103,13 +106,14 @@
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
-    "@eslint/js": "^9.29.0",
+    "@eslint/js": "^9.35.0",
     "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.7",
-    "eslint": "^9.29.0",
+    "eslint": "^9.35.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "knip": "^5.63.1",
     "shadcn": "^3.2.1",
     "typescript-eslint": "^8.34.1"
   }

@@ -41,7 +41,6 @@ export function InvoiceModal({
         .select('*')
         .eq('id', invoiceId)
         .eq('user_id', user.id)
-        .is('deleted_at', null)
         .single()
 
       if (fetchError) {

@@ -54,9 +54,6 @@ export const QueryKeys = {
   invoice: (userId: string, invoiceId: string) => 
     [...QueryKeys.invoices(userId), 'detail', invoiceId] as const,
   
-  // 已删除的发票
-  trashedInvoices: (userId: string, params?: PaginationParams) => 
-    [...QueryKeys.invoices(userId), 'trashed', params] as const,
   
   // === 统计相关 ===
   stats: (userId: string) => [...QueryKeys.user(userId), 'stats'] as const,

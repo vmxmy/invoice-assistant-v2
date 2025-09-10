@@ -118,7 +118,6 @@ export const supabaseStats = {
       .from('invoices')
       .select('id, invoice_number, consumption_date, seller_name, total_amount, invoice_type, created_at')
       .eq('user_id', userId)
-      .is('deleted_at', null)
       .order('consumption_date', { ascending: false })
       .limit(limit)
 
@@ -138,7 +137,6 @@ export const supabaseStats = {
       .from('invoices')
       .select('status')
       .eq('user_id', userId)
-      .is('deleted_at', null)
 
     if (error) {
       console.error('获取状态分布失败:', error)

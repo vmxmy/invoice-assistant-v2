@@ -37,6 +37,7 @@ dist-ssr
 # User specific files
 ../.user_token
 ../CLAUDE.md
+CLAUDE.md
 
 # Test output
 test_output/

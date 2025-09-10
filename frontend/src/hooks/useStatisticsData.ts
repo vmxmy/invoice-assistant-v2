@@ -158,7 +158,6 @@ const fetchOverviewStats = async (userId: string, filters: StatisticsFilters): P
       .from('invoices')
       .select('*')
       .eq('user_id', userId)
-      .is('deleted_at', null)
 
     if (startDate) {
       invoiceQuery = invoiceQuery.gte('consumption_date', startDate)
@@ -305,7 +304,6 @@ const calculateAvgProcessingDays = async (userId: string): Promise<number> => {
       .select('consumption_date, status_changed_at, created_at')
       .eq('user_id', userId)
       .eq('status', 'reimbursed')
-      .is('deleted_at', null)
       .not('consumption_date', 'is', null)
       .not('status_changed_at', 'is', null)
 
@@ -354,7 +352,6 @@ const fetchReimbursementStats = async (userId: string, filters: StatisticsFilter
       .from('invoices')
       .select('consumption_date, status, total_amount')
       .eq('user_id', userId)
-      .is('deleted_at', null)
       .eq('status', 'unreimbursed')
 
     if (invoicesError) {
@@ -399,8 +396,7 @@ const fetchReimbursementStats = async (userId: string, filters: StatisticsFilter
           total_amount
         `)
         .eq('user_id', userId)
-        .is('deleted_at', null)
-        .not('consumption_date', 'is', null)
+          .not('consumption_date', 'is', null)
         .gte('consumption_date', new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().split('T')[0])
         .order('consumption_date', { ascending: false })
 
