@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/invoice_bloc.dart';
+import '../bloc/invoice_event.dart';
 import 'invoice_management_page.dart';
 import 'invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
@@ -65,6 +68,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('🏗️ [MainPage] MainPage重建 - currentIndex: $_currentIndex');
+    final bloc = context.read<InvoiceBloc>();
+    print('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc');
+    
     return Scaffold(
       body: PageView(
         controller: _pageController,

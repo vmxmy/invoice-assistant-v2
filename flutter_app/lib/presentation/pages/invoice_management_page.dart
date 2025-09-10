@@ -36,12 +36,8 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<InvoiceBloc>()
-        ..add(const LoadInvoices(refresh: true))
-        ..add(const LoadInvoiceStats()),
-      child: const _InvoiceManagementPageContent(),
-    );
+    print('🏭 [InvoiceManagementPage] 使用来自MainPage的BlocProvider');
+    return const _InvoiceManagementPageContent();
   }
 }
 
@@ -55,6 +51,9 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      print('📋 [TabController] 切换到Tab: ${_tabController.index}');
+    });
   }
 
   @override
@@ -65,7 +64,18 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    print('🏠 [InvoiceManagementPageContent] build 方法执行');
+    
+    return BlocListener<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        final bloc = context.read<InvoiceBloc>();
+        print('🔥 [页面级Listener:${bloc.hashCode}] 接收到状态: ${state.runtimeType}');
+        if (state is InvoiceDeleteSuccess) {
+          print('🔥 [页面级Listener:${bloc.hashCode}] 删除成功，立即显示Snackbar: ${state.message}');
+          AppFeedback.success(context, state.message);
+        }
+      },
+      child: Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           _buildAppBar(context),
@@ -73,12 +83,37 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
         body: TabBarView(
           controller: _tabController,
           children: [
-            _AllInvoicesTab(),
-            _MonthlyInvoicesTab(),
-            _FavoritesTab(),
+            BlocProvider.value(
+              value: context.read<InvoiceBloc>(),
+              child: Builder(
+                builder: (context) {
+                  print('🏗️ [TabBarView] Builder构建AllInvoicesTab');
+                  return _AllInvoicesTab();
+                },
+              ),
+            ),
+            BlocProvider.value(
+              value: context.read<InvoiceBloc>(),
+              child: Builder(
+                builder: (context) {
+                  print('🏗️ [TabBarView] Builder构建MonthlyInvoicesTab');
+                  return _MonthlyInvoicesTab();
+                },
+              ),
+            ),
+            BlocProvider.value(
+              value: context.read<InvoiceBloc>(),
+              child: Builder(
+                builder: (context) {
+                  print('🏗️ [TabBarView] Builder构建FavoritesTab');
+                  return _FavoritesTab();
+                },
+              ),
+            ),
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -114,9 +149,14 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   String _searchQuery = '';
   String _selectedFilter = '全部';
 
+  _AllInvoicesTabState() {
+    print('🏗️ [AllInvoicesTabState] 构造函数执行');
+  }
+
   @override
   void initState() {
     super.initState();
+    print('🏗️ [AllInvoicesTabState] initState执行');
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
   }
@@ -199,8 +239,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded ||
-        current is InvoiceDeleteSuccess,
+        current is InvoiceLoaded,
       builder: (context, state) {
         if (state is InvoiceLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -429,8 +468,7 @@ class _MonthlyInvoicesTab extends StatelessWidget {
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded ||
-        current is InvoiceDeleteSuccess,
+        current is InvoiceLoaded,
       builder: (context, state) {
         if (state is InvoiceLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -628,8 +666,7 @@ class _FavoritesTab extends StatelessWidget {
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded ||
-        current is InvoiceDeleteSuccess,
+        current is InvoiceLoaded,
       builder: (context, state) {
         if (state is InvoiceLoaded) {
           // 筛选已验证的发票作为收藏

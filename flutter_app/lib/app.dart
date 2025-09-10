@@ -7,6 +7,7 @@ import 'core/config/app_config.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/network/supabase_client.dart';
 import 'presentation/bloc/invoice_bloc.dart';
+import 'presentation/bloc/invoice_event.dart';
 import 'presentation/pages/main_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
@@ -24,13 +25,15 @@ class InvoiceAssistantApp extends StatelessWidget {
       print('🚀 [App] 启动发票助手应用');
     }
 
-    return MultiBlocProvider(
-      providers: [
-        // 注册 InvoiceBloc（使用工厂模式，每次创建新实例）
-        BlocProvider<InvoiceBloc>(
-          create: (context) => di.sl<InvoiceBloc>(),
-        ),
-      ],
+    return BlocProvider<InvoiceBloc>(
+      create: (context) {
+        print('🏭 [App] 创建全局唯一InvoiceBloc');
+        final bloc = di.sl<InvoiceBloc>();
+        print('🏭 [App:${bloc.hashCode}] InvoiceBloc实例创建完成');
+        return bloc
+          ..add(const LoadInvoices(refresh: true))
+          ..add(const LoadInvoiceStats());
+      },
       child: MaterialApp.router(
         title: AppConfig.appName,
         debugShowCheckedModeBanner: false,
@@ -135,6 +138,8 @@ final _router = GoRouter(
       name: 'invoice-detail',
       builder: (context, state) {
         final invoiceId = state.pathParameters['id']!;
+        // Note: InvoiceDetailPage will access InvoiceBloc from MainPage's BlocProvider
+        // This route should only be accessible from within the main app flow
         return InvoiceDetailPage(invoiceId: invoiceId);
       },
     ),

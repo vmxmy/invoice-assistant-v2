@@ -132,29 +132,41 @@ class AppFeedback {
     BuildContext context,
     FeedbackConfig config,
   ) {
+    print('🍕 [AppFeedback] show方法被调用 - 类型: ${config.type}, 标题: ${config.title}');
     final theme = FeedbackTheme.getTheme(config.type);
     
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: _buildContent(config, theme),
-        backgroundColor: theme.backgroundColor,
-        duration: config.duration ?? _getDefaultDuration(config.type),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        margin: const EdgeInsets.all(16),
-        elevation: 8,
-        action: config.action != null && config.actionLabel != null
-            ? SnackBarAction(
-                label: config.actionLabel!,
-                textColor: theme.textColor,
-                onPressed: config.action!,
-              )
-            : null,
-      ),
-    );
+    // 确保在下一帧显示，避免上下文问题
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('🍕 [AppFeedback] addPostFrameCallback执行 - context.mounted: ${context.mounted}');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        print('🍕 [AppFeedback] 正在显示SnackBar...');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: _buildContent(config, theme),
+            backgroundColor: theme.backgroundColor,
+            // 强制设置持续时间，不受辅助功能影响
+            duration: config.duration ?? _getDefaultDuration(config.type),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+            elevation: 8,
+            // 只有错误类型且提供了重试操作时才显示action
+            action: config.action != null && 
+                    config.actionLabel != null && 
+                    config.type == FeedbackType.error
+                ? SnackBarAction(
+                    label: config.actionLabel!,
+                    textColor: theme.textColor,
+                    onPressed: config.action!,
+                  )
+                : null,
+          ),
+        );
+      }
+    });
   }
 
   /// 构建内容

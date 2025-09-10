@@ -186,7 +186,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   Future<void> _onDeleteInvoice(DeleteInvoice event, Emitter<InvoiceState> emit) async {
     try {
       if (AppConfig.enableLogging) {
-        print('🗑️ [InvoiceBloc] 删除发票: ${event.invoiceId}');
+        print('🗑️ [InvoiceBloc:${hashCode}] 删除发票: ${event.invoiceId}');
       }
 
       await _deleteInvoiceUseCase(event.invoiceId);
@@ -199,10 +199,16 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         print('✅ [InvoiceBloc] 发票删除成功');
       }
 
-      // 先发送删除成功状态用于显示snackbar
+      // 发送删除成功状态用于显示snackbar
+      if (AppConfig.enableLogging) {
+        print('🎯 [InvoiceBloc] 发送删除成功状态');
+      }
       emit(InvoiceDeleteSuccess('发票删除成功'));
-
-      // 立即更新列表状态
+      
+      // 直接更新列表状态
+      if (AppConfig.enableLogging) {
+        print('🔄 [InvoiceBloc] 发送列表更新状态 - 剩余: ${_allInvoices.length}条');
+      }
       emit(InvoiceLoaded(
         invoices: List.from(_allInvoices),
         currentPage: _currentPage,
@@ -242,7 +248,10 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       // 先发送删除成功状态用于显示snackbar
       emit(InvoiceDeleteSuccess('${event.invoiceIds.length}个发票删除成功'));
 
-      // 立即更新列表状态
+      // 给监听器足够时间处理snackbar显示
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // 然后更新列表状态
       emit(InvoiceLoaded(
         invoices: List.from(_allInvoices),
         currentPage: _currentPage,

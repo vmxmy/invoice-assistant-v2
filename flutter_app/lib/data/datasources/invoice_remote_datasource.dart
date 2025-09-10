@@ -339,7 +339,26 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         print('📄 [RemoteDataSource] 发票文件信息 - path: $filePath, hash: $fileHash');
       }
 
-      // 2. 删除数据库记录
+      // 2. 删除哈希记录（与Web端顺序保持一致）
+      if (fileHash != null) {
+        try {
+          await SupabaseClientManager.from('file_hashes')
+              .delete()
+              .eq('file_hash', fileHash)
+              .eq('user_id', currentUser.id);
+          
+          if (AppConfig.enableLogging) {
+            print('✅ [RemoteDataSource] 哈希记录删除成功');
+          }
+        } catch (hashError) {
+          if (AppConfig.enableLogging) {
+            print('⚠️ [RemoteDataSource] 删除哈希记录失败: $hashError');
+          }
+          // 不抛出异常，允许继续执行
+        }
+      }
+
+      // 3. 删除数据库记录
       await SupabaseClientManager.from(_tableName)
           .delete()
           .eq('id', id)
@@ -349,7 +368,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         print('✅ [RemoteDataSource] 发票记录删除成功');
       }
 
-      // 3. 删除存储桶中的文件
+      // 4. 删除存储桶中的文件
       if (filePath != null && filePath.isNotEmpty) {
         try {
           await SupabaseClientManager.client.storage
@@ -362,25 +381,6 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         } catch (storageError) {
           if (AppConfig.enableLogging) {
             print('⚠️ [RemoteDataSource] 删除存储文件失败: $storageError');
-          }
-          // 不抛出异常，允许继续执行
-        }
-      }
-
-      // 4. 删除哈希记录
-      if (fileHash != null) {
-        try {
-          await SupabaseClientManager.from('file_hashes')
-              .delete()
-              .eq('invoice_id', id)
-              .eq('user_id', currentUser.id);
-          
-          if (AppConfig.enableLogging) {
-            print('✅ [RemoteDataSource] 哈希记录删除成功');
-          }
-        } catch (hashError) {
-          if (AppConfig.enableLogging) {
-            print('⚠️ [RemoteDataSource] 删除哈希记录失败: $hashError');
           }
           // 不抛出异常，允许继续执行
         }
