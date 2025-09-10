@@ -260,22 +260,30 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              invoice.formattedAmount,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                invoice.formattedAmount,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+                textAlign: TextAlign.right,
               ),
             ),
             
             if (invoice.taxAmount != null && invoice.taxAmount! > 0) ...[
               const SizedBox(height: 8),
-              Text(
-                '含税额：¥${invoice.taxAmount!.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '含税额：¥${invoice.taxAmount!.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  textAlign: TextAlign.right,
                 ),
               ),
             ],
@@ -481,16 +489,18 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          const Spacer(),
-          Flexible(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: textColor ?? Theme.of(context).colorScheme.onSurface,
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: textColor ?? Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.right,
               ),
-              textAlign: TextAlign.end,
             ),
           ),
         ],

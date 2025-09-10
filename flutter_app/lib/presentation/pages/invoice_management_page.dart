@@ -46,11 +46,14 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   late TabController _tabController;
   String _searchQuery = '';
   String _selectedFilter = '全部';
+  bool _isSearching = false;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _searchController = TextEditingController();
     _tabController.addListener(() {
       print('📋 [TabController] 切换到Tab: ${_tabController.index}');
     });
@@ -59,6 +62,7 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -88,7 +92,7 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
               child: Builder(
                 builder: (context) {
                   print('🏗️ [TabBarView] Builder构建AllInvoicesTab');
-                  return _AllInvoicesTab();
+                  return _AllInvoicesTab(searchQuery: _searchQuery);
                 },
               ),
             ),
@@ -120,11 +124,42 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   /// 构建应用栏
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      title: const Text('发票管理'),
+      title: _isSearching 
+        ? TextField(
+            controller: _searchController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: '搜索发票号、销售方、金额...',
+              border: InputBorder.none,
+              hintStyle: TextStyle(color: Colors.white70),
+            ),
+            style: const TextStyle(color: Colors.white),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+              _updateSearchQuery(value);
+            },
+          )
+        : const Text('发票管理'),
       centerTitle: true,
       floating: true,
       pinned: true,
-      actions: [],
+      actions: [
+        IconButton(
+          icon: Icon(_isSearching ? Icons.close : Icons.search),
+          onPressed: () {
+            setState(() {
+              _isSearching = !_isSearching;
+              if (!_isSearching) {
+                _searchController.clear();
+                _searchQuery = '';
+                _updateSearchQuery('');
+              }
+            });
+          },
+        ),
+      ],
       bottom: TabBar(
         controller: _tabController,
         tabs: const [
@@ -136,18 +171,31 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
     );
   }
 
+  /// 更新搜索查询
+  void _updateSearchQuery(String query) {
+    // 通过setState触发所有子组件重建
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
 }
 
 /// 全部发票标签页 - 独立组件，确保正确的上下文访问
 class _AllInvoicesTab extends StatefulWidget {
+  final String searchQuery;
+  
+  const _AllInvoicesTab({required this.searchQuery});
+  
   @override
   State<_AllInvoicesTab> createState() => _AllInvoicesTabState();
 }
 
 class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   late ScrollController _scrollController;
-  String _searchQuery = '';
   String _selectedFilter = '全部';
+  bool _isSelectionMode = false;
+  Set<String> _selectedInvoices = <String>{};
 
   _AllInvoicesTabState() {
     print('🏗️ [AllInvoicesTabState] 构造函数执行');
@@ -172,6 +220,116 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         print('🏗️ [AllInvoicesTabState] 已有数据，无需重新加载 - 发票数量: ${currentState.invoices.length}');
       }
     });
+  }
+
+  /// 进入选择模式
+  void _enterSelectionMode(String invoiceId) {
+    setState(() {
+      _isSelectionMode = true;
+      _selectedInvoices.add(invoiceId);
+    });
+  }
+
+  /// 退出选择模式
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedInvoices.clear();
+    });
+  }
+
+  /// 切换发票选择状态
+  void _toggleInvoiceSelection(String invoiceId) {
+    setState(() {
+      if (_selectedInvoices.contains(invoiceId)) {
+        _selectedInvoices.remove(invoiceId);
+        if (_selectedInvoices.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedInvoices.add(invoiceId);
+      }
+    });
+  }
+
+  /// 全选/取消全选
+  void _toggleSelectAll(List<InvoiceEntity> invoices) {
+    setState(() {
+      if (_selectedInvoices.length == invoices.length) {
+        _selectedInvoices.clear();
+        _isSelectionMode = false;
+      } else {
+        _selectedInvoices = invoices.map((invoice) => invoice.id).toSet();
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  /// 批量删除选中的发票
+  void _deleteSelectedInvoices() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('批量删除'),
+        content: Text('确定要删除选中的 ${_selectedInvoices.length} 张发票吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              for (final invoiceId in _selectedInvoices) {
+                context.read<InvoiceBloc>().add(DeleteInvoice(invoiceId));
+              }
+              _exitSelectionMode();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 应用搜索过滤
+  List<InvoiceEntity> _applySearchFilter(List<InvoiceEntity> invoices) {
+    if (widget.searchQuery.isEmpty) {
+      return invoices;
+    }
+
+    final query = widget.searchQuery.toLowerCase();
+    return invoices.where((invoice) {
+      // 搜索发票号
+      if (invoice.invoiceNumber.toLowerCase().contains(query)) {
+        return true;
+      }
+      
+      // 搜索销售方
+      if (invoice.sellerName?.toLowerCase().contains(query) == true) {
+        return true;
+      }
+      
+      // 搜索金额（支持部分匹配）
+      final amountStr = invoice.amount.toString();
+      if (amountStr.contains(query)) {
+        return true;
+      }
+      
+      // 搜索总金额
+      final totalAmountStr = invoice.totalAmount?.toString() ?? '';
+      if (totalAmountStr.contains(query)) {
+        return true;
+      }
+      
+      // 搜索买方名称
+      if (invoice.buyerName?.toLowerCase().contains(query) == true) {
+        return true;
+      }
+      
+      return false;
+    }).toList();
   }
 
   /// 按月份分组发票数据（基于消费时间）
@@ -265,15 +423,22 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         }
         
         if (state is InvoiceLoaded) {
+          // 应用搜索过滤
+          final filteredInvoices = _applySearchFilter(state.invoices);
+          
           return Column(
             children: [
               // 搜索和筛选栏
-              if (_searchQuery.isNotEmpty || _selectedFilter != '全部')
+              if (widget.searchQuery.isNotEmpty || _selectedFilter != '全部')
                 _buildSearchFilterBar(),
+              
+              // 多选操作栏
+              if (_isSelectionMode)
+                _buildSelectionToolbar(filteredInvoices),
               
               // 发票列表
               Expanded(
-                child: _buildInvoiceList(state.invoices, state.isLoadingMore),
+                child: _buildInvoiceList(filteredInvoices, state.isLoadingMore),
               ),
             ],
           );
@@ -335,6 +500,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                           onDelete: () => _showDeleteConfirmation(invoice),
                           onStatusChanged: (newStatus) => _handleStatusChange(invoice, newStatus),
                           showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
+                          isSelectionMode: _isSelectionMode,
+                          isSelected: _selectedInvoices.contains(invoice.id),
+                          onLongPress: () => _enterSelectionMode(invoice.id),
+                          onSelectionToggle: () => _toggleInvoiceSelection(invoice.id),
                         ),
                       );
                     },
@@ -358,6 +527,60 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     );
   }
 
+  /// 构建多选工具栏
+  Widget _buildSelectionToolbar(List<InvoiceEntity> allInvoices) {
+    final isAllSelected = _selectedInvoices.length == allInvoices.length && allInvoices.isNotEmpty;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          // 关闭选择模式
+          IconButton(
+            onPressed: _exitSelectionMode,
+            icon: const Icon(Icons.close),
+            tooltip: '取消选择',
+          ),
+          
+          // 选择计数
+          Expanded(
+            child: Text(
+              '已选择 ${_selectedInvoices.length} 项',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          
+          // 全选/取消全选
+          IconButton(
+            onPressed: () => _toggleSelectAll(allInvoices),
+            icon: Icon(isAllSelected ? Icons.deselect : Icons.select_all),
+            tooltip: isAllSelected ? '取消全选' : '全选',
+          ),
+          
+          // 批量删除
+          if (_selectedInvoices.isNotEmpty)
+            IconButton(
+              onPressed: _deleteSelectedInvoices,
+              icon: const Icon(Icons.delete),
+              tooltip: '删除选中项',
+              color: Colors.red,
+            ),
+        ],
+      ),
+    );
+  }
+
   /// 构建搜索筛选栏
   Widget _buildSearchFilterBar() {
     return Container(
@@ -373,10 +596,12 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       ),
       child: Row(
         children: [
-          if (_searchQuery.isNotEmpty) ...[
+          if (widget.searchQuery.isNotEmpty) ...[
             Chip(
-              label: Text('搜索: $_searchQuery'),
-              onDeleted: () => setState(() => _searchQuery = ''),
+              label: Text('搜索: ${widget.searchQuery}'),
+              onDeleted: () {
+                // 通知父级清除搜索
+              },
             ),
             const SizedBox(width: 8),
           ],

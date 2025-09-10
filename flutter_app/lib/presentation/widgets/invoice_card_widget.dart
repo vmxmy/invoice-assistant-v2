@@ -10,6 +10,10 @@ class InvoiceCardWidget extends StatelessWidget {
   final VoidCallback? onDelete;
   final ValueChanged<InvoiceStatus>? onStatusChanged;
   final bool showConsumptionDateOnly;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSelectionToggle;
 
   const InvoiceCardWidget({
     super.key,
@@ -18,6 +22,10 @@ class InvoiceCardWidget extends StatelessWidget {
     this.onDelete,
     this.onStatusChanged,
     this.showConsumptionDateOnly = false,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onLongPress,
+    this.onSelectionToggle,
   });
 
   @override
@@ -27,9 +35,11 @@ class InvoiceCardWidget extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      elevation: isSelected ? 8 : 2,
+      color: isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
       child: InkWell(
-        onTap: onTap,
+        onTap: isSelectionMode ? onSelectionToggle : onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -40,6 +50,15 @@ class InvoiceCardWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // 选择框（多选模式下显示）
+                  if (isSelectionMode) ...[
+                    Checkbox(
+                      value: isSelected,
+                      onChanged: (_) => onSelectionToggle?.call(),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,39 +134,6 @@ class InvoiceCardWidget extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-              ],
-
-              // 显示进度条（基于报销状态）
-              if (invoice.status == InvoiceStatus.unreimbursed) ...[
-                const SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '处理进度',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Text(
-                          '${(invoice.progressPercent * 100).toInt()}%',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(
-                      value: invoice.progressPercent,
-                      backgroundColor: colorScheme.surfaceContainerHighest,
-                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                     ),
                   ],
                 ),
