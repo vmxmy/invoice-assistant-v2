@@ -719,7 +719,30 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       if (AppConfig.enableLogging) {
         print('🔍 [RemoteDataSource] 开始解析发票数据: ${data.keys.toList()}');
       }
-      final model = InvoiceModel.fromJson(data);
+      
+      // 检查必填字段，如果缺少则提供默认值
+      final processedData = Map<String, dynamic>.from(data);
+      
+      // 确保必填字段存在
+      if (processedData['id'] == null) {
+        processedData['id'] = 'unknown';
+      }
+      if (processedData['invoice_number'] == null) {
+        processedData['invoice_number'] = '';
+      }
+      if (processedData['user_id'] == null) {
+        final currentUser = SupabaseClientManager.currentUser;
+        processedData['user_id'] = currentUser?.id ?? 'unknown';
+      }
+      if (processedData['invoice_date'] == null) {
+        processedData['invoice_date'] = DateTime.now().toIso8601String();
+      }
+      
+      if (AppConfig.enableLogging) {
+        print('🔍 [RemoteDataSource] 处理后的数据: $processedData');
+      }
+      
+      final model = InvoiceModel.fromJson(processedData);
       return model.toEntity();
     } catch (e) {
       if (AppConfig.enableLogging) {

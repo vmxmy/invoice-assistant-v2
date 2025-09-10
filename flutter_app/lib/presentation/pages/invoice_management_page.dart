@@ -159,6 +159,19 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     print('🏗️ [AllInvoicesTabState] initState执行');
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    
+    // 检查当前状态，如果没有数据则加载
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentState = context.read<InvoiceBloc>().state;
+      print('🏗️ [AllInvoicesTabState] 检查当前状态: ${currentState.runtimeType}');
+      
+      if (currentState is! InvoiceLoaded || currentState.invoices.isEmpty) {
+        print('🏗️ [AllInvoicesTabState] 触发加载发票事件');
+        context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+      } else {
+        print('🏗️ [AllInvoicesTabState] 已有数据，无需重新加载 - 发票数量: ${currentState.invoices.length}');
+      }
+    });
   }
 
   /// 按月份分组发票数据（基于消费时间）

@@ -176,7 +176,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
               onTap: _pickFiles,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: SingleChildScrollView(
                     child: Column(
@@ -184,48 +184,44 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        _selectedFiles.isEmpty ? Icons.cloud_upload_outlined : Icons.folder_open,
-                        size: 80,
-                        color: Theme.of(context).primaryColor,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _selectedFiles.isEmpty ? Icons.cloud_upload_outlined : Icons.folder_open,
+                            size: 32,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _selectedFiles.isEmpty ? '选择PDF发票文件' : '已选择 ${_selectedFiles.length} 个文件',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _selectedFiles.isEmpty 
+                                  ? (_isDragging 
+                                    ? '释放文件到此处上传'
+                                    : '点击选择或拖拽文件')
+                                  : '点击重新选择文件',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: _isDragging ? Theme.of(context).primaryColor : Colors.grey.shade600,
+                                  fontWeight: _isDragging ? FontWeight.w500 : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 24),
-                      
-                      Text(
-                        _selectedFiles.isEmpty ? '选择PDF发票文件' : '已选择 ${_selectedFiles.length} 个文件',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      Text(
-                        _selectedFiles.isEmpty 
-                          ? (_isDragging 
-                            ? '释放文件到此处上传\n支持PDF格式，最多5个文件'
-                            : '点击选择PDF文件或拖拽文件到此处\n支持多文件选择，最多5个文件，单文件不超过10MB')
-                          : '点击重新选择文件或拖拽新文件',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: _isDragging ? Theme.of(context).primaryColor : Colors.grey.shade600,
-                          fontWeight: _isDragging ? FontWeight.w600 : FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       
                       // 已选文件列表
                       if (_selectedFiles.isNotEmpty) ...[
-                        const SizedBox(height: 24),
-                        const Divider(),
-                        const SizedBox(height: 16),
-                        
-                        Text(
-                          '已选择的文件:',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                         const SizedBox(height: 12),
                         
                         ...List.generate(_selectedFiles.length, (index) {

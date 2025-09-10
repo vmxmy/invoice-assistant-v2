@@ -49,22 +49,35 @@ class UploadResultWidget extends StatelessWidget {
     final hasSuccess = successCount > 0;
     final hasDuplicate = duplicateCount > 0;
 
-    Color summaryColor = Colors.green;
-    IconData summaryIcon = Icons.check_circle;
-    String summaryTitle = '上传完成！';
+    Color summaryColor;
+    IconData summaryIcon;
+    String summaryTitle;
 
-    if (hasFailure && !hasSuccess) {
-      summaryColor = Colors.red;
-      summaryIcon = Icons.error;
-      summaryTitle = '上传失败';
-    } else if (hasFailure) {
+    if (hasFailure && hasSuccess) {
+      // 既有成功又有失败
       summaryColor = Colors.orange;
       summaryIcon = Icons.warning;
       summaryTitle = '部分文件上传失败';
+    } else if (hasFailure && !hasSuccess && !hasDuplicate) {
+      // 只有失败
+      summaryColor = Colors.red;
+      summaryIcon = Icons.error;
+      summaryTitle = '上传失败';
     } else if (hasSuccess && !hasFailure) {
+      // 有成功，无失败
       summaryColor = Colors.green;
-      summaryIcon = Icons.check_circle_outline;
+      summaryIcon = Icons.check_circle;
       summaryTitle = hasDuplicate ? '上传完成（含重复文件）' : '全部文件上传成功！';
+    } else if (!hasSuccess && !hasFailure && hasDuplicate) {
+      // 只有重复文件，没有成功和失败
+      summaryColor = Colors.amber;
+      summaryIcon = Icons.info;
+      summaryTitle = '文件重复处理完成';
+    } else {
+      // 兜底情况（可能包含失败+重复的情况）
+      summaryColor = Colors.orange;
+      summaryIcon = Icons.warning;
+      summaryTitle = '处理完成';
     }
 
     return Container(
@@ -216,25 +229,6 @@ class UploadResultWidget extends StatelessWidget {
 
   /// 构建单个结果项
   Widget _buildResultItem(BuildContext context, UploadResult result) {
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
-
-    if (result.isSuccess) {
-      if (result.isDuplicate) {
-        statusColor = Colors.amber;
-        statusIcon = Icons.content_copy;
-        statusText = '文件重复';
-      } else {
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-        statusText = '上传成功';
-      }
-    } else {
-      statusColor = Colors.red;
-      statusIcon = Icons.error;
-      statusText = '上传失败';
-    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -242,7 +236,7 @@ class UploadResultWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.05),
@@ -276,25 +270,6 @@ class UploadResultWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          statusIcon,
-                          size: 14,
-                          color: statusColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: statusColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -304,18 +279,48 @@ class UploadResultWidget extends StatelessWidget {
             ],
           ),
           
-          // 发票信息或错误信息
-          if (result.isSuccess && result.invoice != null) ...[
-            const SizedBox(height: 12),
-            _buildInvoiceInfo(context, result.invoice!),
-          ] else if (result.isDuplicate && result.duplicateInfo != null) ...[
-            const SizedBox(height: 12),
-            _buildDuplicateInfo(context, result.duplicateInfo!),
-          ] else if (result.error != null) ...[
-            const SizedBox(height: 12),
-            _buildErrorInfo(context, result.error!),
-          ],
+          // 结果徽章
+          const SizedBox(height: 12),
+          _buildResultBadge(context, result),
         ],
+      ),
+    );
+  }
+
+  /// 构建结果徽章
+  Widget _buildResultBadge(BuildContext context, UploadResult result) {
+    String badgeText;
+    Color badgeColor;
+
+    if (result.isSuccess && !result.isDuplicate) {
+      badgeText = '上传成功';
+      badgeColor = Colors.green;
+    } else if (result.isDuplicate) {
+      badgeText = '该发票已存在';
+      badgeColor = Colors.amber;
+    } else {
+      // 错误情况，显示友好错误信息
+      badgeText = _getFriendlyErrorMessage(result.error ?? '上传失败');
+      badgeColor = Colors.red;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: badgeColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: badgeColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        badgeText,
+        style: TextStyle(
+          fontSize: 12,
+          color: badgeColor.withValues(alpha: 0.8),
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -343,116 +348,8 @@ class UploadResultWidget extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  /// 构建发票信息
-  Widget _buildInvoiceInfo(BuildContext context, InvoiceEntity invoice) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '发票信息',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.green.shade700,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 6),
-          if (invoice.invoiceNumber.isNotEmpty) ...[
-            _buildInfoRow('发票号码', invoice.invoiceNumber),
-          ],
-          if (invoice.sellerName != null && invoice.sellerName!.isNotEmpty) ...[
-            _buildInfoRow('销售方', invoice.sellerName!),
-          ],
-          _buildInfoRow('金额', '¥${(invoice.totalAmount ?? invoice.amount).toStringAsFixed(2)}'),
-          _buildInfoRow('日期', _formatDate(invoice.invoiceDate)),
-        ],
-      ),
-    );
-  }
 
-  /// 构建重复信息
-  Widget _buildDuplicateInfo(BuildContext context, DuplicateInvoiceInfo duplicateInfo) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.amber.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '重复文件信息',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.amber.shade700,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            duplicateInfo.message,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.amber.shade600,
-            ),
-          ),
-          if (duplicateInfo.canRestore) ...[
-            const SizedBox(height: 8),
-            Text(
-              '可以选择恢复此发票',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.amber.shade600,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
-  /// 构建错误信息
-  Widget _buildErrorInfo(BuildContext context, String error) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '错误信息',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.red.shade700,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            error,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.red.shade600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   /// 构建操作按钮
   Widget _buildActionButtons(BuildContext context) {
@@ -497,31 +394,42 @@ class UploadResultWidget extends StatelessWidget {
     );
   }
 
-  /// 构建信息行
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 60,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 11),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
+
+  /// 将技术错误信息转换为用户友好的错误信息
+  String _getFriendlyErrorMessage(String originalError) {
+    // 移除技术性前缀
+    String cleanError = originalError;
+    if (cleanError.contains('UploadInvoiceException:')) {
+      cleanError = cleanError.split('UploadInvoiceException:').last.trim();
+    }
+    
+    // 常见错误模式匹配
+    if (cleanError.contains('网络连接') || cleanError.contains('connection') || cleanError.contains('timeout')) {
+      return '网络连接异常，请检查网络后重试';
+    } else if (cleanError.contains('文件大小') || cleanError.contains('file size') || cleanError.contains('too large')) {
+      return '文件大小超出限制，单个文件不能超过10MB';
+    } else if (cleanError.contains('格式') || cleanError.contains('format') || cleanError.contains('invalid')) {
+      return '文件格式不支持，请选择PDF格式的发票文件';
+    } else if (cleanError.contains('服务器错误') || cleanError.contains('server error') || cleanError.contains('internal error')) {
+      return '服务器暂时无法处理请求，请稍后重试';
+    } else if (cleanError.contains('权限') || cleanError.contains('permission') || cleanError.contains('unauthorized')) {
+      return '操作权限不足，请重新登录后重试';
+    } else if (cleanError.contains('数据操作失败') || cleanError.contains('database')) {
+      return '数据保存失败，请检查网络连接后重试';
+    } else if (cleanError.contains('重复') || cleanError.contains('duplicate')) {
+      return '该文件已存在，无需重复上传';
+    } else if (cleanError.contains('OCR') || cleanError.contains('识别')) {
+      return '发票信息识别失败，请确保文件清晰可读';
+    } else if (cleanError.contains('uploadInvoice')) {
+      return '上传服务暂时不可用，请稍后重试';
+    }
+    
+    // 如果没有匹配到特定错误，返回简化的通用错误
+    if (cleanError.length > 50) {
+      return '上传失败，请检查文件格式和网络连接后重试';
+    }
+    
+    return cleanError.isNotEmpty ? cleanError : '上传失败，请重试';
   }
 
   /// 格式化日期
