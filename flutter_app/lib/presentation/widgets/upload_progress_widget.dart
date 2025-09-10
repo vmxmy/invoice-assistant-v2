@@ -6,12 +6,14 @@ class UploadProgressWidget extends StatelessWidget {
   final List<UploadProgress> progresses;
   final int completedCount;
   final int totalCount;
+  final VoidCallback? onCancel;
 
   const UploadProgressWidget({
     super.key,
     required this.progresses,
     required this.completedCount,
     required this.totalCount,
+    this.onCancel,
   });
 
   @override
@@ -79,12 +81,32 @@ class UploadProgressWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                '${(overallProgress * 100).toInt()}%',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
+              Column(
+                children: [
+                  Text(
+                    '${(overallProgress * 100).toInt()}%',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  if (onCancel != null) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: IconButton(
+                        onPressed: () => _showCancelConfirmDialog(context),
+                        icon: const Icon(Icons.close, size: 18),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.red.withValues(alpha: 0.1),
+                          foregroundColor: Colors.red,
+                        ),
+                        tooltip: '取消上传',
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -338,5 +360,38 @@ class UploadProgressWidget extends StatelessWidget {
       case UploadStage.error:
         return Colors.red;
     }
+  }
+
+  /// 显示取消确认对话框
+  void _showCancelConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_outlined, color: Colors.orange),
+            const SizedBox(width: 8),
+            const Text('取消上传'),
+          ],
+        ),
+        content: const Text('确定要取消当前的上传任务吗？\n\n已上传的文件将会保留，未完成的文件将停止处理。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('继续上传'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              onCancel?.call();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('确认取消'),
+          ),
+        ],
+      ),
+    );
   }
 }
