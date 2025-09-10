@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -120,6 +121,36 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     _scrollController.addListener(_onScroll);
   }
 
+  /// 按月份分组发票数据（基于消费时间）
+  Map<String, List<InvoiceEntity>> _groupInvoicesByMonth(List<InvoiceEntity> invoices) {
+    final Map<String, List<InvoiceEntity>> groupedInvoices = {};
+    
+    for (final invoice in invoices) {
+      // 使用消费时间进行分组，如果消费时间为空则使用开票时间作为fallback
+      final dateForGrouping = invoice.consumptionDate ?? invoice.invoiceDate;
+      final monthKey = '${dateForGrouping.year}年${dateForGrouping.month.toString().padLeft(2, '0')}月';
+      groupedInvoices.putIfAbsent(monthKey, () => []).add(invoice);
+    }
+    
+    // 按月份降序排序（最新的月份在前）
+    final sortedKeys = groupedInvoices.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+    
+    final sortedMap = <String, List<InvoiceEntity>>{};
+    for (final key in sortedKeys) {
+      // 每个月内按消费时间降序排序（如果消费时间为空则使用开票时间）
+      final monthInvoices = groupedInvoices[key]!
+        ..sort((a, b) {
+          final dateA = a.consumptionDate ?? a.invoiceDate;
+          final dateB = b.consumptionDate ?? b.invoiceDate;
+          return dateB.compareTo(dateA);
+        });
+      sortedMap[key] = monthInvoices;
+    }
+    
+    return sortedMap;
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -155,6 +186,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +232,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     );
   }
 
-  /// 构建发票列表
+  /// 构建按月份分组的发票列表
   Widget _buildInvoiceList(List<InvoiceEntity> invoices, bool isLoadingMore) {
     if (invoices.isEmpty) {
       return const Center(
@@ -215,31 +247,61 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       );
     }
 
+    final groupedInvoices = _groupInvoicesByMonth(invoices);
+    final monthKeys = groupedInvoices.keys.toList();
+
     return RefreshIndicator(
       onRefresh: () async {
         context.read<InvoiceBloc>().add(const RefreshInvoices());
       },
-      child: ListView.builder(
+      child: CustomScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        itemCount: invoices.length + (isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == invoices.length) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          final invoice = invoices[index];
-          return InvoiceCardWidget(
-            invoice: invoice,
-            onTap: () => _viewInvoiceDetail(invoice),
-            onDelete: () => _showDeleteConfirmation(invoice),
-            onStatusChanged: (newStatus) => _handleStatusChange(invoice, newStatus),
-            showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
-          );
-        },
+        slivers: [
+          // 为每个月份创建一个MultiSliver section
+          ...monthKeys.map((monthKey) => 
+            MultiSliver(
+              pushPinnedChildren: true, // 防止多个header堆叠
+              children: [
+                // 月份标题 (粘性header)
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _MonthHeaderDelegate(
+                    monthKey: monthKey,
+                    invoiceCount: groupedInvoices[monthKey]!.length,
+                  ),
+                ),
+                // 该月份的发票列表
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final invoice = groupedInvoices[monthKey]![index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: InvoiceCardWidget(
+                          invoice: invoice,
+                          onTap: () => _viewInvoiceDetail(invoice),
+                          onDelete: () => _showDeleteConfirmation(invoice),
+                          onStatusChanged: (newStatus) => _handleStatusChange(invoice, newStatus),
+                          showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
+                        ),
+                      );
+                    },
+                    childCount: groupedInvoices[monthKey]!.length,
+                  ),
+                ),
+              ],
+            ),
+          ).toList(),
+          
+          // 加载更多指示器
+          if (isLoadingMore)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -358,11 +420,17 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 class _MonthlyInvoicesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+        }
+      },
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded,
+        current is InvoiceLoaded ||
+        current is InvoiceDeleteSuccess,
       builder: (context, state) {
         if (state is InvoiceLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -464,15 +532,104 @@ class _MonthlyInvoicesTab extends StatelessWidget {
   }
 }
 
+/// 月份标题的SliverPersistentHeader委托
+class _MonthHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final String monthKey;
+  final int invoiceCount;
+
+  _MonthHeaderDelegate({
+    required this.monthKey,
+    required this.invoiceCount,
+  });
+
+  @override
+  double get minExtent => 48.0;
+
+  @override
+  double get maxExtent => 48.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final theme = Theme.of(context);
+    
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.95), // 半透明背景
+        border: Border(
+          bottom: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.3),
+            width: 0.5,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: theme.shadowColor.withValues(alpha: 0.08),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_month,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                monthKey,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '$invoiceCount张',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_MonthHeaderDelegate oldDelegate) {
+    return oldDelegate.monthKey != monthKey || oldDelegate.invoiceCount != invoiceCount;
+  }
+}
+
 /// 收藏标签页
 class _FavoritesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+        }
+      },
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded,
+        current is InvoiceLoaded ||
+        current is InvoiceDeleteSuccess,
       builder: (context, state) {
         if (state is InvoiceLoaded) {
           // 筛选已验证的发票作为收藏
