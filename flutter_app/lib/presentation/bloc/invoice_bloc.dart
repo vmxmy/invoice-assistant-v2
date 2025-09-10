@@ -5,6 +5,7 @@ import '../../domain/exceptions/invoice_exceptions.dart';
 import '../../domain/usecases/get_invoice_stats_usecase.dart';
 import '../../domain/usecases/delete_invoice_usecase.dart';
 import '../../domain/usecases/update_invoice_status_usecase.dart';
+import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../core/config/app_config.dart';
 import 'invoice_event.dart';
@@ -17,6 +18,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   final GetInvoiceStatsUseCase _getInvoiceStatsUseCase;
   final DeleteInvoiceUseCase _deleteInvoiceUseCase;
   final UpdateInvoiceStatusUseCase _updateInvoiceStatusUseCase;
+  final UploadInvoiceUseCase _uploadInvoiceUseCase;
 
   // 内部状态管理
   final List<InvoiceEntity> _allInvoices = [];
@@ -30,12 +32,14 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     required GetInvoiceStatsUseCase getInvoiceStatsUseCase,
     required DeleteInvoiceUseCase deleteInvoiceUseCase,
     required UpdateInvoiceStatusUseCase updateInvoiceStatusUseCase,
+    required UploadInvoiceUseCase uploadInvoiceUseCase,
   }) : 
     _getInvoicesUseCase = getInvoicesUseCase,
     _getInvoiceDetailUseCase = getInvoiceDetailUseCase,
     _getInvoiceStatsUseCase = getInvoiceStatsUseCase,
     _deleteInvoiceUseCase = deleteInvoiceUseCase,
     _updateInvoiceStatusUseCase = updateInvoiceStatusUseCase,
+    _uploadInvoiceUseCase = uploadInvoiceUseCase,
     super(InvoiceInitial()) {
     
     // 注册事件处理器
@@ -47,6 +51,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     on<LoadInvoiceStats>(_onLoadInvoiceStats);
     on<LoadInvoiceDetail>(_onLoadInvoiceDetail);
     on<UpdateInvoiceStatus>(_onUpdateInvoiceStatus);
+    on<UploadInvoice>(_onUploadInvoice);
+    on<UploadInvoices>(_onUploadInvoices);
+    on<CancelUpload>(_onCancelUpload);
+    on<RetryUpload>(_onRetryUpload);
+    on<ClearUploadResults>(_onClearUploadResults);
   }
 
   /// 处理加载发票列表事件
@@ -186,20 +195,20 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       _allInvoices.removeWhere((invoice) => invoice.id == event.invoiceId);
       _totalCount--;
 
-      // 发送删除成功状态
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 发票删除成功');
+      }
+
+      // 先发送删除成功状态用于显示snackbar
       emit(InvoiceDeleteSuccess('发票删除成功'));
 
-      // 更新列表状态
+      // 立即更新列表状态
       emit(InvoiceLoaded(
         invoices: List.from(_allInvoices),
         currentPage: _currentPage,
         totalCount: _totalCount,
         hasMore: _hasMore,
       ));
-
-      if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 发票删除成功');
-      }
 
     } catch (error) {
       if (AppConfig.enableLogging) {
@@ -226,19 +235,20 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       _allInvoices.removeWhere((invoice) => event.invoiceIds.contains(invoice.id));
       _totalCount -= event.invoiceIds.length;
 
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 批量删除发票成功');
+      }
+
+      // 先发送删除成功状态用于显示snackbar
       emit(InvoiceDeleteSuccess('${event.invoiceIds.length}个发票删除成功'));
 
-      // 更新列表状态
+      // 立即更新列表状态
       emit(InvoiceLoaded(
         invoices: List.from(_allInvoices),
         currentPage: _currentPage,
         totalCount: _totalCount,
         hasMore: _hasMore,
       ));
-
-      if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 批量删除发票成功');
-      }
 
     } catch (error) {
       if (AppConfig.enableLogging) {
@@ -408,5 +418,376 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         errorCode: 'UPDATE_STATUS_ERROR',
       ));
     }
+  }
+
+  /// 处理单个发票上传事件
+  Future<void> _onUploadInvoice(UploadInvoice event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      print('📤 [InvoiceBloc] 开始上传单个发票: ${event.filePath}');
+    }
+
+    try {
+      final fileName = event.filePath.split('/').last;
+      
+      // 初始化上传状态
+      emit(InvoiceUploading(
+        progresses: [
+          UploadProgress(
+            filePath: event.filePath,
+            fileName: fileName,
+            stage: UploadStage.preparing,
+            progress: 0.0,
+            message: '准备上传...',
+          )
+        ],
+        completedCount: 0,
+        totalCount: 1,
+      ));
+
+      // 更新到计算哈希阶段
+      emit(InvoiceUploading(
+        progresses: [
+          UploadProgress(
+            filePath: event.filePath,
+            fileName: fileName,
+            stage: UploadStage.hashing,
+            progress: 0.2,
+            message: '正在计算文件哈希...',
+          )
+        ],
+        completedCount: 0,
+        totalCount: 1,
+      ));
+
+      // 更新到上传阶段
+      emit(InvoiceUploading(
+        progresses: [
+          UploadProgress(
+            filePath: event.filePath,
+            fileName: fileName,
+            stage: UploadStage.uploading,
+            progress: 0.5,
+            message: '正在上传文件...',
+          )
+        ],
+        completedCount: 0,
+        totalCount: 1,
+      ));
+
+      // 更新到处理阶段
+      emit(InvoiceUploading(
+        progresses: [
+          UploadProgress(
+            filePath: event.filePath,
+            fileName: fileName,
+            stage: UploadStage.processing,
+            progress: 0.8,
+            message: '正在进行OCR识别...',
+          )
+        ],
+        completedCount: 0,
+        totalCount: 1,
+      ));
+
+      // 调用上传用例
+      final result = await _uploadInvoiceUseCase(
+        UploadInvoiceParams(
+          filePath: event.filePath,
+          metadata: event.metadata,
+        ),
+      );
+
+      // 处理上传结果
+      if (result.isSuccess) {
+        final uploadResult = UploadResult(
+          filePath: event.filePath,
+          fileName: fileName,
+          isSuccess: true,
+          invoice: result.invoice,
+          duplicateInfo: result.duplicateInfo,
+        );
+
+        if (result.isDuplicate) {
+          // 重复文件
+          emit(InvoiceUploadCompleted(
+            results: [uploadResult],
+            successCount: 0,
+            failureCount: 0,
+            duplicateCount: 1,
+          ));
+        } else {
+          // 成功上传
+          emit(InvoiceUploadCompleted(
+            results: [uploadResult],
+            successCount: 1,
+            failureCount: 0,
+            duplicateCount: 0,
+          ));
+          
+          // 如果有新发票，添加到本地列表并刷新列表
+          if (result.invoice != null) {
+            _allInvoices.insert(0, result.invoice!); // 插入到列表开头
+            _totalCount++;
+          }
+        }
+      } else {
+        // 上传失败
+        final uploadResult = UploadResult(
+          filePath: event.filePath,
+          fileName: fileName,
+          isSuccess: false,
+          error: result.error?.message ?? '上传失败',
+        );
+
+        emit(InvoiceUploadCompleted(
+          results: [uploadResult],
+          successCount: 0,
+          failureCount: 1,
+          duplicateCount: 0,
+        ));
+      }
+
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 单个发票上传完成');
+      }
+
+    } catch (error) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 上传发票失败: $error');
+      }
+
+      final fileName = event.filePath.split('/').last;
+      final uploadResult = UploadResult(
+        filePath: event.filePath,
+        fileName: fileName,
+        isSuccess: false,
+        error: error.toString(),
+      );
+
+      emit(InvoiceUploadCompleted(
+        results: [uploadResult],
+        successCount: 0,
+        failureCount: 1,
+        duplicateCount: 0,
+      ));
+    }
+  }
+
+  /// 处理批量发票上传事件
+  Future<void> _onUploadInvoices(UploadInvoices event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      print('📤 [InvoiceBloc] 开始批量上传 ${event.filePaths.length} 个发票');
+    }
+
+    final List<UploadProgress> progresses = [];
+    final List<UploadResult> results = [];
+    int successCount = 0;
+    int failureCount = 0;
+    int duplicateCount = 0;
+
+    try {
+      // 初始化所有文件的上传进度
+      for (final filePath in event.filePaths) {
+        final fileName = filePath.split('/').last;
+        progresses.add(
+          UploadProgress(
+            filePath: filePath,
+            fileName: fileName,
+            stage: UploadStage.preparing,
+            progress: 0.0,
+            message: '准备上传...',
+          ),
+        );
+      }
+
+      emit(InvoiceUploading(
+        progresses: progresses,
+        completedCount: 0,
+        totalCount: event.filePaths.length,
+      ));
+
+      // 逐个上传文件
+      for (int i = 0; i < event.filePaths.length; i++) {
+        final filePath = event.filePaths[i];
+        final fileName = filePath.split('/').last;
+
+        try {
+          if (AppConfig.enableLogging) {
+            print('📤 [InvoiceBloc] 上传进度: ${i + 1}/${event.filePaths.length} - $fileName');
+          }
+
+          // 更新当前文件状态
+          progresses[i] = progresses[i].copyWith(
+            stage: UploadStage.hashing,
+            progress: 0.2,
+            message: '正在计算文件哈希...',
+          );
+          emit(InvoiceUploading(
+            progresses: List.from(progresses),
+            completedCount: i,
+            totalCount: event.filePaths.length,
+          ));
+
+          progresses[i] = progresses[i].copyWith(
+            stage: UploadStage.uploading,
+            progress: 0.5,
+            message: '正在上传文件...',
+          );
+          emit(InvoiceUploading(
+            progresses: List.from(progresses),
+            completedCount: i,
+            totalCount: event.filePaths.length,
+          ));
+
+          progresses[i] = progresses[i].copyWith(
+            stage: UploadStage.processing,
+            progress: 0.8,
+            message: '正在进行OCR识别...',
+          );
+          emit(InvoiceUploading(
+            progresses: List.from(progresses),
+            completedCount: i,
+            totalCount: event.filePaths.length,
+          ));
+
+          // 调用上传用例
+          final result = await _uploadInvoiceUseCase(
+            UploadInvoiceParams(
+              filePath: filePath,
+              metadata: event.metadata,
+            ),
+          );
+
+          // 处理结果
+          if (result.isSuccess) {
+            if (result.isDuplicate) {
+              progresses[i] = progresses[i].copyWith(
+                stage: UploadStage.duplicate,
+                progress: 1.0,
+                message: '文件重复',
+              );
+              duplicateCount++;
+            } else {
+              progresses[i] = progresses[i].copyWith(
+                stage: UploadStage.success,
+                progress: 1.0,
+                message: '上传成功',
+              );
+              successCount++;
+              
+              // 添加到本地列表
+              if (result.invoice != null) {
+                _allInvoices.insert(0, result.invoice!);
+                _totalCount++;
+              }
+            }
+
+            results.add(UploadResult(
+              filePath: filePath,
+              fileName: fileName,
+              isSuccess: true,
+              invoice: result.invoice,
+              duplicateInfo: result.duplicateInfo,
+            ));
+          } else {
+            progresses[i] = progresses[i].copyWith(
+              stage: UploadStage.error,
+              progress: 0.0,
+              message: '上传失败',
+              error: result.error?.message ?? '未知错误',
+            );
+            failureCount++;
+
+            results.add(UploadResult(
+              filePath: filePath,
+              fileName: fileName,
+              isSuccess: false,
+              error: result.error?.message ?? '上传失败',
+            ));
+          }
+
+        } catch (fileError) {
+          if (AppConfig.enableLogging) {
+            print('❌ [InvoiceBloc] 文件上传失败: $fileName - $fileError');
+          }
+
+          progresses[i] = progresses[i].copyWith(
+            stage: UploadStage.error,
+            progress: 0.0,
+            message: '上传失败',
+            error: fileError.toString(),
+          );
+          failureCount++;
+
+          results.add(UploadResult(
+            filePath: filePath,
+            fileName: fileName,
+            isSuccess: false,
+            error: fileError.toString(),
+          ));
+        }
+
+        // 发送当前进度
+        emit(InvoiceUploading(
+          progresses: List.from(progresses),
+          completedCount: i + 1,
+          totalCount: event.filePaths.length,
+        ));
+      }
+
+      // 发送最终完成状态
+      emit(InvoiceUploadCompleted(
+        results: results,
+        successCount: successCount,
+        failureCount: failureCount,
+        duplicateCount: duplicateCount,
+      ));
+
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 批量上传完成 - 成功: $successCount, 失败: $failureCount, 重复: $duplicateCount');
+      }
+
+    } catch (error) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 批量上传失败: $error');
+      }
+
+      emit(InvoiceError(
+        message: '批量上传失败: ${error.toString()}',
+        errorCode: 'BATCH_UPLOAD_ERROR',
+      ));
+    }
+  }
+
+  /// 处理取消上传事件
+  Future<void> _onCancelUpload(CancelUpload event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      print('⏹️ [InvoiceBloc] 取消上传');
+    }
+    
+    // 这里可以实现取消逻辑，目前简单返回初始状态
+    emit(InvoiceInitial());
+  }
+
+  /// 处理重试上传事件
+  Future<void> _onRetryUpload(RetryUpload event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      print('🔄 [InvoiceBloc] 重试上传: ${event.filePath}');
+    }
+    
+    // 重新触发上传事件
+    add(UploadInvoice(
+      filePath: event.filePath,
+      metadata: event.metadata,
+    ));
+  }
+
+  /// 处理清除上传结果事件
+  Future<void> _onClearUploadResults(ClearUploadResults event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      print('🧹 [InvoiceBloc] 清除上传结果');
+    }
+    
+    emit(InvoiceInitial());
   }
 }

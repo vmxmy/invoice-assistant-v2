@@ -33,11 +33,17 @@ dependencies:
   # 存储
   shared_preferences: ^2.5.3
   
+  # 文件选择
+  file_picker: ^8.1.6
+  
   # 图像选择
   image_picker: ^1.2.0
   
   # HTTP 请求
   http: ^1.5.0
+  
+  # 加密
+  crypto: ^3.0.6
   
   # URL launcher
   url_launcher: ^6.3.1

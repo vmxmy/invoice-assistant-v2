@@ -13,6 +13,7 @@ import '../bloc/invoice_event.dart';
 import '../bloc/invoice_state.dart';
 import '../widgets/invoice_card_widget.dart';
 import '../widgets/invoice_stats_widget.dart';
+import '../widgets/app_feedback.dart';
 
 /// 发票管理页面 - 使用新的分层架构
 class InvoiceManagementPage extends StatefulWidget {
@@ -22,10 +23,30 @@ class InvoiceManagementPage extends StatefulWidget {
   State<InvoiceManagementPage> createState() => _InvoiceManagementPageState();
 }
 
+/// 内部页面组件，由BlocProvider包装
+class _InvoiceManagementPageContent extends StatefulWidget {
+  const _InvoiceManagementPageContent();
+
+  @override
+  State<_InvoiceManagementPageContent> createState() => _InvoiceManagementPageContentState();
+}
+
 class _InvoiceManagementPageState extends State<InvoiceManagementPage>
     with SingleTickerProviderStateMixin {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => sl<InvoiceBloc>()
+        ..add(const LoadInvoices(refresh: true))
+        ..add(const LoadInvoiceStats()),
+      child: const _InvoiceManagementPageContent(),
+    );
+  }
+}
+
+class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageContent>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late ScrollController _scrollController;
   String _searchQuery = '';
   String _selectedFilter = '全部';
 
@@ -33,73 +54,28 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _scrollController = ScrollController();
-    
-    // 监听滚动事件实现无限滚动
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (AppConfig.enableLogging) {
-      print('📜 [Scroll] 滚动事件 - 位置: ${_scrollController.offset.toStringAsFixed(1)}');
-    }
-    
-    if (_isBottom) {
-      final currentState = context.read<InvoiceBloc>().state;
-      if (AppConfig.enableLogging) {
-        print('📜 [Scroll] 检测到底部，触发加载更多发票');
-        if (currentState is InvoiceLoaded) {
-          print('📜 [Scroll] 当前状态 - 已加载: ${currentState.invoices.length}, hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}');
-        }
-      }
-      context.read<InvoiceBloc>().add(const LoadMoreInvoices());
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    final threshold = maxScroll * 0.8; // 降低阈值，80%时就触发
-    final isBottom = currentScroll >= threshold;
-    
-    if (AppConfig.enableLogging) {
-      if (isBottom) {
-        print('📜 [Scroll] ✅ 达到加载阈值 - current: ${currentScroll.toStringAsFixed(1)}, max: ${maxScroll.toStringAsFixed(1)}, threshold: ${threshold.toStringAsFixed(1)}');
-      } else if (currentScroll > maxScroll * 0.7) {
-        print('📜 [Scroll] ⚠️ 接近底部 - current: ${currentScroll.toStringAsFixed(1)}, max: ${maxScroll.toStringAsFixed(1)}, 进度: ${(currentScroll / maxScroll * 100).toStringAsFixed(1)}%');
-      }
-    }
-    
-    return isBottom;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<InvoiceBloc>()
-        ..add(const LoadInvoices(refresh: true))
-        ..add(const LoadInvoiceStats()),
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            _buildAppBar(context),
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          _buildAppBar(context),
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _AllInvoicesTab(),
+            _MonthlyInvoicesTab(),
+            _FavoritesTab(),
           ],
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildAllInvoicesTab(),
-              _buildMonthlyInvoicesTab(),
-              _buildFavoritesTab(),
-            ],
-          ),
         ),
       ),
     );
@@ -124,13 +100,75 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
     );
   }
 
-  /// 构建全部发票标签页
-  Widget _buildAllInvoicesTab() {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
+}
+
+/// 全部发票标签页 - 独立组件，确保正确的上下文访问
+class _AllInvoicesTab extends StatefulWidget {
+  @override
+  State<_AllInvoicesTab> createState() => _AllInvoicesTabState();
+}
+
+class _AllInvoicesTabState extends State<_AllInvoicesTab> {
+  late ScrollController _scrollController;
+  String _searchQuery = '';
+  String _selectedFilter = '全部';
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (AppConfig.enableLogging) {
+      print('📜 [AllInvoicesTab-Scroll] 滚动事件 - 位置: ${_scrollController.offset.toStringAsFixed(1)}');
+    }
+    
+    // 检查是否到达底部
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent - 200) {
+      final currentState = context.read<InvoiceBloc>().state;
+      if (AppConfig.enableLogging) {
+        print('📜 [AllInvoicesTab-Scroll] 检测到底部，当前状态: ${currentState.runtimeType}');
+      }
+      
+      if (currentState is InvoiceLoaded && currentState.hasMore && !currentState.isLoadingMore) {
+        if (AppConfig.enableLogging) {
+          print('📜 [AllInvoicesTab-Scroll] 🎯 触发加载更多发票');
+          print('📜 [AllInvoicesTab-Scroll] 当前状态 - 已加载: ${currentState.invoices.length}, hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}');
+        }
+        context.read<InvoiceBloc>().add(const LoadMoreInvoices());
+      } else {
+        if (AppConfig.enableLogging) {
+          if (currentState is InvoiceLoaded) {
+            print('📜 [AllInvoicesTab-Scroll] ⚠️ 跳过加载更多 - hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}, 已加载: ${currentState.invoices.length}');
+          } else {
+            print('📜 [AllInvoicesTab-Scroll] ⚠️ 跳过加载更多 - 状态: ${currentState.runtimeType}');
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+        }
+      },
       buildWhen: (previous, current) => 
         current is InvoiceLoading || 
         current is InvoiceError || 
-        current is InvoiceLoaded,
+        current is InvoiceLoaded ||
+        current is InvoiceDeleteSuccess,
       builder: (context, state) {
         if (state is InvoiceLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -158,74 +196,6 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
         }
         
         return const Center(child: Text('暂无数据'));
-      },
-    );
-  }
-
-  /// 构建本月发票标签页
-  Widget _buildMonthlyInvoicesTab() {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
-      buildWhen: (previous, current) => 
-        current is InvoiceLoading || 
-        current is InvoiceError || 
-        current is InvoiceLoaded,
-      builder: (context, state) {
-        if (state is InvoiceLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        
-        if (state is InvoiceLoaded) {
-          // 筛选本月发票
-          final now = DateTime.now();
-          final currentMonthInvoices = state.invoices.where((invoice) {
-            return invoice.invoiceDate.year == now.year && 
-                   invoice.invoiceDate.month == now.month;
-          }).toList();
-
-          return Column(
-            children: [
-              // 统计卡片
-              BlocBuilder<InvoiceBloc, InvoiceState>(
-                buildWhen: (previous, current) => current is InvoiceStatsLoaded,
-                builder: (context, statsState) {
-                  if (statsState is InvoiceStatsLoaded) {
-                    return InvoiceStatsWidget(stats: statsState.stats);
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              
-              // 本月发票列表
-              Expanded(
-                child: _buildInvoiceList(currentMonthInvoices, false),
-              ),
-            ],
-          );
-        }
-        
-        return const Center(child: Text('暂无数据'));
-      },
-    );
-  }
-
-  /// 构建收藏标签页
-  Widget _buildFavoritesTab() {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
-      buildWhen: (previous, current) => 
-        current is InvoiceLoading || 
-        current is InvoiceError || 
-        current is InvoiceLoaded,
-      builder: (context, state) {
-        if (state is InvoiceLoaded) {
-          // 筛选已验证的发票作为收藏
-          final favoriteInvoices = state.invoices.where((invoice) {
-            return invoice.isVerified; // 使用已验证字段替代状态判断
-          }).toList();
-
-          return _buildInvoiceList(favoriteInvoices, false);
-        }
-        
-        return const Center(child: Text('暂无收藏的发票'));
       },
     );
   }
@@ -345,7 +315,6 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
     );
   }
 
-
   /// 查看发票详情
   void _viewInvoiceDetail(InvoiceEntity invoice) {
     context.push('/invoice-detail/${invoice.id}');
@@ -378,6 +347,202 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
 
   /// 处理发票状态切换
   void _handleStatusChange(InvoiceEntity invoice, InvoiceStatus newStatus) {
+    context.read<InvoiceBloc>().add(UpdateInvoiceStatus(
+      invoiceId: invoice.id,
+      newStatus: newStatus,
+    ));
+  }
+}
+
+/// 本月发票标签页
+class _MonthlyInvoicesTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<InvoiceBloc, InvoiceState>(
+      buildWhen: (previous, current) => 
+        current is InvoiceLoading || 
+        current is InvoiceError || 
+        current is InvoiceLoaded,
+      builder: (context, state) {
+        if (state is InvoiceLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        if (state is InvoiceLoaded) {
+          // 筛选本月发票
+          final now = DateTime.now();
+          final currentMonthInvoices = state.invoices.where((invoice) {
+            return invoice.invoiceDate.year == now.year && 
+                   invoice.invoiceDate.month == now.month;
+          }).toList();
+
+          return Column(
+            children: [
+              // 统计卡片
+              BlocBuilder<InvoiceBloc, InvoiceState>(
+                buildWhen: (previous, current) => current is InvoiceStatsLoaded,
+                builder: (context, statsState) {
+                  if (statsState is InvoiceStatsLoaded) {
+                    return InvoiceStatsWidget(stats: statsState.stats);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              
+              // 本月发票列表
+              Expanded(
+                child: _buildMonthlyInvoiceList(currentMonthInvoices),
+              ),
+            ],
+          );
+        }
+        
+        return const Center(child: Text('暂无数据'));
+      },
+    );
+  }
+
+  Widget _buildMonthlyInvoiceList(List<InvoiceEntity> invoices) {
+    if (invoices.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('本月暂无发票', style: TextStyle(fontSize: 18, color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: invoices.length,
+      itemBuilder: (context, index) {
+        final invoice = invoices[index];
+        return InvoiceCardWidget(
+          invoice: invoice,
+          onTap: () => context.push('/invoice-detail/${invoice.id}'),
+          onDelete: () => _showDeleteConfirmation(context, invoice),
+          onStatusChanged: (newStatus) => _handleStatusChange(context, invoice, newStatus),
+          showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, InvoiceEntity invoice) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除发票'),
+        content: Text('确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<InvoiceBloc>().add(DeleteInvoice(invoice.id));
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleStatusChange(BuildContext context, InvoiceEntity invoice, InvoiceStatus newStatus) {
+    context.read<InvoiceBloc>().add(UpdateInvoiceStatus(
+      invoiceId: invoice.id,
+      newStatus: newStatus,
+    ));
+  }
+}
+
+/// 收藏标签页
+class _FavoritesTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<InvoiceBloc, InvoiceState>(
+      buildWhen: (previous, current) => 
+        current is InvoiceLoading || 
+        current is InvoiceError || 
+        current is InvoiceLoaded,
+      builder: (context, state) {
+        if (state is InvoiceLoaded) {
+          // 筛选已验证的发票作为收藏
+          final favoriteInvoices = state.invoices.where((invoice) {
+            return invoice.isVerified; // 使用已验证字段替代状态判断
+          }).toList();
+
+          return _buildFavoritesList(favoriteInvoices);
+        }
+        
+        return const Center(child: Text('暂无收藏的发票'));
+      },
+    );
+  }
+
+  Widget _buildFavoritesList(List<InvoiceEntity> invoices) {
+    if (invoices.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.favorite_border, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('暂无收藏的发票', style: TextStyle(fontSize: 18, color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: invoices.length,
+      itemBuilder: (context, index) {
+        final invoice = invoices[index];
+        return InvoiceCardWidget(
+          invoice: invoice,
+          onTap: () => context.push('/invoice-detail/${invoice.id}'),
+          onDelete: () => _showDeleteConfirmation(context, invoice),
+          onStatusChanged: (newStatus) => _handleStatusChange(context, invoice, newStatus),
+          showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
+        );
+      },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, InvoiceEntity invoice) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除发票'),
+        content: Text('确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<InvoiceBloc>().add(DeleteInvoice(invoice.id));
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleStatusChange(BuildContext context, InvoiceEntity invoice, InvoiceStatus newStatus) {
     context.read<InvoiceBloc>().add(UpdateInvoiceStatus(
       invoiceId: invoice.id,
       newStatus: newStatus,

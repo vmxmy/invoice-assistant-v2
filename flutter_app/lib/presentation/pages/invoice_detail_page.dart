@@ -9,6 +9,7 @@ import '../bloc/invoice_event.dart';
 import '../bloc/invoice_state.dart';
 import '../widgets/invoice_pdf_viewer.dart';
 import '../widgets/adaptive_pdf_container.dart';
+import '../widgets/app_feedback.dart';
 
 /// 发票详情页面 - iOS风格设计
 class InvoiceDetailPage extends StatefulWidget {
@@ -36,7 +37,16 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InvoiceBloc, InvoiceState>(
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+          // 返回到上一页面
+          context.pop();
+        } else if (state is InvoiceError) {
+          AppFeedback.error(context, '操作失败', message: state.message);
+        }
+      },
       buildWhen: (previous, current) =>
           current is InvoiceDetailLoaded ||
           current is InvoiceDetailLoading ||

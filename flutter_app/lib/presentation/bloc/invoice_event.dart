@@ -91,3 +91,55 @@ class UpdateInvoiceStatus extends InvoiceEvent {
   @override
   List<Object> get props => [invoiceId, newStatus];
 }
+
+/// 上传发票事件
+class UploadInvoice extends InvoiceEvent {
+  final String filePath;
+  final Map<String, dynamic>? metadata;
+
+  const UploadInvoice({
+    required this.filePath,
+    this.metadata,
+  });
+
+  @override
+  List<Object?> get props => [filePath, metadata];
+}
+
+/// 批量上传发票事件
+class UploadInvoices extends InvoiceEvent {
+  final List<String> filePaths;
+  final Map<String, dynamic>? metadata;
+
+  const UploadInvoices({
+    required this.filePaths,
+    this.metadata,
+  });
+
+  @override
+  List<Object?> get props => [filePaths, metadata];
+}
+
+/// 取消上传事件
+class CancelUpload extends InvoiceEvent {
+  const CancelUpload();
+}
+
+/// 重试上传事件
+class RetryUpload extends InvoiceEvent {
+  final String filePath;
+  final Map<String, dynamic>? metadata;
+
+  const RetryUpload({
+    required this.filePath,
+    this.metadata,
+  });
+
+  @override
+  List<Object?> get props => [filePath, metadata];
+}
+
+/// 清除上传结果事件
+class ClearUploadResults extends InvoiceEvent {
+  const ClearUploadResults();
+}

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'invoice_management_page.dart';
+import 'invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
+import '../../debug_query_test.dart';
 
 /// 主页面 - 包含底部导航栏的容器页面
 class MainPage extends StatefulWidget {
@@ -77,7 +78,7 @@ class _MainPageState extends State<MainPage> {
           const InvoiceManagementPage(),
           
           // 上传发票页面
-          _buildUploadPage(),
+          const InvoiceUploadPage(),
           
           // 数据分析页面
           _buildAnalysisPage(),
@@ -179,44 +180,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  // 上传发票页面
-  Widget _buildUploadPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('上传发票'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.upload_file,
-              size: 80,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              '上传发票功能',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              '敬请期待',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // 数据分析页面
   Widget _buildAnalysisPage() {
@@ -292,6 +255,21 @@ class _MainPageState extends State<MainPage> {
                   title: const Text('应用信息'),
                   subtitle: Text('版本 ${AppConfig.version}'),
                   trailing: const Icon(Icons.chevron_right),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.bug_report, color: Colors.orange),
+                  title: const Text('调试信息'),
+                  subtitle: const Text('查看用户ID和数据库连接状态'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DebugQueryTestPage(),
+                      ),
+                    );
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(

@@ -11,6 +11,7 @@ import '../../domain/usecases/get_invoice_detail_usecase_production.dart';
 import '../../domain/usecases/get_invoice_stats_usecase.dart';
 import '../../domain/usecases/delete_invoice_usecase.dart';
 import '../../domain/usecases/update_invoice_status_usecase.dart';
+import '../../domain/usecases/upload_invoice_usecase.dart';
 
 // 表现层
 import '../../presentation/bloc/invoice_bloc.dart';
@@ -29,6 +30,7 @@ Future<void> init() async {
       getInvoiceStatsUseCase: sl(),
       deleteInvoiceUseCase: sl(),
       updateInvoiceStatusUseCase: sl(),
+      uploadInvoiceUseCase: sl(),
     ),
   );
 
@@ -39,6 +41,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetInvoiceStatsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteInvoiceUseCase(sl()));
   sl.registerLazySingleton(() => UpdateInvoiceStatusUseCase(sl()));
+  sl.registerLazySingleton(() => UploadInvoiceUseCase(sl()));
 
   //! 数据层 (Data Layer)
   // Repositories

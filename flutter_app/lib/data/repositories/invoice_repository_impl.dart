@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../domain/exceptions/invoice_exceptions.dart';
+import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../datasources/invoice_remote_datasource.dart';
 import '../models/invoice_model.dart';
 import '../cache/invoice_cache.dart';
@@ -332,5 +334,42 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       '数据操作失败: $operation',
       originalError: error
     );
+  }
+
+  @override
+  Future<UploadInvoiceResult> uploadInvoice({
+    required Uint8List fileBytes,
+    required String fileName,
+    required String fileHash,
+  }) async {
+    try {
+      if (AppConfig.enableLogging) {
+        print('📤 [InvoiceRepositoryImpl] 调用远程数据源上传发票');
+        print('📤 [InvoiceRepositoryImpl] 文件名: $fileName');
+        print('📤 [InvoiceRepositoryImpl] 文件大小: ${fileBytes.length} bytes');
+      }
+
+      // 调用远程数据源进行上传
+      final result = await _remoteDataSource.uploadInvoice(
+        fileBytes: fileBytes,
+        fileName: fileName,
+        fileHash: fileHash,
+      );
+
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceRepositoryImpl] 发票上传成功');
+      }
+
+      // 清空缓存，因为有新的发票数据
+      _cache.clearAllCache();
+
+      return result;
+    } catch (error) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceRepositoryImpl] 上传失败: $error');
+      }
+      
+      throw _handleDataSourceException(error, 'uploadInvoice');
+    }
   }
 }

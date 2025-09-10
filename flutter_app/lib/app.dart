@@ -11,6 +11,7 @@ import 'presentation/pages/main_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
 import 'presentation/pages/invoice_detail_page.dart';
+import 'presentation/pages/invoice_upload_page.dart';
 
 /// 发票助手应用根组件
 class InvoiceAssistantApp extends StatelessWidget {
@@ -136,6 +137,11 @@ final _router = GoRouter(
         final invoiceId = state.pathParameters['id']!;
         return InvoiceDetailPage(invoiceId: invoiceId);
       },
+    ),
+    GoRoute(
+      path: '/upload',
+      name: 'upload',
+      builder: (context, state) => const InvoiceUploadPage(),
     ),
   ],
 );

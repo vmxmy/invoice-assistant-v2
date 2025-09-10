@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import '../entities/invoice_entity.dart';
 import '../value_objects/invoice_status.dart';
+import '../usecases/upload_invoice_usecase.dart';
 
 /// 发票仓库接口 - 定义业务需要的数据操作方法
 /// 这是一个抽象接口，具体实现在数据层
@@ -33,6 +35,13 @@ abstract class InvoiceRepository {
 
   /// 获取发票统计信息
   Future<InvoiceStats> getInvoiceStats();
+
+  /// 上传发票文件并进行OCR处理
+  Future<UploadInvoiceResult> uploadInvoice({
+    required Uint8List fileBytes,
+    required String fileName,
+    required String fileHash,
+  });
 }
 
 /// 发票列表结果

@@ -1,10 +1,16 @@
+import 'dart:typed_data';
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../models/invoice_model.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
+import '../../core/config/supabase_config.dart';
 
 /// 发票远程数据源 - 负责与Supabase API交互
 abstract class InvoiceRemoteDataSource {
@@ -24,6 +30,11 @@ abstract class InvoiceRemoteDataSource {
   Future<void> deleteInvoice(String id);
   Future<void> deleteInvoices(List<String> ids);
   Future<InvoiceStats> getInvoiceStats();
+  Future<UploadInvoiceResult> uploadInvoice({
+    required Uint8List fileBytes,
+    required String fileName,
+    required String fileHash,
+  });
 }
 
 class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
@@ -60,7 +71,9 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
 
       if (AppConfig.enableLogging) {
         print('🔍 [RemoteDataSource] 查询发票 - 用户ID: ${currentUser.id}');
+        print('🔍 [RemoteDataSource] 用户邮箱: ${currentUser.email}');
         print('🔍 [RemoteDataSource] 会话状态 - 过期时间: ${DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000)}');
+        print('🔍 [RemoteDataSource] 分页参数 - page: $page, pageSize: $pageSize');
       }
 
       // 构建基础查询
@@ -308,14 +321,74 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         throw Exception('用户未登录');
       }
 
+      if (AppConfig.enableLogging) {
+        print('🗑️ [RemoteDataSource] 开始永久删除发票: $id');
+      }
+
+      // 1. 先获取发票信息，包含文件路径和哈希
+      final invoiceResponse = await SupabaseClientManager.from(_tableName)
+          .select('file_path, file_hash')
+          .eq('id', id)
+          .eq('user_id', currentUser.id)
+          .single();
+
+      final filePath = invoiceResponse['file_path'] as String?;
+      final fileHash = invoiceResponse['file_hash'] as String?;
+
+      if (AppConfig.enableLogging) {
+        print('📄 [RemoteDataSource] 发票文件信息 - path: $filePath, hash: $fileHash');
+      }
+
+      // 2. 删除数据库记录
       await SupabaseClientManager.from(_tableName)
-          .update({
-            'status': 'deleted',
-            'deleted_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          })
+          .delete()
           .eq('id', id)
           .eq('user_id', currentUser.id);
+
+      if (AppConfig.enableLogging) {
+        print('✅ [RemoteDataSource] 发票记录删除成功');
+      }
+
+      // 3. 删除存储桶中的文件
+      if (filePath != null && filePath.isNotEmpty) {
+        try {
+          await SupabaseClientManager.client.storage
+              .from('invoice-files')
+              .remove([filePath]);
+          
+          if (AppConfig.enableLogging) {
+            print('✅ [RemoteDataSource] 存储文件删除成功: $filePath');
+          }
+        } catch (storageError) {
+          if (AppConfig.enableLogging) {
+            print('⚠️ [RemoteDataSource] 删除存储文件失败: $storageError');
+          }
+          // 不抛出异常，允许继续执行
+        }
+      }
+
+      // 4. 删除哈希记录
+      if (fileHash != null) {
+        try {
+          await SupabaseClientManager.from('file_hashes')
+              .delete()
+              .eq('invoice_id', id)
+              .eq('user_id', currentUser.id);
+          
+          if (AppConfig.enableLogging) {
+            print('✅ [RemoteDataSource] 哈希记录删除成功');
+          }
+        } catch (hashError) {
+          if (AppConfig.enableLogging) {
+            print('⚠️ [RemoteDataSource] 删除哈希记录失败: $hashError');
+          }
+          // 不抛出异常，允许继续执行
+        }
+      }
+
+      if (AppConfig.enableLogging) {
+        print('🎉 [RemoteDataSource] 发票永久删除完成: $id');
+      }
     } catch (e) {
       if (AppConfig.enableLogging) {
         print('❌ [RemoteDataSource] 删除发票失败: $e');
@@ -332,15 +405,17 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         throw Exception('用户未登录');
       }
 
+      if (AppConfig.enableLogging) {
+        print('🗑️ [RemoteDataSource] 开始批量永久删除发票: ${ids.length}个');
+      }
+
+      // 逐个删除发票，确保每个发票都完整删除
       for (final id in ids) {
-        await SupabaseClientManager.from(_tableName)
-            .update({
-              'status': 'deleted',
-              'deleted_at': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', id)
-            .eq('user_id', currentUser.id);
+        await deleteInvoice(id);
+      }
+
+      if (AppConfig.enableLogging) {
+        print('🎉 [RemoteDataSource] 批量永久删除完成: ${ids.length}个');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
@@ -493,6 +568,165 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
 
     if (filters.isVerified != null) {
       query.eq('is_verified', filters.isVerified);
+    }
+  }
+
+  @override
+  Future<UploadInvoiceResult> uploadInvoice({
+    required Uint8List fileBytes,
+    required String fileName,
+    required String fileHash,
+  }) async {
+    try {
+      // 验证认证状态
+      final session = SupabaseClientManager.client.auth.currentSession;
+      final currentUser = SupabaseClientManager.currentUser;
+      
+      if (session == null || currentUser == null) {
+        if (AppConfig.enableLogging) {
+          print('❌ [RemoteDataSource] 用户未认证');
+        }
+        throw UploadInvoiceException('用户未登录');
+      }
+
+      if (AppConfig.enableLogging) {
+        print('📤 [RemoteDataSource] 开始上传发票');
+        print('📤 [RemoteDataSource] 用户ID: ${currentUser.id}');
+        print('📤 [RemoteDataSource] 文件名: $fileName');
+        print('📤 [RemoteDataSource] 文件大小: ${fileBytes.length} bytes');
+        print('📤 [RemoteDataSource] 文件哈希: ${fileHash.substring(0, 16)}...');
+      }
+
+      // 调用Supabase Edge Function进行OCR处理和去重检查
+      final supabaseUrl = SupabaseConfig.supabaseUrl;
+      final accessToken = session.accessToken;
+
+      // 创建multipart请求
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$supabaseUrl/functions/v1/ocr-dedup-complete'),
+      );
+
+      // 添加头部
+      request.headers.addAll({
+        'Authorization': 'Bearer $accessToken',
+        'X-User-ID': currentUser.id,
+      });
+
+      // 添加文件
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          fileBytes,
+          filename: fileName,
+          contentType: MediaType('application', 'pdf'),
+        ),
+      );
+
+      // 添加其他参数
+      request.fields.addAll({
+        'fileHash': fileHash,
+        'fileSize': fileBytes.length.toString(),
+        'fileName': fileName,
+        'checkDeleted': 'true',
+      });
+
+      if (AppConfig.enableLogging) {
+        print('📤 [RemoteDataSource] 发送请求到Edge Function');
+      }
+
+      // 发送请求
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (AppConfig.enableLogging) {
+        print('📤 [RemoteDataSource] Edge Function响应状态: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final errorBody = response.body;
+        if (AppConfig.enableLogging) {
+          print('❌ [RemoteDataSource] Edge Function调用失败: $errorBody');
+        }
+        throw UploadInvoiceException('上传处理失败: ${response.statusCode} - $errorBody');
+      }
+
+      // 解析响应
+      final responseData = jsonDecode(response.body);
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [RemoteDataSource] Edge Function响应解析完成');
+        print('✅ [RemoteDataSource] 成功: ${responseData['success']}');
+        print('✅ [RemoteDataSource] 是否重复: ${responseData['isDuplicate']}');
+        print('🔍 [RemoteDataSource] 完整响应数据: $responseData');
+      }
+
+      // 处理响应
+      if (responseData['isDuplicate'] == true) {
+        // 重复文件处理
+        final existingData = responseData['data'];
+        final isEmptyData = existingData == null || existingData.isEmpty || existingData['id'] == null;
+        
+        if (responseData['canRestore'] == true) {
+          // 可以恢复的删除文件
+          return UploadInvoiceResult.duplicate(
+            duplicateInfo: DuplicateInvoiceInfo(
+              existingInvoiceId: isEmptyData ? 'unknown' : existingData['id'],
+              existingInvoice: isEmptyData ? null : _parseInvoiceFromResponse(existingData),
+              uploadCount: existingData?['upload_count'] ?? 1,
+              message: responseData['message'] ?? '检测到相同文件在回收站中',
+              canRestore: true,
+              deletedInvoice: isEmptyData ? null : _parseInvoiceFromResponse(existingData),
+            ),
+            fileName: fileName,
+          );
+        } else {
+          // 普通重复文件
+          return UploadInvoiceResult.duplicate(
+            duplicateInfo: DuplicateInvoiceInfo(
+              existingInvoiceId: isEmptyData ? 'unknown' : existingData['id'],
+              existingInvoice: isEmptyData ? null : _parseInvoiceFromResponse(existingData),
+              uploadCount: existingData?['upload_count'] ?? 1,
+              message: responseData['message'] ?? '文件重复',
+            ),
+            fileName: fileName,
+          );
+        }
+      } else {
+        // 新文件上传成功
+        final invoiceData = responseData['data'];
+        final invoice = _parseInvoiceFromResponse(invoiceData);
+        
+        return UploadInvoiceResult.success(invoice: invoice);
+      }
+
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [RemoteDataSource] 上传失败: $e');
+      }
+      
+      if (e is UploadInvoiceException) {
+        rethrow;
+      }
+      
+      throw UploadInvoiceException('上传处理异常: ${e.toString()}');
+    }
+  }
+
+  /// 从响应数据解析发票实体
+  InvoiceEntity _parseInvoiceFromResponse(Map<String, dynamic> data) {
+    try {
+      if (AppConfig.enableLogging) {
+        print('🔍 [RemoteDataSource] 开始解析发票数据: ${data.keys.toList()}');
+      }
+      final model = InvoiceModel.fromJson(data);
+      return model.toEntity();
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [RemoteDataSource] 发票数据解析失败: $e');
+        print('❌ [RemoteDataSource] 原始数据: $data');
+      }
+      rethrow;
     }
   }
 }
