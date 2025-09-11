@@ -27,6 +27,8 @@ import '../widgets/invoice_card_widget.dart';
 import '../widgets/invoice_stats_widget.dart';
 import '../widgets/invoice_search_filter_bar.dart';
 import '../widgets/app_feedback.dart';
+import '../widgets/skeleton_loader.dart';
+import '../widgets/enhanced_error_handler.dart';
 
 /// 发票管理页面 - 使用新的分层架构
 class InvoiceManagementPage extends StatefulWidget {
@@ -84,7 +86,17 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
         print('🔥 [页面级Listener:${bloc.hashCode}] 接收到状态: ${state.runtimeType}');
         if (state is InvoiceDeleteSuccess) {
           print('🔥 [页面级Listener:${bloc.hashCode}] 删除成功，立即显示Snackbar: ${state.message}');
-          AppFeedback.success(context, state.message);
+          EnhancedErrorHandler.showSuccessSnackBar(context, state.message);
+        } else if (state is InvoiceError) {
+          print('🔥 [页面级Listener:${bloc.hashCode}] 操作失败: ${state.message}');
+          EnhancedErrorHandler.showErrorSnackBar(
+            context, 
+            state.message,
+            onRetry: () {
+              // 重试加载列表
+              context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+            },
+          );
         }
       },
       child: Scaffold(
@@ -1004,7 +1016,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         current is InvoiceLoaded,
       builder: (context, state) {
         if (state is InvoiceLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const InvoiceListSkeleton();
         }
         
         if (state is InvoiceError) {
@@ -1118,10 +1130,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
           
           // 加载更多指示器
           if (isLoadingMore)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
+            SliverToBoxAdapter(
+              child: LoadMoreIndicator(
+                isLoadingMore: true,
+                message: '正在加载更多发票...',
               ),
             ),
         ],
@@ -1229,39 +1241,14 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   /// 构建错误组件
   Widget _buildErrorWidget(String message, VoidCallback onRetry) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '加载失败',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.red.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.withValues(alpha: 0.8),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onRetry,
-            child: const Text('重试'),
-          ),
-        ],
-      ),
+    final friendlyMessage = EnhancedErrorHandler.getFriendlyErrorMessage(message);
+    
+    return EmptyStatePlaceholder(
+      title: '加载失败',
+      subtitle: friendlyMessage,
+      icon: Icons.error_outline,
+      onAction: onRetry,
+      actionText: '重试',
     );
   }
 
@@ -1359,7 +1346,7 @@ class _MonthlyInvoicesTab extends StatelessWidget {
         current is InvoiceLoaded,
       builder: (context, state) {
         if (state is InvoiceLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const InvoiceListSkeleton();
         }
         
         if (state is InvoiceLoaded) {

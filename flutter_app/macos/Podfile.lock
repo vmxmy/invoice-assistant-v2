@@ -10,8 +10,12 @@ PODS:
   - file_selector_macos (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - open_file_mac (0.0.1):
+    - FlutterMacOS
   - path_provider_foundation (0.0.1):
     - Flutter
+    - FlutterMacOS
+  - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -28,7 +32,9 @@ DEPENDENCIES:
   - file_picker (from `Flutter/ephemeral/.symlinks/plugins/file_picker/macos`)
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - open_file_mac (from `Flutter/ephemeral/.symlinks/plugins/open_file_mac/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - syncfusion_pdfviewer_macos (from `Flutter/ephemeral/.symlinks/plugins/syncfusion_pdfviewer_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -46,8 +52,12 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  open_file_mac:
+    :path: Flutter/ephemeral/.symlinks/plugins/open_file_mac/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  share_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   syncfusion_pdfviewer_macos:
@@ -62,7 +72,9 @@ SPEC CHECKSUMS:
   file_picker: 7584aae6fa07a041af2b36a2655122d42f578c1a
   file_selector_macos: 6280b52b459ae6c590af5d78fc35c7267a3c4b31
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  open_file_mac: 01874b6d6a2c1485ac9b126d7105b99102dea2cf
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   syncfusion_pdfviewer_macos: b3b110c68039178ca4105dd03ef38761eca3b36b
   url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
