@@ -45,6 +45,10 @@ mixin _$InvoiceModel {
   double? get taxAmount => throw _privateConstructorUsedError;
   String get currency => throw _privateConstructorUsedError; // 分类和状态
   String? get category => throw _privateConstructorUsedError;
+  @JsonKey(name: 'expense_category')
+  String? get expenseCategory => throw _privateConstructorUsedError;
+  @JsonKey(name: 'primary_category_name')
+  String? get primaryCategoryName => throw _privateConstructorUsedError;
   InvoiceStatus get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'invoice_type')
   String? get invoiceType => throw _privateConstructorUsedError;
@@ -128,6 +132,8 @@ abstract class $InvoiceModelCopyWith<$Res> {
       @JsonKey(name: 'tax_amount') double? taxAmount,
       String currency,
       String? category,
+      @JsonKey(name: 'expense_category') String? expenseCategory,
+      @JsonKey(name: 'primary_category_name') String? primaryCategoryName,
       InvoiceStatus status,
       @JsonKey(name: 'invoice_type') String? invoiceType,
       @JsonKey(name: 'invoice_code') String? invoiceCode,
@@ -186,6 +192,8 @@ class _$InvoiceModelCopyWithImpl<$Res, $Val extends InvoiceModel>
     Object? taxAmount = freezed,
     Object? currency = null,
     Object? category = freezed,
+    Object? expenseCategory = freezed,
+    Object? primaryCategoryName = freezed,
     Object? status = null,
     Object? invoiceType = freezed,
     Object? invoiceCode = freezed,
@@ -270,6 +278,14 @@ class _$InvoiceModelCopyWithImpl<$Res, $Val extends InvoiceModel>
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
+              as String?,
+      expenseCategory: freezed == expenseCategory
+          ? _value.expenseCategory
+          : expenseCategory // ignore: cast_nullable_to_non_nullable
+              as String?,
+      primaryCategoryName: freezed == primaryCategoryName
+          ? _value.primaryCategoryName
+          : primaryCategoryName // ignore: cast_nullable_to_non_nullable
               as String?,
       status: null == status
           ? _value.status
@@ -406,6 +422,8 @@ abstract class _$$InvoiceModelImplCopyWith<$Res>
       @JsonKey(name: 'tax_amount') double? taxAmount,
       String currency,
       String? category,
+      @JsonKey(name: 'expense_category') String? expenseCategory,
+      @JsonKey(name: 'primary_category_name') String? primaryCategoryName,
       InvoiceStatus status,
       @JsonKey(name: 'invoice_type') String? invoiceType,
       @JsonKey(name: 'invoice_code') String? invoiceCode,
@@ -462,6 +480,8 @@ class __$$InvoiceModelImplCopyWithImpl<$Res>
     Object? taxAmount = freezed,
     Object? currency = null,
     Object? category = freezed,
+    Object? expenseCategory = freezed,
+    Object? primaryCategoryName = freezed,
     Object? status = null,
     Object? invoiceType = freezed,
     Object? invoiceCode = freezed,
@@ -546,6 +566,14 @@ class __$$InvoiceModelImplCopyWithImpl<$Res>
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
+              as String?,
+      expenseCategory: freezed == expenseCategory
+          ? _value.expenseCategory
+          : expenseCategory // ignore: cast_nullable_to_non_nullable
+              as String?,
+      primaryCategoryName: freezed == primaryCategoryName
+          ? _value.primaryCategoryName
+          : primaryCategoryName // ignore: cast_nullable_to_non_nullable
               as String?,
       status: null == status
           ? _value.status
@@ -677,6 +705,8 @@ class _$InvoiceModelImpl implements _InvoiceModel {
       @JsonKey(name: 'tax_amount') this.taxAmount,
       this.currency = 'CNY',
       this.category,
+      @JsonKey(name: 'expense_category') this.expenseCategory,
+      @JsonKey(name: 'primary_category_name') this.primaryCategoryName,
       this.status = InvoiceStatus.unreimbursed,
       @JsonKey(name: 'invoice_type') this.invoiceType,
       @JsonKey(name: 'invoice_code') this.invoiceCode,
@@ -757,6 +787,12 @@ class _$InvoiceModelImpl implements _InvoiceModel {
 // 分类和状态
   @override
   final String? category;
+  @override
+  @JsonKey(name: 'expense_category')
+  final String? expenseCategory;
+  @override
+  @JsonKey(name: 'primary_category_name')
+  final String? primaryCategoryName;
   @override
   @JsonKey()
   final InvoiceStatus status;
@@ -877,7 +913,7 @@ class _$InvoiceModelImpl implements _InvoiceModel {
 
   @override
   String toString() {
-    return 'InvoiceModel(id: $id, invoiceNumber: $invoiceNumber, invoiceDate: $invoiceDate, consumptionDate: $consumptionDate, userId: $userId, sellerName: $sellerName, buyerName: $buyerName, sellerTaxId: $sellerTaxId, buyerTaxId: $buyerTaxId, amount: $amount, totalAmount: $totalAmount, taxAmount: $taxAmount, currency: $currency, category: $category, status: $status, invoiceType: $invoiceType, invoiceCode: $invoiceCode, fileUrl: $fileUrl, filePath: $filePath, fileHash: $fileHash, fileSize: $fileSize, processingStatus: $processingStatus, isVerified: $isVerified, verificationNotes: $verificationNotes, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, source: $source, sourceMetadata: $sourceMetadata, emailTaskId: $emailTaskId, tags: $tags, extractedData: $extractedData, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, completedAt: $completedAt, startedAt: $startedAt, lastActivityAt: $lastActivityAt, version: $version, createdBy: $createdBy, updatedBy: $updatedBy)';
+    return 'InvoiceModel(id: $id, invoiceNumber: $invoiceNumber, invoiceDate: $invoiceDate, consumptionDate: $consumptionDate, userId: $userId, sellerName: $sellerName, buyerName: $buyerName, sellerTaxId: $sellerTaxId, buyerTaxId: $buyerTaxId, amount: $amount, totalAmount: $totalAmount, taxAmount: $taxAmount, currency: $currency, category: $category, expenseCategory: $expenseCategory, primaryCategoryName: $primaryCategoryName, status: $status, invoiceType: $invoiceType, invoiceCode: $invoiceCode, fileUrl: $fileUrl, filePath: $filePath, fileHash: $fileHash, fileSize: $fileSize, processingStatus: $processingStatus, isVerified: $isVerified, verificationNotes: $verificationNotes, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, source: $source, sourceMetadata: $sourceMetadata, emailTaskId: $emailTaskId, tags: $tags, extractedData: $extractedData, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, completedAt: $completedAt, startedAt: $startedAt, lastActivityAt: $lastActivityAt, version: $version, createdBy: $createdBy, updatedBy: $updatedBy)';
   }
 
   @override
@@ -910,6 +946,10 @@ class _$InvoiceModelImpl implements _InvoiceModel {
                 other.currency == currency) &&
             (identical(other.category, category) ||
                 other.category == category) &&
+            (identical(other.expenseCategory, expenseCategory) ||
+                other.expenseCategory == expenseCategory) &&
+            (identical(other.primaryCategoryName, primaryCategoryName) ||
+                other.primaryCategoryName == primaryCategoryName) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.invoiceType, invoiceType) ||
                 other.invoiceType == invoiceType) &&
@@ -978,6 +1018,8 @@ class _$InvoiceModelImpl implements _InvoiceModel {
         taxAmount,
         currency,
         category,
+        expenseCategory,
+        primaryCategoryName,
         status,
         invoiceType,
         invoiceCode,
@@ -1025,50 +1067,52 @@ class _$InvoiceModelImpl implements _InvoiceModel {
 
 abstract class _InvoiceModel implements InvoiceModel {
   const factory _InvoiceModel(
-          {required final String id,
-          @JsonKey(name: 'invoice_number') required final String invoiceNumber,
-          @JsonKey(name: 'invoice_date') required final DateTime invoiceDate,
-          @JsonKey(name: 'consumption_date') final DateTime? consumptionDate,
-          @JsonKey(name: 'user_id') required final String userId,
-          @JsonKey(name: 'seller_name') final String? sellerName,
-          @JsonKey(name: 'buyer_name') final String? buyerName,
-          @JsonKey(name: 'seller_tax_number') final String? sellerTaxId,
-          @JsonKey(name: 'buyer_tax_number') final String? buyerTaxId,
-          @JsonKey(name: 'amount_without_tax') final double amount,
-          @JsonKey(name: 'total_amount') final double? totalAmount,
-          @JsonKey(name: 'tax_amount') final double? taxAmount,
-          final String currency,
-          final String? category,
-          final InvoiceStatus status,
-          @JsonKey(name: 'invoice_type') final String? invoiceType,
-          @JsonKey(name: 'invoice_code') final String? invoiceCode,
-          @JsonKey(name: 'file_url') final String? fileUrl,
-          @JsonKey(name: 'file_path') final String? filePath,
-          @JsonKey(name: 'file_hash') final String? fileHash,
-          @JsonKey(name: 'file_size') final int? fileSize,
-          @JsonKey(name: 'processing_status') final String? processingStatus,
-          @JsonKey(name: 'is_verified') final bool isVerified,
-          @JsonKey(name: 'verification_notes') final String? verificationNotes,
-          @JsonKey(name: 'verified_at') final DateTime? verifiedAt,
-          @JsonKey(name: 'verified_by') final String? verifiedBy,
-          final InvoiceSource source,
-          @JsonKey(name: 'source_metadata')
-          final Map<String, dynamic>? sourceMetadata,
-          @JsonKey(name: 'email_task_id') final String? emailTaskId,
-          final List<String> tags,
-          @JsonKey(name: 'extracted_data')
-          final Map<String, dynamic>? extractedData,
-          final Map<String, dynamic>? metadata,
-          @JsonKey(name: 'created_at') final DateTime? createdAt,
-          @JsonKey(name: 'updated_at') final DateTime? updatedAt,
-          @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
-          @JsonKey(name: 'completed_at') final DateTime? completedAt,
-          @JsonKey(name: 'started_at') final DateTime? startedAt,
-          @JsonKey(name: 'last_activity_at') final DateTime? lastActivityAt,
-          final int version,
-          @JsonKey(name: 'created_by') final String? createdBy,
-          @JsonKey(name: 'updated_by') final String? updatedBy}) =
-      _$InvoiceModelImpl;
+      {required final String id,
+      @JsonKey(name: 'invoice_number') required final String invoiceNumber,
+      @JsonKey(name: 'invoice_date') required final DateTime invoiceDate,
+      @JsonKey(name: 'consumption_date') final DateTime? consumptionDate,
+      @JsonKey(name: 'user_id') required final String userId,
+      @JsonKey(name: 'seller_name') final String? sellerName,
+      @JsonKey(name: 'buyer_name') final String? buyerName,
+      @JsonKey(name: 'seller_tax_number') final String? sellerTaxId,
+      @JsonKey(name: 'buyer_tax_number') final String? buyerTaxId,
+      @JsonKey(name: 'amount_without_tax') final double amount,
+      @JsonKey(name: 'total_amount') final double? totalAmount,
+      @JsonKey(name: 'tax_amount') final double? taxAmount,
+      final String currency,
+      final String? category,
+      @JsonKey(name: 'expense_category') final String? expenseCategory,
+      @JsonKey(name: 'primary_category_name') final String? primaryCategoryName,
+      final InvoiceStatus status,
+      @JsonKey(name: 'invoice_type') final String? invoiceType,
+      @JsonKey(name: 'invoice_code') final String? invoiceCode,
+      @JsonKey(name: 'file_url') final String? fileUrl,
+      @JsonKey(name: 'file_path') final String? filePath,
+      @JsonKey(name: 'file_hash') final String? fileHash,
+      @JsonKey(name: 'file_size') final int? fileSize,
+      @JsonKey(name: 'processing_status') final String? processingStatus,
+      @JsonKey(name: 'is_verified') final bool isVerified,
+      @JsonKey(name: 'verification_notes') final String? verificationNotes,
+      @JsonKey(name: 'verified_at') final DateTime? verifiedAt,
+      @JsonKey(name: 'verified_by') final String? verifiedBy,
+      final InvoiceSource source,
+      @JsonKey(name: 'source_metadata')
+      final Map<String, dynamic>? sourceMetadata,
+      @JsonKey(name: 'email_task_id') final String? emailTaskId,
+      final List<String> tags,
+      @JsonKey(name: 'extracted_data')
+      final Map<String, dynamic>? extractedData,
+      final Map<String, dynamic>? metadata,
+      @JsonKey(name: 'created_at') final DateTime? createdAt,
+      @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+      @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
+      @JsonKey(name: 'completed_at') final DateTime? completedAt,
+      @JsonKey(name: 'started_at') final DateTime? startedAt,
+      @JsonKey(name: 'last_activity_at') final DateTime? lastActivityAt,
+      final int version,
+      @JsonKey(name: 'created_by') final String? createdBy,
+      @JsonKey(name: 'updated_by')
+      final String? updatedBy}) = _$InvoiceModelImpl;
 
   factory _InvoiceModel.fromJson(Map<String, dynamic> json) =
       _$InvoiceModelImpl.fromJson;
@@ -1112,6 +1156,12 @@ abstract class _InvoiceModel implements InvoiceModel {
   String get currency; // 分类和状态
   @override
   String? get category;
+  @override
+  @JsonKey(name: 'expense_category')
+  String? get expenseCategory;
+  @override
+  @JsonKey(name: 'primary_category_name')
+  String? get primaryCategoryName;
   @override
   InvoiceStatus get status;
   @override

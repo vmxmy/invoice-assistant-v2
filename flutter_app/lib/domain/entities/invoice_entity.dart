@@ -23,6 +23,8 @@ class InvoiceEntity extends Equatable {
   
   // 分类和状态
   final String? category;
+  final String? expenseCategory;
+  final String? primaryCategoryName;
   final InvoiceStatus status;
   final String? invoiceType;
   final String? invoiceCode;
@@ -78,6 +80,8 @@ class InvoiceEntity extends Equatable {
     this.taxAmount,
     this.currency = 'CNY',
     this.category,
+    this.expenseCategory,
+    this.primaryCategoryName,
     this.status = InvoiceStatus.unreimbursed,
     this.invoiceType,
     this.invoiceCode,
@@ -178,6 +182,8 @@ class InvoiceEntity extends Equatable {
     double? taxAmount,
     String? currency,
     String? category,
+    String? expenseCategory,
+    String? primaryCategoryName,
     InvoiceStatus? status,
     String? invoiceType,
     String? invoiceCode,
@@ -221,6 +227,8 @@ class InvoiceEntity extends Equatable {
       taxAmount: taxAmount ?? this.taxAmount,
       currency: currency ?? this.currency,
       category: category ?? this.category,
+      expenseCategory: expenseCategory ?? this.expenseCategory,
+      primaryCategoryName: primaryCategoryName ?? this.primaryCategoryName,
       status: status ?? this.status,
       invoiceType: invoiceType ?? this.invoiceType,
       invoiceCode: invoiceCode ?? this.invoiceCode,
@@ -267,6 +275,8 @@ class InvoiceEntity extends Equatable {
     taxAmount,
     currency,
     category,
+    expenseCategory,
+    primaryCategoryName,
     status, // 重要：包含status字段用于比较
     invoiceType,
     invoiceCode,

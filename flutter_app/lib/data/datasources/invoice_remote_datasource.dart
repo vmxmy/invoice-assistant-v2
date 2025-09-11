@@ -39,7 +39,7 @@ abstract class InvoiceRemoteDataSource {
 
 class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
   static const String _tableName = 'invoices';
-  static const String _viewName = 'invoices'; // 可以切换到视图
+  static const String _viewName = 'v_invoice_detail'; // 使用与web项目相同的视图
 
   @override
   Future<List<InvoiceModel>> getInvoices({
@@ -50,6 +50,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     bool sortAscending = false,
   }) async {
     try {
+      if (AppConfig.enableLogging) {
+        print('🔍 [RemoteDataSource] getInvoices 调用 - filters: $filters');
+        print('🔍 [RemoteDataSource] getInvoices 参数 - page: $page, pageSize: $pageSize');
+      }
+      
       // 验证认证状态
       final session = SupabaseClientManager.client.auth.currentSession;
       final currentUser = SupabaseClientManager.currentUser;
@@ -86,9 +91,19 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         print('🔍 [RemoteDataSource] 查询条件 - 表: $_viewName, user_id: ${currentUser.id}, status != deleted');
       }
 
-      // 应用筛选条件
+      // 应用筛选条件 (重置逻辑已在_applyFilters内部处理)
       if (filters != null) {
-        _applyFilters(query, filters);
+        if (AppConfig.enableLogging) {
+          print('🔍 [RemoteDataSource] 主查询开始应用筛选条件');
+        }
+        query = _applyFilters(query, filters);
+        if (AppConfig.enableLogging) {
+          print('🔍 [RemoteDataSource] 主查询筛选条件应用完成');
+        }
+      } else {
+        if (AppConfig.enableLogging) {
+          print('🔍 [RemoteDataSource] 主查询无筛选条件，使用基础查询');
+        }
       }
 
       // 先执行一个简单查询检查用户的记录数
@@ -109,6 +124,28 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         }
       }
 
+      // 添加详细的查询调试
+      if (AppConfig.enableLogging) {
+        print('🔍 [RemoteDataSource] 准备执行最终查询');
+        print('🔍 [RemoteDataSource] 查询对象类型: ${query.runtimeType}');
+        print('🔍 [RemoteDataSource] 排序字段: $sortField, 升序: $sortAscending');
+        print('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}');
+        
+        // 先执行一个不分页的查询来验证总记录数
+        try {
+          final fullQuery = SupabaseClientManager.from(_viewName)
+              .select('id')
+              .eq('user_id', currentUser.id)
+              .neq('status', 'deleted');
+          
+          final fullQueryWithFilters = filters != null ? _applyFilters(fullQuery, filters) : fullQuery;
+          final fullResponse = await fullQueryWithFilters;
+          print('🔍 [RemoteDataSource] 验证查询: 不分页时共${fullResponse.length}条记录');
+        } catch (e) {
+          print('⚠️ [RemoteDataSource] 验证查询失败: $e');
+        }
+      }
+
       // 执行查询并获取结果
       final response = await query
           .order(sortField, ascending: sortAscending)
@@ -117,11 +154,45 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       if (AppConfig.enableLogging) {
         print('✅ [RemoteDataSource] 查询执行成功: ${response.length}条记录');
         print('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}');
+        print('🔍 [RemoteDataSource] 期望记录数: 最多$pageSize条');
+      }
+      
+      // 如果是逾期筛选，额外打印调试信息
+      if (filters?.overdue == true) {
+        print('🔍 [RemoteDataSource] 逾期筛选结果: ${response.length}条记录');
+        print('🔍 [RemoteDataSource] 预期：应该只返回消费日期在2025-06-13之前且未报销的发票');
       }
 
       // 转换为数据模型
       final invoiceModels = (response as List<dynamic>)
-          .map((item) => InvoiceModel.fromJson(item as Map<String, dynamic>))
+          .map((item) {
+            final jsonData = item as Map<String, dynamic>;
+            
+            // 添加调试日志检查数据库字段
+            if (AppConfig.enableLogging) {
+              print('🔍 [RemoteDataSource] 原始数据 ID: ${jsonData['id']}');
+              print('🔍 [RemoteDataSource] category: "${jsonData['category']}"');
+              print('🔍 [RemoteDataSource] expense_category: "${jsonData['expense_category']}"');
+              print('🔍 [RemoteDataSource] primary_category_name: "${jsonData['primary_category_name']}"');
+            }
+            
+            // 处理字符串 "null" 值，转换为真正的 null
+            if (jsonData['category'] == 'null') jsonData['category'] = null;
+            if (jsonData['expense_category'] == 'null') jsonData['expense_category'] = null;
+            if (jsonData['primary_category_name'] == 'null') jsonData['primary_category_name'] = null;
+            
+            final model = InvoiceModel.fromJson(jsonData);
+            
+            // 检查模型转换后的值
+            if (AppConfig.enableLogging) {
+              print('🔍 [RemoteDataSource] 模型转换后 ID: ${model.id}');
+              print('🔍 [RemoteDataSource] 模型.category: "${model.category}"');
+              print('🔍 [RemoteDataSource] 模型.expenseCategory: "${model.expenseCategory}"');
+              print('🔍 [RemoteDataSource] 模型.primaryCategoryName: "${model.primaryCategoryName}"');
+            }
+            
+            return model;
+          })
           .toList();
 
       return invoiceModels;
@@ -141,15 +212,19 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         throw Exception('用户未登录');
       }
 
-      // 构建计数查询 - 使用Supabase count功能
+      // 构建计数查询 - 为了与主查询保持一致，使用相同的重置逻辑
       var countQuery = SupabaseClientManager.from(_viewName)
           .select('id')
           .eq('user_id', currentUser.id)
           .neq('status', 'deleted');
 
-      // 应用筛选条件
+      if (AppConfig.enableLogging) {
+        print('🔍 [RemoteDataSource] 构建总数查询: user_id=${currentUser.id}, status != deleted');
+      }
+
+      // 应用筛选条件 (重置逻辑已在_applyFilters内部处理)
       if (filters != null) {
-        _applyFilters(countQuery, filters);
+        countQuery = _applyFilters(countQuery, filters);
       }
 
       // 执行计数查询
@@ -513,62 +588,108 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     }
   }
 
-  /// 应用筛选条件
-  void _applyFilters(dynamic query, InvoiceFilters filters) {
+  /// 应用筛选条件 - 简化逻辑，确保每次都从干净状态开始
+  dynamic _applyFilters(dynamic query, InvoiceFilters filters) {
+    if (AppConfig.enableLogging) {
+      print('🔍 [RemoteDataSource] _applyFilters 调用: overdue=${filters.overdue}, urgent=${filters.urgent}, status=${filters.status}');
+      print('🔍 [RemoteDataSource] 筛选条件验证: 是否只有一个筛选激活?');
+      final activeFilters = [
+        if (filters.overdue == true) 'overdue',
+        if (filters.urgent == true) 'urgent', 
+        if (filters.status?.contains(InvoiceStatus.unreimbursed) == true) 'unreimbursed_status'
+      ];
+      print('🔍 [RemoteDataSource] 激活的筛选: $activeFilters');
+      print('🔄 [RemoteDataSource] 开始应用筛选条件，基础查询已准备就绪');
+    }
+    
     // 全局搜索
     if (filters.globalSearch != null && filters.globalSearch!.isNotEmpty) {
       final search = '%${filters.globalSearch}%';
-      query.or('invoice_number.ilike.$search,seller_name.ilike.$search,buyer_name.ilike.$search');
+      query = query.or('invoice_number.ilike.$search,seller_name.ilike.$search,buyer_name.ilike.$search');
     }
 
     // 其他筛选条件
     if (filters.sellerName != null && filters.sellerName!.isNotEmpty) {
-      query.ilike('seller_name', '%${filters.sellerName}%');
+      query = query.ilike('seller_name', '%${filters.sellerName}%');
     }
 
     if (filters.buyerName != null && filters.buyerName!.isNotEmpty) {
-      query.ilike('buyer_name', '%${filters.buyerName}%');
+      query = query.ilike('buyer_name', '%${filters.buyerName}%');
     }
 
     if (filters.invoiceNumber != null && filters.invoiceNumber!.isNotEmpty) {
-      query.ilike('invoice_number', '%${filters.invoiceNumber}%');
+      query = query.ilike('invoice_number', '%${filters.invoiceNumber}%');
     }
 
     if (filters.invoiceType != null && filters.invoiceType!.isNotEmpty) {
-      query.eq('invoice_type', filters.invoiceType);
+      query = query.eq('invoice_type', filters.invoiceType);
     }
 
     if (filters.dateFrom != null) {
-      query.gte('invoice_date', filters.dateFrom!.toIso8601String());
+      query = query.gte('invoice_date', filters.dateFrom!.toIso8601String());
     }
     if (filters.dateTo != null) {
-      query.lte('invoice_date', filters.dateTo!.toIso8601String());
+      query = query.lte('invoice_date', filters.dateTo!.toIso8601String());
     }
 
     if (filters.amountMin != null) {
-      query.gte('total_amount', filters.amountMin);
+      query = query.gte('total_amount', filters.amountMin);
     }
     if (filters.amountMax != null) {
-      query.lte('total_amount', filters.amountMax);
+      query = query.lte('total_amount', filters.amountMax);
     }
 
     if (filters.status != null && filters.status!.isNotEmpty) {
       final statusValues = filters.status!.map((s) => s.name).toList();
-      query.inFilter('status', statusValues);
+      query = query.inFilter('status', statusValues);
     }
 
     if (filters.source != null && filters.source!.isNotEmpty) {
       final sourceValues = filters.source!.map((s) => s.name).toList();
-      query.inFilter('source', sourceValues);
+      query = query.inFilter('source', sourceValues);
     }
 
     if (filters.category != null && filters.category!.isNotEmpty) {
-      query.eq('category', filters.category);
+      query = query.eq('category', filters.category);
     }
 
     if (filters.isVerified != null) {
-      query.eq('is_verified', filters.isVerified);
+      query = query.eq('is_verified', filters.isVerified);
     }
+
+    // 🔥 简化互斥筛选逻辑：逾期、紧急、待报销只能选择一个
+    if (filters.overdue == true) {
+      // 逾期筛选：>90天未报销
+      final overdueDate = DateTime.now().subtract(const Duration(days: 90));
+      final overdueThreshold = overdueDate.toIso8601String().split('T')[0];
+      
+      query = query.lt('consumption_date', overdueThreshold);
+      query = query.eq('status', 'unreimbursed');
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [RemoteDataSource] 应用逾期筛选: consumption_date < $overdueThreshold AND status = unreimbursed');
+      }
+    } else if (filters.urgent == true) {
+      // 紧急筛选：>60天未报销
+      final urgentDate = DateTime.now().subtract(const Duration(days: 60));
+      final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
+      
+      query = query.lt('consumption_date', urgentThreshold);
+      query = query.eq('status', 'unreimbursed');
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unreimbursed');
+      }
+    } else if (filters.status?.contains(InvoiceStatus.unreimbursed) == true) {
+      // 待报销筛选：只看状态
+      query = query.eq('status', 'unreimbursed');
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [RemoteDataSource] 应用待报销筛选: status = unreimbursed');
+      }
+    }
+    
+    return query;
   }
 
   @override

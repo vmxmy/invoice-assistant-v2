@@ -7,6 +7,7 @@ import '../../domain/usecases/delete_invoice_usecase.dart';
 import '../../domain/usecases/update_invoice_status_usecase.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../../domain/repositories/invoice_repository.dart';
 import '../../core/config/app_config.dart';
 import 'invoice_event.dart';
 import 'invoice_state.dart';
@@ -25,6 +26,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   int _currentPage = 1;
   int _totalCount = 0;
   bool _hasMore = true;
+  InvoiceFilters? _currentFilters; // 保存当前的筛选条件
 
   InvoiceBloc({
     required GetInvoicesUseCase getInvoicesUseCase,
@@ -65,13 +67,28 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         print('🔄 [InvoiceBloc] 开始加载发票列表 - 页码: ${event.page}, 刷新: ${event.refresh}');
       }
 
-      // 如果是刷新操作，显示加载状态
-      if (event.refresh || event.page == 1) {
+      // 下拉刷新时不显示全屏加载状态，让RefreshIndicator自己处理
+      // 只有非刷新的初始加载才显示全屏加载状态
+      if (!event.refresh && event.page == 1 && _allInvoices.isEmpty) {
         emit(InvoiceLoading());
+        if (AppConfig.enableLogging) {
+          print('🔄 [InvoiceBloc] 显示全屏加载状态');
+        }
+      } else if (event.refresh) {
+        if (AppConfig.enableLogging) {
+          print('🔄 [InvoiceBloc] 下拉刷新 - 不显示全屏加载状态');
+        }
+      }
+      
+      // 如果是刷新操作或第一页，清空数据
+      if (event.refresh || event.page == 1) {
         _allInvoices.clear();
         _currentPage = 1;
       }
 
+      // 保存当前筛选条件
+      _currentFilters = event.filters;
+      
       // 调用用例获取数据
       final result = await _getInvoicesUseCase(
         page: event.page,
@@ -142,9 +159,19 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       // 显示加载更多状态
       emit(currentState.copyWith(isLoadingMore: true));
 
+      if (AppConfig.enableLogging) {
+        print('🔄 [InvoiceBloc] LoadMoreInvoices - 当前保存的筛选条件: $_currentFilters');
+        if (_currentFilters != null) {
+          print('🔄 [InvoiceBloc] LoadMoreInvoices - overdue: ${_currentFilters!.overdue}');
+          print('🔄 [InvoiceBloc] LoadMoreInvoices - urgent: ${_currentFilters!.urgent}');
+          print('🔄 [InvoiceBloc] LoadMoreInvoices - status: ${_currentFilters!.status}');
+        }
+      }
+
       final result = await _getInvoicesUseCase(
         page: _currentPage + 1,
         pageSize: 20, // 设置为20以测试无限滚动
+        filters: _currentFilters, // 使用保存的筛选条件
       );
 
       // 追加新数据
@@ -179,7 +206,14 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
   /// 处理刷新发票列表事件
   Future<void> _onRefreshInvoices(RefreshInvoices event, Emitter<InvoiceState> emit) async {
-    add(const LoadInvoices(page: 1, refresh: true));
+    if (AppConfig.enableLogging) {
+      print('🔄 [InvoiceBloc] 下拉刷新 - 使用当前筛选条件: $_currentFilters');
+    }
+    add(LoadInvoices(
+      page: 1, 
+      refresh: true,
+      filters: _currentFilters, // 使用保存的筛选条件
+    ));
   }
 
   /// 处理删除单个发票事件

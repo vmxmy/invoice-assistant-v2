@@ -24,6 +24,8 @@ _$InvoiceModelImpl _$$InvoiceModelImplFromJson(Map<String, dynamic> json) =>
       taxAmount: (json['tax_amount'] as num?)?.toDouble(),
       currency: json['currency'] as String? ?? 'CNY',
       category: json['category'] as String?,
+      expenseCategory: json['expense_category'] as String?,
+      primaryCategoryName: json['primary_category_name'] as String?,
       status: $enumDecodeNullable(_$InvoiceStatusEnumMap, json['status']) ??
           InvoiceStatus.unreimbursed,
       invoiceType: json['invoice_type'] as String?,
@@ -87,6 +89,8 @@ Map<String, dynamic> _$$InvoiceModelImplToJson(_$InvoiceModelImpl instance) =>
       'tax_amount': instance.taxAmount,
       'currency': instance.currency,
       'category': instance.category,
+      'expense_category': instance.expenseCategory,
+      'primary_category_name': instance.primaryCategoryName,
       'status': _$InvoiceStatusEnumMap[instance.status]!,
       'invoice_type': instance.invoiceType,
       'invoice_code': instance.invoiceCode,

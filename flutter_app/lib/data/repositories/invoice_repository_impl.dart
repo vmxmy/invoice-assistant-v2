@@ -35,25 +35,48 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         filtersHash: filtersHash,
       );
       
-      // 尝试从缓存获取数据
-      final cachedInvoices = _cache.getCachedInvoiceList(cacheKey);
-      final cachedCount = _cache.getCachedInvoicesCount();
+      // 检查是否有筛选条件，有筛选条件时跳过缓存
+      final hasFilters = filters != null && (
+        filters.overdue == true || 
+        filters.urgent == true || 
+        (filters.status != null && filters.status!.isNotEmpty) ||
+        (filters.globalSearch != null && filters.globalSearch!.isNotEmpty)
+      );
       
-      if (cachedInvoices != null && cachedCount != null) {
-        // 缓存命中，直接返回
-        final currentTotal = (page - 1) * pageSize + cachedInvoices.length;
-        final hasMore = currentTotal < cachedCount;
+      if (AppConfig.enableLogging) {
+        print('🔍 [Repository] 缓存检查 - hasFilters: $hasFilters');
+      }
+      
+      // 只有在没有筛选条件时才尝试使用缓存
+      if (!hasFilters) {
+        final cachedInvoices = _cache.getCachedInvoiceList(cacheKey);
         
-        return InvoiceListResult(
-          invoices: cachedInvoices,
-          total: cachedCount,
-          page: page,
-          pageSize: pageSize,
-          hasMore: hasMore,
-        );
+        if (cachedInvoices != null) {
+          // 缓存命中列表数据，但总数仍需重新查询以确保筛选条件正确
+          final totalCount = await _remoteDataSource.getInvoicesCount(filters: filters);
+          final currentTotal = (page - 1) * pageSize + cachedInvoices.length;
+          final hasMore = currentTotal < totalCount;
+          
+          if (AppConfig.enableLogging) {
+            print('✅ [Repository] 使用缓存数据 - ${cachedInvoices.length}条记录');
+          }
+          
+          return InvoiceListResult(
+            invoices: cachedInvoices,
+            total: totalCount,
+            page: page,
+            pageSize: pageSize,
+            hasMore: hasMore,
+          );
+        }
+      } else {
+        if (AppConfig.enableLogging) {
+          print('🔍 [Repository] 有筛选条件，跳过缓存，直接查询数据源');
+        }
       }
 
       // 缓存未命中，从远程获取数据
+      // 总是重新查询总数，确保筛选条件正确应用
       final results = await Future.wait([
         _remoteDataSource.getInvoices(
           page: page,
@@ -62,9 +85,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           sortField: sortField,
           sortAscending: sortAscending,
         ),
-        cachedCount != null 
-          ? Future.value(cachedCount)  // 使用缓存的总数
-          : _remoteDataSource.getInvoicesCount(filters: filters),
+        _remoteDataSource.getInvoicesCount(filters: filters), // 总是使用当前筛选条件查询总数
       ]);
 
       final invoiceModels = results[0] as List<InvoiceModel>;
@@ -88,11 +109,8 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         }
       }
 
-      // 缓存结果
+      // 缓存结果（只缓存发票列表，不缓存总数）
       _cache.cacheInvoiceList(cacheKey, invoiceEntities);
-      if (cachedCount == null) {
-        _cache.cacheInvoicesCount(totalCount);
-      }
 
       // 精确计算是否还有更多数据
       final currentTotal = (page - 1) * pageSize + invoiceEntities.length;

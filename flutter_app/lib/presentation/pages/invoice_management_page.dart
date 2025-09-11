@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import '../../domain/value_objects/invoice_status.dart';
+import '../../domain/repositories/invoice_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/injection_container.dart';
@@ -14,6 +15,7 @@ import '../bloc/invoice_event.dart';
 import '../bloc/invoice_state.dart';
 import '../widgets/invoice_card_widget.dart';
 import '../widgets/invoice_stats_widget.dart';
+import '../widgets/invoice_search_filter_bar.dart';
 import '../widgets/app_feedback.dart';
 
 /// 发票管理页面 - 使用新的分层架构
@@ -46,14 +48,11 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   late TabController _tabController;
   String _searchQuery = '';
   String _selectedFilter = '全部';
-  bool _isSearching = false;
-  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _searchController = TextEditingController();
     _tabController.addListener(() {
       print('📋 [TabController] 切换到Tab: ${_tabController.index}');
     });
@@ -62,7 +61,6 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -124,42 +122,9 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   /// 构建应用栏
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      title: _isSearching 
-        ? TextField(
-            controller: _searchController,
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: '搜索发票号、销售方、金额...',
-              border: InputBorder.none,
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-            style: const TextStyle(color: Colors.white),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-              _updateSearchQuery(value);
-            },
-          )
-        : const Text('发票管理'),
-      centerTitle: true,
+      toolbarHeight: 0, // 移除工具栏高度
       floating: true,
       pinned: true,
-      actions: [
-        IconButton(
-          icon: Icon(_isSearching ? Icons.close : Icons.search),
-          onPressed: () {
-            setState(() {
-              _isSearching = !_isSearching;
-              if (!_isSearching) {
-                _searchController.clear();
-                _searchQuery = '';
-                _updateSearchQuery('');
-              }
-            });
-          },
-        ),
-      ],
       bottom: TabBar(
         controller: _tabController,
         tabs: const [
@@ -171,13 +136,6 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
     );
   }
 
-  /// 更新搜索查询
-  void _updateSearchQuery(String query) {
-    // 通过setState触发所有子组件重建
-    setState(() {
-      _searchQuery = query;
-    });
-  }
 
 }
 
@@ -196,6 +154,8 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   String _selectedFilter = '全部';
   bool _isSelectionMode = false;
   Set<String> _selectedInvoices = <String>{};
+  String _searchQuery = '';
+  FilterOptions _currentFilterOptions = const FilterOptions();
 
   _AllInvoicesTabState() {
     print('🏗️ [AllInvoicesTabState] 构造函数执行');
@@ -293,43 +253,95 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     );
   }
 
-  /// 应用搜索过滤
-  List<InvoiceEntity> _applySearchFilter(List<InvoiceEntity> invoices) {
-    if (widget.searchQuery.isEmpty) {
-      return invoices;
-    }
+  /// 处理搜索变化
+  void _handleSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
 
-    final query = widget.searchQuery.toLowerCase();
-    return invoices.where((invoice) {
-      // 搜索发票号
-      if (invoice.invoiceNumber.toLowerCase().contains(query)) {
-        return true;
-      }
-      
-      // 搜索销售方
-      if (invoice.sellerName?.toLowerCase().contains(query) == true) {
-        return true;
-      }
-      
-      // 搜索金额（支持部分匹配）
-      final amountStr = invoice.amount.toString();
-      if (amountStr.contains(query)) {
-        return true;
-      }
-      
-      // 搜索总金额
-      final totalAmountStr = invoice.totalAmount?.toString() ?? '';
-      if (totalAmountStr.contains(query)) {
-        return true;
-      }
-      
-      // 搜索买方名称
-      if (invoice.buyerName?.toLowerCase().contains(query) == true) {
-        return true;
-      }
-      
-      return false;
-    }).toList();
+  /// 处理筛选变化
+  void _handleFilterChanged(FilterOptions filterOptions) {
+    print('🔍 [ManagementPage] _handleFilterChanged 被调用: $filterOptions');
+    print('🔍 [ManagementPage] 逾期筛选: ${filterOptions.showOverdue}');
+    print('🔍 [ManagementPage] 紧急筛选: ${filterOptions.showUrgent}'); 
+    print('🔍 [ManagementPage] 待报销筛选: ${filterOptions.showUnreimbursed}');
+    setState(() {
+      _currentFilterOptions = filterOptions;
+    });
+    
+    // 根据筛选条件触发相应的数据加载
+    _loadInvoicesWithFilter(filterOptions);
+  }
+
+  /// 根据筛选条件加载发票
+  void _loadInvoicesWithFilter(FilterOptions filterOptions) {
+    final filters = InvoiceFilters(
+      globalSearch: _searchQuery.isNotEmpty ? _searchQuery : null,
+      overdue: filterOptions.showOverdue,
+      urgent: filterOptions.showUrgent,
+      status: _getStatusFromFilter(filterOptions),
+    );
+    
+    print('🔍 [LoadInvoicesWithFilter] 构建的筛选条件: '
+          'overdue=${filters.overdue}, urgent=${filters.urgent}, '
+          'status=${filters.status}, search=${filters.globalSearch}');
+    
+    context.read<InvoiceBloc>().add(LoadInvoices(
+      page: 1,
+      refresh: false, // 不显示加载状态，让筛选更平滑
+      filters: filters,
+    ));
+  }
+
+  /// 根据筛选选项获取状态列表
+  List<InvoiceStatus>? _getStatusFromFilter(FilterOptions filterOptions) {
+    if (filterOptions.showUnreimbursed) {
+      return [InvoiceStatus.unreimbursed];
+    }
+    return null; // 返回null表示不筛选状态
+  }
+
+  /// 应用搜索和筛选
+  List<InvoiceEntity> _applySearchAndFilter(List<InvoiceEntity> invoices) {
+    var filteredInvoices = invoices;
+    
+    // 应用搜索过滤
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      filteredInvoices = filteredInvoices.where((invoice) {
+        // 搜索发票号
+        if (invoice.invoiceNumber.toLowerCase().contains(query)) {
+          return true;
+        }
+        
+        // 搜索销售方
+        if (invoice.sellerName?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+        
+        // 搜索金额（支持部分匹配）
+        final amountStr = invoice.amount.toString();
+        if (amountStr.contains(query)) {
+          return true;
+        }
+        
+        // 搜索总金额
+        final totalAmountStr = invoice.totalAmount?.toString() ?? '';
+        if (totalAmountStr.contains(query)) {
+          return true;
+        }
+        
+        // 搜索买方名称
+        if (invoice.buyerName?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+        
+        return false;
+      }).toList();
+    }
+    
+    return filteredInvoices;
   }
 
   /// 按月份分组发票数据（基于消费时间）
@@ -418,19 +430,29 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         
         if (state is InvoiceError) {
           return _buildErrorWidget(state.message, () {
-            context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+            // 错误重试时也使用当前筛选条件
+            if (_currentFilterOptions.hasActiveFilters) {
+              _loadInvoicesWithFilter(_currentFilterOptions);
+            } else {
+              context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+            }
           });
         }
         
         if (state is InvoiceLoaded) {
-          // 应用搜索过滤
-          final filteredInvoices = _applySearchFilter(state.invoices);
+          // 应用搜索和筛选
+          final filteredInvoices = _applySearchAndFilter(state.invoices);
           
           return Column(
             children: [
-              // 搜索和筛选栏
-              if (widget.searchQuery.isNotEmpty || _selectedFilter != '全部')
-                _buildSearchFilterBar(),
+              // 新的搜索筛选组件
+              InvoiceSearchFilterBar(
+                initialSearchQuery: _searchQuery,
+                onSearchChanged: _handleSearchChanged,
+                onFilterChanged: _handleFilterChanged,
+                showQuickFilters: true,
+                showSearchBox: true,
+              ),
               
               // 多选操作栏
               if (_isSelectionMode)

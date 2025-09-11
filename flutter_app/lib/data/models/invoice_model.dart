@@ -29,6 +29,8 @@ class InvoiceModel with _$InvoiceModel {
     
     // 分类和状态
     String? category,
+    @JsonKey(name: 'expense_category') String? expenseCategory,
+    @JsonKey(name: 'primary_category_name') String? primaryCategoryName,
     @Default(InvoiceStatus.unreimbursed) InvoiceStatus status,
     @JsonKey(name: 'invoice_type') String? invoiceType,
     @JsonKey(name: 'invoice_code') String? invoiceCode,
@@ -76,7 +78,13 @@ class InvoiceModel with _$InvoiceModel {
 /// 扩展方法 - 将数据模型转换为领域实体
 extension InvoiceModelToEntity on InvoiceModel {
   InvoiceEntity toEntity() {
-    return InvoiceEntity(
+    // 添加调试日志检查模型到实体的转换
+    print('🔍 [Model->Entity] 转换前 Model ID: $id');
+    print('🔍 [Model->Entity] 转换前 Model.category: "$category"');
+    print('🔍 [Model->Entity] 转换前 Model.expenseCategory: "$expenseCategory"');
+    print('🔍 [Model->Entity] 转换前 Model.primaryCategoryName: "$primaryCategoryName"');
+    
+    final entity = InvoiceEntity(
       id: id,
       invoiceNumber: invoiceNumber,
       invoiceDate: invoiceDate,
@@ -91,6 +99,8 @@ extension InvoiceModelToEntity on InvoiceModel {
       taxAmount: taxAmount,
       currency: currency,
       category: category,
+      expenseCategory: expenseCategory,
+      primaryCategoryName: primaryCategoryName,
       status: status,
       invoiceType: invoiceType,
       invoiceCode: invoiceCode,
@@ -119,6 +129,14 @@ extension InvoiceModelToEntity on InvoiceModel {
       createdBy: createdBy,
       updatedBy: updatedBy,
     );
+    
+    // 添加调试日志检查实体转换后的值
+    print('🔍 [Model->Entity] 转换后 Entity ID: ${entity.id}');
+    print('🔍 [Model->Entity] 转换后 Entity.category: "${entity.category}"');
+    print('🔍 [Model->Entity] 转换后 Entity.expenseCategory: "${entity.expenseCategory}"');
+    print('🔍 [Model->Entity] 转换后 Entity.primaryCategoryName: "${entity.primaryCategoryName}"');
+    
+    return entity;
   }
 }
 
