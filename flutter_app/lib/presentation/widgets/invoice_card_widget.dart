@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
 
@@ -33,7 +34,82 @@ class InvoiceCardWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Card(
+    return Slidable(
+      key: Key('invoice_${invoice.id}'),
+      enabled: !isSelectionMode, // 多选模式下禁用滑动
+      endActionPane: ActionPane(
+        motion: const StretchMotion(),
+        extentRatio: 0.25, // 固定宽度比例
+        children: [
+          // 自定义删除按钮容器，与Card严格对齐
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12), // 匹配Card的底部margin
+              child: Material(
+                color: Colors.red,
+                elevation: isSelected ? 8 : 2, // 匹配Card的elevation
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: () {
+                    // 显示确认对话框
+                    showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('删除发票'),
+                        content: Text('确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('取消'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                              onDelete?.call();
+                            },
+                            style: TextButton.styleFrom(foregroundColor: Colors.red),
+                            child: const Text('删除'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(16), // 匹配Card的内边距
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '删除',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: isSelected ? 8 : 2,
       color: isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
@@ -78,17 +154,8 @@ class InvoiceCardWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // 状态和操作按钮
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildStatusBadge(context, colorScheme),
-                      if (onDelete != null) ...[
-                        const SizedBox(width: 12),
-                        _buildDeleteButton(colorScheme),
-                      ],
-                    ],
-                  ),
+                  // 状态徽章
+                  _buildStatusBadge(context, colorScheme),
                 ],
               ),
 
@@ -142,6 +209,7 @@ class InvoiceCardWidget extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -229,28 +297,6 @@ class InvoiceCardWidget extends StatelessWidget {
     );
   }
 
-  /// 构建删除按钮（优化触摸目标）
-  Widget _buildDeleteButton(ColorScheme colorScheme) {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemRed.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: CupertinoColors.systemRed.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: IconButton(
-        onPressed: onDelete,
-        icon: const Icon(CupertinoIcons.delete),
-        iconSize: 18,
-        color: CupertinoColors.systemRed,
-        tooltip: '删除发票',
-      ),
-    );
-  }
 
   /// 显示状态切换操作表（iOS风格）
   void _showStatusActionSheet(BuildContext context) {

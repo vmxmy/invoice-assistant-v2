@@ -61,6 +61,9 @@ dependencies:
   # PDF查看器
   syncfusion_flutter_pdfviewer: ^31.1.17
   sliver_tools: ^0.2.12
+  
+  # 滑动操作
+  flutter_slidable: ^3.1.1
 
 dev_dependencies:
   flutter_test:
