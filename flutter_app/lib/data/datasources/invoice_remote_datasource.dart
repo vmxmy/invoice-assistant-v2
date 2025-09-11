@@ -1,3 +1,4 @@
+import '../../core/utils/logger.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -51,8 +52,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
   }) async {
     try {
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] getInvoices 调用 - filters: $filters');
-        print('🔍 [RemoteDataSource] getInvoices 参数 - page: $page, pageSize: $pageSize');
+        AppLogger.debug('🔍 [RemoteDataSource] getInvoices 调用 - filters: $filters', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] getInvoices 参数 - page: $page, pageSize: $pageSize', tag: 'Debug');
       }
       
       // 验证认证状态
@@ -61,7 +62,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       
       if (session == null || currentUser == null) {
         if (AppConfig.enableLogging) {
-          print('❌ [RemoteDataSource] 用户未认证 - Session: ${session != null}, User: ${currentUser?.email}');
+          AppLogger.debug('❌ [RemoteDataSource] 用户未认证 - Session: ${session != null}, User: ${currentUser?.email}', tag: 'Debug');
         }
         throw Exception('用户未登录或会话已过期');
       }
@@ -69,16 +70,16 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 检查会话是否过期
       if (session.expiresAt != null && DateTime.now().millisecondsSinceEpoch > session.expiresAt! * 1000) {
         if (AppConfig.enableLogging) {
-          print('❌ [RemoteDataSource] 用户会话已过期');
+          AppLogger.debug('❌ [RemoteDataSource] 用户会话已过期', tag: 'Debug');
         }
         throw Exception('用户会话已过期，请重新登录');
       }
 
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 查询发票 - 用户ID: ${currentUser.id}');
-        print('🔍 [RemoteDataSource] 用户邮箱: ${currentUser.email}');
-        print('🔍 [RemoteDataSource] 会话状态 - 过期时间: ${DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000)}');
-        print('🔍 [RemoteDataSource] 分页参数 - page: $page, pageSize: $pageSize');
+        AppLogger.debug('🔍 [RemoteDataSource] 查询发票 - 用户ID: ${currentUser.id}', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 用户邮箱: ${currentUser.email}', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 会话状态 - 过期时间: ${DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000)}', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 分页参数 - page: $page, pageSize: $pageSize', tag: 'Debug');
       }
 
       // 构建基础查询
@@ -88,21 +89,21 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           .neq('status', 'deleted');
 
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 查询条件 - 表: $_viewName, user_id: ${currentUser.id}, status != deleted');
+        AppLogger.debug('🔍 [RemoteDataSource] 查询条件 - 表: $_viewName, user_id: ${currentUser.id}, status != deleted', tag: 'Debug');
       }
 
       // 应用筛选条件 (重置逻辑已在_applyFilters内部处理)
       if (filters != null) {
         if (AppConfig.enableLogging) {
-          print('🔍 [RemoteDataSource] 主查询开始应用筛选条件');
+          AppLogger.debug('🔍 [RemoteDataSource] 主查询开始应用筛选条件', tag: 'Debug');
         }
         query = _applyFilters(query, filters);
         if (AppConfig.enableLogging) {
-          print('🔍 [RemoteDataSource] 主查询筛选条件应用完成');
+          AppLogger.debug('🔍 [RemoteDataSource] 主查询筛选条件应用完成', tag: 'Debug');
         }
       } else {
         if (AppConfig.enableLogging) {
-          print('🔍 [RemoteDataSource] 主查询无筛选条件，使用基础查询');
+          AppLogger.debug('🔍 [RemoteDataSource] 主查询无筛选条件，使用基础查询', tag: 'Debug');
         }
       }
 
@@ -114,22 +115,22 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
               .eq('user_id', currentUser.id)
               .neq('status', 'deleted');
           final debugResponse = await debugQuery;
-          print('🔍 [调试] 用户发票总记录数: ${debugResponse.length}');
+          AppLogger.debug('🔍 [调试] 用户发票总记录数: ${debugResponse.length}', tag: 'Debug');
           if (debugResponse.isNotEmpty) {
             final firstRecord = debugResponse[0];
             print('🔍 [调试] 第一条记录: user_id=${firstRecord['user_id']}, status=${firstRecord['status']}');
           }
         } catch (e) {
-          print('⚠️ [调试] 调试查询失败: $e');
+          AppLogger.debug('⚠️ [调试] 调试查询失败: $e', tag: 'Debug');
         }
       }
 
       // 添加详细的查询调试
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 准备执行最终查询');
-        print('🔍 [RemoteDataSource] 查询对象类型: ${query.runtimeType}');
-        print('🔍 [RemoteDataSource] 排序字段: $sortField, 升序: $sortAscending');
-        print('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}');
+        AppLogger.debug('🔍 [RemoteDataSource] 准备执行最终查询', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 查询对象类型: ${query.runtimeType}', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 排序字段: $sortField, 升序: $sortAscending', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}', tag: 'Debug');
         
         // 先执行一个不分页的查询来验证总记录数
         try {
@@ -140,9 +141,9 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           
           final fullQueryWithFilters = filters != null ? _applyFilters(fullQuery, filters) : fullQuery;
           final fullResponse = await fullQueryWithFilters;
-          print('🔍 [RemoteDataSource] 验证查询: 不分页时共${fullResponse.length}条记录');
+          AppLogger.debug('🔍 [RemoteDataSource] 验证查询: 不分页时共${fullResponse.length}条记录', tag: 'Debug');
         } catch (e) {
-          print('⚠️ [RemoteDataSource] 验证查询失败: $e');
+          AppLogger.debug('⚠️ [RemoteDataSource] 验证查询失败: $e', tag: 'Debug');
         }
       }
 
@@ -152,15 +153,15 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 查询执行成功: ${response.length}条记录');
-        print('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}');
-        print('🔍 [RemoteDataSource] 期望记录数: 最多$pageSize条');
+        AppLogger.debug('✅ [RemoteDataSource] 查询执行成功: ${response.length}条记录', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 分页范围: ${(page - 1) * pageSize} - ${page * pageSize - 1}', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 期望记录数: 最多$pageSize条', tag: 'Debug');
       }
       
       // 如果是逾期筛选，额外打印调试信息
       if (filters?.overdue == true) {
-        print('🔍 [RemoteDataSource] 逾期筛选结果: ${response.length}条记录');
-        print('🔍 [RemoteDataSource] 预期：应该只返回消费日期在2025-06-13之前且未报销的发票');
+        AppLogger.debug('🔍 [RemoteDataSource] 逾期筛选结果: ${response.length}条记录', tag: 'Debug');
+        AppLogger.debug('🔍 [RemoteDataSource] 预期：应该只返回消费日期在2025-06-13之前且未报销的发票', tag: 'Debug');
       }
 
       // 转换为数据模型
@@ -185,10 +186,10 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
             
             // 检查模型转换后的值
             if (AppConfig.enableLogging) {
-              print('🔍 [RemoteDataSource] 模型转换后 ID: ${model.id}');
-              print('🔍 [RemoteDataSource] 模型.category: "${model.category}"');
-              print('🔍 [RemoteDataSource] 模型.expenseCategory: "${model.expenseCategory}"');
-              print('🔍 [RemoteDataSource] 模型.primaryCategoryName: "${model.primaryCategoryName}"');
+              AppLogger.debug('🔍 [RemoteDataSource] 模型转换后 ID: ${model.id}', tag: 'Debug');
+              AppLogger.debug('🔍 [RemoteDataSource] 模型.category: "${model.category}"', tag: 'Debug');
+              AppLogger.debug('🔍 [RemoteDataSource] 模型.expenseCategory: "${model.expenseCategory}"', tag: 'Debug');
+              AppLogger.debug('🔍 [RemoteDataSource] 模型.primaryCategoryName: "${model.primaryCategoryName}"', tag: 'Debug');
             }
             
             return model;
@@ -198,7 +199,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       return invoiceModels;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 获取发票列表失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 获取发票列表失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -219,7 +220,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           .neq('status', 'deleted');
 
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 构建总数查询: user_id=${currentUser.id}, status != deleted');
+        AppLogger.debug('🔍 [RemoteDataSource] 构建总数查询: user_id=${currentUser.id}, status != deleted', tag: 'Debug');
       }
 
       // 应用筛选条件 (重置逻辑已在_applyFilters内部处理)
@@ -232,13 +233,13 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final count = (response as List).length;
 
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 获取发票总数成功: $count条记录');
+        AppLogger.debug('✅ [RemoteDataSource] 获取发票总数成功: $count条记录', tag: 'Debug');
       }
 
       return count;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 获取发票总数失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 获取发票总数失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -261,7 +262,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       return InvoiceModel.fromJson(response);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 获取发票详情失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 获取发票详情失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -304,7 +305,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       return InvoiceModel.fromJson(response);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 创建发票失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 创建发票失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -351,7 +352,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       return InvoiceModel.fromJson(response);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 更新发票失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 更新发票失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -366,7 +367,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
 
       if (AppConfig.enableLogging) {
-        print('🔄 [RemoteDataSource] 更新发票状态: $id -> ${status.name}');
+        AppLogger.debug('🔄 [RemoteDataSource] 更新发票状态: $id -> ${status.name}', tag: 'Debug');
       }
 
       await SupabaseClientManager.from(_tableName)
@@ -378,11 +379,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 发票状态更新成功: ${status.displayName}');
+        AppLogger.debug('✅ [RemoteDataSource] 发票状态更新成功: ${status.displayName}', tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 更新发票状态失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 更新发票状态失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -397,7 +398,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
 
       if (AppConfig.enableLogging) {
-        print('🗑️ [RemoteDataSource] 开始永久删除发票: $id');
+        AppLogger.debug('🗑️ [RemoteDataSource] 开始永久删除发票: $id', tag: 'Debug');
       }
 
       // 1. 先获取发票信息，包含文件路径和哈希
@@ -411,7 +412,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final fileHash = invoiceResponse['file_hash'] as String?;
 
       if (AppConfig.enableLogging) {
-        print('📄 [RemoteDataSource] 发票文件信息 - path: $filePath, hash: $fileHash');
+        AppLogger.debug('📄 [RemoteDataSource] 发票文件信息 - path: $filePath, hash: $fileHash', tag: 'Debug');
       }
 
       // 2. 删除哈希记录（与Web端顺序保持一致）
@@ -423,11 +424,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
               .eq('user_id', currentUser.id);
           
           if (AppConfig.enableLogging) {
-            print('✅ [RemoteDataSource] 哈希记录删除成功');
+            AppLogger.debug('✅ [RemoteDataSource] 哈希记录删除成功', tag: 'Debug');
           }
         } catch (hashError) {
           if (AppConfig.enableLogging) {
-            print('⚠️ [RemoteDataSource] 删除哈希记录失败: $hashError');
+            AppLogger.debug('⚠️ [RemoteDataSource] 删除哈希记录失败: $hashError', tag: 'Debug');
           }
           // 不抛出异常，允许继续执行
         }
@@ -440,7 +441,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 发票记录删除成功');
+        AppLogger.debug('✅ [RemoteDataSource] 发票记录删除成功', tag: 'Debug');
       }
 
       // 4. 删除存储桶中的文件
@@ -451,22 +452,22 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
               .remove([filePath]);
           
           if (AppConfig.enableLogging) {
-            print('✅ [RemoteDataSource] 存储文件删除成功: $filePath');
+            AppLogger.debug('✅ [RemoteDataSource] 存储文件删除成功: $filePath', tag: 'Debug');
           }
         } catch (storageError) {
           if (AppConfig.enableLogging) {
-            print('⚠️ [RemoteDataSource] 删除存储文件失败: $storageError');
+            AppLogger.debug('⚠️ [RemoteDataSource] 删除存储文件失败: $storageError', tag: 'Debug');
           }
           // 不抛出异常，允许继续执行
         }
       }
 
       if (AppConfig.enableLogging) {
-        print('🎉 [RemoteDataSource] 发票永久删除完成: $id');
+        AppLogger.debug('🎉 [RemoteDataSource] 发票永久删除完成: $id', tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 删除发票失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 删除发票失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -481,7 +482,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
 
       if (AppConfig.enableLogging) {
-        print('🗑️ [RemoteDataSource] 开始批量永久删除发票: ${ids.length}个');
+        AppLogger.debug('🗑️ [RemoteDataSource] 开始批量永久删除发票: ${ids.length}个', tag: 'Debug');
       }
 
       // 逐个删除发票，确保每个发票都完整删除
@@ -490,11 +491,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
 
       if (AppConfig.enableLogging) {
-        print('🎉 [RemoteDataSource] 批量永久删除完成: ${ids.length}个');
+        AppLogger.debug('🎉 [RemoteDataSource] 批量永久删除完成: ${ids.length}个', tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 批量删除发票失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 批量删除发票失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -582,7 +583,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       );
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 获取发票统计失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 获取发票统计失败: $e', tag: 'Debug');
       }
       rethrow;
     }
@@ -591,15 +592,15 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
   /// 应用筛选条件 - 简化逻辑，确保每次都从干净状态开始
   dynamic _applyFilters(dynamic query, InvoiceFilters filters) {
     if (AppConfig.enableLogging) {
-      print('🔍 [RemoteDataSource] _applyFilters 调用: overdue=${filters.overdue}, urgent=${filters.urgent}, status=${filters.status}');
-      print('🔍 [RemoteDataSource] 筛选条件验证: 是否只有一个筛选激活?');
+      AppLogger.debug('🔍 [RemoteDataSource] _applyFilters 调用: overdue=${filters.overdue}, urgent=${filters.urgent}, status=${filters.status}', tag: 'Debug');
+      AppLogger.debug('🔍 [RemoteDataSource] 筛选条件验证: 是否只有一个筛选激活?', tag: 'Debug');
       final activeFilters = [
         if (filters.overdue == true) 'overdue',
         if (filters.urgent == true) 'urgent', 
         if (filters.status?.contains(InvoiceStatus.unreimbursed) == true) 'unreimbursed_status'
       ];
-      print('🔍 [RemoteDataSource] 激活的筛选: $activeFilters');
-      print('🔄 [RemoteDataSource] 开始应用筛选条件，基础查询已准备就绪');
+      AppLogger.debug('🔍 [RemoteDataSource] 激活的筛选: $activeFilters', tag: 'Debug');
+      AppLogger.debug('🔄 [RemoteDataSource] 开始应用筛选条件，基础查询已准备就绪', tag: 'Debug');
     }
     
     // 全局搜索
@@ -667,7 +668,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       query = query.eq('status', 'unreimbursed');
       
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 应用逾期筛选: consumption_date < $overdueThreshold AND status = unreimbursed');
+        AppLogger.debug('✅ [RemoteDataSource] 应用逾期筛选: consumption_date < $overdueThreshold AND status = unreimbursed', tag: 'Debug');
       }
     } else if (filters.urgent == true) {
       // 紧急筛选：>60天未报销
@@ -678,14 +679,14 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       query = query.eq('status', 'unreimbursed');
       
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unreimbursed');
+        AppLogger.debug('✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unreimbursed', tag: 'Debug');
       }
     } else if (filters.status?.contains(InvoiceStatus.unreimbursed) == true) {
       // 待报销筛选：只看状态
       query = query.eq('status', 'unreimbursed');
       
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] 应用待报销筛选: status = unreimbursed');
+        AppLogger.debug('✅ [RemoteDataSource] 应用待报销筛选: status = unreimbursed', tag: 'Debug');
       }
     }
     
@@ -705,17 +706,17 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       
       if (session == null || currentUser == null) {
         if (AppConfig.enableLogging) {
-          print('❌ [RemoteDataSource] 用户未认证');
+          AppLogger.debug('❌ [RemoteDataSource] 用户未认证', tag: 'Debug');
         }
         throw UploadInvoiceException('用户未登录');
       }
 
       if (AppConfig.enableLogging) {
-        print('📤 [RemoteDataSource] 开始上传发票');
-        print('📤 [RemoteDataSource] 用户ID: ${currentUser.id}');
-        print('📤 [RemoteDataSource] 文件名: $fileName');
-        print('📤 [RemoteDataSource] 文件大小: ${fileBytes.length} bytes');
-        print('📤 [RemoteDataSource] 文件哈希: ${fileHash.substring(0, 16)}...');
+        AppLogger.debug('📤 [RemoteDataSource] 开始上传发票', tag: 'Debug');
+        AppLogger.debug('📤 [RemoteDataSource] 用户ID: ${currentUser.id}', tag: 'Debug');
+        AppLogger.debug('📤 [RemoteDataSource] 文件名: $fileName', tag: 'Debug');
+        AppLogger.debug('📤 [RemoteDataSource] 文件大小: ${fileBytes.length} bytes', tag: 'Debug');
+        AppLogger.debug('📤 [RemoteDataSource] 文件哈希: ${fileHash.substring(0, 16)}...', tag: 'Debug');
       }
 
       // 调用Supabase Edge Function进行OCR处理和去重检查
@@ -753,7 +754,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       });
 
       if (AppConfig.enableLogging) {
-        print('📤 [RemoteDataSource] 发送请求到Edge Function');
+        AppLogger.debug('📤 [RemoteDataSource] 发送请求到Edge Function', tag: 'Debug');
       }
 
       // 发送请求
@@ -761,13 +762,13 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (AppConfig.enableLogging) {
-        print('📤 [RemoteDataSource] Edge Function响应状态: ${response.statusCode}');
+        AppLogger.debug('📤 [RemoteDataSource] Edge Function响应状态: ${response.statusCode}', tag: 'Debug');
       }
 
       if (response.statusCode != 200) {
         final errorBody = response.body;
         if (AppConfig.enableLogging) {
-          print('❌ [RemoteDataSource] Edge Function调用失败: $errorBody');
+          AppLogger.debug('❌ [RemoteDataSource] Edge Function调用失败: $errorBody', tag: 'Debug');
         }
         throw UploadInvoiceException('上传处理失败: ${response.statusCode} - $errorBody');
       }
@@ -776,10 +777,10 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final responseData = jsonDecode(response.body);
       
       if (AppConfig.enableLogging) {
-        print('✅ [RemoteDataSource] Edge Function响应解析完成');
+        AppLogger.debug('✅ [RemoteDataSource] Edge Function响应解析完成', tag: 'Debug');
         print('✅ [RemoteDataSource] 成功: ${responseData['success']}');
         print('✅ [RemoteDataSource] 是否重复: ${responseData['isDuplicate']}');
-        print('🔍 [RemoteDataSource] 完整响应数据: $responseData');
+        AppLogger.debug('🔍 [RemoteDataSource] 完整响应数据: $responseData', tag: 'Debug');
       }
 
       // 处理响应
@@ -823,7 +824,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
 
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 上传失败: $e');
+        AppLogger.debug('❌ [RemoteDataSource] 上传失败: $e', tag: 'Debug');
       }
       
       if (e is UploadInvoiceException) {
@@ -838,7 +839,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
   InvoiceEntity _parseInvoiceFromResponse(Map<String, dynamic> data) {
     try {
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 开始解析发票数据: ${data.keys.toList()}');
+        AppLogger.debug('🔍 [RemoteDataSource] 开始解析发票数据: ${data.keys.toList()}', tag: 'Debug');
       }
       
       // 检查必填字段，如果缺少则提供默认值
@@ -860,15 +861,15 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
       
       if (AppConfig.enableLogging) {
-        print('🔍 [RemoteDataSource] 处理后的数据: $processedData');
+        AppLogger.debug('🔍 [RemoteDataSource] 处理后的数据: $processedData', tag: 'Debug');
       }
       
       final model = InvoiceModel.fromJson(processedData);
       return model.toEntity();
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [RemoteDataSource] 发票数据解析失败: $e');
-        print('❌ [RemoteDataSource] 原始数据: $data');
+        AppLogger.debug('❌ [RemoteDataSource] 发票数据解析失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [RemoteDataSource] 原始数据: $data', tag: 'Debug');
       }
       rethrow;
     }

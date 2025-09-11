@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import '../../core/theme/app_colors.dart';
 
 /// 发票搜索和筛选工具栏
 /// 包含搜索框、快捷筛选按钮和状态管理
@@ -65,7 +66,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         color: colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: colorScheme.outlineVariant.withOpacity(0.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             width: 0.5,
           ),
         ),
@@ -92,7 +93,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
     return Container(
       height: 36, // 固定较小高度
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8), // 减小圆角
         border: Border.all(
           color: _isSearchFocused 
@@ -115,7 +116,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         decoration: InputDecoration(
           hintText: '搜索发票号、销售方、金额...',
           hintStyle: TextStyle(
-            color: Colors.grey,
+            color: AppColors.onSurfaceVariant(context),
             fontSize: 14, // 减小字体
           ),
           prefixIcon: Icon(
@@ -184,7 +185,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: Colors.red,
+          color: AppColors.overdue(context),
           badge: _currentFilter.showOverdue ? null : '!',
         ),
         
@@ -207,7 +208,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: Colors.orange,
+          color: AppColors.urgent(context),
         ),
         
         // 待报销
@@ -229,7 +230,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: Colors.amber,
+          color: AppColors.pending(context),
         ),
       ],
     );
@@ -253,7 +254,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // 减小内边距
         decoration: BoxDecoration(
           color: isSelected
-            ? color.withOpacity(0.15)
+            ? color.withValues(alpha: 0.15)
             : colorScheme.surface,
           borderRadius: BorderRadius.circular(16), // 减小圆角
           border: Border.all(
@@ -265,7 +266,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   blurRadius: 3, // 减小模糊半径
                   offset: const Offset(0, 1), // 减小偏移
                 ),
@@ -301,8 +302,8 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                       child: Center(
                         child: Text(
                           badge,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.getContrastingColor(color),
                             fontSize: 7, // 减小字体
                             fontWeight: FontWeight.bold,
                           ),

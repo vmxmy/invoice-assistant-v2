@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import '../utils/logger.dart';
 
 /// 优化的网络服务类
 /// 包含请求批处理、连接池、重试机制和自适应超时
@@ -226,7 +227,7 @@ class OptimizedNetworkService {
   /// 暂停请求（网络断开时）
   void _pauseRequests() {
     // 请求留在队列中，等待网络恢复
-    print('Network disconnected. Requests queued for retry.');
+    AppLogger.info('Network disconnected. Requests queued for retry.', tag: 'Network');
   }
   
   /// 设置定期清理
@@ -238,6 +239,8 @@ class OptimizedNetworkService {
   
   /// 清理响应时间历史记录
   void _cleanupResponseTimeHistory() {
+    // 清理超过6小时的响应时间历史记录，变量保留以备将来实现清理逻辑
+    // ignore: unused_local_variable
     final cutoff = DateTime.now().subtract(Duration(hours: 6));
     // 清理逻辑...
   }

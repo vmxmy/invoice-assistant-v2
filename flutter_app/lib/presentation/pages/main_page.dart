@@ -1,11 +1,16 @@
+import '../../core/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import '../bloc/invoice_bloc.dart';
 import '../bloc/invoice_event.dart';
 import 'invoice_management_page.dart';
 import 'invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
+import '../../core/theme/theme_manager.dart';
+import '../widgets/theme_selector_widget.dart';
 import '../../debug_query_test.dart';
 
 /// 主页面 - 包含底部导航栏的容器页面
@@ -22,23 +27,23 @@ class _MainPageState extends State<MainPage> {
 
   final List<NavigationItem> _navigationItems = [
     NavigationItem(
-      icon: Icons.receipt_long_outlined,
-      activeIcon: Icons.receipt_long,
+      icon: CupertinoIcons.doc,
+      activeIcon: CupertinoIcons.doc_text,
       label: '发票管理',
     ),
     NavigationItem(
-      icon: Icons.upload_outlined,
-      activeIcon: Icons.upload,
+      icon: CupertinoIcons.cloud_upload,
+      activeIcon: CupertinoIcons.cloud_upload_fill,
       label: '上传发票',
     ),
     NavigationItem(
-      icon: Icons.analytics_outlined,
-      activeIcon: Icons.analytics,
+      icon: CupertinoIcons.chart_bar,
+      activeIcon: CupertinoIcons.chart_bar_fill,
       label: '数据分析',
     ),
     NavigationItem(
-      icon: Icons.settings_outlined,
-      activeIcon: Icons.settings,
+      icon: CupertinoIcons.settings,
+      activeIcon: CupertinoIcons.settings_solid,
       label: '设置',
     ),
   ];
@@ -68,9 +73,9 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('🏗️ [MainPage] MainPage重建 - currentIndex: $_currentIndex');
+    AppLogger.debug('🏗️ [MainPage] MainPage重建 - currentIndex: $_currentIndex', tag: 'Debug');
     final bloc = context.read<InvoiceBloc>();
-    print('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc');
+    AppLogger.debug('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc', tag: 'Debug');
     
     return Scaffold(
       body: PageView(
@@ -201,7 +206,7 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.analytics,
+              CupertinoIcons.chart_bar,
               size: 80,
               color: Colors.grey,
             ),
@@ -243,7 +248,7 @@ class _MainPageState extends State<MainPage> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               leading: const CircleAvatar(
-                child: Icon(Icons.person),
+                child: Icon(CupertinoIcons.person),
               ),
               title: Text(SupabaseClientManager.currentUser?.email ?? '未登录'),
               subtitle: const Text('当前用户'),
@@ -258,17 +263,17 @@ class _MainPageState extends State<MainPage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.info),
+                  leading: const Icon(CupertinoIcons.info_circle),
                   title: const Text('应用信息'),
                   subtitle: Text('版本 ${AppConfig.version}'),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.bug_report, color: Colors.orange),
+                  leading: const Icon(CupertinoIcons.exclamationmark_triangle, color: Colors.orange),
                   title: const Text('调试信息'),
                   subtitle: const Text('查看用户ID和数据库连接状态'),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -280,13 +285,24 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.help),
-                  title: const Text('帮助与支持'),
-                  trailing: const Icon(Icons.chevron_right),
+                  leading: const Icon(CupertinoIcons.paintbrush_fill),
+                  title: const Text('主题设置'),
+                  subtitle: Text('当前：${context.watch<ThemeManager>().currentThemeName}'),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
+                  onTap: () {
+                    final themeManager = context.read<ThemeManager>();
+                    showThemeSelector(context, themeManager);
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
+                  leading: const Icon(CupertinoIcons.question_circle),
+                  title: const Text('帮助与支持'),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
                   title: const Text('退出登录', style: TextStyle(color: Colors.red)),
                   onTap: () async {
                     final shouldLogout = await showDialog<bool>(

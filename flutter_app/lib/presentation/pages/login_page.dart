@@ -1,4 +1,6 @@
+import '../../core/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
@@ -32,18 +34,18 @@ class _LoginPageState extends State<LoginPage> {
       final user = SupabaseClientManager.client.auth.currentUser;
       
       if (AppConfig.enableLogging) {
-        print('🔐 [Login] 检查现有会话 - Session: ${session != null}, User: ${user?.email}');
+        AppLogger.debug('🔐 [Login] 检查现有会话 - Session: ${session != null}, User: ${user?.email}', tag: 'Debug');
       }
       
       if (session != null && user != null) {
         if (AppConfig.enableLogging) {
-          print('✅ [Login] 找到有效会话，自动登录');
+          AppLogger.debug('✅ [Login] 找到有效会话，自动登录', tag: 'Debug');
         }
         widget.onLoginSuccess();
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('⚠️ [Login] 会话检查失败: $e');
+        AppLogger.debug('⚠️ [Login] 会话检查失败: $e', tag: 'Debug');
       }
     }
   }
@@ -75,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       if (AppConfig.enableLogging) {
-        print('🔐 [Login] 开始登录尝试: $email');
+        AppLogger.debug('🔐 [Login] 开始登录尝试: $email', tag: 'Debug');
       }
 
       final response = await SupabaseClientManager.signInWithPassword(
@@ -84,12 +86,12 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (AppConfig.enableLogging) {
-        print('🔐 [Login] 登录响应 - User: ${response.user?.email}, Session: ${response.session != null}');
+        AppLogger.debug('🔐 [Login] 登录响应 - User: ${response.user?.email}, Session: ${response.session != null}', tag: 'Debug');
       }
 
       if (response.user != null && response.session != null) {
         if (AppConfig.enableLogging) {
-          print('✅ [Login] 登录成功，用户ID: ${response.user!.id}');
+          AppLogger.debug('✅ [Login] 登录成功，用户ID: ${response.user!.id}', tag: 'Debug');
         }
         widget.onLoginSuccess();
       } else {
@@ -102,8 +104,8 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = '登录失败: ${e.toString()}';
       });
       if (AppConfig.enableLogging) {
-        print('❌ [Login] 登录错误: $e');
-        print('❌ [Login] 错误类型: ${e.runtimeType}');
+        AppLogger.debug('❌ [Login] 登录错误: $e', tag: 'Debug');
+        AppLogger.debug('❌ [Login] 错误类型: ${e.runtimeType}', tag: 'Debug');
       }
     } finally {
       setState(() {
@@ -130,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               // Logo区域
               const Icon(
-                Icons.receipt_long,
+                CupertinoIcons.doc_text,
                 size: 80,
                 color: Colors.blue,
               ),
@@ -166,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: '邮箱地址',
-                          prefixIcon: Icon(Icons.email),
+                          prefixIcon: Icon(CupertinoIcons.mail),
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -176,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: '密码',
-                          prefixIcon: Icon(Icons.lock),
+                          prefixIcon: Icon(CupertinoIcons.lock),
                           border: OutlineInputBorder(),
                         ),
                       ),

@@ -1,3 +1,4 @@
+import '../utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'core/network/supabase_client.dart';
 import 'core/config/app_config.dart';
@@ -17,12 +18,12 @@ void main() async {
     
     if (!initialized) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to initialize Supabase client');
+        AppLogger.debug('❌ Failed to initialize Supabase client', tag: 'Debug');
       }
     }
   } catch (e) {
     if (AppConfig.enableLogging) {
-      print('❌ Initialization error: $e');
+      AppLogger.debug('❌ Initialization error: $e', tag: 'Debug');
     }
   }
   

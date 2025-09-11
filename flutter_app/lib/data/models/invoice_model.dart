@@ -1,3 +1,4 @@
+import '../../core/utils/logger.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
@@ -79,10 +80,10 @@ class InvoiceModel with _$InvoiceModel {
 extension InvoiceModelToEntity on InvoiceModel {
   InvoiceEntity toEntity() {
     // 添加调试日志检查模型到实体的转换
-    print('🔍 [Model->Entity] 转换前 Model ID: $id');
-    print('🔍 [Model->Entity] 转换前 Model.category: "$category"');
-    print('🔍 [Model->Entity] 转换前 Model.expenseCategory: "$expenseCategory"');
-    print('🔍 [Model->Entity] 转换前 Model.primaryCategoryName: "$primaryCategoryName"');
+    AppLogger.debug('🔍 [Model->Entity] 转换前 Model ID: $id', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.category: "$category"', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.expenseCategory: "$expenseCategory"', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.primaryCategoryName: "$primaryCategoryName"', tag: 'Debug');
     
     final entity = InvoiceEntity(
       id: id,
@@ -131,10 +132,10 @@ extension InvoiceModelToEntity on InvoiceModel {
     );
     
     // 添加调试日志检查实体转换后的值
-    print('🔍 [Model->Entity] 转换后 Entity ID: ${entity.id}');
-    print('🔍 [Model->Entity] 转换后 Entity.category: "${entity.category}"');
-    print('🔍 [Model->Entity] 转换后 Entity.expenseCategory: "${entity.expenseCategory}"');
-    print('🔍 [Model->Entity] 转换后 Entity.primaryCategoryName: "${entity.primaryCategoryName}"');
+    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity ID: ${entity.id}', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.category: "${entity.category}"', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.expenseCategory: "${entity.expenseCategory}"', tag: 'Debug');
+    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.primaryCategoryName: "${entity.primaryCategoryName}"', tag: 'Debug');
     
     return entity;
   }

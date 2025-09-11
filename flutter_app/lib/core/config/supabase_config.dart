@@ -1,4 +1,5 @@
 import 'app_config.dart';
+import '../utils/logger.dart';
 
 /// Supabase 配置管理
 /// 复用现有前端的 Supabase 配置，保持完全兼容
@@ -48,7 +49,7 @@ class SupabaseConfig {
       final uri = Uri.tryParse(supabaseUrl);
       if (supabaseUrl.isEmpty || uri == null || !uri.isAbsolute) {
         if (AppConfig.enableLogging) {
-          print('❌ Invalid Supabase URL: $supabaseUrl');
+          AppLogger.error('Invalid Supabase URL: $supabaseUrl', tag: 'Config');
         }
         return false;
       }
@@ -56,7 +57,7 @@ class SupabaseConfig {
       // 检查密钥
       if (supabaseAnonKey.isEmpty || supabaseAnonKey == 'your-anon-key') {
         if (AppConfig.enableLogging) {
-          print('❌ Invalid Supabase Anon Key');
+          AppLogger.error('Invalid Supabase Anon Key', tag: 'Config');
         }
         return false;
       }
@@ -64,14 +65,14 @@ class SupabaseConfig {
       // 环境一致性检查
       if (isProduction && isLocal) {
         if (AppConfig.enableLogging) {
-          print('⚠️ Warning: Production environment with local URL');
+          AppLogger.warning('Production environment with local URL', tag: 'Config');
         }
       }
       
       return true;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Supabase config validation error: $e');
+        AppLogger.error('Supabase config validation error', tag: 'Config', error: e);
       }
       return false;
     }
@@ -89,13 +90,13 @@ class SupabaseConfig {
     };
   }
   
-  /// 打印配置状态（仅在调试模式下）
+  /// 记录配置状态（仅在调试模式下）
   static void printConfigStatus() {
     if (AppConfig.isDebugMode && AppConfig.enableLogging) {
-      print('🔗 Supabase Configuration:');
+      AppLogger.config('Supabase Configuration:');
       final status = getConfigStatus();
       status.forEach((key, value) {
-        print('   $key: $value');
+        AppLogger.config('   $key: $value');
       });
     }
   }

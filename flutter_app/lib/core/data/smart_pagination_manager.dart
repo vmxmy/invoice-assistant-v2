@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../../domain/entities/invoice_entity.dart';
+import '../utils/logger.dart';
 
 /// 智能分页管理器
 /// 支持预加载、虚拟滚动和智能缓存
@@ -10,7 +11,9 @@ class SmartPaginationManager {
   
   // 分页配置
   static const int _defaultPageSize = 20;
-  static const int _prefetchThreshold = 5; // 剩余几项时开始预加载
+  // 预加载阈值：剩余几项时开始预加载（当前未使用但保留以备将来功能扩展）
+  // ignore: unused_field
+  static const int _prefetchThreshold = 5;
   static const int _maxCachedPages = 10;
   
   // 缓存的页面数据
@@ -135,7 +138,7 @@ class SmartPaginationManager {
         _cachePageData(pageKey, items, page, pageSize);
       } catch (e) {
         // 预加载失败不影响用户体验
-        print('Prefetch failed for page $page: $e');
+        AppLogger.warning('预加载第$page页失败', tag: 'Pagination', error: e);
       } finally {
         _prefetchingPages.remove(pageKey);
       }

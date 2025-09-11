@@ -1,5 +1,7 @@
+import '../../core/utils/logger.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +30,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
     // 使用App级别的BLoC实例，确保状态同步
     final bloc = context.read<InvoiceBloc>();
     if (AppConfig.enableLogging) {
-      print('📤 [UploadPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc');
+      AppLogger.debug('📤 [UploadPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc', tag: 'Debug');
     }
     
     return Scaffold(
@@ -36,12 +38,12 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         title: const Text('上传发票'),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(CupertinoIcons.back),
           onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline),
+            icon: const Icon(CupertinoIcons.question_circle),
             onPressed: () => _showHelpDialog(context),
           ),
         ],
@@ -188,7 +190,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _selectedFiles.isEmpty ? Icons.cloud_upload_outlined : Icons.folder_open,
+                            _selectedFiles.isEmpty ? CupertinoIcons.cloud_upload : CupertinoIcons.folder_open,
                             size: 32,
                             color: Theme.of(context).primaryColor,
                           ),
@@ -241,7 +243,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                               ),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                                leading: const Icon(CupertinoIcons.doc_text, color: Colors.red),
                                 title: Text(
                                   fileName,
                                   style: const TextStyle(fontWeight: FontWeight.w500),
@@ -259,7 +261,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                                   label: '移除文件 $fileName',
                                   button: true,
                                   child: IconButton(
-                                    icon: const Icon(Icons.close, color: Colors.grey),
+                                    icon: const Icon(CupertinoIcons.xmark, color: Colors.grey),
                                     onPressed: () => _removeFile(index),
                                     tooltip: '移除此文件',
                                     constraints: const BoxConstraints(
@@ -313,7 +315,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                     _selectedFiles.clear();
                   });
                 },
-                icon: const Icon(Icons.clear),
+                icon: const Icon(CupertinoIcons.clear),
                 label: const Text('清空'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -328,7 +330,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
               label: '开始上传${_selectedFiles.length}个已选择的PDF文件',
               child: ElevatedButton.icon(
                 onPressed: _startUpload,
-                icon: const Icon(Icons.upload),
+                icon: const Icon(CupertinoIcons.cloud_upload),
                 label: Text('上传 ${_selectedFiles.length} 个文件'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -345,8 +347,8 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
   Future<void> _pickFiles() async {
     try {
       if (AppConfig.enableLogging) {
-        print('📁 [UploadPage] 开始选择文件');
-        print('📁 [UploadPage] FilePicker平台: ${FilePicker.platform.runtimeType}');
+        AppLogger.debug('📁 [UploadPage] 开始选择文件', tag: 'Debug');
+        AppLogger.debug('📁 [UploadPage] FilePicker平台: ${FilePicker.platform.runtimeType}', tag: 'Debug');
       }
 
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -358,9 +360,9 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       if (AppConfig.enableLogging) {
         print('📁 [UploadPage] FilePicker结果: ${result != null ? '有结果' : 'null'}');
         if (result != null) {
-          print('📁 [UploadPage] 文件数量: ${result.files.length}');
+          AppLogger.debug('📁 [UploadPage] 文件数量: ${result.files.length}', tag: 'Debug');
           for (var file in result.files) {
-            print('📁 [UploadPage] 文件: ${file.name}, 路径: ${file.path}');
+            AppLogger.debug('📁 [UploadPage] 文件: ${file.name}, 路径: ${file.path}', tag: 'Debug');
           }
         }
       }
@@ -406,7 +408,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
           });
 
           if (AppConfig.enableLogging) {
-            print('📁 [UploadPage] 选择了 ${validFiles.length} 个有效文件');
+            AppLogger.debug('📁 [UploadPage] 选择了 ${validFiles.length} 个有效文件', tag: 'Debug');
           }
         } else {
           AppFeedback.error(context, '无有效文件', message: '所选文件都不符合要求（格式或大小）');
@@ -414,7 +416,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       }
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [UploadPage] 选择文件失败: $error');
+        AppLogger.debug('❌ [UploadPage] 选择文件失败: $error', tag: 'Debug');
       }
       
       if (mounted) {
@@ -434,7 +436,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
   Future<void> _handleDroppedFiles(List<String> filePaths) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📁 [UploadPage] 处理拖拽文件: ${filePaths.length}个');
+        AppLogger.debug('📁 [UploadPage] 处理拖拽文件: ${filePaths.length}个', tag: 'Debug');
       }
 
       // 过滤PDF文件
@@ -486,14 +488,14 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         });
 
         if (AppConfig.enableLogging) {
-          print('📁 [UploadPage] 拖拽添加了 ${validFiles.length} 个有效文件');
+          AppLogger.debug('📁 [UploadPage] 拖拽添加了 ${validFiles.length} 个有效文件', tag: 'Debug');
         }
       } else {
         AppFeedback.error(context, '无有效文件', message: '没有找到符合要求的PDF文件');
       }
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [UploadPage] 处理拖拽文件失败: $error');
+        AppLogger.debug('❌ [UploadPage] 处理拖拽文件失败: $error', tag: 'Debug');
       }
       AppFeedback.error(context, '处理文件失败', message: error.toString());
     }
@@ -507,7 +509,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
     }
 
     if (AppConfig.enableLogging) {
-      print('🚀 [UploadPage] 开始上传 ${_selectedFiles.length} 个文件');
+      AppLogger.debug('🚀 [UploadPage] 开始上传 ${_selectedFiles.length} 个文件', tag: 'Debug');
     }
 
     // 发送批量上传事件
@@ -519,7 +521,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
   /// 处理上传完成
   void _handleUploadCompleted(BuildContext context, InvoiceUploadCompleted state) {
     if (AppConfig.enableLogging) {
-      print('✅ [UploadPage] 上传完成 - 成功: ${state.successCount}, 失败: ${state.failureCount}, 重复: ${state.duplicateCount}');
+      AppLogger.debug('✅ [UploadPage] 上传完成 - 成功: ${state.successCount}, 失败: ${state.failureCount}, 重复: ${state.duplicateCount}', tag: 'Debug');
     }
     
     // 构建消息内容
@@ -570,7 +572,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.help_outline, color: Theme.of(context).primaryColor),
+            Icon(CupertinoIcons.question_circle, color: Theme.of(context).primaryColor),
             const SizedBox(width: 8),
             const Text('上传帮助'),
           ],

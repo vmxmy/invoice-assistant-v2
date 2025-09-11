@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../config/app_config.dart';
+import '../utils/logger.dart';
 
 /// 网络连接状态枚举
 enum NetworkStatus {
@@ -102,7 +103,7 @@ class NetworkService {
   /// 初始化网络状态监听
   Future<void> initialize() async {
     if (AppConfig.enableLogging) {
-      print('🌐 Initializing network service...');
+      AppLogger.info('Initializing network service', tag: 'Network');
     }
 
     try {
@@ -114,19 +115,19 @@ class NetworkService {
         _onConnectivityChanged,
         onError: (error) {
           if (AppConfig.enableLogging) {
-            print('❌ Network connectivity error: $error');
+            AppLogger.error('Network connectivity error', tag: 'Network', error: error);
           }
           _updateNetworkInfo(NetworkInfo.unknown());
         },
       );
 
       if (AppConfig.enableLogging) {
-        print('✅ Network service initialized successfully');
+        AppLogger.info('Network service initialized successfully', tag: 'Network');
         printNetworkStatus();
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to initialize network service: $e');
+        AppLogger.error('Failed to initialize network service', tag: 'Network', error: e);
       }
       _updateNetworkInfo(NetworkInfo.unknown());
     }
@@ -137,7 +138,7 @@ class NetworkService {
     _subscription?.cancel();
     _networkStatusController.close();
     if (AppConfig.enableLogging) {
-      print('🌐 Network service disposed');
+      AppLogger.info('Network service disposed', tag: 'Network');
     }
   }
 
@@ -148,7 +149,7 @@ class NetworkService {
       return _currentNetworkInfo;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to check network status: $e');
+        AppLogger.error('Failed to check network status', tag: 'Network', error: e);
       }
       final unknownInfo = NetworkInfo.unknown();
       _updateNetworkInfo(unknownInfo);
@@ -159,7 +160,7 @@ class NetworkService {
   /// 网络连接变化回调
   void _onConnectivityChanged(List<ConnectivityResult> results) {
     if (AppConfig.enableLogging) {
-      print('🌐 Network connectivity changed: $results');
+      AppLogger.debug('Network connectivity changed: $results', tag: 'Network');
     }
     _updateNetworkStatus();
   }
@@ -172,7 +173,7 @@ class NetworkService {
       _updateNetworkInfo(networkInfo);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Error updating network status: $e');
+        AppLogger.error('Error updating network status', tag: 'Network', error: e);
       }
       _updateNetworkInfo(NetworkInfo.unknown());
     }
@@ -219,7 +220,7 @@ class NetworkService {
     _networkStatusController.add(networkInfo);
 
     if (AppConfig.enableLogging) {
-      print('📡 Network status updated: ${networkInfo.status.name} (${networkInfo.typeName ?? networkInfo.type.name})');
+      AppLogger.debug('Network status updated: ${networkInfo.status.name} (${networkInfo.typeName ?? networkInfo.type.name})', tag: 'Network');
     }
   }
 
@@ -238,7 +239,7 @@ class NetworkService {
       return results.isNotEmpty && !results.contains(ConnectivityResult.none);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Network quality test failed: $e');
+        AppLogger.warning('Network quality test failed', tag: 'Network', error: e);
       }
       return false;
     }
@@ -291,10 +292,10 @@ class NetworkService {
   /// 打印网络状态（仅在调试模式下）
   void printNetworkStatus() {
     if (AppConfig.isDebugMode && AppConfig.enableLogging) {
-      print('🌐 Network Status:');
+      AppLogger.debug('Network Status:', tag: 'Network');
       final summary = getNetworkStatusSummary();
       summary.forEach((key, value) {
-        print('   $key: $value');
+        AppLogger.debug('   $key: $value', tag: 'Network');
       });
     }
   }

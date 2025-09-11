@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/invoice_entity.dart';
@@ -10,6 +11,7 @@ import '../bloc/invoice_state.dart';
 import '../widgets/invoice_pdf_viewer.dart';
 import '../widgets/adaptive_pdf_container.dart';
 import '../widgets/app_feedback.dart';
+import '../widgets/invoice_status_badge.dart';
 
 /// 发票详情页面 - iOS风格设计
 class InvoiceDetailPage extends StatefulWidget {
@@ -99,7 +101,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_triangle,
               size: 64,
               color: Colors.red.withValues(alpha: 0.5),
             ),
@@ -186,7 +188,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
       pinned: true,
       actions: [
         IconButton(
-          icon: Icon(_isEditing ? Icons.done : Icons.edit),
+          icon: Icon(_isEditing ? CupertinoIcons.checkmark : CupertinoIcons.pencil),
           onPressed: () {
             setState(() {
               _isEditing = !_isEditing;
@@ -200,7 +202,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               value: 'share',
               child: Row(
                 children: [
-                  Icon(Icons.share, size: 18),
+                  Icon(CupertinoIcons.share, size: 18),
                   SizedBox(width: 8),
                   Text('分享'),
                 ],
@@ -210,7 +212,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               value: 'export',
               child: Row(
                 children: [
-                  Icon(Icons.download, size: 18),
+                  Icon(CupertinoIcons.cloud_download, size: 18),
                   SizedBox(width: 8),
                   Text('导出'),
                 ],
@@ -220,7 +222,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete, size: 18, color: Colors.red),
+                  Icon(CupertinoIcons.delete, size: 18, color: Colors.red),
                   SizedBox(width: 8),
                   Text('删除', style: TextStyle(color: Colors.red)),
                 ],
@@ -256,7 +258,11 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
-                _buildStatusBadge(invoice, colorScheme),
+                InteractiveInvoiceStatusBadge(
+                  invoice: invoice,
+                  onStatusChanged: (newStatus) => _updateInvoiceStatus(invoice, newStatus),
+                  size: BadgeSize.large,
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -291,11 +297,11 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
             const SizedBox(height: 16),
             
             // 基本信息行
-            _buildInfoRow('开票日期', invoice.formattedDate, Icons.date_range),
+            _buildInfoRow('开票日期', invoice.formattedDate, CupertinoIcons.calendar),
             if (invoice.consumptionDate != null)
-              _buildInfoRow('消费日期', invoice.formattedConsumptionDate ?? '', Icons.shopping_cart),
+              _buildInfoRow('消费日期', invoice.formattedConsumptionDate ?? '', CupertinoIcons.cart),
             if (invoice.sellerName?.isNotEmpty == true)
-              _buildInfoRow('销售方', invoice.sellerName ?? '', Icons.business),
+              _buildInfoRow('销售方', invoice.sellerName ?? '', CupertinoIcons.building_2_fill),
           ],
         ),
       ),
@@ -321,10 +327,10 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
             ),
             const SizedBox(height: 12),
             
-            _buildInfoRow('发票号码', invoice.invoiceNumber, Icons.numbers),
+            _buildInfoRow('发票号码', invoice.invoiceNumber, CupertinoIcons.number),
             
             if (invoice.buyerName?.isNotEmpty == true)
-              _buildInfoRow('购买方', invoice.buyerName ?? '', Icons.person_outline),
+              _buildInfoRow('购买方', invoice.buyerName ?? '', CupertinoIcons.person),
             
             if (invoice.invoiceType?.isNotEmpty == true)
               _buildInfoRow('发票类型', invoice.invoiceType ?? '', Icons.category_outlined),
@@ -508,49 +514,6 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     );
   }
 
-  /// 状态徽章
-  Widget _buildStatusBadge(InvoiceEntity invoice, ColorScheme colorScheme) {
-    final isReimbursed = invoice.status == InvoiceStatus.reimbursed;
-    final statusColor = isReimbursed 
-        ? CupertinoColors.systemGreen 
-        : CupertinoColors.systemOrange;
-    
-    return GestureDetector(
-      onTap: () => _showStatusActionSheet(invoice),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: statusColor.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: statusColor.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isReimbursed 
-                  ? CupertinoIcons.checkmark_circle_fill
-                  : CupertinoIcons.time_solid,
-              size: 16,
-              color: statusColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              isReimbursed ? '已报销' : '未报销',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: statusColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // 工具方法
   String _formatDateTime(DateTime dateTime) {
@@ -578,113 +541,12 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     }
   }
 
-  /// 显示状态切换操作表（iOS风格）
-  void _showStatusActionSheet(InvoiceEntity invoice) {
-    final isCurrentlyReimbursed = invoice.status == InvoiceStatus.reimbursed;
-    
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text(
-          '修改发票状态',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        message: Text(
-          invoice.sellerName ?? invoice.invoiceNumber ?? '未知发票',
-          style: const TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
-        ),
-        actions: [
-          if (!isCurrentlyReimbursed)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                _updateInvoiceStatus(invoice, InvoiceStatus.reimbursed);
-                _showStatusChangeSuccess('已报销');
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.checkmark_circle_fill,
-                    color: CupertinoColors.systemGreen,
-                    size: 24,
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    '标记为已报销',
-                    style: TextStyle(
-                      color: CupertinoColors.systemGreen,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (isCurrentlyReimbursed)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                _updateInvoiceStatus(invoice, InvoiceStatus.unreimbursed);
-                _showStatusChangeSuccess('未报销');
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.time_solid,
-                    color: CupertinoColors.systemOrange,
-                    size: 24,
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    '标记为未报销',
-                    style: TextStyle(
-                      color: CupertinoColors.systemOrange,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            '取消',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// 更新发票状态
   void _updateInvoiceStatus(InvoiceEntity invoice, InvoiceStatus newStatus) {
     context.read<InvoiceBloc>().add(
       UpdateInvoiceStatus(
         invoiceId: invoice.id,
         newStatus: newStatus,
-      ),
-    );
-  }
-
-  /// 显示状态修改成功提示
-  void _showStatusChangeSuccess(String statusText) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Text('已标记为$statusText'),
-          ],
-        ),
-        backgroundColor: CupertinoColors.systemGreen,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

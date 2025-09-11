@@ -1,3 +1,4 @@
+import '../utils/logger.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 
@@ -105,13 +106,13 @@ class DynamicEnumManager {
       _cacheTime[enumType] = DateTime.now();
 
       if (AppConfig.enableLogging) {
-        print('✅ 动态获取 $enumType 枚举值: ${enumValues.length} 项');
+        AppLogger.debug('✅ 动态获取 $enumType 枚举值: ${enumValues.length} 项', tag: 'Debug');
       }
 
       return enumValues;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ 获取 $enumType 枚举值失败: $e');
+        AppLogger.debug('❌ 获取 $enumType 枚举值失败: $e', tag: 'Debug');
       }
       
       // 返回默认值或缓存值

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../utils/logger.dart';
 
 /// 增强型缓存管理器
 /// 支持内存缓存、持久化缓存、预缓存和智能失效
@@ -12,6 +13,8 @@ class EnhancedCacheManager {
   
   static const String _cacheKeyPrefix = 'enhanced_cache_';
   static const Duration _defaultTtl = Duration(hours: 2);
+  // 离线缓存时长（用于离线模式），保留以备将来扩展，当前未使用（忽略警告）
+  // ignore: unused_field
   static const Duration _offlineTtl = Duration(days: 7);
   
   /// 智能缓存策略：优先显示缓存，后台更新
@@ -41,7 +44,7 @@ class EnhancedCacheManager {
         await _setCachedData(cacheKey, freshData, maxAge ?? _defaultTtl);
       } catch (e) {
         // 静默失败，不影响用户体验
-        print('Background cache update failed: $e');
+        AppLogger.warning('后台缓存更新失败', tag: 'Cache', error: e);
       }
     });
   }
@@ -104,7 +107,7 @@ class EnhancedCacheManager {
       
       return _deserializeData<T>(cacheEntry['data']);
     } catch (e) {
-      print('Cache read error: $e');
+      AppLogger.warning('缓存读取错误', tag: 'Cache', error: e);
       return null;
     }
   }

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../config/app_config.dart';
+import '../utils/logger.dart';
 
 /// Supabase 客户端封装
 /// 提供单例模式的 Supabase 客户端和统一的数据访问接口
@@ -34,7 +35,7 @@ class SupabaseClientManager {
       }
       
       if (AppConfig.enableLogging) {
-        print('🚀 Initializing Supabase client...');
+        AppLogger.info('Initializing Supabase client...', tag: 'Supabase');
         SupabaseConfig.printConfigStatus();
       }
       
@@ -53,15 +54,15 @@ class SupabaseClientManager {
       _client!.headers.addAll(SupabaseConfig.globalHeaders);
       
       if (AppConfig.enableLogging) {
-        print('✅ Supabase client initialized successfully');
-        print('   URL: ${SupabaseConfig.supabaseUrl}');
-        print('   Auth Flow: ${SupabaseConfig.authConfig['flowType']}');
+        AppLogger.info('Supabase client initialized successfully', tag: 'Supabase');
+        AppLogger.debug('   URL: ${SupabaseConfig.supabaseUrl}', tag: 'Supabase');
+        AppLogger.debug('   Auth Flow: ${SupabaseConfig.authConfig['flowType']}', tag: 'Supabase');
       }
       
       return true;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to initialize Supabase client: $e');
+        AppLogger.error('Failed to initialize Supabase client', tag: 'Supabase', error: e);
       }
       return false;
     }
@@ -100,13 +101,13 @@ class SupabaseClientManager {
       );
       
       if (AppConfig.enableLogging && response.user != null) {
-        print('✅ User signed in successfully: ${response.user!.email}');
+        AppLogger.info('User signed in successfully: ${response.user!.email}', tag: 'Supabase');
       }
       
       return response;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Sign in failed: $e');
+        AppLogger.error('Sign in failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -130,13 +131,13 @@ class SupabaseClientManager {
       );
       
       if (AppConfig.enableLogging) {
-        print('✅ User signed up successfully: $email');
+        AppLogger.info('User signed up successfully: $email', tag: 'Supabase');
       }
       
       return response;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Sign up failed: $e');
+        AppLogger.error('Sign up failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -152,11 +153,11 @@ class SupabaseClientManager {
       await _client!.auth.signOut();
       
       if (AppConfig.enableLogging) {
-        print('✅ User signed out successfully');
+        AppLogger.info('User signed out successfully', tag: 'Supabase');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Sign out failed: $e');
+        AppLogger.error('Sign out failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -172,11 +173,11 @@ class SupabaseClientManager {
       await _client!.auth.resetPasswordForEmail(email);
       
       if (AppConfig.enableLogging) {
-        print('✅ Password reset email sent to: $email');
+        AppLogger.info('Password reset email sent to: $email', tag: 'Supabase');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Password reset failed: $e');
+        AppLogger.error('Password reset failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -208,13 +209,13 @@ class SupabaseClientManager {
       );
       
       if (AppConfig.enableLogging) {
-        print('✅ Edge Function "$functionName" invoked successfully');
+        AppLogger.info('Edge Function "$functionName" invoked successfully', tag: 'Supabase');
       }
       
       return response;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Edge Function "$functionName" failed: $e');
+        AppLogger.error('Edge Function "$functionName" failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -239,13 +240,13 @@ class SupabaseClientManager {
           ));
       
       if (AppConfig.enableLogging) {
-        print('✅ File uploaded successfully: $path');
+        AppLogger.info('File uploaded successfully: $path', tag: 'Supabase');
       }
       
       return path;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ File upload failed: $e');
+        AppLogger.error('File upload failed', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -267,13 +268,13 @@ class SupabaseClientManager {
           .createSignedUrl(filePath, expiresIn);
       
       if (AppConfig.enableLogging) {
-        print('✅ Signed URL created successfully: ${filePath.substring(0, 20)}...');
+        AppLogger.debug('Signed URL created successfully for: ${filePath.substring(0, 20)}...', tag: 'Supabase');
       }
       
       return signedUrl;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to create signed URL: $e');
+        AppLogger.error('Failed to create signed URL', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -316,13 +317,13 @@ class SupabaseClientManager {
           .download(filePath);
       
       if (AppConfig.enableLogging) {
-        print('✅ File downloaded successfully: ${filePath.substring(0, 20)}..., size: ${fileBytes.length} bytes');
+        AppLogger.debug('File downloaded successfully: ${filePath.substring(0, 20)}..., size: ${fileBytes.length} bytes', tag: 'Supabase');
       }
       
       return fileBytes;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ Failed to download file: $e');
+        AppLogger.error('Failed to download file', tag: 'Supabase', error: e);
       }
       rethrow;
     }
@@ -360,8 +361,8 @@ class SupabaseClientManager {
       final maskedUrl = fullUrl.length > 50 
           ? '${fullUrl.substring(0, 30)}***${fullUrl.substring(fullUrl.length - 20)}'
           : 'URL***';
-      print('🔍 [URL解析] 解析URL: $maskedUrl');
-      print('🔍 [URL解析] 路径段数: ${pathSegments.length}');
+      AppLogger.debug('URL解析 - 解析URL: $maskedUrl', tag: 'Supabase');
+      AppLogger.debug('URL解析 - 路径段数: ${pathSegments.length}', tag: 'Supabase');
     }
     
     // 验证路径结构
@@ -385,7 +386,7 @@ class SupabaseClientManager {
       final maskedPath = filePath.length > 20 
           ? '${filePath.substring(0, 10)}***${filePath.substring(filePath.length - 10)}'
           : 'path***';
-      print('🔍 [URL解析] 提取路径: $maskedPath');
+      AppLogger.debug('URL解析 - 提取路径: $maskedPath', tag: 'Supabase');
     }
     
     return filePath;
@@ -445,10 +446,10 @@ class SupabaseClientManager {
   /// 打印客户端状态（仅在调试模式下）
   static void printClientStatus() {
     if (AppConfig.isDebugMode && AppConfig.enableLogging) {
-      print('📡 Supabase Client Status:');
+      AppLogger.debug('Supabase Client Status:', tag: 'Supabase');
       final status = getClientStatus();
       status.forEach((key, value) {
-        print('   $key: $value');
+        AppLogger.debug('   $key: $value', tag: 'Supabase');
       });
     }
   }

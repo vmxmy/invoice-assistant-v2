@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../core/config/app_config.dart';
 
 /// 增强型错误处理和用户反馈组件
@@ -23,7 +24,7 @@ class EnhancedErrorHandler {
         content: Row(
           children: [
             Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_triangle,
               color: Colors.white,
               size: 20,
             ),
@@ -66,7 +67,7 @@ class EnhancedErrorHandler {
         content: Row(
           children: [
             Icon(
-              Icons.check_circle_outline,
+              CupertinoIcons.checkmark_circle,
               color: Colors.white,
               size: 20,
             ),
@@ -103,7 +104,7 @@ class EnhancedErrorHandler {
         content: Row(
           children: [
             Icon(
-              Icons.info_outline,
+              CupertinoIcons.info_circle,
               color: Colors.white,
               size: 20,
             ),
@@ -147,7 +148,7 @@ class EnhancedErrorHandler {
           title: Row(
             children: [
               Icon(
-                Icons.error_outline,
+                CupertinoIcons.exclamationmark_triangle,
                 color: Colors.red[600],
                 size: 24,
               ),
@@ -309,7 +310,7 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_triangle,
               size: 64,
               color: Colors.red[400],
             ),

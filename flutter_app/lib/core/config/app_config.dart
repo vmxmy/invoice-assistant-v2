@@ -1,3 +1,5 @@
+import '../utils/logger.dart';
+
 /// 应用配置管理
 /// 管理应用级别的配置常量和环境变量
 class AppConfig {
@@ -70,13 +72,13 @@ class AppConfig {
     };
   }
   
-  /// 打印配置信息（仅在调试模式下）
+  /// 记录配置信息（仅在调试模式下）
   static void printConfig() {
     if (isDebugMode && enableLogging) {
-      print('🔧 App Configuration:');
+      AppLogger.config('App Configuration:');
       final config = getConfigSummary();
       config.forEach((key, value) {
-        print('   $key: $value');
+        AppLogger.config('   $key: $value');
       });
     }
   }

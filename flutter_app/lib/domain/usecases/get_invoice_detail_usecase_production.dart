@@ -1,3 +1,4 @@
+import '../../core/utils/logger.dart';
 import '../entities/invoice_entity.dart';
 import '../repositories/invoice_repository.dart';
 import '../exceptions/invoice_exceptions.dart';
@@ -175,11 +176,11 @@ class GetInvoiceDetailUseCaseProduction {
   void _logPerformance(String invoiceId, int milliseconds, {required bool success, dynamic error}) {
     final status = success ? '✅' : '❌';
     final errorInfo = error != null ? ' Error: $error' : '';
-    print('📊 [GetInvoiceDetail] $status Invoice: $invoiceId, Time: ${milliseconds}ms$errorInfo');
+    AppLogger.debug('📊 [GetInvoiceDetail] $status Invoice: $invoiceId, Time: ${milliseconds}ms$errorInfo', tag: 'Debug');
   }
 
   /// 重试日志
   void _logRetry(String invoiceId, int attempt, Duration delay, dynamic error) {
-    print('🔄 [GetInvoiceDetail] Retry $attempt for $invoiceId after ${delay.inMilliseconds}ms. Error: $error');
+    AppLogger.debug('🔄 [GetInvoiceDetail] Retry $attempt for $invoiceId after ${delay.inMilliseconds}ms. Error: $error', tag: 'Debug');
   }
 }

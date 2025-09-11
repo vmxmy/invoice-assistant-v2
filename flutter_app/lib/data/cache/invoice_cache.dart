@@ -1,4 +1,3 @@
-import 'dart:collection';
 import '../../domain/entities/invoice_entity.dart';
 
 /// 发票缓存管理器 - 提供内存缓存功能

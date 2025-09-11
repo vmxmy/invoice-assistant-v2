@@ -1,4 +1,6 @@
+import '../../core/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 
@@ -58,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       if (AppConfig.enableLogging) {
-        print('📝 [Register] 开始注册用户: $email');
+        AppLogger.debug('📝 [Register] 开始注册用户: $email', tag: 'Debug');
       }
 
       final response = await SupabaseClientManager.signUpWithPassword(
@@ -71,7 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (AppConfig.enableLogging) {
-        print('📝 [Register] 注册响应 - User: ${response.user?.email}, Session: ${response.session != null}');
+        AppLogger.debug('📝 [Register] 注册响应 - User: ${response.user?.email}, Session: ${response.session != null}', tag: 'Debug');
       }
 
       if (response.user != null) {
@@ -82,12 +84,12 @@ class _RegisterPageState extends State<RegisterPage> {
           });
           
           if (AppConfig.enableLogging) {
-            print('📧 [Register] 等待邮箱确认: ${response.user!.email}');
+            AppLogger.debug('📧 [Register] 等待邮箱确认: ${response.user!.email}', tag: 'Debug');
           }
         } else {
           // 邮箱已确认，直接登录
           if (AppConfig.enableLogging) {
-            print('✅ [Register] 注册成功并自动登录: ${response.user!.email}');
+            AppLogger.debug('✅ [Register] 注册成功并自动登录: ${response.user!.email}', tag: 'Debug');
           }
           widget.onRegisterSuccess();
         }
@@ -101,8 +103,8 @@ class _RegisterPageState extends State<RegisterPage> {
         _errorMessage = '注册失败: ${e.toString()}';
       });
       if (AppConfig.enableLogging) {
-        print('❌ [Register] 注册错误: $e');
-        print('❌ [Register] 错误类型: ${e.runtimeType}');
+        AppLogger.debug('❌ [Register] 注册错误: $e', tag: 'Debug');
+        AppLogger.debug('❌ [Register] 错误类型: ${e.runtimeType}', tag: 'Debug');
       }
     } finally {
       setState(() {
@@ -119,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blue),
+          icon: const Icon(CupertinoIcons.back, color: Colors.blue),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -139,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 // Logo区域
                 const Icon(
-                  Icons.person_add,
+                  CupertinoIcons.person_add,
                   size: 80,
                   color: Colors.blue,
                 ),
@@ -177,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             controller: _nameController,
                             decoration: const InputDecoration(
                               labelText: '姓名',
-                              prefixIcon: Icon(Icons.person),
+                              prefixIcon: Icon(CupertinoIcons.person),
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) {
@@ -198,7 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
                               labelText: '邮箱地址',
-                              prefixIcon: Icon(Icons.email),
+                              prefixIcon: Icon(CupertinoIcons.mail),
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) {
@@ -220,9 +222,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: '密码',
-                              prefixIcon: const Icon(Icons.lock),
+                              prefixIcon: const Icon(CupertinoIcons.lock),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                                icon: Icon(_obscurePassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash),
                                 onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                               ),
                               border: const OutlineInputBorder(),
@@ -245,9 +247,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             obscureText: _obscureConfirmPassword,
                             decoration: InputDecoration(
                               labelText: '确认密码',
-                              prefixIcon: const Icon(Icons.lock_outline),
+                              prefixIcon: const Icon(CupertinoIcons.lock),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscureConfirmPassword ? Icons.visibility : Icons.visibility_off),
+                                icon: Icon(_obscureConfirmPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash),
                                 onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                               ),
                               border: const OutlineInputBorder(),
@@ -274,7 +276,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.check_circle, color: Colors.green.shade700),
+                                  Icon(CupertinoIcons.checkmark_circle_fill, color: Colors.green.shade700),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -299,7 +301,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.error, color: Colors.red.shade700),
+                                  Icon(CupertinoIcons.exclamationmark_triangle, color: Colors.red.shade700),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(

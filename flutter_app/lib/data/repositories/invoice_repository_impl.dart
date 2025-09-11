@@ -1,3 +1,4 @@
+import '../../core/utils/logger.dart';
 import 'dart:typed_data';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
@@ -47,7 +48,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       final shouldSkipCache = hasFilters || forceRefresh;
       
       if (AppConfig.enableLogging) {
-        print('🔍 [Repository] 缓存检查 - hasFilters: $hasFilters, forceRefresh: $forceRefresh, skipCache: $shouldSkipCache');
+        AppLogger.debug('🔍 [Repository] 缓存检查 - hasFilters: $hasFilters, forceRefresh: $forceRefresh, skipCache: $shouldSkipCache', tag: 'Debug');
       }
       
       // 只有在没有筛选条件且不强制刷新时才尝试使用缓存
@@ -61,7 +62,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           final hasMore = currentTotal < totalCount;
           
           if (AppConfig.enableLogging) {
-            print('✅ [Repository] 使用缓存数据 - ${cachedInvoices.length}条记录');
+            AppLogger.debug('✅ [Repository] 使用缓存数据 - ${cachedInvoices.length}条记录', tag: 'Debug');
           }
           
           return InvoiceListResult(
@@ -74,7 +75,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         }
       } else {
         if (AppConfig.enableLogging) {
-          print('🔍 [Repository] 有筛选条件，跳过缓存，直接查询数据源');
+          AppLogger.debug('🔍 [Repository] 有筛选条件，跳过缓存，直接查询数据源', tag: 'Debug');
         }
       }
 
@@ -107,7 +108,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           _cache.cacheInvoiceDetail(entity.id, entity);
         } catch (e) {
           // 记录数据转换错误但不中断整体流程
-          print('⚠️ [Repository] 发票数据转换失败 ID: ${model.id}, Error: $e');
+          AppLogger.debug('⚠️ [Repository] 发票数据转换失败 ID: ${model.id}, Error: $e', tag: 'Debug');
           continue; // 跳过有问题的数据
         }
       }
@@ -120,8 +121,8 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       final hasMore = currentTotal < totalCount;
       
       if (AppConfig.enableLogging) {
-        print('📊 [Repository] 分页计算 - page: $page, pageSize: $pageSize, 当前页记录数: ${invoiceEntities.length}');
-        print('📊 [Repository] currentTotal: $currentTotal, totalCount: $totalCount, hasMore: $hasMore');
+        AppLogger.debug('📊 [Repository] 分页计算 - page: $page, pageSize: $pageSize, 当前页记录数: ${invoiceEntities.length}', tag: 'Debug');
+        AppLogger.debug('📊 [Repository] currentTotal: $currentTotal, totalCount: $totalCount, hasMore: $hasMore', tag: 'Debug');
       }
 
       return InvoiceListResult(
@@ -365,9 +366,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   }) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📤 [InvoiceRepositoryImpl] 调用远程数据源上传发票');
-        print('📤 [InvoiceRepositoryImpl] 文件名: $fileName');
-        print('📤 [InvoiceRepositoryImpl] 文件大小: ${fileBytes.length} bytes');
+        AppLogger.debug('📤 [InvoiceRepositoryImpl] 调用远程数据源上传发票', tag: 'Debug');
+        AppLogger.debug('📤 [InvoiceRepositoryImpl] 文件名: $fileName', tag: 'Debug');
+        AppLogger.debug('📤 [InvoiceRepositoryImpl] 文件大小: ${fileBytes.length} bytes', tag: 'Debug');
       }
 
       // 调用远程数据源进行上传
@@ -378,7 +379,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       );
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceRepositoryImpl] 发票上传成功');
+        AppLogger.debug('✅ [InvoiceRepositoryImpl] 发票上传成功', tag: 'Debug');
       }
 
       // 清空缓存，因为有新的发票数据
@@ -387,7 +388,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       return result;
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceRepositoryImpl] 上传失败: $error');
+        AppLogger.debug('❌ [InvoiceRepositoryImpl] 上传失败: $error', tag: 'Debug');
       }
       
       throw _handleDataSourceException(error, 'uploadInvoice');

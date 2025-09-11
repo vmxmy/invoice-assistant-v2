@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../core/theme/app_colors.dart';
 
 /// 数据分析页面
 class AnalysisPage extends StatelessWidget {
@@ -63,7 +65,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(_selectedPeriod),
-                    const Icon(Icons.arrow_drop_down),
+                    const Icon(CupertinoIcons.chevron_down),
                   ],
                 ),
               ),
@@ -168,7 +170,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
                     '发票数量',
                     '23',
                     '张',
-                    Icons.receipt,
+                    CupertinoIcons.doc_text,
                     Colors.blue,
                     '+12%',
                   ),
@@ -183,7 +185,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
                     '总金额',
                     '12,345',
                     '元',
-                    Icons.attach_money,
+                    CupertinoIcons.money_dollar_circle,
                     Colors.green,
                     '+8%',
                   ),
@@ -285,11 +287,11 @@ class _AnalysisContentState extends State<_AnalysisContent>
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLegendItem('餐饮', Colors.blue, 35),
-                        _buildLegendItem('交通', Colors.orange, 25),
-                        _buildLegendItem('办公', Colors.green, 20),
-                        _buildLegendItem('住宿', Colors.purple, 15),
-                        _buildLegendItem('其他', Colors.grey, 5),
+                        _buildLegendItem('餐饮', AppColors.getCategoryColor(context, 0), 35),
+                        _buildLegendItem('交通', AppColors.getCategoryColor(context, 1), 25),
+                        _buildLegendItem('办公', AppColors.getCategoryColor(context, 2), 20),
+                        _buildLegendItem('住宿', AppColors.getCategoryColor(context, 3), 15),
+                        _buildLegendItem('其他', AppColors.getCategoryColor(context, 4), 5),
                       ],
                     ),
                   ),
@@ -413,7 +415,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
               child: _buildQuickStatCard(
                 '平均金额',
                 '¥536',
-                Icons.calculate,
+                CupertinoIcons.number_square,
                 Colors.indigo,
               ),
             ),
@@ -422,7 +424,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
               child: _buildQuickStatCard(
                 '最大金额',
                 '¥2,340',
-                Icons.trending_up,
+                CupertinoIcons.graph_circle,
                 Colors.red,
               ),
             ),
@@ -628,11 +630,11 @@ class _AnalysisContentState extends State<_AnalysisContent>
                   ),
                   borderData: FlBorderData(show: false),
                   barGroups: [
-                    BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 4320, color: Colors.blue)]),
-                    BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 3080, color: Colors.orange)]),
-                    BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 2470, color: Colors.green)]),
-                    BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 1850, color: Colors.purple)]),
-                    BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 620, color: Colors.grey)]),
+                    BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 4320, color: AppColors.getCategoryColor(context, 0))]),
+                    BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 3080, color: AppColors.getCategoryColor(context, 1))]),
+                    BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 2470, color: AppColors.getCategoryColor(context, 2))]),
+                    BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 1850, color: AppColors.getCategoryColor(context, 3))]),
+                    BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 620, color: AppColors.getCategoryColor(context, 4))]),
                   ],
                 ),
               ),
@@ -711,15 +713,15 @@ class _AnalysisContentState extends State<_AnalysisContent>
   IconData _getCategoryIcon(String category) {
     switch (category) {
       case '餐饮费用':
-        return Icons.restaurant;
+        return CupertinoIcons.house;
       case '交通费用':
-        return Icons.directions_car;
+        return CupertinoIcons.car;
       case '办公费用':
-        return Icons.business_center;
+        return CupertinoIcons.briefcase;
       case '住宿费用':
-        return Icons.hotel;
+        return CupertinoIcons.building_2_fill;
       default:
-        return Icons.more_horiz;
+        return CupertinoIcons.ellipsis;
     }
   }
 }

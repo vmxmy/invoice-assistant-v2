@@ -65,7 +65,7 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
 }
 
 class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageContent>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   String _searchQuery = '';
   String _selectedFilter = '全部';
@@ -73,14 +73,34 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       print('📋 [TabController] 切换到Tab: ${_tabController.index}');
+      // 当切换到报销集页签(index=1)时，刷新报销集数据
+      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+        print('📋 [TabController] 切换到报销集页签，刷新数据');
+        context.read<ReimbursementSetBloc>().add(const LoadReimbursementSets(refresh: true));
+      }
     });
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      print('🔄 [AppLifecycle] 应用恢复前台，当前页签: ${_tabController.index}');
+      // 如果当前在报销集页签，刷新数据
+      if (_tabController.index == 1) {
+        print('🔄 [AppLifecycle] 刷新报销集数据');
+        context.read<ReimbursementSetBloc>().add(const LoadReimbursementSets(refresh: true));
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
   }
@@ -152,12 +172,19 @@ class _InvoiceManagementPageContentState extends State<_InvoiceManagementPageCon
 
   /// 构建应用栏
   Widget _buildAppBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return SliverAppBar(
       toolbarHeight: 0, // 移除工具栏高度
       floating: true,
       pinned: true,
+      backgroundColor: colorScheme.surfaceContainerHighest, // 浅色背景
+      surfaceTintColor: Colors.transparent, // 移除默认的表面色调
       bottom: TabBar(
         controller: _tabController,
+        indicatorColor: colorScheme.primary,
+        labelColor: colorScheme.primary,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
         tabs: const [
           Tab(text: '全部发票'),
           Tab(text: '报销集'),
@@ -1374,10 +1401,16 @@ class _ReimbursementSetsTab extends StatefulWidget {
   State<_ReimbursementSetsTab> createState() => _ReimbursementSetsTabState();
 }
 
-class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab> {
+class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab> 
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+  
+  @override
+  bool get wantKeepAlive => true;
+  
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // 加载报销集数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ReimbursementSetBloc>().add(const LoadReimbursementSets(refresh: true));
@@ -1385,7 +1418,27 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab> {
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // 应用从后台恢复时刷新数据
+      _refreshData();
+    }
+  }
+
+  void _refreshData() {
+    context.read<ReimbursementSetBloc>().add(const LoadReimbursementSets(refresh: true));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // 支持 AutomaticKeepAliveClientMixin
     return BlocConsumer<ReimbursementSetBloc, ReimbursementSetState>(
       listener: (context, state) {
         if (state is ReimbursementSetDeleteSuccess) {

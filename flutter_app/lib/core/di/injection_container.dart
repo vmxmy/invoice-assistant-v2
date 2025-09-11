@@ -3,9 +3,11 @@ import 'package:get_it/get_it.dart';
 // 数据层
 import '../../data/datasources/invoice_remote_datasource.dart';
 import '../../data/repositories/invoice_repository_impl.dart';
+import '../../data/repositories/reimbursement_set_repository_impl.dart';
 
 // 领域层
 import '../../domain/repositories/invoice_repository.dart';
+import '../../domain/repositories/reimbursement_set_repository.dart';
 import '../../domain/usecases/get_invoices_usecase.dart';
 import '../../domain/usecases/get_invoice_detail_usecase_production.dart';
 import '../../domain/usecases/get_invoice_stats_usecase.dart';
@@ -15,6 +17,7 @@ import '../../domain/usecases/upload_invoice_usecase.dart';
 
 // 表现层
 import '../../presentation/bloc/invoice_bloc.dart';
+import '../../presentation/bloc/reimbursement_set_bloc.dart';
 
 /// 全局依赖注入容器
 final sl = GetIt.instance;
@@ -33,6 +36,12 @@ Future<void> init() async {
       uploadInvoiceUseCase: sl(),
     ),
   );
+  
+  sl.registerFactory(
+    () => ReimbursementSetBloc(
+      repository: sl(),
+    ),
+  );
 
   //! 领域层 (Domain Layer)
   // Use cases
@@ -47,6 +56,10 @@ Future<void> init() async {
   // Repositories
   sl.registerLazySingleton<InvoiceRepository>(
     () => InvoiceRepositoryImpl(sl()),
+  );
+  
+  sl.registerLazySingleton<ReimbursementSetRepository>(
+    () => ReimbursementSetRepositoryImpl(),
   );
 
   // Data sources

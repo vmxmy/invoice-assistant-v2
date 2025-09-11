@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../bloc/invoice_state.dart';
 
 /// 上传进度显示组件
@@ -57,7 +58,7 @@ class UploadProgressWidget extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.cloud_upload,
+                CupertinoIcons.cloud_upload,
                 color: Theme.of(context).primaryColor,
                 size: 28,
               ),
@@ -97,7 +98,7 @@ class UploadProgressWidget extends StatelessWidget {
                       height: 32,
                       child: IconButton(
                         onPressed: () => _showCancelConfirmDialog(context),
-                        icon: const Icon(Icons.close, size: 18),
+                        icon: const Icon(CupertinoIcons.xmark, size: 18),
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.red.withValues(alpha: 0.1),
                           foregroundColor: Colors.red,
@@ -166,7 +167,7 @@ class UploadProgressWidget extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.picture_as_pdf,
+                CupertinoIcons.doc_text,
                 color: Colors.red,
                 size: 24,
               ),

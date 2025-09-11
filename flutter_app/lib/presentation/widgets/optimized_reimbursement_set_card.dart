@@ -191,7 +191,7 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
     );
   }
 
-  /// 构建单个指标项
+  /// 构建单个指标项 - 标签:数值格式
   Widget _buildMetricItem(
     BuildContext context,
     IconData icon,
@@ -209,23 +209,25 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
           ),
           const SizedBox(width: AppThemeConstants.spacing4),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: AppTypography.titleSmall(context).copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: AppTypography.bodySmall(context).copyWith(
+                      color: color.withValues(alpha: 0.7),
+                    ),
                   ),
-                ),
-                Text(
-                  label,
-                  style: AppTypography.bodySmall(context).copyWith(
-                    color: color.withValues(alpha: 0.7),
+                  TextSpan(
+                    text: value,
+                    style: AppTypography.titleSmall(context).copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import '../utils/logger.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
@@ -17,9 +18,9 @@ class InvoiceFileUtils {
         final maskedData = sensitiveData.length > 6 
             ? '${sensitiveData.substring(0, 3)}***${sensitiveData.substring(sensitiveData.length - 3)}'
             : '***';
-        print('$message $maskedData');
+        AppLogger.debug('$message $maskedData', tag: 'Debug');
       } else {
-        print(message);
+        AppLogger.debug(message, tag: 'SecureLog');
       }
     }
   }
@@ -59,7 +60,7 @@ class InvoiceFileUtils {
     return await _downloadWithRetry(
       bucketName: 'invoice-files',
       filePath: filePath,
-      invoiceNumber: invoice.invoiceNumber ?? '未知',
+      invoiceNumber: invoice.invoiceNumber,
     );
   }
 
@@ -107,7 +108,7 @@ class InvoiceFileUtils {
       
       // 达到最大重试次数
       if (retryCount >= _maxRetries) {
-        throw createSafeException('下载失败，已重试${_maxRetries}次', e);
+        throw createSafeException('下载失败，已重试$_maxRetries次', e);
       }
       
       // 等待后重试
@@ -176,7 +177,7 @@ class InvoiceFileUtils {
 
   /// 获取发票文件的显示名称（用于UI显示）
   static String getInvoiceDisplayName(InvoiceEntity invoice) {
-    return invoice.sellerName ?? invoice.invoiceNumber ?? '未知发票';
+    return invoice.sellerName ?? '未知发票';
   }
 
   /// 生成发票文件名：消费日期+销售方+金额.pdf
@@ -200,7 +201,7 @@ class InvoiceFileUtils {
     }
     
     // 组合文件名：消费日期+销售方+金额.pdf
-    return '${dateStr}_${sellerName}_${amountStr}.pdf';
+    return '${dateStr}_${sellerName}_$amountStr.pdf';
   }
 
   /// 获取PDF的签名下载URL（用于在浏览器中打开）

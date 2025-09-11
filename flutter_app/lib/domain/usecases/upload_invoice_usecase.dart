@@ -1,3 +1,4 @@
+import '../../core/utils/logger.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
@@ -15,8 +16,8 @@ class UploadInvoiceUseCase {
   /// 上传单个发票文件并进行OCR处理
   Future<UploadInvoiceResult> call(UploadInvoiceParams params) async {
     if (AppConfig.enableLogging) {
-      print('📤 [UploadInvoiceUseCase] 开始上传发票文件');
-      print('📤 [UploadInvoiceUseCase] 文件路径: ${params.filePath}');
+      AppLogger.debug('📤 [UploadInvoiceUseCase] 开始上传发票文件', tag: 'Debug');
+      AppLogger.debug('📤 [UploadInvoiceUseCase] 文件路径: ${params.filePath}', tag: 'Debug');
     }
 
     try {
@@ -35,8 +36,8 @@ class UploadInvoiceUseCase {
       final fileHash = _calculateFileHash(fileBytes);
       
       if (AppConfig.enableLogging) {
-        print('📤 [UploadInvoiceUseCase] 文件哈希: ${fileHash.substring(0, 16)}...');
-        print('📤 [UploadInvoiceUseCase] 文件大小: ${fileBytes.length} bytes');
+        AppLogger.debug('📤 [UploadInvoiceUseCase] 文件哈希: ${fileHash.substring(0, 16)}...', tag: 'Debug');
+        AppLogger.debug('📤 [UploadInvoiceUseCase] 文件大小: ${fileBytes.length} bytes', tag: 'Debug');
       }
 
       // 调用远程数据源进行上传和OCR处理
@@ -47,15 +48,15 @@ class UploadInvoiceUseCase {
       );
 
       if (AppConfig.enableLogging) {
-        print('✅ [UploadInvoiceUseCase] 发票上传成功');
-        print('✅ [UploadInvoiceUseCase] 发票ID: ${result.invoice?.id}');
-        print('✅ [UploadInvoiceUseCase] 是否重复: ${result.isDuplicate}');
+        AppLogger.debug('✅ [UploadInvoiceUseCase] 发票上传成功', tag: 'Debug');
+        AppLogger.debug('✅ [UploadInvoiceUseCase] 发票ID: ${result.invoice?.id}', tag: 'Debug');
+        AppLogger.debug('✅ [UploadInvoiceUseCase] 是否重复: ${result.isDuplicate}', tag: 'Debug');
       }
 
       return result;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [UploadInvoiceUseCase] 上传失败: $e');
+        AppLogger.debug('❌ [UploadInvoiceUseCase] 上传失败: $e', tag: 'Debug');
       }
       
       if (e is UploadInvoiceException) {
@@ -69,7 +70,7 @@ class UploadInvoiceUseCase {
   /// 批量上传发票文件
   Future<List<UploadInvoiceResult>> callBatch(List<UploadInvoiceParams> paramsList) async {
     if (AppConfig.enableLogging) {
-      print('📤 [UploadInvoiceUseCase] 开始批量上传 ${paramsList.length} 个文件');
+      AppLogger.debug('📤 [UploadInvoiceUseCase] 开始批量上传 ${paramsList.length} 个文件', tag: 'Debug');
     }
 
     final results = <UploadInvoiceResult>[];
@@ -80,11 +81,11 @@ class UploadInvoiceUseCase {
         results.add(result);
         
         if (AppConfig.enableLogging) {
-          print('✅ [UploadInvoiceUseCase] 批量上传进度: ${i + 1}/${paramsList.length}');
+          AppLogger.debug('✅ [UploadInvoiceUseCase] 批量上传进度: ${i + 1}/${paramsList.length}', tag: 'Debug');
         }
       } catch (e) {
         if (AppConfig.enableLogging) {
-          print('❌ [UploadInvoiceUseCase] 批量上传第${i + 1}个文件失败: $e');
+          AppLogger.debug('❌ [UploadInvoiceUseCase] 批量上传第${i + 1}个文件失败: $e', tag: 'Debug');
         }
         
         results.add(UploadInvoiceResult.error(
@@ -96,7 +97,7 @@ class UploadInvoiceUseCase {
 
     if (AppConfig.enableLogging) {
       final successCount = results.where((r) => r.isSuccess).length;
-      print('✅ [UploadInvoiceUseCase] 批量上传完成: ${successCount}/${paramsList.length} 成功');
+      AppLogger.debug('✅ [UploadInvoiceUseCase] 批量上传完成: ${successCount}/${paramsList.length} 成功', tag: 'Debug');
     }
 
     return results;
