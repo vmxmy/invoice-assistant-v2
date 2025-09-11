@@ -46,6 +46,24 @@ class InvoiceCardWidget extends StatefulWidget {
 
 class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   @override
+  void didUpdateWidget(InvoiceCardWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // 当进入多选模式时，重置所有滑动状态
+    if (widget.isSelectionMode && !oldWidget.isSelectionMode) {
+      _resetSlidableState();
+    }
+  }
+  
+  /// 重置滑动状态
+  void _resetSlidableState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 使用Slidable的静态方法关闭所有活动的滑动状态
+      Slidable.of(context)?.close();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -174,29 +192,33 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           ),
         ],
       ),
-      child: Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: widget.isSelected ? 8 : 2,
-      color: widget.isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
-      child: InkWell(
-        onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
-        onLongPress: widget.onLongPress,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: _getCardBackgroundColor(colorScheme),
+          border: _getCardBorder(colorScheme),
+          boxShadow: _getCardShadow(),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
+            onLongPress: widget.onLongPress,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // 头部信息行
               Row(
                 children: [
-                  // 选择框（多选模式下显示）
+                  // 现代化的选择框（多选模式下显示）
                   if (widget.isSelectionMode) ...[
-                    Checkbox(
-                      value: widget.isSelected,
-                      onChanged: (_) => widget.onSelectionToggle?.call(),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                    _buildModernCheckbox(colorScheme),
                     const SizedBox(width: 12),
                   ],
                   Expanded(
@@ -330,11 +352,12 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
                 ],
               ),
 
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -909,6 +932,92 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+    );
+  }
+
+  /// 获取现代化的卡片背景颜色
+  Color _getCardBackgroundColor(ColorScheme colorScheme) {
+    if (!widget.isSelectionMode) {
+      return colorScheme.surface;
+    }
+    
+    if (widget.isSelected) {
+      return colorScheme.primaryContainer.withValues(alpha: 0.12);
+    }
+    
+    return colorScheme.surface;
+  }
+
+  /// 获取现代化的卡片边框
+  Border? _getCardBorder(ColorScheme colorScheme) {
+    if (!widget.isSelectionMode) {
+      return null;
+    }
+    
+    if (widget.isSelected) {
+      return Border.all(
+        color: colorScheme.primary,
+        width: 2.0,
+      );
+    }
+    
+    return Border.all(
+      color: colorScheme.outline.withValues(alpha: 0.2),
+      width: 1.0,
+    );
+  }
+
+  /// 获取现代化的卡片阴影
+  List<BoxShadow> _getCardShadow() {
+    if (widget.isSelectionMode && widget.isSelected) {
+      // 选中状态下使用轻微的彩色阴影
+      return [
+        BoxShadow(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+          offset: const Offset(0, 1),
+          blurRadius: 3,
+          spreadRadius: 0,
+        ),
+      ];
+    }
+    
+    // 默认状态使用极轻微的阴影
+    return [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.04),
+        offset: const Offset(0, 1),
+        blurRadius: 3,
+        spreadRadius: 0,
+      ),
+    ];
+  }
+
+  /// 构建现代化的选择框
+  Widget _buildModernCheckbox(ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () => widget.onSelectionToggle?.call(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: widget.isSelected ? colorScheme.primary : Colors.transparent,
+          border: Border.all(
+            color: widget.isSelected 
+                ? colorScheme.primary 
+                : colorScheme.outline.withValues(alpha: 0.6),
+            width: widget.isSelected ? 0 : 2,
+          ),
+        ),
+        child: widget.isSelected
+            ? Icon(
+                Icons.check,
+                size: 16,
+                color: colorScheme.onPrimary,
+              )
+            : null,
       ),
     );
   }
