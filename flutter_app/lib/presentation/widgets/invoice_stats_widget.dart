@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../domain/repositories/invoice_repository.dart';
+import '../../core/theme/app_typography.dart';
 
 /// 发票统计组件 - 显示发票统计信息
 class InvoiceStatsWidget extends StatelessWidget {
@@ -13,7 +15,6 @@ class InvoiceStatsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -23,26 +24,26 @@ class InvoiceStatsWidget extends StatelessWidget {
           // 标题
           Text(
             '发票统计',
-            style: textTheme.titleMedium?.copyWith(
+            style: AppTypography.titleMedium(context).copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
           
           // 统计卡片网格
-          _buildStatsGrid(context, colorScheme, textTheme),
+          _buildStatsGrid(context, colorScheme),
           
           const SizedBox(height: 16),
           
           // 本月统计
-          _buildMonthlyStats(context, colorScheme, textTheme),
+          _buildMonthlyStats(context, colorScheme),
         ],
       ),
     );
   }
 
   /// 构建统计网格
-  Widget _buildStatsGrid(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildStatsGrid(BuildContext context, ColorScheme colorScheme) {
     return Row(
       children: [
         Expanded(
@@ -50,7 +51,7 @@ class InvoiceStatsWidget extends StatelessWidget {
             context,
             title: '总数',
             value: stats.totalCount.toString(),
-            icon: Icons.receipt_long,
+            icon: CupertinoIcons.doc_text,
             color: colorScheme.primary,
             backgroundColor: colorScheme.primaryContainer,
           ),
@@ -61,7 +62,7 @@ class InvoiceStatsWidget extends StatelessWidget {
             context,
             title: '总金额',
             value: _formatCurrency(stats.totalAmount),
-            icon: Icons.attach_money,
+            icon: CupertinoIcons.money_dollar_circle,
             color: colorScheme.secondary,
             backgroundColor: colorScheme.secondaryContainer,
           ),
@@ -71,7 +72,7 @@ class InvoiceStatsWidget extends StatelessWidget {
   }
 
   /// 构建本月统计
-  Widget _buildMonthlyStats(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
+  Widget _buildMonthlyStats(BuildContext context, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -85,14 +86,14 @@ class InvoiceStatsWidget extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.calendar_month,
+                CupertinoIcons.calendar,
                 size: 20,
                 color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 8),
               Text(
                 '本月统计',
-                style: textTheme.titleSmall?.copyWith(
+                style: AppTypography.titleSmall(context).copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -107,7 +108,7 @@ class InvoiceStatsWidget extends StatelessWidget {
                 context,
                 label: '本月发票',
                 value: stats.monthlyCount.toString(),
-                icon: Icons.description,
+                icon: CupertinoIcons.doc_text,
               ),
               Container(
                 width: 1,
@@ -118,7 +119,7 @@ class InvoiceStatsWidget extends StatelessWidget {
                 context,
                 label: '本月金额',
                 value: _formatCurrency(stats.monthlyAmount),
-                icon: Icons.monetization_on,
+                icon: CupertinoIcons.money_dollar,
               ),
               Container(
                 width: 1,
@@ -129,7 +130,7 @@ class InvoiceStatsWidget extends StatelessWidget {
                 context,
                 label: '平均金额',
                 value: _formatCurrency(stats.averageAmount),
-                icon: Icons.trending_up,
+                icon: CupertinoIcons.graph_circle,
               ),
             ],
           ),
@@ -147,7 +148,6 @@ class InvoiceStatsWidget extends StatelessWidget {
     required Color color,
     required Color backgroundColor,
   }) {
-    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -163,7 +163,7 @@ class InvoiceStatsWidget extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: textTheme.bodyMedium?.copyWith(
+                style: AppTypography.bodyMedium(context).copyWith(
                   color: color,
                   fontWeight: FontWeight.w500,
                 ),
@@ -178,7 +178,7 @@ class InvoiceStatsWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: textTheme.headlineSmall?.copyWith(
+            style: AppTypography.headlineSmall(context).copyWith(
               color: color,
               fontWeight: FontWeight.bold,
             ),
@@ -195,7 +195,6 @@ class InvoiceStatsWidget extends StatelessWidget {
     required String value,
     required IconData icon,
   }) {
-    final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
@@ -208,14 +207,14 @@ class InvoiceStatsWidget extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: textTheme.titleSmall?.copyWith(
+          style: AppTypography.titleSmall(context).copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onSurface,
           ),
         ),
         Text(
           label,
-          style: textTheme.bodySmall?.copyWith(
+          style: AppTypography.bodySmall(context).copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
         ),

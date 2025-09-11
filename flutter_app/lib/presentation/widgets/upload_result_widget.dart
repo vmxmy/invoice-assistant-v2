@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../bloc/invoice_state.dart';
+import '../../core/theme/app_typography.dart';
 
 /// 上传结果显示组件
 class UploadResultWidget extends StatelessWidget {
@@ -55,27 +57,27 @@ class UploadResultWidget extends StatelessWidget {
     if (hasFailure && hasSuccess) {
       // 既有成功又有失败
       summaryColor = Colors.orange;
-      summaryIcon = Icons.warning;
+      summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '部分文件上传失败';
     } else if (hasFailure && !hasSuccess && !hasDuplicate) {
       // 只有失败
       summaryColor = Colors.red;
-      summaryIcon = Icons.error;
+      summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '上传失败';
     } else if (hasSuccess && !hasFailure) {
       // 有成功，无失败
       summaryColor = Colors.green;
-      summaryIcon = Icons.check_circle;
+      summaryIcon = CupertinoIcons.checkmark_circle_fill;
       summaryTitle = hasDuplicate ? '上传完成（含重复文件）' : '全部文件上传成功！';
     } else if (!hasSuccess && !hasFailure && hasDuplicate) {
       // 只有重复文件，没有成功和失败
       summaryColor = Colors.amber;
-      summaryIcon = Icons.info;
+      summaryIcon = CupertinoIcons.info_circle;
       summaryTitle = '文件重复处理完成';
     } else {
       // 兜底情况（可能包含失败+重复的情况）
       summaryColor = Colors.orange;
-      summaryIcon = Icons.warning;
+      summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '处理完成';
     }
 
@@ -117,7 +119,7 @@ class UploadResultWidget extends StatelessWidget {
                   children: [
                     Text(
                       summaryTitle,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: AppTypography.headlineSmall(context).copyWith(
                         fontWeight: FontWeight.bold,
                         color: summaryColor,
                       ),
@@ -125,7 +127,7 @@ class UploadResultWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '共处理 ${results.length} 个文件',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: AppTypography.bodyMedium(context).copyWith(
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -143,7 +145,7 @@ class UploadResultWidget extends StatelessWidget {
               if (hasSuccess) ...[
                 _buildStatItem(
                   context,
-                  Icons.check_circle,
+                  CupertinoIcons.checkmark_circle_fill,
                   Colors.green,
                   '成功',
                   successCount,
@@ -153,7 +155,7 @@ class UploadResultWidget extends StatelessWidget {
               if (hasDuplicate) ...[
                 _buildStatItem(
                   context,
-                  Icons.content_copy,
+                  CupertinoIcons.doc_on_clipboard,
                   Colors.amber,
                   '重复',
                   duplicateCount,
@@ -163,7 +165,7 @@ class UploadResultWidget extends StatelessWidget {
               if (hasFailure) ...[
                 _buildStatItem(
                   context,
-                  Icons.error,
+                  CupertinoIcons.exclamationmark_triangle,
                   Colors.red,
                   '失败',
                   failureCount,
@@ -197,7 +199,7 @@ class UploadResultWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               count.toString(),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: AppTypography.titleMedium(context).copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -251,7 +253,7 @@ class UploadResultWidget extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.picture_as_pdf,
+                CupertinoIcons.doc_text,
                 color: Colors.red,
                 size: 24,
               ),
@@ -330,7 +332,7 @@ class UploadResultWidget extends StatelessWidget {
       // 成功上传，显示查看按钮
       return IconButton(
         onPressed: () => onViewInvoice?.call(result.invoice!),
-        icon: const Icon(Icons.visibility),
+        icon: const Icon(CupertinoIcons.eye),
         tooltip: '查看发票',
         color: Colors.blue,
       );
@@ -338,7 +340,7 @@ class UploadResultWidget extends StatelessWidget {
       // 上传失败，显示重试按钮
       return IconButton(
         onPressed: () => onRetry?.call(result.filePath),
-        icon: const Icon(Icons.refresh),
+        icon: const Icon(CupertinoIcons.refresh),
         tooltip: '重试',
         color: Colors.orange,
       );
@@ -367,7 +369,7 @@ class UploadResultWidget extends StatelessWidget {
                     }
                   }
                 },
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(CupertinoIcons.refresh),
                 label: Text('重试失败文件 ($failureCount)'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.orange,
@@ -381,7 +383,7 @@ class UploadResultWidget extends StatelessWidget {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: onClear,
-              icon: const Icon(Icons.done),
+              icon: const Icon(CupertinoIcons.checkmark),
               label: const Text('完成'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
