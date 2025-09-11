@@ -18,8 +18,6 @@ class InvoiceImageViewer extends StatefulWidget {
 
 class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
   bool _hasError = false;
-  int _retryCount = 0;
-  static const int _maxRetries = 3;
 
   @override
   Widget build(BuildContext context) {

@@ -35,7 +35,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         filtersHash: filtersHash,
       );
       
-      // 检查是否有筛选条件，有筛选条件时跳过缓存
+      // 检查是否有筛选条件或强制刷新，这些情况下跳过缓存
       final hasFilters = filters != null && (
         filters.overdue == true || 
         filters.urgent == true || 
@@ -43,12 +43,15 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         (filters.globalSearch != null && filters.globalSearch!.isNotEmpty)
       );
       
+      final forceRefresh = filters?.forceRefresh == true;
+      final shouldSkipCache = hasFilters || forceRefresh;
+      
       if (AppConfig.enableLogging) {
-        print('🔍 [Repository] 缓存检查 - hasFilters: $hasFilters');
+        print('🔍 [Repository] 缓存检查 - hasFilters: $hasFilters, forceRefresh: $forceRefresh, skipCache: $shouldSkipCache');
       }
       
-      // 只有在没有筛选条件时才尝试使用缓存
-      if (!hasFilters) {
+      // 只有在没有筛选条件且不强制刷新时才尝试使用缓存
+      if (!shouldSkipCache) {
         final cachedInvoices = _cache.getCachedInvoiceList(cacheKey);
         
         if (cachedInvoices != null) {

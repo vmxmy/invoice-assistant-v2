@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/invoice_entity.dart';
-import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../bloc/invoice_state.dart';
 
 /// 上传结果显示组件
@@ -432,8 +431,4 @@ class UploadResultWidget extends StatelessWidget {
     return cleanError.isNotEmpty ? cleanError : '上传失败，请重试';
   }
 
-  /// 格式化日期
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
 }

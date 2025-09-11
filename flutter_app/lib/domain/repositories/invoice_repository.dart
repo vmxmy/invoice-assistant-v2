@@ -79,6 +79,7 @@ class InvoiceFilters {
   final bool? isVerified;
   final bool? overdue;
   final bool? urgent;
+  final bool? forceRefresh; // 强制刷新，绕过缓存
 
   const InvoiceFilters({
     this.sellerName,
@@ -97,6 +98,7 @@ class InvoiceFilters {
     this.isVerified,
     this.overdue,
     this.urgent,
+    this.forceRefresh,
   });
 }
 

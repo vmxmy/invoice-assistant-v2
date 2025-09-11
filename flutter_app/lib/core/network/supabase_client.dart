@@ -278,32 +278,158 @@ class SupabaseClientManager {
       rethrow;
     }
   }
-  
-  /// 从完整的存储URL提取文件路径
-  static String extractFilePathFromUrl(String fullUrl) {
-    // 从URL中提取文件路径部分
-    // 例如: https://xxx.supabase.co/storage/v1/object/public/invoice-files/user_id/filename.pdf
-    // 路径段: ['storage', 'v1', 'object', 'public', 'invoice-files', 'user_id', 'filename.pdf']
-    // 需要提取: user_id/filename.pdf
-    final uri = Uri.parse(fullUrl);
-    final pathSegments = uri.pathSegments;
-    
-    print('🔍 [URL解析] 完整URL: $fullUrl');
-    print('🔍 [URL解析] 路径段: $pathSegments');
-    print('🔍 [URL解析] 段数: ${pathSegments.length}');
-    
-    if (pathSegments.length >= 6 && 
-        pathSegments[0] == 'storage' && 
-        pathSegments[1] == 'v1' && 
-        pathSegments[2] == 'object' &&
-        pathSegments[4] == 'invoice-files') {
-      // 跳过前5个段：storage/v1/object/public/invoice-files
-      final filePath = pathSegments.skip(5).join('/');
-      print('🔍 [URL解析] 提取的文件路径: $filePath');
-      return filePath;
+
+  /// 获取当前用户的访问令牌
+  static String? get accessToken {
+    if (!isInitialized || !isAuthenticated) {
+      return null;
+    }
+    return _client!.auth.currentSession?.accessToken;
+  }
+
+  /// 获取认证头信息（用于API请求）
+  static Map<String, String> get authHeaders {
+    final token = accessToken;
+    if (token == null) {
+      return {};
     }
     
-    throw ArgumentError('Invalid Supabase storage URL format: $fullUrl');
+    return {
+      'Authorization': 'Bearer $token',
+      'apikey': SupabaseConfig.supabaseAnonKey,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  /// 下载存储文件（带认证）
+  static Future<Uint8List> downloadFile({
+    required String bucketName,
+    required String filePath,
+  }) async {
+    if (!isInitialized) {
+      throw StateError('Supabase client not initialized');
+    }
+    
+    try {
+      final fileBytes = await _client!.storage
+          .from(bucketName)
+          .download(filePath);
+      
+      if (AppConfig.enableLogging) {
+        print('✅ File downloaded successfully: ${filePath.substring(0, 20)}..., size: ${fileBytes.length} bytes');
+      }
+      
+      return fileBytes;
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ Failed to download file: $e');
+      }
+      rethrow;
+    }
+  }
+  
+  /// 从完整的存储URL提取文件路径 - 增强安全验证
+  static String extractFilePathFromUrl(String fullUrl) {
+    // 输入验证
+    if (fullUrl.isEmpty) {
+      throw ArgumentError('URL不能为空');
+    }
+    
+    // 验证URL格式
+    final Uri uri;
+    try {
+      uri = Uri.parse(fullUrl);
+    } catch (e) {
+      throw ArgumentError('无效的URL格式: $fullUrl');
+    }
+    
+    // 验证域名是否为可信的Supabase域名
+    if (!_isValidSupabaseDomain(uri.host)) {
+      throw ArgumentError('不受信任的域名: ${uri.host}');
+    }
+    
+    // 验证协议
+    if (uri.scheme != 'https') {
+      throw ArgumentError('只允许HTTPS协议');
+    }
+    
+    final pathSegments = uri.pathSegments;
+    
+    // 安全日志记录（脱敏URL）
+    if (AppConfig.enableLogging && AppConfig.isDebugMode) {
+      final maskedUrl = fullUrl.length > 50 
+          ? '${fullUrl.substring(0, 30)}***${fullUrl.substring(fullUrl.length - 20)}'
+          : 'URL***';
+      print('🔍 [URL解析] 解析URL: $maskedUrl');
+      print('🔍 [URL解析] 路径段数: ${pathSegments.length}');
+    }
+    
+    // 验证路径结构
+    if (pathSegments.length < 6 || 
+        pathSegments[0] != 'storage' || 
+        pathSegments[1] != 'v1' || 
+        pathSegments[2] != 'object' ||
+        pathSegments[4] != 'invoice-files') {
+      throw ArgumentError('无效的Supabase存储URL结构');
+    }
+    
+    // 提取文件路径（跳过前5个段：storage/v1/object/public/invoice-files）
+    final filePath = pathSegments.skip(5).join('/');
+    
+    // 验证文件路径安全性
+    if (!_isValidFilePath(filePath)) {
+      throw ArgumentError('不安全的文件路径');
+    }
+    
+    if (AppConfig.enableLogging && AppConfig.isDebugMode) {
+      final maskedPath = filePath.length > 20 
+          ? '${filePath.substring(0, 10)}***${filePath.substring(filePath.length - 10)}'
+          : 'path***';
+      print('🔍 [URL解析] 提取路径: $maskedPath');
+    }
+    
+    return filePath;
+  }
+  
+  /// 验证是否为有效的Supabase域名
+  static bool _isValidSupabaseDomain(String host) {
+    // 验证Supabase官方域名格式
+    if (host.endsWith('.supabase.co')) {
+      return true;
+    }
+    
+    // 允许本地开发环境
+    if (AppConfig.isDebugMode && (host == 'localhost' || host == '127.0.0.1')) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /// 验证文件路径安全性
+  static bool _isValidFilePath(String filePath) {
+    // 检查路径遍历攻击
+    if (filePath.contains('..') || filePath.contains('//')) {
+      return false;
+    }
+    
+    // 检查非法字符
+    final RegExp invalidChars = RegExp(r'[<>:"|?*\x00-\x1f]');
+    if (invalidChars.hasMatch(filePath)) {
+      return false;
+    }
+    
+    // 检查路径长度
+    if (filePath.length > 500) {
+      return false;
+    }
+    
+    // 验证是否为PDF文件
+    if (!filePath.toLowerCase().endsWith('.pdf')) {
+      return false;
+    }
+    
+    return true;
   }
 
   /// 获取客户端状态信息

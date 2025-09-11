@@ -114,7 +114,7 @@ class _MainPageState extends State<MainPage> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: _navigationItems.asMap().entries.map((entry) {
@@ -147,13 +147,13 @@ class _MainPageState extends State<MainPage> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // 图标容器
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: isActive
                       ? theme.colorScheme.primary.withValues(alpha: 0.1)
@@ -162,13 +162,13 @@ class _MainPageState extends State<MainPage> {
                 ),
                 child: Icon(
                   isActive ? (item.activeIcon ?? item.icon) : item.icon,
-                  size: 24,
+                  size: 22,
                   color: isActive
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               
               // 标签文字
               Text(

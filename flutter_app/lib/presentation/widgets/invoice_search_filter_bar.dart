@@ -8,6 +8,7 @@ class InvoiceSearchFilterBar extends StatefulWidget {
     super.key,
     this.onSearchChanged,
     this.onFilterChanged,
+    this.onFilterClearWithRefresh,
     this.initialSearchQuery = '',
     this.showQuickFilters = true,
     this.showSearchBox = true,
@@ -18,6 +19,9 @@ class InvoiceSearchFilterBar extends StatefulWidget {
   
   /// 筛选条件变化回调
   final ValueChanged<FilterOptions>? onFilterChanged;
+  
+  /// 筛选条件清除回调（带刷新，绕过缓存）
+  final ValueChanged<FilterOptions>? onFilterClearWithRefresh;
   
   /// 初始搜索查询
   final String initialSearchQuery;
@@ -111,7 +115,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         decoration: InputDecoration(
           hintText: '搜索发票号、销售方、金额...',
           hintStyle: TextStyle(
-            color: colorScheme.onSurfaceVariant,
+            color: Colors.grey,
             fontSize: 14, // 减小字体
           ),
           prefixIcon: Icon(
@@ -142,13 +146,15 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12, // 减小内边距
-            vertical: 8,
+            vertical: 0, // 设置为0实现严格垂直居中
           ),
+          isDense: true, // 紧凑模式，减少额外填充
         ),
         style: TextStyle(
           fontSize: 14, // 减小字体
           color: colorScheme.onSurface,
         ),
+        textAlignVertical: TextAlignVertical.center, // 确保文本垂直居中
       ),
     );
   }
@@ -165,14 +171,17 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           icon: CupertinoIcons.exclamationmark_triangle,
           isSelected: _currentFilter.showOverdue,
           onTap: () {
-            final isCurrentlySelected = _currentFilter.showOverdue;
-            print('🔍 [FilterBar] 逾期发票按钮点击: 当前选中=$isCurrentlySelected');
-            if (isCurrentlySelected) {
-              // 如果当前已选中，点击取消选择，显示全部
-              _updateFilter(FilterOptions.single());
-            } else {
-              // 如果当前未选中，点击选择逾期筛选（单选）
-              _updateFilter(FilterOptions.single(overdue: true));
+            // 简单的toggle切换逻辑
+            final newState = !_currentFilter.showOverdue;
+            print('🔍 [FilterBar] 逾期发票按钮切换: $newState');
+            
+            final newFilter = newState ? FilterOptions.single(overdue: true) : FilterOptions.single();
+            _updateFilter(newFilter);
+            
+            // 如果是关闭状态（清除筛选），需要绕过缓存
+            if (!newState) {
+              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
           color: Colors.red,
@@ -185,14 +194,17 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           icon: CupertinoIcons.timer,
           isSelected: _currentFilter.showUrgent,
           onTap: () {
-            final isCurrentlySelected = _currentFilter.showUrgent;
-            print('🔍 [FilterBar] 紧急处理按钮点击: 当前选中=$isCurrentlySelected');
-            if (isCurrentlySelected) {
-              // 如果当前已选中，点击取消选择，显示全部
-              _updateFilter(FilterOptions.single());
-            } else {
-              // 如果当前未选中，点击选择紧急筛选（单选）
-              _updateFilter(FilterOptions.single(urgent: true));
+            // 简单的toggle切换逻辑
+            final newState = !_currentFilter.showUrgent;
+            print('🔍 [FilterBar] 紧急处理按钮切换: $newState');
+            
+            final newFilter = newState ? FilterOptions.single(urgent: true) : FilterOptions.single();
+            _updateFilter(newFilter);
+            
+            // 如果是关闭状态（清除筛选），需要绕过缓存
+            if (!newState) {
+              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
           color: Colors.orange,
@@ -204,14 +216,17 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           icon: CupertinoIcons.clock,
           isSelected: _currentFilter.showUnreimbursed,
           onTap: () {
-            final isCurrentlySelected = _currentFilter.showUnreimbursed;
-            print('🔍 [FilterBar] 待报销按钮点击: 当前选中=$isCurrentlySelected');
-            if (isCurrentlySelected) {
-              // 如果当前已选中，点击取消选择，显示全部
-              _updateFilter(FilterOptions.single());
-            } else {
-              // 如果当前未选中，点击选择待报销筛选（单选）
-              _updateFilter(FilterOptions.single(unreimbursed: true));
+            // 简单的toggle切换逻辑
+            final newState = !_currentFilter.showUnreimbursed;
+            print('🔍 [FilterBar] 待报销按钮切换: $newState');
+            
+            final newFilter = newState ? FilterOptions.single(unreimbursed: true) : FilterOptions.single();
+            _updateFilter(newFilter);
+            
+            // 如果是关闭状态（清除筛选），需要绕过缓存
+            if (!newState) {
+              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
           color: Colors.amber,

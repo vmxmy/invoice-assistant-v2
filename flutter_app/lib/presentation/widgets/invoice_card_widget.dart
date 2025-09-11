@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
+import '../../core/utils/invoice_file_utils.dart';
 
 /// 发票紧急程度枚举
 enum UrgencyLevel {
@@ -12,7 +16,7 @@ enum UrgencyLevel {
 }
 
 /// 发票卡片组件 - 展示单个发票的信息
-class InvoiceCardWidget extends StatelessWidget {
+class InvoiceCardWidget extends StatefulWidget {
   final InvoiceEntity invoice;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
@@ -37,13 +41,67 @@ class InvoiceCardWidget extends StatelessWidget {
   });
 
   @override
+  State<InvoiceCardWidget> createState() => _InvoiceCardWidgetState();
+}
+
+class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Slidable(
-      key: Key('invoice_${invoice.id}'),
-      enabled: !isSelectionMode, // 多选模式下禁用滑动
+      key: Key('invoice_${widget.invoice.id}'),
+      enabled: !widget.isSelectionMode, // 多选模式下禁用滑动
+      startActionPane: ActionPane(
+        motion: const StretchMotion(),
+        extentRatio: 0.25,
+        children: [
+          // 下载/分享按钮
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Material(
+                color: CupertinoColors.systemBlue,
+                elevation: widget.isSelected ? 8 : 2,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: () => _handleDownloadAndShare(context),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          CupertinoIcons.share,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '分享',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         extentRatio: 0.25, // 固定宽度比例
@@ -54,7 +112,7 @@ class InvoiceCardWidget extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12), // 匹配Card的底部margin
               child: Material(
                 color: Colors.red,
-                elevation: isSelected ? 8 : 2, // 匹配Card的elevation
+                elevation: widget.isSelected ? 8 : 2, // 匹配Card的elevation
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -66,7 +124,7 @@ class InvoiceCardWidget extends StatelessWidget {
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('删除发票'),
-                        content: Text('确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
+                        content: Text('确定要删除 ${widget.invoice.sellerName ?? widget.invoice.invoiceNumber} 吗？此操作无法撤销。'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
@@ -75,7 +133,7 @@ class InvoiceCardWidget extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(true);
-                              onDelete?.call();
+                              widget.onDelete?.call();
                             },
                             style: TextButton.styleFrom(foregroundColor: Colors.red),
                             child: const Text('删除'),
@@ -118,11 +176,11 @@ class InvoiceCardWidget extends StatelessWidget {
       ),
       child: Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: isSelected ? 8 : 2,
-      color: isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
+      elevation: widget.isSelected ? 8 : 2,
+      color: widget.isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
       child: InkWell(
-        onTap: isSelectionMode ? onSelectionToggle : onTap,
-        onLongPress: onLongPress,
+        onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
+        onLongPress: widget.onLongPress,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -133,10 +191,10 @@ class InvoiceCardWidget extends StatelessWidget {
               Row(
                 children: [
                   // 选择框（多选模式下显示）
-                  if (isSelectionMode) ...[
+                  if (widget.isSelectionMode) ...[
                     Checkbox(
-                      value: isSelected,
-                      onChanged: (_) => onSelectionToggle?.call(),
+                      value: widget.isSelected,
+                      onChanged: (_) => widget.onSelectionToggle?.call(),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     const SizedBox(width: 12),
@@ -150,7 +208,7 @@ class InvoiceCardWidget extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                invoice.sellerName ?? invoice.invoiceNumber ?? '未知发票',
+                                widget.invoice.sellerName ?? widget.invoice.invoiceNumber ?? '未知发票',
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -165,14 +223,14 @@ class InvoiceCardWidget extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         // 买方名称和分类在同一行
-                        if (invoice.buyerName?.isNotEmpty == true || invoice.category?.isNotEmpty == true)
+                        if (widget.invoice.buyerName?.isNotEmpty == true || widget.invoice.category?.isNotEmpty == true)
                           Row(
                             children: [
                               // 买方名称
-                              if (invoice.buyerName?.isNotEmpty == true) ...[
+                              if (widget.invoice.buyerName?.isNotEmpty == true) ...[
                                 Expanded(
                                   child: Text(
-                                    invoice.buyerName!,
+                                    widget.invoice.buyerName!,
                                     style: textTheme.bodyMedium?.copyWith(
                                       color: colorScheme.onSurfaceVariant,
                                     ),
@@ -206,7 +264,7 @@ class InvoiceCardWidget extends StatelessWidget {
                       Builder(
                         builder: (context) {
                           // 处理字符串 "null" 的情况
-                          String? expenseCategory = invoice.expenseCategory;
+                          String? expenseCategory = widget.invoice.expenseCategory;
                           if (expenseCategory == 'null') expenseCategory = null;
                           
                           final categoryText = expenseCategory ?? '';
@@ -263,7 +321,7 @@ class InvoiceCardWidget extends StatelessWidget {
                   ),
                   // 右侧：金额
                   Text(
-                    invoice.formattedAmount,
+                    widget.invoice.formattedAmount,
                     style: textTheme.titleMedium?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -288,17 +346,17 @@ class InvoiceCardWidget extends StatelessWidget {
     String dateText;
     IconData dateIcon;
     
-    if (showConsumptionDateOnly && invoice.consumptionDate != null) {
+    if (widget.showConsumptionDateOnly && widget.invoice.consumptionDate != null) {
       // 显示消费日期
-      dateText = invoice.formattedConsumptionDate ?? invoice.formattedDate;
+      dateText = widget.invoice.formattedConsumptionDate ?? widget.invoice.formattedDate;
       dateIcon = Icons.shopping_cart_outlined;
-    } else if (invoice.consumptionDate != null && !showConsumptionDateOnly) {
+    } else if (widget.invoice.consumptionDate != null && !widget.showConsumptionDateOnly) {
       // 显示消费日期（如果存在）
-      dateText = invoice.formattedConsumptionDate ?? invoice.formattedDate;
+      dateText = widget.invoice.formattedConsumptionDate ?? widget.invoice.formattedDate;
       dateIcon = Icons.shopping_cart_outlined;
     } else {
       // 显示发票日期
-      dateText = invoice.formattedDate;
+      dateText = widget.invoice.formattedDate;
       dateIcon = Icons.receipt_outlined;
     }
 
@@ -341,7 +399,7 @@ class InvoiceCardWidget extends StatelessWidget {
   /// 获取发票的紧急程度
   UrgencyLevel _getUrgencyLevel() {
     final now = DateTime.now();
-    final consumptionDate = invoice.consumptionDate ?? invoice.invoiceDate;
+    final consumptionDate = widget.invoice.consumptionDate ?? widget.invoice.invoiceDate;
     final daysSinceConsumption = now.difference(consumptionDate).inDays;
     
     if (daysSinceConsumption > 90) {
@@ -389,13 +447,13 @@ class InvoiceCardWidget extends StatelessWidget {
 
   /// 构建状态徽章（iOS风格）
   Widget _buildStatusBadge(BuildContext context, ColorScheme colorScheme) {
-    final isReimbursed = invoice.status == InvoiceStatus.reimbursed;
+    final isReimbursed = widget.invoice.status == InvoiceStatus.reimbursed;
     
     // 根据紧急程度确定颜色
     final statusColor = _getStatusColor(isReimbursed);
     
     return GestureDetector(
-      onTap: onStatusChanged != null ? () => _showStatusActionSheet(context) : null,
+      onTap: widget.onStatusChanged != null ? () => _showStatusActionSheet(context) : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // 减小内边距
         decoration: BoxDecoration(
@@ -432,7 +490,7 @@ class InvoiceCardWidget extends StatelessWidget {
 
   /// 显示状态切换操作表（iOS风格）
   void _showStatusActionSheet(BuildContext context) {
-    final isCurrentlyReimbursed = invoice.status == InvoiceStatus.reimbursed;
+    final isCurrentlyReimbursed = widget.invoice.status == InvoiceStatus.reimbursed;
     
     showCupertinoModalPopup(
       context: context,
@@ -442,7 +500,7 @@ class InvoiceCardWidget extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         message: Text(
-          invoice.sellerName ?? invoice.invoiceNumber ?? '未知发票',
+          widget.invoice.sellerName ?? widget.invoice.invoiceNumber ?? '未知发票',
           style: const TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
         ),
         actions: [
@@ -450,7 +508,7 @@ class InvoiceCardWidget extends StatelessWidget {
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
-                onStatusChanged?.call(InvoiceStatus.reimbursed);
+                widget.onStatusChanged?.call(InvoiceStatus.reimbursed);
                 _showStatusChangeSuccess(context, '已报销');
               },
               child: const Row(
@@ -477,7 +535,7 @@ class InvoiceCardWidget extends StatelessWidget {
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
-                onStatusChanged?.call(InvoiceStatus.unreimbursed);
+                widget.onStatusChanged?.call(InvoiceStatus.unreimbursed);
                 _showStatusChangeSuccess(context, '未报销');
               },
               child: const Row(
@@ -529,6 +587,320 @@ class InvoiceCardWidget extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text('状态已更新为「$newStatusText」'),
+          ],
+        ),
+        backgroundColor: CupertinoColors.systemGreen,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// 处理下载和分享功能  
+  Future<void> _handleDownloadAndShare(BuildContext context) async {
+    // 显示分析菜单而不是直接分享
+    _showAnalysisActionSheet(context);
+  }
+
+  /// 显示PDF分析菜单
+  void _showAnalysisActionSheet(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text(
+          '发票操作',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        message: Text(
+          widget.invoice.sellerName ?? widget.invoice.invoiceNumber ?? '未知发票',
+          style: const TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
+        ),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _downloadAndViewPdf(context);
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.doc_text_viewfinder,
+                  color: CupertinoColors.systemBlue,
+                  size: 24,
+                ),
+                SizedBox(width: 12),
+                Text(
+                  '查看PDF',
+                  style: TextStyle(
+                    color: CupertinoColors.systemBlue,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _downloadAndShare(context);
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.share,
+                  color: CupertinoColors.systemGreen,
+                  size: 24,
+                ),
+                SizedBox(width: 12),
+                Text(
+                  '分享发票',
+                  style: TextStyle(
+                    color: CupertinoColors.systemGreen,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            '取消',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 下载并查看PDF
+  Future<void> _downloadAndViewPdf(BuildContext context) async {
+    // 检查是否有有效的PDF文件
+    if (!InvoiceFileUtils.hasValidPdfFile(widget.invoice)) {
+      _showErrorMessage(context, '该发票没有PDF文件');
+      return;
+    }
+
+    if (!context.mounted) return;
+    
+    _showLoadingDialog(context, '正在生成访问链接...');
+    
+    try {
+      // 获取带认证的PDF签名URL
+      final pdfUrl = await InvoiceFileUtils.getPdfDownloadUrl(widget.invoice);
+      
+      // 立即关闭对话框
+      _closeLoadingDialog();
+
+      // 在浏览器中打开PDF URL（不等待结果）
+      final Uri url = Uri.parse(pdfUrl);
+      if (await canLaunchUrl(url)) {
+        // 使用 unawaited 或者不等待 launchUrl 完成
+        launchUrl(
+          url,
+          mode: LaunchMode.externalApplication, // 在外部浏览器中打开
+        ).ignore(); // 不等待浏览器打开完成
+      } else {
+        if (context.mounted) {
+          _showErrorMessage(context, '无法打开PDF链接');
+        }
+      }
+    } catch (e) {
+      // 确保在异常时也关闭加载对话框
+      _closeLoadingDialog();
+      
+      if (mounted) {
+        final errorMessage = InvoiceFileUtils.getDownloadErrorMessage(e);
+        _showErrorMessage(context, errorMessage);
+      }
+    }
+  }
+
+  /// 简化的加载对话框关闭方法
+  void _closeLoadingDialog() {
+    print('🔄 [UI] 尝试关闭加载对话框...');
+    
+    if (!mounted) {
+      print('❌ [UI] Widget已卸载，无法关闭对话框');
+      return;
+    }
+    
+    try {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+        print('✅ [UI] 加载对话框关闭成功');
+      } else {
+        print('⚠️ [UI] 没有对话框可以关闭');
+      }
+    } catch (e) {
+      print('❌ [UI] 关闭对话框失败: $e');
+    }
+  }
+
+  /// 下载并分享
+  Future<void> _downloadAndShare(BuildContext context) async {
+    bool dialogShown = false;
+    
+    try {
+      // 检查是否有有效的PDF文件
+      if (!InvoiceFileUtils.hasValidPdfFile(widget.invoice)) {
+        if (mounted) {
+          _showErrorMessage(context, '该发票没有PDF文件');
+        }
+        return;
+      }
+
+      // 检查Widget是否仍然挂载
+      if (!mounted) {
+        print('❌ [分享] Widget已被销毁，取消分享操作');
+        return;
+      }
+
+      _showLoadingDialog(context, '正在准备分享...');
+      dialogShown = true;
+
+      print('📥 [分享] 开始下载PDF文件...');
+      final downloadedFile = await InvoiceFileUtils.downloadInvoicePdfToTempFile(widget.invoice);
+      print('✅ [分享] PDF文件下载完成: ${downloadedFile.path}');
+
+      // 确保关闭加载对话框
+      if (dialogShown && mounted) {
+        print('🔄 [分享] 准备关闭加载对话框...');
+        _closeLoadingDialog();
+        dialogShown = false;
+        print('✅ [分享] 加载对话框关闭完成');
+      }
+
+      // 检查Widget是否仍然挂载
+      if (!mounted) {
+        print('❌ [分享] Widget在下载完成后被销毁，无法显示分享菜单');
+        return;
+      }
+
+      print('📤 [分享] 准备显示分享菜单...');
+      await _showShareSheet(downloadedFile);
+      print('✅ [分享] 分享菜单已显示');
+      
+    } catch (e) {
+      print('❌ [分享] 分享过程出现异常: $e');
+      
+      // 确保关闭加载对话框
+      if (dialogShown && mounted) {
+        _closeLoadingDialog();
+      }
+      
+      if (mounted) {
+        final errorMessage = InvoiceFileUtils.getDownloadErrorMessage(e);
+        _showErrorMessage(this.context, errorMessage);
+      }
+    }
+  }
+
+
+
+
+  /// 显示加载对话框（带取消按钮防止卡住）
+  void _showLoadingDialog(BuildContext context, String message) {
+    print('🔄 [UI] 显示加载对话框: $message');
+    
+    showDialog(
+      context: context,
+      barrierDismissible: true, // 允许点击外部取消
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CupertinoActivityIndicator(radius: 20),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                print('🔄 [UI] 用户点击取消按钮');
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+          ],
+        ),
+      ),
+    ).then((_) {
+      print('✅ [UI] 加载对话框已关闭');
+    });
+  }
+
+
+  /// 显示iOS分享菜单
+  Future<void> _showShareSheet(File file) async {
+    try {
+      final displayName = InvoiceFileUtils.getInvoiceDisplayName(widget.invoice);
+
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: '发票分享 - $displayName',
+      );
+    } catch (e) {
+      if (mounted) {
+        final errorMessage = InvoiceFileUtils.getDownloadErrorMessage(e);
+        _showErrorMessage(context, '分享失败：$errorMessage');
+      }
+    }
+  }
+
+  /// 显示错误消息
+  void _showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.exclamationmark_triangle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: CupertinoColors.systemRed,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// 显示成功消息
+  void _showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.checkmark_circle_fill,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
           ],
         ),
         backgroundColor: CupertinoColors.systemGreen,

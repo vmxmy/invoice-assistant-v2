@@ -1,9 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:sliver_tools/sliver_tools.dart';
+import 'package:archive/archive.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:open_file/open_file.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../domain/repositories/invoice_repository.dart';
+import '../../core/utils/invoice_file_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/injection_container.dart';
@@ -252,7 +262,563 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       ),
     );
   }
+  /// 批量下载选中的发票PDF文件
+  Future<void> _downloadSelectedInvoices() async {
+    if (_selectedInvoices.isEmpty) return;
 
+    try {
+      // 显示下载进度对话框
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('正在下载'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text('正在下载并打包 ${_selectedInvoices.length} 张发票...'),
+            ],
+          ),
+        ),
+      );
+
+      // 获取选中的发票详细信息
+      final invoiceRepository = sl<InvoiceRepository>();
+      final selectedInvoicesData = <InvoiceEntity>[];
+      
+      print('📥 [下载] 开始获取 ${_selectedInvoices.length} 张发票的详细信息');
+      
+      for (final invoiceId in _selectedInvoices) {
+        try {
+          final invoice = await invoiceRepository.getInvoiceById(invoiceId);
+          selectedInvoicesData.add(invoice);
+          print('📥 [下载] 发票 ${invoice.invoiceNumber}: fileUrl=${invoice.fileUrl}, hasFile=${invoice.hasFile}');
+        } catch (e) {
+          print('❌ [下载] 获取发票详情失败: $invoiceId - $e');
+        }
+      }
+
+      print('📥 [下载] 成功获取 ${selectedInvoicesData.length} 张发票详情');
+
+      // 创建ZIP压缩包
+      final archive = Archive();
+      int successCount = 0;
+      int noFileCount = 0;
+      int downloadFailCount = 0;
+
+      // 过滤出有文件的发票
+      final invoicesWithFiles = selectedInvoicesData.where((invoice) => invoice.hasFile).toList();
+      final invoicesWithoutFiles = selectedInvoicesData.where((invoice) => !invoice.hasFile).toList();
+      
+      noFileCount = invoicesWithoutFiles.length;
+      for (final invoice in invoicesWithoutFiles) {
+        print('⚠️ [下载] 发票无文件: ${invoice.invoiceNumber} - fileUrl: ${invoice.fileUrl}');
+      }
+
+      // 并发下载，限制同时下载数量为3个
+      const maxConcurrentDownloads = 3;
+      
+      for (int i = 0; i < invoicesWithFiles.length; i += maxConcurrentDownloads) {
+        final batch = invoicesWithFiles.skip(i).take(maxConcurrentDownloads).toList();
+        
+        final batchTasks = batch.map((invoice) async {
+          try {
+            print('📥 [下载] 正在下载: ${invoice.invoiceNumber}');
+            
+            // 使用优化后的下载方法（带重试机制）
+            final fileBytes = await InvoiceFileUtils.getInvoicePdfBytes(invoice);
+            
+            // 生成文件名
+            final fileName = '${invoice.invoiceNumber}_${invoice.sellerName ?? '未知销售方'}.pdf'
+                .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_'); // 移除文件名中的非法字符
+            
+            // 添加到压缩包
+            final file = ArchiveFile(fileName, fileBytes.length, fileBytes);
+            archive.addFile(file);
+            successCount++;
+            print('✅ [下载] 成功下载: ${invoice.invoiceNumber} (${fileBytes.length} bytes)');
+          } catch (e) {
+            downloadFailCount++;
+            print('❌ [下载] 下载发票文件失败: ${invoice.invoiceNumber} - $e');
+          }
+        });
+        
+        // 等待当前批次完成后再进行下一批
+        await Future.wait(batchTasks);
+        
+        // 批次间短暂停顿，避免服务器压力
+        if (i + maxConcurrentDownloads < invoicesWithFiles.length) {
+          await Future.delayed(Duration(milliseconds: 500));
+        }
+      }
+
+      print('📊 [下载] 统计: 成功=$successCount, 无文件=$noFileCount, 下载失败=$downloadFailCount');
+
+      if (archive.files.isEmpty) {
+        Navigator.pop(context); // 关闭进度对话框
+        String errorMessage = '没有可下载的PDF文件';
+        if (noFileCount > 0) {
+          errorMessage += '\n${noFileCount}张发票缺少文件链接';
+        }
+        if (downloadFailCount > 0) {
+          errorMessage += '\n${downloadFailCount}张发票下载失败';
+        }
+        AppFeedback.error(context, errorMessage);
+        return;
+      }
+
+      // 压缩文件
+      final zipData = ZipEncoder().encode(archive);
+      if (zipData == null) {
+        Navigator.pop(context);
+        AppFeedback.error(context, '文件压缩失败');
+        return;
+      }
+
+      Navigator.pop(context); // 关闭进度对话框
+
+      if (Platform.isIOS) {
+        // iOS平台：直接分享压缩包，不保存到本地
+        await _shareZipFileDirectly(Uint8List.fromList(zipData), successCount);
+        AppFeedback.success(context, '已打包 $successCount 张发票');
+      } else {
+        // 其他平台：保存到用户选择的位置
+        final filePath = await _saveZipFile(Uint8List.fromList(zipData), successCount);
+        
+        if (filePath != null) {
+          // 显示成功消息
+          AppFeedback.success(context, '成功下载并打包 $successCount 张发票');
+          
+          // 打开文件所在位置
+          await _openFileLocation(filePath, successCount);
+        } else {
+          // 用户取消保存或保存失败
+          print('ℹ️ [下载] 用户取消了下载操作');
+        }
+      }
+      
+      _exitSelectionMode();
+
+    } catch (e) {
+      Navigator.pop(context); // 关闭进度对话框
+      AppFeedback.error(context, '下载失败: ${e.toString()}');
+    }
+  }
+
+  /// 打开文件所在位置并提供操作选项
+  Future<void> _openFileLocation(String filePath, int fileCount) async {
+    try {
+      if (Platform.isMacOS) {
+        // macOS：在Finder中显示文件
+        await Process.run('open', ['-R', filePath]);
+        print('📁 [macOS] 已在Finder中显示文件: $filePath');
+        
+        // 显示macOS标准下载完成对话框
+        if (mounted) {
+          final fileName = filePath.split('/').last;
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Container(
+                width: 420,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 文件图标
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.folder_zip,
+                        size: 32,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // 标题
+                    Text(
+                      '已下载',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // 文件名
+                    Text(
+                      fileName,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    
+                    // 文件信息
+                    Text(
+                      '$fileCount 张发票',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // 按钮组
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // 在Finder中显示
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // 文件已经在Finder中显示了，这里不需要再次打开
+                          },
+                          icon: const Icon(Icons.folder_open, size: 16),
+                          label: const Text('在Finder中显示'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        
+                        // 完成按钮
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: const Text('完成'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      } else if (Platform.isWindows) {
+        // Windows：在资源管理器中显示文件
+        await Process.run('explorer', ['/select,', filePath]);
+        print('📁 [Windows] 已在资源管理器中显示文件: $filePath');
+      } else if (Platform.isLinux) {
+        // Linux：尝试打开文件管理器
+        final directory = Directory(filePath).parent.path;
+        await Process.run('xdg-open', [directory]);
+        print('📁 [Linux] 已打开文件夹: $directory');
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 移动端：显示文件保存信息并提供分享选项
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('文件已保存'),
+              content: Text('文件已成功保存！\n包含 $fileCount 张发票\n\n是否要分享此文件？'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('稍后'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _shareOnMobile(filePath, fileCount);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: const Text('分享'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ [文件打开] 无法打开文件位置: $e');
+      // 如果打开失败，至少显示成功信息
+      if (mounted) {
+        AppFeedback.success(context, '文件已保存到本地，包含 $fileCount 张发票');
+      }
+    }
+  }
+
+  /// 复制文件路径到剪贴板
+  Future<void> _copyPathToClipboard(String filePath) async {
+    try {
+      if (Platform.isMacOS) {
+        final result = await Process.run('sh', ['-c', 'echo "\$1" | pbcopy'], 
+            environment: {'1': filePath});
+        if (result.exitCode == 0) {
+          if (mounted) {
+            AppFeedback.success(context, '文件路径已复制到剪贴板');
+          }
+          print('📋 [剪贴板] 文件路径已复制: $filePath');
+        }
+      }
+    } catch (e) {
+      print('❌ [剪贴板] 复制失败: $e');
+      if (mounted) {
+        AppFeedback.error(context, '复制路径失败');
+      }
+    }
+  }
+
+  /// 移动端分享
+  Future<void> _shareOnMobile(String filePath, int fileCount) async {
+    try {
+      await Share.shareXFiles(
+        [XFile(filePath)],
+      );
+      print('📤 [分享] 移动端分享成功: $filePath');
+    } catch (e) {
+      print('❌ [分享] 移动端分享失败: $e');
+      if (mounted) {
+        AppFeedback.error(context, '分享失败');
+      }
+    }
+  }
+
+  /// macOS原生分享方法
+  Future<void> _shareViaNativeMacOS(String filePath, int fileCount) async {
+    try {
+      // 1. 在Finder中显示文件
+      await Process.run('open', ['-R', filePath]);
+      
+      // 2. 复制文件路径到剪贴板
+      try {
+        final result = await Process.run('sh', ['-c', 'echo "\$1" | pbcopy'], 
+            environment: {'1': filePath});
+        if (result.exitCode == 0) {
+          print('📋 [剪贴板] 文件路径已复制');
+        }
+      } catch (e) {
+        print('❌ [剪贴板] 复制失败: $e');
+      }
+      
+      // 3. 显示用户友好的提示
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('分享提示'),
+            content: Text(
+              '文件已在Finder中显示并且路径已复制到剪贴板！\n\n'
+              '你可以：\n'
+              '• 直接从Finder拖拽文件到其他应用\n'
+              '• 右键点击文件选择"共享"\n'
+              '• 使用 ⌘+C 复制文件，然后在其他地方粘贴\n\n'
+              '文件包含 $fileCount 张发票'
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('了解'),
+              ),
+            ],
+          ),
+        );
+      }
+      
+      print('📤 [分享] macOS原生分享完成: $filePath');
+    } catch (e) {
+      print('❌ [分享] macOS原生分享失败: $e');
+      // 退回到只打开Finder
+      await _openFileInFinder(filePath);
+    }
+  }
+
+  /// 在Finder中打开文件
+  Future<void> _openFileInFinder(String filePath) async {
+    try {
+      if (Platform.isMacOS) {
+        // 在macOS上使用open命令在Finder中显示文件
+        final uri = Uri.parse('file://${Uri.encodeComponent(filePath)}');
+        
+        // 使用reveal参数在Finder中选中文件
+        final revealUri = Uri(
+          scheme: 'file',
+          path: filePath,
+        );
+        
+        // 尝试使用系统命令打开
+        await Process.run('open', ['-R', filePath]);
+        print('📁 [Finder] 已在Finder中显示文件: $filePath');
+      }
+    } catch (e) {
+      print('❌ [Finder] 无法在Finder中打开文件: $e');
+      // 如果失败，尝试只打开文件夹
+      try {
+        final directory = Directory(filePath).parent;
+        await launchUrl(Uri.parse('file://${directory.path}'));
+      } catch (e2) {
+        print('❌ [Finder] 也无法打开文件夹: $e2');
+      }
+    }
+  }
+
+  /// 显示分享菜单
+  Future<void> _showShareMenu(String filePath, int fileCount) async {
+    try {
+      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        // 桌面端：弹出确认对话框询问是否分享
+        final fileName = filePath.split('/').last;
+        final shouldShare = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('分享文件'),
+            content: Text('文件已保存成功！\n'
+                '文件名：$fileName\n'
+                '包含 $fileCount 张发票\n\n'
+                '是否要通过系统分享菜单分享这个文件？'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('稍后分享'),
+              ),
+              if (Platform.isMacOS)
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                    _openFileInFinder(filePath);
+                  },
+                  child: const Text('在Finder中显示'),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                child: const Text('立即分享'),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldShare == true) {
+          print('📤 [分享] 启动系统分享菜单: $filePath');
+          
+          // macOS暂不支持share_plus，使用Finder打开并复制路径到剪贴板
+          await _shareViaNativeMacOS(filePath, fileCount);
+        }
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 移动端：直接分享
+        print('📤 [分享] 移动端分享: $filePath');
+        await Share.shareXFiles(
+          [XFile(filePath)],
+        );
+      }
+    } catch (e) {
+      print('❌ [分享] 分享失败: $e');
+      // 分享失败不影响主要功能，只记录错误
+    }
+  }
+
+  /// 保存ZIP文件到用户选择的位置并返回文件路径
+  Future<String?> _saveZipFile(Uint8List zipData, int fileCount) async {
+    try {
+      // 生成默认文件名
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final defaultFileName = 'invoices_${fileCount}files_$timestamp.zip';
+      
+      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        // 桌面端：显示文件保存对话框
+        print('💾 [保存] 显示文件保存对话框');
+        
+        try {
+          print('💾 [保存] 显示文件保存对话框 (file_picker)');
+          
+          final fileSavePath = await FilePicker.platform.saveFile(
+            dialogTitle: '保存发票文件',
+            fileName: defaultFileName,
+            type: FileType.custom,
+            allowedExtensions: ['zip'],
+          );
+          
+          print('💾 [保存] FilePicker.saveFile 返回结果: $fileSavePath');
+          
+          if (fileSavePath == null) {
+            print('💾 [保存] 用户取消了保存操作，回退到默认目录');
+            // 回退到默认目录而不是返回null
+            final directory = await getApplicationDocumentsDirectory();
+            final file = File('${directory.path}/$defaultFileName');
+            await file.writeAsBytes(zipData);
+            print('✅ [保存] 回退保存到默认位置: ${file.path}');
+            return file.path;
+          }
+          
+          print('💾 [保存] 用户选择保存到: $fileSavePath');
+          
+          // 写入文件到用户选择的位置
+          final file = File(fileSavePath);
+          await file.writeAsBytes(zipData);
+          
+          print('✅ [保存] 文件已保存到: ${file.path}');
+          return file.path;
+        } catch (e) {
+          print('❌ [保存] 文件保存对话框错误: $e');
+          // 如果保存对话框失败，回退到默认目录
+          final directory = await getApplicationDocumentsDirectory();
+          final file = File('${directory.path}/$defaultFileName');
+          await file.writeAsBytes(zipData);
+          print('✅ [保存] 回退保存到默认位置: ${file.path}');
+          return file.path;
+        }
+        
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 移动端：请求存储权限并使用默认目录
+        final permission = Platform.isAndroid 
+            ? Permission.storage 
+            : Permission.photos;
+        
+        final status = await permission.request();
+        if (!status.isGranted) {
+          throw '存储权限被拒绝';
+        }
+
+        Directory? directory;
+        if (Platform.isAndroid) {
+          directory = await getExternalStorageDirectory();
+          // 创建下载文件夹
+          directory = Directory('${directory!.path}/invoices');
+          if (!await directory.exists()) {
+            await directory.create(recursive: true);
+          }
+        } else {
+          directory = await getApplicationDocumentsDirectory();
+        }
+
+        if (directory == null) {
+          throw '无法获取保存目录';
+        }
+
+        final file = File('${directory.path}/$defaultFileName');
+        await file.writeAsBytes(zipData);
+
+        print('📁 [保存] 文件已保存到: ${file.path}');
+        return file.path;
+      }
+      
+      throw '不支持的平台';
+    } catch (e) {
+      throw '保存文件失败: $e';
+    }
+  }
   /// 处理搜索变化
   void _handleSearchChanged(String query) {
     setState(() {
@@ -273,23 +839,36 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     // 根据筛选条件触发相应的数据加载
     _loadInvoicesWithFilter(filterOptions);
   }
-
-  /// 根据筛选条件加载发票
-  void _loadInvoicesWithFilter(FilterOptions filterOptions) {
+  
+  /// 处理筛选清除（带刷新，绕过缓存）
+  void _handleFilterClearWithRefresh(FilterOptions filterOptions) {
+    print('🔍 [ManagementPage] _handleFilterClearWithRefresh 被调用: $filterOptions');
+    print('🔍 [ManagementPage] 清除筛选，绕过缓存重新查询全部数据');
+    setState(() {
+      _currentFilterOptions = filterOptions;
+    });
+    
+    // 使用refresh模式重新加载数据，绕过缓存
+    _loadInvoicesWithFilter(filterOptions, refresh: true);
+  }
+  
+  /// 根据筛选条件加载发票（公共函数）
+  void _loadInvoicesWithFilter(FilterOptions filterOptions, {bool refresh = false}) {
     final filters = InvoiceFilters(
       globalSearch: _searchQuery.isNotEmpty ? _searchQuery : null,
       overdue: filterOptions.showOverdue,
       urgent: filterOptions.showUrgent,
       status: _getStatusFromFilter(filterOptions),
+      forceRefresh: refresh, // 根据refresh参数决定是否强制刷新
     );
     
-    print('🔍 [LoadInvoicesWithFilter] 构建的筛选条件: '
+    print('🔍 [LoadInvoicesWithFilter] 构建的筛选条件${refresh ? '（刷新模式）' : ''}: '
           'overdue=${filters.overdue}, urgent=${filters.urgent}, '
           'status=${filters.status}, search=${filters.globalSearch}');
     
     context.read<InvoiceBloc>().add(LoadInvoices(
       page: 1,
-      refresh: false, // 不显示加载状态，让筛选更平滑
+      refresh: refresh, // 根据参数决定是否刷新
       filters: filters,
     ));
   }
@@ -450,6 +1029,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                 initialSearchQuery: _searchQuery,
                 onSearchChanged: _handleSearchChanged,
                 onFilterChanged: _handleFilterChanged,
+                onFilterClearWithRefresh: _handleFilterClearWithRefresh,
                 showQuickFilters: true,
                 showSearchBox: true,
               ),
@@ -590,6 +1170,15 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
             tooltip: isAllSelected ? '取消全选' : '全选',
           ),
           
+          // 批量下载
+          if (_selectedInvoices.isNotEmpty)
+            IconButton(
+              onPressed: _downloadSelectedInvoices,
+              icon: const Icon(Icons.download),
+              tooltip: '下载选中项',
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          
           // 批量删除
           if (_selectedInvoices.isNotEmpty)
             IconButton(
@@ -713,6 +1302,45 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       newStatus: newStatus,
     ));
   }
+
+  /// iOS平台：直接分享压缩包，不保存到本地
+  Future<void> _shareZipFileDirectly(Uint8List zipData, int fileCount) async {
+    try {
+      // 生成临时文件名
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'invoices_${fileCount}files_$timestamp.zip';
+      
+      // 保存到临时目录
+      final directory = await getTemporaryDirectory();
+      final tempFile = File('${directory.path}/$fileName');
+      await tempFile.writeAsBytes(zipData);
+      
+      print('📤 [iOS分享] 创建临时文件: ${tempFile.path}');
+      
+      // 直接调用iOS分享菜单
+      await Share.shareXFiles(
+        [XFile(tempFile.path)],
+      );
+      
+      print('📤 [iOS分享] 已调用系统分享菜单');
+      
+      // 延迟删除临时文件，给分享菜单足够的时间
+      Future.delayed(const Duration(seconds: 30), () {
+        try {
+          if (tempFile.existsSync()) {
+            tempFile.deleteSync();
+            print('🗑️ [iOS分享] 已清理临时文件: ${tempFile.path}');
+          }
+        } catch (e) {
+          print('⚠️ [iOS分享] 清理临时文件失败: $e');
+        }
+      });
+      
+    } catch (e) {
+      print('❌ [iOS分享] 分享失败: $e');
+      AppFeedback.error(context, '分享失败: $e');
+    }
+  }
 }
 
 /// 本月发票标签页
@@ -828,6 +1456,7 @@ class _MonthlyInvoicesTab extends StatelessWidget {
       newStatus: newStatus,
     ));
   }
+
 }
 
 /// 月份标题的SliverPersistentHeader委托
@@ -1002,4 +1631,5 @@ class _FavoritesTab extends StatelessWidget {
       newStatus: newStatus,
     ));
   }
+
 }
