@@ -11,10 +11,42 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
-    - archived/**
+    # Build and tool directories
     - build/**
+    - .dart_tool/**
+    - .flutter-plugins
+    - .flutter-plugins-dependencies
+    - .packages
+    
+    # Generated code files
     - lib/**/*.freezed.dart
     - lib/**/*.g.dart
+    - lib/**/*.gr.dart
+    - lib/generated_plugin_registrant.dart
+    
+    # Archive and backup directories
+    - archived/**
+    - backup/**
+    - temp/**
+    - tmp/**
+    
+    # Test and coverage directories
+    - coverage/**
+    - test_driver/**
+    
+    # Documentation and assets that don't need analysis
+    - assets/**
+    - doc/**
+    - docs/**
+    - examples/**
+    
+    # Platform-specific build outputs
+    - android/app/build/**
+    - ios/build/**
+    - linux/build/**
+    - macos/build/**
+    - web/build/**
+    - windows/build/**
   errors:
     invalid_annotation_target: ignore  # Ignore freezed-generated warnings
 

@@ -1319,42 +1319,11 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
     return BlocConsumer<ReimbursementSetBloc, ReimbursementSetState>(
       listener: (context, state) {
         if (state is ReimbursementSetDeleteSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(CupertinoIcons.checkmark_circle_fill,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(state.message)),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
+          AppFeedback.success(context, '删除成功', message: state.message);
+        } else if (state is ReimbursementSetStatusUpdateSuccess) {
+          AppFeedback.success(context, '状态更新成功', message: state.message);
         } else if (state is ReimbursementSetError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.error,
-                      color: Theme.of(context).colorScheme.onError, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(state.message)),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
+          AppFeedback.error(context, '操作失败', message: state.message);
         }
       },
       builder: (context, state) {

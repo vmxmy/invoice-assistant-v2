@@ -87,14 +87,27 @@ class ReimbursementStatusButton extends StatelessWidget {
 
     switch (nextStatus) {
       case ReimbursementSetStatus.submitted:
-        title = '提交报销集';
-        content = '确定要提交报销集"${reimbursementSet.setName}"吗？\n\n'
-            '⚠️ 提交后将无法再修改报销集和发票内容\n'
-            '📋 请确认所有信息都已填写正确\n'
-            '💰 确认发票金额和明细无误';
-        confirmText = '确认提交';
-        confirmColor = colorScheme.tertiary;
-        confirmIcon = CupertinoIcons.paperplane;
+        if (reimbursementSet.status == ReimbursementSetStatus.reimbursed) {
+          // 从已报销撤回到已提交
+          title = '撤回报销状态';
+          content = '确定要撤回报销集"${reimbursementSet.setName}"的报销状态吗？\n\n'
+              '🔄 撤回后将变更为"已提交"状态\n'
+              '⚠️ 可以重新进行状态变更操作\n'
+              '📝 可能需要重新审批或处理';
+          confirmText = '确认撤回';
+          confirmColor = colorScheme.error;
+          confirmIcon = CupertinoIcons.arrow_counterclockwise;
+        } else {
+          // 从未提交到已提交
+          title = '提交报销集';
+          content = '确定要提交报销集"${reimbursementSet.setName}"吗？\n\n'
+              '⚠️ 提交后将无法再修改报销集和发票内容\n'
+              '📋 请确认所有信息都已填写正确\n'
+              '💰 确认发票金额和明细无误';
+          confirmText = '确认提交';
+          confirmColor = colorScheme.tertiary;
+          confirmIcon = CupertinoIcons.paperplane;
+        }
         break;
       case ReimbursementSetStatus.reimbursed:
         title = '标记已报销';
@@ -367,7 +380,7 @@ class ReimbursementStatusButton extends StatelessWidget {
       case ReimbursementSetStatus.submitted:
         return ReimbursementSetStatus.reimbursed;
       case ReimbursementSetStatus.reimbursed:
-        return null;
+        return ReimbursementSetStatus.submitted; // 允许从已报销撤回到已提交
     }
   }
 }

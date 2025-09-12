@@ -150,15 +150,25 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
 
       final now = DateTime.now().toIso8601String();
 
+      // 获取当前报销集状态以确定时间戳更新策略
+      final currentSet = await getReimbursementSetById(id);
+      
       switch (status) {
         case ReimbursementSetStatus.submitted:
-          updateData['submitted_at'] = now;
+          // 如果是从未提交状态提交，设置提交时间
+          if (currentSet.status == ReimbursementSetStatus.unsubmitted) {
+            updateData['submitted_at'] = now;
+          }
+          // 如果是从已报销状态撤回，保留原有submitted_at，清除reimbursed_at
+          if (currentSet.status == ReimbursementSetStatus.reimbursed) {
+            updateData['reimbursed_at'] = null;
+          }
           break;
         case ReimbursementSetStatus.reimbursed:
           updateData['reimbursed_at'] = now;
           break;
         case ReimbursementSetStatus.unsubmitted:
-          // 回退到未提交状态时清除时间戳
+          // 回退到未提交状态时清除所有时间戳
           updateData['submitted_at'] = null;
           updateData['reimbursed_at'] = null;
           break;
@@ -173,6 +183,9 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .update(updateData)
           .eq('id', id)
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
+
+      // 同步更新关联发票的状态
+      await _updateAssociatedInvoicesStatus(id, status);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -435,6 +448,48 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
             tag: 'Debug');
       }
       throw Exception('获取统计信息失败: ${e.toString()}');
+    }
+  }
+
+  /// 更新关联发票的状态，使其与报销集状态保持同步
+  Future<void> _updateAssociatedInvoicesStatus(
+    String setId,
+    ReimbursementSetStatus reimbursementSetStatus,
+  ) async {
+    try {
+      // 将报销集状态映射为发票状态
+      String invoiceStatus;
+      switch (reimbursementSetStatus) {
+        case ReimbursementSetStatus.unsubmitted:
+          invoiceStatus = 'unsubmitted';
+          break;
+        case ReimbursementSetStatus.submitted:
+          invoiceStatus = 'submitted';
+          break;
+        case ReimbursementSetStatus.reimbursed:
+          invoiceStatus = 'reimbursed';
+          break;
+      }
+
+      // 批量更新关联发票的状态
+      await _supabaseClient.from('invoices').update({
+        'status': invoiceStatus,
+      }).eq('reimbursement_set_id', setId).eq('user_id', _supabaseClient.auth.currentUser!.id);
+
+      if (AppConfig.enableLogging) {
+        AppLogger.debug(
+          '📊 [ReimbursementSetRepository] 同步更新关联发票状态: $setId -> $invoiceStatus',
+          tag: 'Debug',
+        );
+      }
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        AppLogger.debug(
+          '❌ [ReimbursementSetRepository] 同步更新关联发票状态失败: $e',
+          tag: 'Debug',
+        );
+      }
+      // 不抛出异常，避免影响主要的状态更新操作
     }
   }
 }
