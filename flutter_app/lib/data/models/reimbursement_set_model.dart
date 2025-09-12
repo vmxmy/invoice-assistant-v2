@@ -96,7 +96,7 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
       userId: userId,
       setName: setName,
       description: description,
-      status: 'draft',
+      status: 'unsubmitted',
       createdAt: now,
       updatedAt: now,
     );

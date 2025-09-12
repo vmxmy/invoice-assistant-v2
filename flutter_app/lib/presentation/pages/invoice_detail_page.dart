@@ -489,16 +489,12 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
 
   void _shareInvoice(InvoiceEntity invoice) {
     // 实现分享功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('分享功能开发中...')),
-    );
+    AppFeedback.info(context, '分享功能开发中...');
   }
 
   void _exportInvoice(InvoiceEntity invoice) {
     // 实现导出功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('导出功能开发中...')),
-    );
+    AppFeedback.info(context, '导出功能开发中...');
   }
 
   /// PDF查看器卡片
@@ -570,28 +566,4 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     );
   }
 
-  void _showDeleteConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除发票'),
-        content: const Text('确定要删除这张发票吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<InvoiceBloc>().add(DeleteInvoice(widget.invoiceId));
-              context.pop(); // 返回上一页
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
 }

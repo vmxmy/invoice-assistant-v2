@@ -32,7 +32,7 @@ class InvoiceModel with _$InvoiceModel {
     String? category,
     @JsonKey(name: 'expense_category') String? expenseCategory,
     @JsonKey(name: 'primary_category_name') String? primaryCategoryName,
-    @Default(InvoiceStatus.unreimbursed) InvoiceStatus status,
+    @Default(InvoiceStatus.unsubmitted) InvoiceStatus status,
     @JsonKey(name: 'invoice_type') String? invoiceType,
     @JsonKey(name: 'invoice_code') String? invoiceCode,
 

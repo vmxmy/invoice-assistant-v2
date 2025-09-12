@@ -92,7 +92,7 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
         final filteredRecords = await SupabaseClientManager.from('invoices')
             .select('id, user_id, status, invoice_number')
             .eq('user_id', currentUser.id)
-            .neq('status', 'deleted');
+;
         _addOutput('   📊 筛选后记录数: ${filteredRecords.length}\n');
       } catch (e) {
         _addOutput('   ❌ 筛选查询失败: $e\n');

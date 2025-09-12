@@ -1,11 +1,7 @@
-/// 发票状态枚举
+/// 发票状态枚举 - 与报销集状态保持一致
 enum InvoiceStatus {
-  pending('pending', '待处理', '发票正在等待处理'),
-  processing('processing', '处理中', '发票正在识别处理中'),
-  completed('completed', '已完成', '发票识别已完成'),
-  failed('failed', '失败', '发票识别失败'),
-  verified('verified', '已验证', '发票已验证确认'),
-  unreimbursed('unreimbursed', '未报销', '发票未进行报销'),
+  unsubmitted('unsubmitted', '未提交', '发票尚未提交到报销集'),
+  submitted('submitted', '已提交', '发票已提交到报销集待审核'),
   reimbursed('reimbursed', '已报销', '发票已完成报销');
 
   const InvoiceStatus(this.value, this.displayName, this.description);
@@ -18,35 +14,34 @@ enum InvoiceStatus {
   static InvoiceStatus fromString(String value) {
     return InvoiceStatus.values.firstWhere(
       (status) => status.value == value,
-      orElse: () => InvoiceStatus.pending,
+      orElse: () => InvoiceStatus.unsubmitted,
     );
   }
 
   /// 获取状态对应的颜色
   String get colorName {
     switch (this) {
-      case InvoiceStatus.pending:
+      case InvoiceStatus.unsubmitted:
         return 'orange';
-      case InvoiceStatus.processing:
+      case InvoiceStatus.submitted:
         return 'blue';
-      case InvoiceStatus.completed:
-        return 'green';
-      case InvoiceStatus.failed:
-        return 'red';
-      case InvoiceStatus.verified:
-        return 'purple';
-      case InvoiceStatus.unreimbursed:
-        return 'amber';
       case InvoiceStatus.reimbursed:
-        return 'teal';
+        return 'green';
     }
   }
 
   /// 是否为最终状态
   bool get isFinalStatus {
-    return this == InvoiceStatus.completed ||
-        this == InvoiceStatus.failed ||
-        this == InvoiceStatus.verified ||
-        this == InvoiceStatus.reimbursed;
+    return this == InvoiceStatus.reimbursed;
+  }
+
+  /// 是否可以加入报销集
+  bool get canAddToReimbursementSet {
+    return this == InvoiceStatus.unsubmitted;
+  }
+
+  /// 是否已在报销集中
+  bool get isInReimbursementSet {
+    return this == InvoiceStatus.submitted || this == InvoiceStatus.reimbursed;
   }
 }

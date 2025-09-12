@@ -1,0 +1,310 @@
+import 'package:flutter/material.dart';
+import '../../theme/component_theme_constants.dart';
+
+/// 按钮变体枚举
+enum ButtonVariant {
+  primary,
+  secondary,
+  outline,
+  ghost,
+  error,
+}
+
+/// 按钮尺寸枚举
+enum ButtonSize {
+  small,
+  medium,
+  large,
+}
+
+/// 统一的应用按钮组件
+/// 
+/// 支持多种变体和状态，自动适配主题色彩
+/// 
+/// 示例用法:
+/// ```dart
+/// AppButton(
+///   text: '确认',
+///   onPressed: () => print('按钮被点击'),
+///   variant: ButtonVariant.primary,
+/// )
+/// ```
+class AppButton extends StatelessWidget {
+  /// 按钮显示的文本
+  final String text;
+  
+  /// 点击事件回调，为null时按钮禁用
+  final VoidCallback? onPressed;
+  
+  /// 按钮变体，决定按钮的外观样式
+  /// 
+  /// 可选值: primary, secondary, outline, ghost, error
+  final ButtonVariant variant;
+  
+  /// 按钮尺寸
+  /// 
+  /// 可选值: small, medium, large
+  final ButtonSize size;
+  
+  /// 可选的图标，显示在文本左侧
+  final IconData? icon;
+  
+  /// 是否显示加载状态
+  /// 
+  /// 为true时显示加载指示器，禁用点击
+  final bool loading;
+  
+  /// 语义化标签，用于无障碍支持
+  final String? semanticLabel;
+
+  const AppButton({
+    super.key,
+    required this.text,
+    this.onPressed,
+    this.variant = ButtonVariant.primary,
+    this.size = ButtonSize.medium,
+    this.icon,
+    this.loading = false,
+    this.semanticLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isEnabled = onPressed != null && !loading;
+    
+    return Semantics(
+      label: semanticLabel ?? text,
+      button: true,
+      enabled: isEnabled,
+      child: SizedBox(
+        height: _getButtonHeight(),
+        child: ElevatedButton(
+          onPressed: isEnabled ? onPressed : null,
+          style: _getButtonStyle(context, colorScheme),
+          child: loading
+              ? _buildLoadingContent(colorScheme)
+              : _buildButtonContent(colorScheme),
+        ),
+      ),
+    );
+  }
+
+  /// 获取按钮高度
+  double _getButtonHeight() {
+    switch (size) {
+      case ButtonSize.small:
+        return ComponentThemeConstants.buttonHeightSmall;
+      case ButtonSize.medium:
+        return ComponentThemeConstants.buttonHeightMedium;
+      case ButtonSize.large:
+        return ComponentThemeConstants.buttonHeightLarge;
+    }
+  }
+
+  /// 获取按钮样式
+  ButtonStyle _getButtonStyle(BuildContext context, ColorScheme colorScheme) {
+    final isEnabled = onPressed != null && !loading;
+    
+    return ElevatedButton.styleFrom(
+      backgroundColor: _getBackgroundColor(colorScheme, isEnabled),
+      foregroundColor: _getForegroundColor(colorScheme, isEnabled),
+      elevation: _getElevation(),
+      shadowColor: _getShadowColor(colorScheme),
+      side: _getBorderSide(colorScheme, isEnabled),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusMedium),
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: _getHorizontalPadding(),
+        vertical: ComponentThemeConstants.spacingS,
+      ),
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+
+  /// 获取水平内边距
+  double _getHorizontalPadding() {
+    switch (size) {
+      case ButtonSize.small:
+        return ComponentThemeConstants.spacingM;
+      case ButtonSize.medium:
+        return ComponentThemeConstants.spacingL;
+      case ButtonSize.large:
+        return ComponentThemeConstants.spacingXL;
+    }
+  }
+
+  /// 获取背景颜色
+  Color _getBackgroundColor(ColorScheme colorScheme, bool isEnabled) {
+    if (!isEnabled) {
+      return colorScheme.onSurface.withValues(alpha: 0.12);
+    }
+
+    switch (variant) {
+      case ButtonVariant.primary:
+        return colorScheme.primary;
+      case ButtonVariant.secondary:
+        return colorScheme.secondary;
+      case ButtonVariant.outline:
+        return Colors.transparent;
+      case ButtonVariant.ghost:
+        return Colors.transparent;
+      case ButtonVariant.error:
+        return colorScheme.error;
+    }
+  }
+
+  /// 获取前景颜色
+  Color _getForegroundColor(ColorScheme colorScheme, bool isEnabled) {
+    if (!isEnabled) {
+      return colorScheme.onSurface.withValues(alpha: 0.38);
+    }
+
+    switch (variant) {
+      case ButtonVariant.primary:
+        return colorScheme.onPrimary;
+      case ButtonVariant.secondary:
+        return colorScheme.onSecondary;
+      case ButtonVariant.outline:
+        return colorScheme.primary;
+      case ButtonVariant.ghost:
+        return colorScheme.onSurface;
+      case ButtonVariant.error:
+        return colorScheme.onError;
+    }
+  }
+
+  /// 获取阴影高度
+  double _getElevation() {
+    switch (variant) {
+      case ButtonVariant.primary:
+      case ButtonVariant.secondary:
+      case ButtonVariant.error:
+        return 2.0;
+      case ButtonVariant.outline:
+      case ButtonVariant.ghost:
+        return 0.0;
+    }
+  }
+
+  /// 获取阴影颜色
+  Color? _getShadowColor(ColorScheme colorScheme) {
+    switch (variant) {
+      case ButtonVariant.primary:
+        return colorScheme.primary.withValues(alpha: 0.3);
+      case ButtonVariant.secondary:
+        return colorScheme.secondary.withValues(alpha: 0.3);
+      case ButtonVariant.error:
+        return colorScheme.error.withValues(alpha: 0.3);
+      case ButtonVariant.outline:
+      case ButtonVariant.ghost:
+        return null;
+    }
+  }
+
+  /// 获取边框样式
+  BorderSide? _getBorderSide(ColorScheme colorScheme, bool isEnabled) {
+    if (variant == ButtonVariant.outline) {
+      return BorderSide(
+        color: isEnabled 
+            ? colorScheme.outline 
+            : colorScheme.onSurface.withValues(alpha: 0.12),
+        width: 1.0,
+      );
+    }
+    return null;
+  }
+
+  /// 构建按钮内容
+  Widget _buildButtonContent(ColorScheme colorScheme) {
+    if (icon == null) {
+      return Text(
+        text,
+        style: _getTextStyle(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: _getIconSize(),
+        ),
+        SizedBox(width: ComponentThemeConstants.spacingS),
+        Flexible(
+          child: Text(
+            text,
+            style: _getTextStyle(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建加载状态内容
+  Widget _buildLoadingContent(ColorScheme colorScheme) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: _getIconSize(),
+          height: _getIconSize(),
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              _getForegroundColor(colorScheme, true),
+            ),
+          ),
+        ),
+        SizedBox(width: ComponentThemeConstants.spacingS),
+        Text(
+          '加载中...',
+          style: _getTextStyle(),
+        ),
+      ],
+    );
+  }
+
+  /// 获取文字样式
+  TextStyle _getTextStyle() {
+    switch (size) {
+      case ButtonSize.small:
+        return const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.1,
+        );
+      case ButtonSize.medium:
+        return const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.1,
+        );
+      case ButtonSize.large:
+        return const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
+        );
+    }
+  }
+
+  /// 获取图标尺寸
+  double _getIconSize() {
+    switch (size) {
+      case ButtonSize.small:
+        return 16.0;
+      case ButtonSize.medium:
+        return 20.0;
+      case ButtonSize.large:
+        return 24.0;
+    }
+  }
+}

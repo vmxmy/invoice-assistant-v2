@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../core/config/app_config.dart';
+import 'app_feedback.dart';
 
 /// 增强型错误处理和用户反馈组件
 class EnhancedErrorHandler {
@@ -19,40 +20,12 @@ class EnhancedErrorHandler {
   }) {
     final friendlyMessage = getFriendlyErrorMessage(error);
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              CupertinoIcons.exclamationmark_triangle,
-              color: Theme.of(context).colorScheme.onError,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                friendlyMessage,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        duration: duration,
-        action: onRetry != null
-            ? SnackBarAction(
-                label: retryText ?? '重试',
-                textColor: Theme.of(context).colorScheme.onError,
-                onPressed: onRetry,
-              )
-            : null,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+    AppFeedback.error(
+      context,
+      friendlyMessage,
+      duration: duration,
+      action: onRetry,
+      actionLabel: retryText,
     );
   }
 
@@ -62,33 +35,10 @@ class EnhancedErrorHandler {
     String message, {
     Duration duration = const Duration(seconds: 2),
   }) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              CupertinoIcons.checkmark_circle,
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        duration: duration,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+    AppFeedback.success(
+      context,
+      message,
+      duration: duration,
     );
   }
 
@@ -99,34 +49,10 @@ class EnhancedErrorHandler {
     Duration duration = const Duration(seconds: 3),
     Color? backgroundColor,
   }) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              CupertinoIcons.info_circle,
-              color: Theme.of(context).colorScheme.onSecondary,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor:
-            backgroundColor ?? Theme.of(context).colorScheme.secondary,
-        duration: duration,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+    AppFeedback.info(
+      context,
+      message,
+      duration: duration,
     );
   }
 

@@ -99,11 +99,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       var query = SupabaseClientManager.from(_viewName)
           .select()
           .eq('user_id', currentUser.id)
-          .neq('status', 'deleted');
+;
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '🔍 [RemoteDataSource] 查询条件 - 表: $_viewName, user_id: ${currentUser.id}, status != deleted',
+            '🔍 [RemoteDataSource] 查询条件 - 表: $_viewName, user_id: ${currentUser.id}',
             tag: 'Debug');
       }
 
@@ -129,7 +129,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           final debugQuery = SupabaseClientManager.from(_tableName)
               .select('id, user_id, status')
               .eq('user_id', currentUser.id)
-              .neq('status', 'deleted');
+    ;
           final debugResponse = await debugQuery;
           AppLogger.debug('🔍 [调试] 用户发票总记录数: ${debugResponse.length}',
               tag: 'Debug');
@@ -159,7 +159,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
           final fullQuery = SupabaseClientManager.from(_viewName)
               .select('id')
               .eq('user_id', currentUser.id)
-              .neq('status', 'deleted');
+    ;
 
           final fullQueryWithFilters =
               filters != null ? _applyFilters(fullQuery, filters) : fullQuery;
@@ -260,11 +260,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       var countQuery = SupabaseClientManager.from(_viewName)
           .select('id')
           .eq('user_id', currentUser.id)
-          .neq('status', 'deleted');
+;
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '🔍 [RemoteDataSource] 构建总数查询: user_id=${currentUser.id}, status != deleted',
+            '🔍 [RemoteDataSource] 构建总数查询: user_id=${currentUser.id}',
             tag: 'Debug');
       }
 
@@ -603,7 +603,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final invoicesResponse = await SupabaseClientManager.from(_tableName)
           .select()
           .eq('user_id', currentUser.id)
-          .neq('status', 'deleted');
+;
 
       final invoicesData = invoicesResponse as List<dynamic>;
       final invoices = invoicesData
@@ -624,8 +624,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final sourceCounts = <String, int>{};
 
       for (final invoice in invoices) {
-        // 动态状态统计（基于显示名称）
-        final statusKey = invoice.status.displayName;
+        // 动态状态统计（基于状态值）
+        final statusKey = invoice.status.value;
         statusCounts[statusKey] = (statusCounts[statusKey] ?? 0) + 1;
 
         // 金额统计
@@ -646,7 +646,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         }
 
         // 来源统计
-        final sourceKey = invoice.source.displayName;
+        final sourceKey = invoice.source.name;
         sourceCounts[sourceKey] = (sourceCounts[sourceKey] ?? 0) + 1;
       }
 
@@ -691,7 +691,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final activeFilters = [
         if (filters.overdue == true) 'overdue',
         if (filters.urgent == true) 'urgent',
-        if (filters.status?.contains(InvoiceStatus.unreimbursed) == true)
+        if (filters.status?.contains(InvoiceStatus.reimbursed) == true)
           'unreimbursed_status'
       ];
       AppLogger.debug('🔍 [RemoteDataSource] 激活的筛选: $activeFilters',
@@ -775,19 +775,19 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', urgentThreshold);
-      query = query.eq('status', 'unreimbursed');
+      query = query.eq('status', 'unsubmitted');
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unreimbursed',
+            '✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unsubmitted',
             tag: 'Debug');
       }
-    } else if (filters.status?.contains(InvoiceStatus.unreimbursed) == true) {
-      // 待报销筛选：只看状态
-      query = query.eq('status', 'unreimbursed');
+    } else if (filters.status?.contains(InvoiceStatus.reimbursed) == true) {
+      // 已报销筛选：只看状态
+      query = query.eq('status', 'reimbursed');
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('✅ [RemoteDataSource] 应用待报销筛选: status = unreimbursed',
+        AppLogger.debug('✅ [RemoteDataSource] 应用已报销筛选: status = reimbursed',
             tag: 'Debug');
       }
     }

@@ -707,7 +707,7 @@ class _$InvoiceModelImpl implements _InvoiceModel {
       this.category,
       @JsonKey(name: 'expense_category') this.expenseCategory,
       @JsonKey(name: 'primary_category_name') this.primaryCategoryName,
-      this.status = InvoiceStatus.unreimbursed,
+      this.status = InvoiceStatus.unsubmitted,
       @JsonKey(name: 'invoice_type') this.invoiceType,
       @JsonKey(name: 'invoice_code') this.invoiceCode,
       @JsonKey(name: 'file_url') this.fileUrl,

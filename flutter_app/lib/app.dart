@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -77,17 +79,26 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                 },
               ),
             ],
-            child: MaterialApp.router(
+            child: CupertinoApp.router(
               title: AppConfig.appName,
               debugShowCheckedModeBanner: false,
 
-              // 使用 ThemeManager 动态主题管理
-              theme: themeManager.lightTheme,
-              darkTheme: themeManager.darkTheme,
-              themeMode: themeManager.themeMode,
+              // 使用 ThemeManager 动态主题管理 - 转换为Cupertino主题
+              theme: _buildCupertinoTheme(themeManager),
 
               // 应用配置
               locale: const Locale('zh', 'CN'),
+              
+              // 添加本地化支持
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('zh', 'CN'),
+                Locale('en', 'US'),
+              ],
 
               // 路由配置
               routerConfig: _router,
@@ -104,6 +115,62 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// 构建Cupertino主题
+  static CupertinoThemeData _buildCupertinoTheme(ThemeManager themeManager) {
+    // 判断当前是否为暗色模式
+    final isDark = themeManager.themeMode == ThemeMode.dark || 
+                  (themeManager.themeMode == ThemeMode.system && 
+                   WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
+    
+    // 获取当前ColorScheme
+    final colorScheme = isDark 
+      ? themeManager.darkTheme.colorScheme 
+      : themeManager.lightTheme.colorScheme;
+    
+    return CupertinoThemeData(
+      brightness: isDark ? Brightness.dark : Brightness.light,
+      primaryColor: colorScheme.primary,
+      primaryContrastingColor: colorScheme.onPrimary,
+      scaffoldBackgroundColor: colorScheme.surface,
+      barBackgroundColor: colorScheme.surface,
+      textTheme: CupertinoTextThemeData(
+        primaryColor: colorScheme.onSurface,
+        textStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 17,
+          letterSpacing: -0.41,
+        ),
+        actionTextStyle: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 17,
+          letterSpacing: -0.41,
+        ),
+        tabLabelTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 10,
+          letterSpacing: -0.24,
+        ),
+        navTitleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.41,
+        ),
+        navLargeTitleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 34,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.41,
+        ),
+        navActionTextStyle: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 17,
+          letterSpacing: -0.41,
+        ),
       ),
     );
   }

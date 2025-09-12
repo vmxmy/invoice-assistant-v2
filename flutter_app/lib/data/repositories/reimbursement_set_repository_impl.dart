@@ -157,8 +157,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
         case ReimbursementSetStatus.reimbursed:
           updateData['reimbursed_at'] = now;
           break;
-        case ReimbursementSetStatus.draft:
-          // 回退到草稿状态时清除时间戳
+        case ReimbursementSetStatus.unsubmitted:
+          // 回退到未提交状态时清除时间戳
           updateData['submitted_at'] = null;
           updateData['reimbursed_at'] = null;
           break;
@@ -389,7 +389,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .filter('reimbursement_set_id', 'is', 'null');
 
       int totalSets = setsResponse.length;
-      int draftSets = 0;
+      int unsubmittedSets = 0;
       int submittedSets = 0;
       int reimbursedSets = 0;
       double totalAmount = 0;
@@ -398,8 +398,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       for (final set in setsResponse) {
         final status = set['status'];
         switch (status) {
-          case 'draft':
-            draftSets++;
+          case 'unsubmitted':
+            unsubmittedSets++;
             break;
           case 'submitted':
             submittedSets++;
@@ -414,7 +414,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
 
       final stats = ReimbursementSetStats(
         totalSets: totalSets,
-        draftSets: draftSets,
+        unsubmittedSets: unsubmittedSets,
         submittedSets: submittedSets,
         reimbursedSets: reimbursedSets,
         totalAmount: totalAmount,

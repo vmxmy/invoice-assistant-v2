@@ -27,7 +27,7 @@ _$InvoiceModelImpl _$$InvoiceModelImplFromJson(Map<String, dynamic> json) =>
       expenseCategory: json['expense_category'] as String?,
       primaryCategoryName: json['primary_category_name'] as String?,
       status: $enumDecodeNullable(_$InvoiceStatusEnumMap, json['status']) ??
-          InvoiceStatus.unreimbursed,
+          InvoiceStatus.unsubmitted,
       invoiceType: json['invoice_type'] as String?,
       invoiceCode: json['invoice_code'] as String?,
       fileUrl: json['file_url'] as String?,
@@ -121,12 +121,8 @@ Map<String, dynamic> _$$InvoiceModelImplToJson(_$InvoiceModelImpl instance) =>
     };
 
 const _$InvoiceStatusEnumMap = {
-  InvoiceStatus.pending: 'pending',
-  InvoiceStatus.processing: 'processing',
-  InvoiceStatus.completed: 'completed',
-  InvoiceStatus.failed: 'failed',
-  InvoiceStatus.verified: 'verified',
-  InvoiceStatus.unreimbursed: 'unreimbursed',
+  InvoiceStatus.unsubmitted: 'unsubmitted',
+  InvoiceStatus.submitted: 'submitted',
   InvoiceStatus.reimbursed: 'reimbursed',
 };
 

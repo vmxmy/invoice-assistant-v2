@@ -62,9 +62,9 @@ class ResponsiveStatsCard extends StatelessWidget {
                     colorScheme.onSurface),
                 const SizedBox(width: AppThemeConstants.spacing16),
 
-                // 草稿数（仅在有草稿时显示）
-                if (stats.draftCount > 0) ...[
-                  _buildCompactStat(context, '草稿', '${stats.draftCount}',
+                // 未提交数（仅在有未提交时显示）
+                if (stats.unsubmittedCount > 0) ...[
+                  _buildCompactStat(context, '未提交', '${stats.unsubmittedCount}',
                       colorScheme.primary),
                   const SizedBox(width: AppThemeConstants.spacing16),
                 ],
@@ -113,7 +113,7 @@ class ResponsiveStatsCard extends StatelessWidget {
   /// 计算统计数据
   ReimbursementSetStats _calculateStats() {
     final totalCount = reimbursementSets.length;
-    final draftCount = reimbursementSets.where((set) => set.isDraft).length;
+    final unsubmittedCount = reimbursementSets.where((set) => set.isDraft).length;
     final submittedCount =
         reimbursementSets.where((set) => set.isSubmitted).length;
     final reimbursedCount =
@@ -125,7 +125,7 @@ class ResponsiveStatsCard extends StatelessWidget {
 
     return ReimbursementSetStats(
       totalCount: totalCount,
-      draftCount: draftCount,
+      unsubmittedCount: unsubmittedCount,
       submittedCount: submittedCount,
       reimbursedCount: reimbursedCount,
       totalAmount: totalAmount,
@@ -137,14 +137,14 @@ class ResponsiveStatsCard extends StatelessWidget {
 class ReimbursementSetStats {
   const ReimbursementSetStats({
     required this.totalCount,
-    required this.draftCount,
+    required this.unsubmittedCount,
     required this.submittedCount,
     required this.reimbursedCount,
     required this.totalAmount,
   });
 
   final int totalCount;
-  final int draftCount;
+  final int unsubmittedCount;
   final int submittedCount;
   final int reimbursedCount;
   final double totalAmount;

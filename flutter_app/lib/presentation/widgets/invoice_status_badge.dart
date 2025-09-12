@@ -278,7 +278,7 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(context);
-                onStatusChanged?.call(InvoiceStatus.unreimbursed);
+                onStatusChanged?.call(InvoiceStatus.unsubmitted);
                 _showStatusChangeSuccess(context, '未报销');
               },
               child: Row(

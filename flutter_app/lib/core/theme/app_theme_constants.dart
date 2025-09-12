@@ -54,10 +54,10 @@ class AppThemeConstants {
     final colorScheme = Theme.of(context).colorScheme;
 
     switch (statusValue) {
-      case 'draft':
+      case 'unsubmitted':
         return StatusConfig(
           color: colorScheme.primary,
-          label: '草稿',
+          label: '未提交',
           description: '可编辑状态',
         );
       case 'submitted':

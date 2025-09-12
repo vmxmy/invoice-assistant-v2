@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -311,18 +310,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     );
   }
 
-  /// 全选/取消全选
-  void _toggleSelectAll(List<InvoiceEntity> invoices) {
-    setState(() {
-      if (_selectedInvoices.length == invoices.length) {
-        _selectedInvoices.clear();
-        _isSelectionMode = false;
-      } else {
-        _selectedInvoices = invoices.map((invoice) => invoice.id).toSet();
-        _isSelectionMode = true;
-      }
-    });
-  }
 
   /// 批量删除选中的发票
   void _deleteSelectedInvoices() {
@@ -849,7 +836,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   /// 根据筛选选项获取状态列表
   List<InvoiceStatus>? _getStatusFromFilter(FilterOptions filterOptions) {
     if (filterOptions.showUnreimbursed) {
-      return [InvoiceStatus.unreimbursed];
+      return [InvoiceStatus.unsubmitted, InvoiceStatus.submitted];
     }
     return null; // 返回null表示不筛选状态
   }

@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-/// 报销集状态枚举
+/// 报销集状态枚举 - 与发票状态保持一致
 enum ReimbursementSetStatus {
-  draft('draft', '草稿'),
+  unsubmitted('unsubmitted', '未提交'),
   submitted('submitted', '已提交'),
   reimbursed('reimbursed', '已报销');
 
@@ -14,8 +14,28 @@ enum ReimbursementSetStatus {
   static ReimbursementSetStatus fromString(String value) {
     return ReimbursementSetStatus.values.firstWhere(
       (status) => status.value == value,
-      orElse: () => ReimbursementSetStatus.draft,
+      orElse: () => ReimbursementSetStatus.unsubmitted,
     );
+  }
+
+  /// 是否可以编辑
+  bool get canEdit {
+    return this == ReimbursementSetStatus.unsubmitted;
+  }
+
+  /// 是否可以提交
+  bool get canSubmit {
+    return this == ReimbursementSetStatus.unsubmitted;
+  }
+
+  /// 是否可以标记为已报销
+  bool get canMarkReimbursed {
+    return this == ReimbursementSetStatus.submitted;
+  }
+
+  /// 是否为最终状态
+  bool get isFinalStatus {
+    return this == ReimbursementSetStatus.reimbursed;
   }
 }
 
@@ -65,8 +85,8 @@ class ReimbursementSetEntity extends Equatable {
     this.categoryCount,
   });
 
-  /// 是否为草稿状态
-  bool get isDraft => status == ReimbursementSetStatus.draft;
+  /// 是否为未提交状态
+  bool get isDraft => status == ReimbursementSetStatus.unsubmitted;
 
   /// 是否已提交
   bool get isSubmitted => status == ReimbursementSetStatus.submitted;
@@ -74,14 +94,14 @@ class ReimbursementSetEntity extends Equatable {
   /// 是否已报销
   bool get isReimbursed => status == ReimbursementSetStatus.reimbursed;
 
-  /// 是否可以编辑（只有草稿状态可以编辑）
-  bool get canEdit => isDraft;
+  /// 是否可以编辑（只有未提交状态可以编辑）
+  bool get canEdit => status.canEdit;
 
-  /// 是否可以提交（草稿状态且有发票）
-  bool get canSubmit => isDraft && invoiceCount > 0;
+  /// 是否可以提交（未提交状态且有发票）
+  bool get canSubmit => status.canSubmit && invoiceCount > 0;
 
   /// 是否可以标记为已报销（已提交状态）
-  bool get canMarkReimbursed => isSubmitted;
+  bool get canMarkReimbursed => status.canMarkReimbursed;
 
   /// 获取状态显示文本
   String get statusDisplayName => status.displayName;

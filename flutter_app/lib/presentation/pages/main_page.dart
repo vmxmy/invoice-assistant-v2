@@ -11,6 +11,7 @@ import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../core/theme/theme_manager.dart';
 import '../widgets/theme_selector_widget.dart';
+import '../widgets/unified_bottom_sheet.dart';
 import '../../debug_query_test.dart';
 
 /// 主页面 - 包含底部导航栏的容器页面
@@ -79,29 +80,61 @@ class _MainPageState extends State<MainPage> {
     AppLogger.debug('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc',
         tag: 'Debug');
 
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    return CupertinoPageScaffold(
+      child: Column(
         children: [
-          // 发票管理页面
-          const InvoiceManagementPage(),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              children: [
+                // 发票管理页面
+                const InvoiceManagementPage(),
 
-          // 上传发票页面
-          const InvoiceUploadPage(),
+                // 上传发票页面
+                const InvoiceUploadPage(),
 
-          // 数据分析页面
-          _buildAnalysisPage(),
+                // 数据分析页面
+                _buildAnalysisPage(),
 
-          // 设置页面
-          _buildSettingsPage(),
+                // 设置页面
+                _buildSettingsPage(),
+              ],
+            ),
+          ),
+          _buildCupertinoTabBar(context),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  /// 构建Cupertino标签栏
+  Widget _buildCupertinoTabBar(BuildContext context) {
+    return CupertinoTabBar(
+      currentIndex: _currentIndex,
+      onTap: _onItemTapped,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.doc_text_fill),
+          label: '发票管理',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.cloud_upload_fill),
+          label: '上传发票',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.chart_bar_fill),
+          label: '数据分析',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.settings_solid),
+          label: '设置',
+        ),
+      ],
     );
   }
 
@@ -196,13 +229,12 @@ class _MainPageState extends State<MainPage> {
 
   // 数据分析页面
   Widget _buildAnalysisPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('数据分析'),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('数据分析'),
         automaticallyImplyLeading: false,
       ),
-      body: Builder(
+      child: Builder(
         builder: (context) {
           final theme = Theme.of(context);
           return Center(
@@ -241,13 +273,12 @@ class _MainPageState extends State<MainPage> {
   // 设置页面
   Widget _buildSettingsPage() {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('设置'),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('设置'),
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
+      child: ListView(
         children: [
           const SizedBox(height: 16),
           // 用户信息
@@ -316,22 +347,14 @@ class _MainPageState extends State<MainPage> {
                   title: Text('退出登录',
                       style: TextStyle(color: theme.colorScheme.error)),
                   onTap: () async {
-                    final shouldLogout = await showDialog<bool>(
+                    final shouldLogout = await UnifiedBottomSheet.showConfirmDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('退出登录'),
-                        content: const Text('确定要退出登录吗？'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('取消'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('确定'),
-                          ),
-                        ],
-                      ),
+                      title: '退出登录',
+                      content: '确定要退出登录吗？',
+                      confirmText: '确定',
+                      cancelText: '取消',
+                      confirmColor: theme.colorScheme.error,
+                      icon: CupertinoIcons.square_arrow_right,
                     );
 
                     if (shouldLogout == true && mounted) {

@@ -58,7 +58,7 @@ abstract class ReimbursementSetRepository {
 /// 报销集统计信息
 class ReimbursementSetStats {
   final int totalSets;
-  final int draftSets;
+  final int unsubmittedSets;
   final int submittedSets;
   final int reimbursedSets;
   final double totalAmount;
@@ -67,7 +67,7 @@ class ReimbursementSetStats {
 
   const ReimbursementSetStats({
     required this.totalSets,
-    required this.draftSets,
+    required this.unsubmittedSets,
     required this.submittedSets,
     required this.reimbursedSets,
     required this.totalAmount,

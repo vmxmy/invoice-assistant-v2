@@ -72,6 +72,25 @@ class UnifiedBottomSheet {
       ),
     );
   }
+
+  /// 显示加载Sheet
+  static Future<void> showLoadingSheet({
+    required BuildContext context,
+    String message = '处理中...',
+    bool isDismissible = false,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: isDismissible,
+      enableDrag: isDismissible,
+      builder: (context) => _LoadingBottomSheet(
+        message: message,
+        isDismissible: isDismissible,
+      ),
+    );
+  }
 }
 
 /// 确认对话框底部Sheet
@@ -104,7 +123,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -119,7 +138,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
             width: 32,
             height: 4,
             decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -135,7 +154,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: effectiveConfirmColor.withOpacity(0.1),
+                      color: effectiveConfirmColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Icon(
@@ -172,17 +191,16 @@ class _ConfirmBottomSheet extends StatelessWidget {
                   children: [
                     // 取消按钮
                     Expanded(
-                      child: OutlinedButton(
+                      child: CupertinoButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        color: colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
                         child: Text(
                           cancelText,
-                          style: AppTypography.labelLarge(context),
+                          style: AppTypography.labelLarge(context).copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
@@ -190,16 +208,11 @@ class _ConfirmBottomSheet extends StatelessWidget {
 
                     // 确认按钮
                     Expanded(
-                      child: ElevatedButton(
+                      child: CupertinoButton(
                         onPressed: () => Navigator.of(context).pop(true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: effectiveConfirmColor,
-                          foregroundColor: colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        color: effectiveConfirmColor,
+                        borderRadius: BorderRadius.circular(12),
                         child: Text(
                           confirmText,
                           style: AppTypography.labelLarge(context).copyWith(
@@ -242,7 +255,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -257,7 +270,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
             width: 32,
             height: 4,
             decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -295,17 +308,14 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                   (action) => Container(
                     width: double.infinity,
                     margin: const EdgeInsets.only(bottom: 8),
-                    child: TextButton(
+                    child: CupertinoButton(
                       onPressed: () {
                         Navigator.of(context).pop(action.value);
                         action.onPressed?.call();
                       },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -333,17 +343,16 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(top: 8),
-                  child: OutlinedButton(
+                  child: CupertinoButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
                     child: Text(
                       '取消',
-                      style: AppTypography.labelLarge(context),
+                      style: AppTypography.labelLarge(context).copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ),
@@ -382,7 +391,7 @@ class _CustomBottomSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -397,7 +406,7 @@ class _CustomBottomSheet extends StatelessWidget {
             width: 32,
             height: 4,
             decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -432,6 +441,79 @@ class _CustomBottomSheet extends StatelessWidget {
           // 内容
           Flexible(child: child),
         ],
+      ),
+    );
+  }
+}
+
+/// 加载底部Sheet
+class _LoadingBottomSheet extends StatelessWidget {
+  final String message;
+  final bool isDismissible;
+
+  const _LoadingBottomSheet({
+    required this.message,
+    required this.isDismissible,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return PopScope(
+      canPop: isDismissible,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 拖拽指示器（仅在可关闭时显示）
+            if (isDismissible)
+              Container(
+                margin: const EdgeInsets.only(top: 8),
+                width: 32,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 加载指示器
+                  CircularProgressIndicator(
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // 加载消息
+                  Text(
+                    message,
+                    style: AppTypography.bodyLarge(context).copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

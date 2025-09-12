@@ -82,7 +82,7 @@ class InvoiceEntity extends Equatable {
     this.category,
     this.expenseCategory,
     this.primaryCategoryName,
-    this.status = InvoiceStatus.unreimbursed,
+    this.status = InvoiceStatus.unsubmitted,
     this.invoiceType,
     this.invoiceCode,
     this.fileUrl,
@@ -138,7 +138,7 @@ class InvoiceEntity extends Equatable {
   bool get isReimbursed => status == InvoiceStatus.reimbursed;
 
   /// 业务逻辑：是否未报销
-  bool get isUnreimbursed => status == InvoiceStatus.unreimbursed;
+  bool get isUnreimbursed => status == InvoiceStatus.unsubmitted || status == InvoiceStatus.submitted;
 
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;
@@ -149,20 +149,12 @@ class InvoiceEntity extends Equatable {
   /// 业务逻辑：获取报销进度百分比
   double get progressPercent {
     switch (status) {
-      case InvoiceStatus.unreimbursed:
+      case InvoiceStatus.unsubmitted:
         return 0.0;
+      case InvoiceStatus.submitted:
+        return 0.5;
       case InvoiceStatus.reimbursed:
         return 1.0;
-      case InvoiceStatus.pending:
-        return 0.1;
-      case InvoiceStatus.processing:
-        return 0.3;
-      case InvoiceStatus.completed:
-        return 0.7;
-      case InvoiceStatus.verified:
-        return 0.9;
-      case InvoiceStatus.failed:
-        return 0.0;
     }
   }
 

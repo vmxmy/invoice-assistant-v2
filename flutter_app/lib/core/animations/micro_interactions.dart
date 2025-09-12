@@ -460,7 +460,7 @@ class _RipplePainter extends CustomPainter {
     if (center == null || animation.value == 0) return;
 
     final paint = Paint()
-      ..color = color.withOpacity(0.3 * (1 - animation.value))
+      ..color = color.withValues(alpha: 0.3 * (1 - animation.value))
       ..style = PaintingStyle.fill;
 
     final radius = animation.value * (size.width + size.height) / 2;
