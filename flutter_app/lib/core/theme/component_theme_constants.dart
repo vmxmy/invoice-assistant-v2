@@ -50,6 +50,9 @@ class ComponentThemeConstants {
   
   /// 大按钮高度
   static const double buttonHeightLarge = 48.0;
+  
+  /// 底部导航栏高度（符合最小触摸目标）
+  static const double bottomNavigationBarHeight = 56.0;
 
   // ==================== 图标尺寸常量 ====================
   

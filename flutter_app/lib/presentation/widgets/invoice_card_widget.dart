@@ -98,10 +98,11 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
                 showConsumptionDateOnly: widget.showConsumptionDateOnly,
               ),
               
-              // 底部操作组件
+              // 底部操作组件（不显示时间）
               InvoiceCardActions(
-                timeText: _formatRelativeTime(widget.invoice.createdAt ?? DateTime.now()),
+                timeText: '',
                 actions: [],
+                showTime: false,
               ),
             ],
           ),
@@ -145,21 +146,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     }
   }
 
-  /// 格式化相对时间
-  String _formatRelativeTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}天前';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}小时前';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}分钟前';
-    } else {
-      return '刚刚';
-    }
-  }
 
 
   /// 处理下载和分享功能

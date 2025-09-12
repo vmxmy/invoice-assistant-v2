@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import '../../core/theme/component_theme_constants.dart';
 import '../bloc/invoice_bloc.dart';
 // import '../bloc/invoice_event.dart'; // 未使用
 import 'invoice_management_page.dart';
@@ -13,6 +14,19 @@ import '../../core/theme/theme_manager.dart';
 import '../widgets/theme_selector_widget.dart';
 import '../widgets/unified_bottom_sheet.dart';
 import '../../debug_query_test.dart';
+
+/// 导航项数据类
+class NavigationItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+
+  const NavigationItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+}
 
 /// 主页面 - 包含底部导航栏的容器页面
 class MainPage extends StatefulWidget {
@@ -26,28 +40,6 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   late PageController _pageController;
 
-  final List<NavigationItem> _navigationItems = [
-    NavigationItem(
-      icon: CupertinoIcons.doc,
-      activeIcon: CupertinoIcons.doc_text,
-      label: '发票管理',
-    ),
-    NavigationItem(
-      icon: CupertinoIcons.cloud_upload,
-      activeIcon: CupertinoIcons.cloud_upload_fill,
-      label: '上传发票',
-    ),
-    NavigationItem(
-      icon: CupertinoIcons.chart_bar,
-      activeIcon: CupertinoIcons.chart_bar_fill,
-      label: '数据分析',
-    ),
-    NavigationItem(
-      icon: CupertinoIcons.settings,
-      activeIcon: CupertinoIcons.settings_solid,
-      label: '设置',
-    ),
-  ];
 
   @override
   void initState() {
@@ -112,120 +104,59 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  /// 构建Cupertino标签栏
+  /// 构建Cupertino标签栏（标准高度）
   Widget _buildCupertinoTabBar(BuildContext context) {
-    return CupertinoTabBar(
-      currentIndex: _currentIndex,
-      onTap: _onItemTapped,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.doc_text_fill),
-          label: '发票管理',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.cloud_upload_fill),
-          label: '上传发票',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.chart_bar_fill),
-          label: '数据分析',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.settings_solid),
-          label: '设置',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
     final theme = Theme.of(context);
-
     return Container(
+      height: ComponentThemeConstants.bottomNavigationBarHeight,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: CupertinoTabBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
+        backgroundColor: Colors.transparent, // 使用容器背景色
+        border: null, // 移除默认边框，使用容器边框
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(
+              CupertinoIcons.doc_text_fill,
+              size: ComponentThemeConstants.iconSizeL,
+            ),
+            label: '发票管理',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              CupertinoIcons.cloud_upload_fill,
+              size: ComponentThemeConstants.iconSizeL,
+            ),
+            label: '上传发票',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              CupertinoIcons.chart_bar_fill,
+              size: ComponentThemeConstants.iconSizeL,
+            ),
+            label: '数据分析',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              CupertinoIcons.settings_solid,
+              size: ComponentThemeConstants.iconSizeL,
+            ),
+            label: '设置',
           ),
         ],
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _navigationItems.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              final isActive = index == _currentIndex;
-
-              return _buildNavigationItem(
-                context,
-                item: item,
-                isActive: isActive,
-                onTap: () => _onItemTapped(index),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
     );
   }
 
-  Widget _buildNavigationItem(
-    BuildContext context, {
-    required NavigationItem item,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 图标容器
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                      : theme.colorScheme.surface.withValues(alpha: 0),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  isActive ? (item.activeIcon ?? item.icon) : item.icon,
-                  size: 22,
-                  color: isActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(height: 2),
-
-              // 标签文字
-              Text(
-                item.label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: isActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   // 数据分析页面
   Widget _buildAnalysisPage() {
@@ -388,15 +319,3 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-/// 导航项数据类
-class NavigationItem {
-  const NavigationItem({
-    required this.icon,
-    required this.label,
-    this.activeIcon,
-  });
-
-  final IconData icon;
-  final IconData? activeIcon;
-  final String label;
-}

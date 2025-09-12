@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import '../../core/theme/component_theme_constants.dart';
 
 /// 发票搜索和筛选工具栏
 /// 包含搜索框、快捷筛选按钮和状态管理
@@ -60,7 +61,12 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), // 减小内边距
+      padding: const EdgeInsets.fromLTRB(
+        ComponentThemeConstants.spacingL,
+        ComponentThemeConstants.spacingS,
+        ComponentThemeConstants.spacingL,
+        ComponentThemeConstants.spacingM,
+      ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: Border(
@@ -78,7 +84,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
           // 间距
           if (widget.showSearchBox && widget.showQuickFilters)
-            const SizedBox(height: 12), // 减小间距
+            const SizedBox(height: ComponentThemeConstants.spacingM),
 
           // 快捷筛选按钮区域
           if (widget.showQuickFilters) _buildQuickFilters(theme, colorScheme),
@@ -90,10 +96,10 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   /// 构建搜索框
   Widget _buildSearchBox(ThemeData theme, ColorScheme colorScheme) {
     return Container(
-      height: 36, // 固定较小高度
+      height: ComponentThemeConstants.buttonHeightMedium,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8), // 减小圆角
+        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
         border: Border.all(
           color: _isSearchFocused
               ? colorScheme.primary
@@ -116,42 +122,42 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           hintText: '搜索发票号、销售方、金额...',
           hintStyle: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 14, // 减小字体
+            fontSize: ComponentThemeConstants.fontSizeBody,
           ),
           prefixIcon: Icon(
             CupertinoIcons.search,
             color: _isSearchFocused
                 ? colorScheme.primary
                 : colorScheme.onSurfaceVariant,
-            size: 16, // 减小图标
+            size: ComponentThemeConstants.iconSizeS,
           ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     CupertinoIcons.clear_circled_solid,
                     color: colorScheme.onSurfaceVariant,
-                    size: 14, // 减小图标
+                    size: ComponentThemeConstants.iconSizeXS,
                   ),
                   onPressed: () {
                     _searchController.clear();
                     widget.onSearchChanged?.call('');
                   },
-                  padding: EdgeInsets.zero, // 减小按钮内边距
+                  padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
+                    minWidth: ComponentThemeConstants.buttonHeightSmall,
+                    minHeight: ComponentThemeConstants.buttonHeightSmall,
                   ),
                 )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12, // 减小内边距
-            vertical: 0, // 设置为0实现严格垂直居中
+            horizontal: ComponentThemeConstants.spacingM,
+            vertical: 0,
           ),
           isDense: true, // 紧凑模式，减少额外填充
         ),
         style: TextStyle(
-          fontSize: 14, // 减小字体
+          fontSize: ComponentThemeConstants.fontSizeBody,
           color: colorScheme.onSurface,
         ),
         textAlignVertical: TextAlignVertical.center, // 确保文本垂直居中
@@ -162,8 +168,8 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   /// 构建快捷筛选按钮
   Widget _buildQuickFilters(ThemeData theme, ColorScheme colorScheme) {
     return Wrap(
-      spacing: 6, // 减小间距
-      runSpacing: 6, // 减小间距
+      spacing: ComponentThemeConstants.spacingS,
+      runSpacing: ComponentThemeConstants.spacingS,
       children: [
         // 逾期发票
         _buildFilterChip(
@@ -255,25 +261,22 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // 减小内边距
+        duration: ComponentThemeConstants.animationFast,
+        height: ComponentThemeConstants.buttonHeightSmall,
+        padding: const EdgeInsets.symmetric(
+          horizontal: ComponentThemeConstants.spacingM,
+          vertical: ComponentThemeConstants.spacingXS,
+        ),
         decoration: BoxDecoration(
           color:
               isSelected ? color.withValues(alpha: 0.15) : colorScheme.surface,
-          borderRadius: BorderRadius.circular(16), // 减小圆角
+          borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusLarge),
           border: Border.all(
             color: isSelected ? color : colorScheme.outlineVariant,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.2),
-                    blurRadius: 3, // 减小模糊半径
-                    offset: const Offset(0, 1), // 减小偏移
-                  ),
-                ]
+              ? ComponentThemeConstants.shadowColored(color)
               : null,
         ),
         child: Row(
@@ -285,7 +288,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               children: [
                 Icon(
                   icon,
-                  size: 14, // 减小图标尺寸
+                  size: ComponentThemeConstants.iconSizeXS,
                   color: isSelected ? color : colorScheme.onSurfaceVariant,
                 ),
                 // 徽章
@@ -294,8 +297,8 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                     right: -3,
                     top: -3,
                     child: Container(
-                      width: 10, // 减小徽章尺寸
-                      height: 10,
+                      width: ComponentThemeConstants.spacingS + 2,
+                      height: ComponentThemeConstants.spacingS + 2,
                       decoration: BoxDecoration(
                         color: color,
                         shape: BoxShape.circle,
@@ -305,7 +308,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                           badge,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 7, // 减小字体
+                            fontSize: ComponentThemeConstants.fontSizeCaption - 2,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -315,13 +318,13 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               ],
             ),
 
-            const SizedBox(width: 4), // 减小间距
+            const SizedBox(width: ComponentThemeConstants.spacingXS),
 
             // 标签
             Text(
               label,
               style: TextStyle(
-                fontSize: 12, // 减小字体
+                fontSize: ComponentThemeConstants.fontSizeCaption,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected ? color : colorScheme.onSurfaceVariant,
               ),

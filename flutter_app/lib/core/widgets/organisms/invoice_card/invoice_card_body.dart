@@ -190,29 +190,7 @@ class InvoiceCardBody extends StatelessWidget {
   Widget _buildAdditionalInfo(BuildContext context) {
     final items = <Widget>[];
     
-    // 发票号码（如果不在标题中显示）
-    if (invoice.invoiceNumber.isNotEmpty) {
-      items.add(
-        _buildInfoItem(
-          context,
-          icon: CupertinoIcons.doc_text,
-          label: '发票号',
-          value: invoice.invoiceNumber,
-        ),
-      );
-    }
     
-    // 税额信息（如果有）
-    if (invoice.taxAmount != null && invoice.taxAmount! > 0) {
-      items.add(
-        _buildInfoItem(
-          context,
-          icon: CupertinoIcons.percent,
-          label: '税额',
-          value: '¥${invoice.taxAmount!.toStringAsFixed(2)}',
-        ),
-      );
-    }
     
     if (items.isEmpty) {
       return const SizedBox.shrink();
@@ -225,29 +203,6 @@ class InvoiceCardBody extends StatelessWidget {
     );
   }
 
-  /// 构建信息项
-  Widget _buildInfoItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppIcon(
-          icon: icon,
-          size: IconSize.extraSmall,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        SizedBox(width: ComponentThemeConstants.spacingXS),
-        AppText(
-          text: '$label: $value',
-          variant: TextVariant.bodySmall,
-        ),
-      ],
-    );
-  }
 
   /// 获取格式化日期
   String _getFormattedDate() {
@@ -279,8 +234,7 @@ class InvoiceCardBody extends StatelessWidget {
 
   /// 是否有额外信息需要显示
   bool _hasAdditionalInfo() {
-    return invoice.invoiceNumber.isNotEmpty ||
-           (invoice.taxAmount != null && invoice.taxAmount! > 0);
+    return false;
   }
 }
 
