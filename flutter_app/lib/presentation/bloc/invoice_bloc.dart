@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_invoices_usecase.dart';
 import '../../domain/usecases/get_invoice_detail_usecase_production.dart';
@@ -10,6 +11,7 @@ import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
 // import '../../domain/value_objects/invoice_status.dart'; // 未使用
 import '../../core/config/app_config.dart';
+import '../../core/events/app_event_bus.dart';
 import '../widgets/optimistic_ui_handler.dart';
 // import '../widgets/enhanced_error_handler.dart'; // 未使用
 import 'invoice_event.dart';
@@ -23,6 +25,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   final DeleteInvoiceUseCase _deleteInvoiceUseCase;
   final UpdateInvoiceStatusUseCase _updateInvoiceStatusUseCase;
   final UploadInvoiceUseCase _uploadInvoiceUseCase;
+  final AppEventBus _eventBus;
 
   // 乐观UI处理器
   final OptimisticUIHandler _optimisticUI = OptimisticUIHandler();
@@ -34,6 +37,10 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   int _totalCount = 0;
   bool _hasMore = true;
   InvoiceFilters? _currentFilters; // 保存当前的筛选条件
+  
+  // 事件监听订阅
+  StreamSubscription<ReimbursementSetChangedEvent>? _reimbursementEventSubscription;
+  StreamSubscription<AppEvent>? _appEventSubscription;
 
   InvoiceBloc({
     required GetInvoicesUseCase getInvoicesUseCase,
@@ -42,12 +49,14 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     required DeleteInvoiceUseCase deleteInvoiceUseCase,
     required UpdateInvoiceStatusUseCase updateInvoiceStatusUseCase,
     required UploadInvoiceUseCase uploadInvoiceUseCase,
+    AppEventBus? eventBus,
   })  : _getInvoicesUseCase = getInvoicesUseCase,
         _getInvoiceDetailUseCase = getInvoiceDetailUseCase,
         _getInvoiceStatsUseCase = getInvoiceStatsUseCase,
         _deleteInvoiceUseCase = deleteInvoiceUseCase,
         _updateInvoiceStatusUseCase = updateInvoiceStatusUseCase,
         _uploadInvoiceUseCase = uploadInvoiceUseCase,
+        _eventBus = eventBus ?? AppEventBus.instance,
         super(InvoiceInitial()) {
     // 注册事件处理器
     on<LoadInvoices>(_onLoadInvoices);
@@ -63,6 +72,56 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     on<CancelUpload>(_onCancelUpload);
     on<RetryUpload>(_onRetryUpload);
     on<ClearUploadResults>(_onClearUploadResults);
+    
+    // 监听报销集变更事件
+    _setupReimbursementEventSubscription();
+    // 监听应用生命周期事件
+    _setupAppEventSubscription();
+  }
+  
+  /// 设置报销集事件监听
+  void _setupReimbursementEventSubscription() {
+    _reimbursementEventSubscription = _eventBus.on<ReimbursementSetChangedEvent>().listen(
+      (event) {
+        if (AppConfig.enableLogging) {
+          // print('🔄 [InvoiceBloc] 收到报销集变更事件: ${event.runtimeType}');
+        }
+        
+        // 触发发票列表刷新
+        add(const RefreshInvoices());
+      },
+    );
+  }
+  
+  /// 设置应用事件监听
+  void _setupAppEventSubscription() {
+    _appEventSubscription = _eventBus.stream.listen(
+      (event) {
+        if (event is TabChangedEvent) {
+          // 切换到发票Tab时刷新数据
+          if (event.newTabIndex == 0 && event.tabName == '发票') {
+            if (AppConfig.enableLogging) {
+              // print('🔄 [InvoiceBloc] Tab切换到发票，刷新数据');
+            }
+            add(const LoadInvoices(refresh: true));
+          }
+        } else if (event is AppResumedEvent) {
+          // 应用恢复时刷新发票数据
+          if (AppConfig.enableLogging) {
+            // print('🔄 [InvoiceBloc] 应用恢复，刷新发票数据');
+          }
+          add(const RefreshInvoices());
+        }
+      },
+    );
+  }
+  
+  /// 销毁时清理资源
+  @override
+  Future<void> close() {
+    _reimbursementEventSubscription?.cancel();
+    _appEventSubscription?.cancel();
+    return super.close();
   }
 
   /// 处理加载发票列表事件
@@ -259,6 +318,14 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         }
 
         emit(InvoiceDeleteSuccess('发票删除成功'));
+        
+        // 发送发票删除事件
+        _eventBus.emit(InvoiceDeletedEvent(
+          invoiceId: event.invoiceId,
+          wasInReimbursementSet: invoiceToDelete.isInReimbursementSet,
+          reimbursementSetId: invoiceToDelete.reimbursementSetId,
+        ));
+        
         emit(InvoiceLoaded(
           invoices: List.from(_allInvoices),
           currentPage: _currentPage,
@@ -314,6 +381,24 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
       // 先发送删除成功状态用于显示snackbar
       emit(InvoiceDeleteSuccess('${event.invoiceIds.length}个发票删除成功'));
+
+      // 收集受影响的报销集ID
+      final affectedReimbursementSetIds = <String>[];
+      for (final invoice in _allInvoices) {
+        if (event.invoiceIds.contains(invoice.id) && 
+            invoice.isInReimbursementSet && 
+            invoice.reimbursementSetId != null) {
+          if (!affectedReimbursementSetIds.contains(invoice.reimbursementSetId!)) {
+            affectedReimbursementSetIds.add(invoice.reimbursementSetId!);
+          }
+        }
+      }
+
+      // 发送批量发票删除事件
+      _eventBus.emit(InvoicesDeletedEvent(
+        invoiceIds: event.invoiceIds,
+        affectedReimbursementSetIds: affectedReimbursementSetIds,
+      ));
 
       // 给监听器足够时间处理snackbar显示
       await Future.delayed(const Duration(milliseconds: 500));
@@ -485,6 +570,13 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
             originalInvoice.copyWith(status: event.newStatus);
         _allInvoices[invoiceIndex] = updatedInvoice;
 
+        // 发送发票状态变更事件
+        _eventBus.emit(InvoiceStatusChangedEvent(
+          invoiceId: event.invoiceId,
+          newStatus: event.newStatus.value,
+          oldStatus: originalInvoice.status.value,
+        ));
+
         emit(InvoiceLoaded(
           invoices: List.from(_allInvoices),
           currentPage: _currentPage,
@@ -625,6 +717,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           if (result.invoice != null) {
             _allInvoices.insert(0, result.invoice!); // 插入到列表开头
             _totalCount++;
+            
+            // 发送发票创建事件
+            _eventBus.emit(InvoiceCreatedEvent(
+              invoiceId: result.invoice!.id,
+            ));
           }
         }
       } else {
@@ -838,6 +935,20 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         failureCount: failureCount,
         duplicateCount: duplicateCount,
       ));
+
+      // 发送批量上传完成事件
+      if (successCount > 0 || failureCount > 0 || duplicateCount > 0) {
+        final successfulIds = results
+            .where((result) => result.isSuccess && result.invoice != null)
+            .map((result) => result.invoice!.id)
+            .toList();
+            
+        _eventBus.emit(InvoicesUploadedEvent(
+          successfulInvoiceIds: successfulIds,
+          failureCount: failureCount,
+          duplicateCount: duplicateCount,
+        ));
+      }
 
       if (AppConfig.enableLogging) {
         // print('✅ [InvoiceBloc] 批量上传完成 - 成功: $successCount, 失败: $failureCount, 重复: $duplicateCount');

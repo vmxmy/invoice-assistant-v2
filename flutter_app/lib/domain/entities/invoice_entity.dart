@@ -28,6 +28,9 @@ class InvoiceEntity extends Equatable {
   final InvoiceStatus status;
   final String? invoiceType;
   final String? invoiceCode;
+  
+  // 报销集关联
+  final String? reimbursementSetId;
 
   // 文件信息
   final String? fileUrl;
@@ -85,6 +88,7 @@ class InvoiceEntity extends Equatable {
     this.status = InvoiceStatus.unsubmitted,
     this.invoiceType,
     this.invoiceCode,
+    this.reimbursementSetId,
     this.fileUrl,
     this.filePath,
     this.fileHash,
@@ -139,6 +143,15 @@ class InvoiceEntity extends Equatable {
 
   /// 业务逻辑：是否未报销
   bool get isUnreimbursed => status == InvoiceStatus.unsubmitted || status == InvoiceStatus.submitted;
+
+  /// 业务逻辑：是否在报销集中
+  bool get isInReimbursementSet => reimbursementSetId != null && reimbursementSetId!.isNotEmpty;
+
+  /// 业务逻辑：是否可以加入报销集
+  /// 发票状态和报销集归属是两个独立概念：
+  /// - 任何状态的发票都可以加入报销集（如果还没有在其他报销集中）
+  /// - 唯一的限制是不能同时在多个报销集中
+  bool get canAddToReimbursementSet => !isInReimbursementSet;
 
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;
@@ -272,6 +285,7 @@ class InvoiceEntity extends Equatable {
         status, // 重要：包含status字段用于比较
         invoiceType,
         invoiceCode,
+        reimbursementSetId,
         fileUrl,
         filePath,
         fileHash,

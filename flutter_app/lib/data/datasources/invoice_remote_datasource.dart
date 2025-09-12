@@ -738,7 +738,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     }
 
     if (filters.status != null && filters.status!.isNotEmpty) {
-      final statusValues = filters.status!.map((s) => s.name).toList();
+      final statusValues = filters.status!.map((s) => s.value).toList();
       query = query.inFilter('status', statusValues);
     }
 
@@ -762,11 +762,11 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final overdueThreshold = overdueDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', overdueThreshold);
-      query = query.eq('status', 'unreimbursed');
+      query = query.eq('status', InvoiceStatus.unsubmitted.value);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '✅ [RemoteDataSource] 应用逾期筛选: consumption_date < $overdueThreshold AND status = unreimbursed',
+            '✅ [RemoteDataSource] 应用逾期筛选: consumption_date < $overdueThreshold AND status = ${InvoiceStatus.unsubmitted.value}',
             tag: 'Debug');
       }
     } else if (filters.urgent == true) {
@@ -775,19 +775,19 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', urgentThreshold);
-      query = query.eq('status', 'unsubmitted');
+      query = query.eq('status', InvoiceStatus.unsubmitted.value);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = unsubmitted',
+            '✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = ${InvoiceStatus.unsubmitted.value}',
             tag: 'Debug');
       }
     } else if (filters.status?.contains(InvoiceStatus.reimbursed) == true) {
       // 已报销筛选：只看状态
-      query = query.eq('status', 'reimbursed');
+      query = query.eq('status', InvoiceStatus.reimbursed.value);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('✅ [RemoteDataSource] 应用已报销筛选: status = reimbursed',
+        AppLogger.debug('✅ [RemoteDataSource] 应用已报销筛选: status = ${InvoiceStatus.reimbursed.value}',
             tag: 'Debug');
       }
     }

@@ -331,6 +331,54 @@ class InvoiceSlideActions {
       tooltip: '打印发票',
     );
   }
+
+  /// 创建移出操作（从报销集中移出）
+  static SlideAction remove({
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return SlideAction(
+      icon: CupertinoIcons.minus_circle,
+      label: '移出',
+      backgroundColor: backgroundColor ?? const Color(0xFFFF9800),
+      foregroundColor: foregroundColor ?? Colors.white,
+      onPressed: onPressed,
+      tooltip: '从报销集中移出',
+    );
+  }
+
+  /// 创建添加到报销集操作
+  static SlideAction addToReimbursementSet({
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return SlideAction(
+      icon: CupertinoIcons.add_circled,
+      label: '加入',
+      backgroundColor: backgroundColor ?? const Color(0xFF4CAF50),
+      foregroundColor: foregroundColor ?? Colors.white,
+      onPressed: onPressed,
+      tooltip: '加入报销集',
+    );
+  }
+
+  /// 创建查看报销集操作
+  static SlideAction viewReimbursementSet({
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return SlideAction(
+      icon: CupertinoIcons.folder_open,
+      label: '报销集',
+      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
+      foregroundColor: foregroundColor ?? Colors.white,
+      onPressed: onPressed,
+      tooltip: '查看所在报销集',
+    );
+  }
 }
 
 /// 滑动操作构建器
@@ -374,6 +422,11 @@ class SlidableActionsBuilder {
       onPressed: onPressed,
       isFavorited: isFavorited,
     ));
+  }
+
+  /// 添加查看报销集操作
+  SlidableActionsBuilder addViewReimbursementSet({required VoidCallback onPressed}) {
+    return add(InvoiceSlideActions.viewReimbursementSet(onPressed: onPressed));
   }
 
   /// 构建操作列表

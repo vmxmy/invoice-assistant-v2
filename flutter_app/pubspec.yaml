@@ -87,9 +87,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   
-  # 代码生成
-  freezed: ^2.5.7
-  json_serializable: ^6.9.2
+  # 代码生成 (暂时移除以安装DCM)
+  # freezed: ^2.5.7
+  # json_serializable: ^6.9.2
+  
+  # 代码质量分析 (使用稳定版本)
+  dcm: ^1.8.1
 
 flutter:
   uses-material-design: true

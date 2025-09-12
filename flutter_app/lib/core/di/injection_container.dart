@@ -19,14 +19,17 @@ import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../presentation/bloc/invoice_bloc.dart';
 import '../../presentation/bloc/reimbursement_set_bloc.dart';
 
+// 核心服务
+import '../events/app_event_bus.dart';
+
 /// 全局依赖注入容器
 final sl = GetIt.instance;
 
 /// 初始化所有依赖
 Future<void> init() async {
   //! 表现层 (Presentation Layer)
-  // BLoCs
-  sl.registerFactory(
+  // BLoCs - 使用事件总线模式进行跨Bloc通信
+  sl.registerLazySingleton(
     () => InvoiceBloc(
       getInvoicesUseCase: sl(),
       getInvoiceDetailUseCase: sl(),
@@ -71,7 +74,10 @@ Future<void> init() async {
   // 这里可以注册外部服务，如网络客户端、本地存储等
 
   //! 核心服务 (Core Services)
-  // 这里可以注册核心服务，如网络检查、错误处理等
+  // 事件总线 - 用于跨Bloc通信（可选，因为使用单例模式）
+  sl.registerLazySingleton<AppEventBus>(() => AppEventBus.instance);
+  
+  // 其他核心服务，如网络检查、错误处理等
 }
 
 /// 重置所有注册的依赖 (主要用于测试)

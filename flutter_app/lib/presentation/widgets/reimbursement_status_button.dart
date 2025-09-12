@@ -90,20 +90,14 @@ class ReimbursementStatusButton extends StatelessWidget {
         if (reimbursementSet.status == ReimbursementSetStatus.reimbursed) {
           // 从已报销撤回到已提交
           title = '撤回报销状态';
-          content = '确定要撤回报销集"${reimbursementSet.setName}"的报销状态吗？\n\n'
-              '🔄 撤回后将变更为"已提交"状态\n'
-              '⚠️ 可以重新进行状态变更操作\n'
-              '📝 可能需要重新审批或处理';
+          content = '确定要撤回报销状态吗？';
           confirmText = '确认撤回';
           confirmColor = colorScheme.error;
           confirmIcon = CupertinoIcons.arrow_counterclockwise;
         } else {
           // 从未提交到已提交
           title = '提交报销集';
-          content = '确定要提交报销集"${reimbursementSet.setName}"吗？\n\n'
-              '⚠️ 提交后将无法再修改报销集和发票内容\n'
-              '📋 请确认所有信息都已填写正确\n'
-              '💰 确认发票金额和明细无误';
+          content = '确定要提交报销集吗？';
           confirmText = '确认提交';
           confirmColor = colorScheme.tertiary;
           confirmIcon = CupertinoIcons.paperplane;
@@ -111,10 +105,7 @@ class ReimbursementStatusButton extends StatelessWidget {
         break;
       case ReimbursementSetStatus.reimbursed:
         title = '标记已报销';
-        content = '确定要将报销集"${reimbursementSet.setName}"标记为已报销吗？\n\n'
-            '✅ 标记后将进入归档状态\n'
-            '🔒 将无法再进行任何修改操作\n'
-            '📁 可以导出报销凭证留档';
+        content = '确定要标记为已报销吗？';
         confirmText = '确认标记';
         confirmColor = colorScheme.secondary;
         confirmIcon = CupertinoIcons.checkmark_circle;
@@ -182,90 +173,71 @@ class ReimbursementStatusButton extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // 报销集信息摘要
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                confirmColor.withValues(alpha: 0.05),
-                confirmColor.withValues(alpha: 0.1),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: confirmColor.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    CupertinoIcons.folder_badge_plus,
-                    color: confirmColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      reimbursementSet.setName,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: confirmColor,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildSummaryItem(
-                    context,
-                    '包含发票',
-                    '${_getInvoiceCount()} 张',
-                    CupertinoIcons.doc_text,
-                    confirmColor,
-                  ),
-                  _buildSummaryItem(
-                    context,
-                    '总金额',
-                    '¥${reimbursementSet.totalAmount.toStringAsFixed(2)}',
-                    CupertinoIcons.money_dollar_circle,
-                    confirmColor,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // 按钮组
-        Row(
+        // 报销集信息摘要 - 简洁版本
+        Column(
           children: [
-            // 取消按钮
-            Expanded(
-              child: CupertinoButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-                child: Text(
-                  '取消',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            // 发票数量
+            Row(
+              children: [
+                Icon(
+                  CupertinoIcons.doc_text,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '包含发票',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                 ),
-              ),
+                const Spacer(),
+                Text(
+                  '${_getInvoiceCount()} 张',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
+            const SizedBox(height: 12),
+            
+            // 总金额
+            Row(
+              children: [
+                Icon(
+                  CupertinoIcons.money_dollar_circle,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '总金额',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const Spacer(),
+                Text(
+                  '¥${reimbursementSet.totalAmount.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: confirmColor,
+                      ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
 
-            // 确认按钮
-            Expanded(
+        // 按钮组 - iOS 标准垂直布局
+        Column(
+          children: [
+            // 确认按钮（主要操作在顶部）
+            SizedBox(
+              width: double.infinity,
               child: CupertinoButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -288,6 +260,24 @@ class ReimbursementStatusButton extends StatelessWidget {
                           ),
                     ),
                   ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // 取消按钮（次要操作在底部）
+            SizedBox(
+              width: double.infinity,
+              child: CupertinoButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                child: Text(
+                  '取消',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ),
             ),
@@ -317,47 +307,11 @@ class ReimbursementStatusButton extends StatelessWidget {
     });
   }
 
-  /// 构建摘要信息项
-  Widget _buildSummaryItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          color: color,
-          size: 18,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color.withValues(alpha: 0.7),
-              ),
-        ),
-      ],
-    );
-  }
 
   /// 获取发票数量
   int _getInvoiceCount() {
-    if (invoices is List) {
-      return (invoices as List).length;
-    } else if (invoices is int) {
-      return invoices as int;
-    }
-    return 0;
+    // 优先使用报销集实体中的数量，这是最准确的
+    return reimbursementSet.invoiceCount;
   }
 
   /// 获取状态图标

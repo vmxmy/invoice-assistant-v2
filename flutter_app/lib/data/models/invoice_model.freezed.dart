@@ -53,7 +53,9 @@ mixin _$InvoiceModel {
   @JsonKey(name: 'invoice_type')
   String? get invoiceType => throw _privateConstructorUsedError;
   @JsonKey(name: 'invoice_code')
-  String? get invoiceCode => throw _privateConstructorUsedError; // 文件信息
+  String? get invoiceCode => throw _privateConstructorUsedError; // 报销集关联
+  @JsonKey(name: 'reimbursement_set_id')
+  String? get reimbursementSetId => throw _privateConstructorUsedError; // 文件信息
   @JsonKey(name: 'file_url')
   String? get fileUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'file_path')
@@ -137,6 +139,7 @@ abstract class $InvoiceModelCopyWith<$Res> {
       InvoiceStatus status,
       @JsonKey(name: 'invoice_type') String? invoiceType,
       @JsonKey(name: 'invoice_code') String? invoiceCode,
+      @JsonKey(name: 'reimbursement_set_id') String? reimbursementSetId,
       @JsonKey(name: 'file_url') String? fileUrl,
       @JsonKey(name: 'file_path') String? filePath,
       @JsonKey(name: 'file_hash') String? fileHash,
@@ -197,6 +200,7 @@ class _$InvoiceModelCopyWithImpl<$Res, $Val extends InvoiceModel>
     Object? status = null,
     Object? invoiceType = freezed,
     Object? invoiceCode = freezed,
+    Object? reimbursementSetId = freezed,
     Object? fileUrl = freezed,
     Object? filePath = freezed,
     Object? fileHash = freezed,
@@ -298,6 +302,10 @@ class _$InvoiceModelCopyWithImpl<$Res, $Val extends InvoiceModel>
       invoiceCode: freezed == invoiceCode
           ? _value.invoiceCode
           : invoiceCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      reimbursementSetId: freezed == reimbursementSetId
+          ? _value.reimbursementSetId
+          : reimbursementSetId // ignore: cast_nullable_to_non_nullable
               as String?,
       fileUrl: freezed == fileUrl
           ? _value.fileUrl
@@ -427,6 +435,7 @@ abstract class _$$InvoiceModelImplCopyWith<$Res>
       InvoiceStatus status,
       @JsonKey(name: 'invoice_type') String? invoiceType,
       @JsonKey(name: 'invoice_code') String? invoiceCode,
+      @JsonKey(name: 'reimbursement_set_id') String? reimbursementSetId,
       @JsonKey(name: 'file_url') String? fileUrl,
       @JsonKey(name: 'file_path') String? filePath,
       @JsonKey(name: 'file_hash') String? fileHash,
@@ -485,6 +494,7 @@ class __$$InvoiceModelImplCopyWithImpl<$Res>
     Object? status = null,
     Object? invoiceType = freezed,
     Object? invoiceCode = freezed,
+    Object? reimbursementSetId = freezed,
     Object? fileUrl = freezed,
     Object? filePath = freezed,
     Object? fileHash = freezed,
@@ -586,6 +596,10 @@ class __$$InvoiceModelImplCopyWithImpl<$Res>
       invoiceCode: freezed == invoiceCode
           ? _value.invoiceCode
           : invoiceCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      reimbursementSetId: freezed == reimbursementSetId
+          ? _value.reimbursementSetId
+          : reimbursementSetId // ignore: cast_nullable_to_non_nullable
               as String?,
       fileUrl: freezed == fileUrl
           ? _value.fileUrl
@@ -710,6 +724,7 @@ class _$InvoiceModelImpl implements _InvoiceModel {
       this.status = InvoiceStatus.unsubmitted,
       @JsonKey(name: 'invoice_type') this.invoiceType,
       @JsonKey(name: 'invoice_code') this.invoiceCode,
+      @JsonKey(name: 'reimbursement_set_id') this.reimbursementSetId,
       @JsonKey(name: 'file_url') this.fileUrl,
       @JsonKey(name: 'file_path') this.filePath,
       @JsonKey(name: 'file_hash') this.fileHash,
@@ -802,6 +817,10 @@ class _$InvoiceModelImpl implements _InvoiceModel {
   @override
   @JsonKey(name: 'invoice_code')
   final String? invoiceCode;
+// 报销集关联
+  @override
+  @JsonKey(name: 'reimbursement_set_id')
+  final String? reimbursementSetId;
 // 文件信息
   @override
   @JsonKey(name: 'file_url')
@@ -913,7 +932,7 @@ class _$InvoiceModelImpl implements _InvoiceModel {
 
   @override
   String toString() {
-    return 'InvoiceModel(id: $id, invoiceNumber: $invoiceNumber, invoiceDate: $invoiceDate, consumptionDate: $consumptionDate, userId: $userId, sellerName: $sellerName, buyerName: $buyerName, sellerTaxId: $sellerTaxId, buyerTaxId: $buyerTaxId, amount: $amount, totalAmount: $totalAmount, taxAmount: $taxAmount, currency: $currency, category: $category, expenseCategory: $expenseCategory, primaryCategoryName: $primaryCategoryName, status: $status, invoiceType: $invoiceType, invoiceCode: $invoiceCode, fileUrl: $fileUrl, filePath: $filePath, fileHash: $fileHash, fileSize: $fileSize, processingStatus: $processingStatus, isVerified: $isVerified, verificationNotes: $verificationNotes, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, source: $source, sourceMetadata: $sourceMetadata, emailTaskId: $emailTaskId, tags: $tags, extractedData: $extractedData, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, completedAt: $completedAt, startedAt: $startedAt, lastActivityAt: $lastActivityAt, version: $version, createdBy: $createdBy, updatedBy: $updatedBy)';
+    return 'InvoiceModel(id: $id, invoiceNumber: $invoiceNumber, invoiceDate: $invoiceDate, consumptionDate: $consumptionDate, userId: $userId, sellerName: $sellerName, buyerName: $buyerName, sellerTaxId: $sellerTaxId, buyerTaxId: $buyerTaxId, amount: $amount, totalAmount: $totalAmount, taxAmount: $taxAmount, currency: $currency, category: $category, expenseCategory: $expenseCategory, primaryCategoryName: $primaryCategoryName, status: $status, invoiceType: $invoiceType, invoiceCode: $invoiceCode, reimbursementSetId: $reimbursementSetId, fileUrl: $fileUrl, filePath: $filePath, fileHash: $fileHash, fileSize: $fileSize, processingStatus: $processingStatus, isVerified: $isVerified, verificationNotes: $verificationNotes, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, source: $source, sourceMetadata: $sourceMetadata, emailTaskId: $emailTaskId, tags: $tags, extractedData: $extractedData, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, completedAt: $completedAt, startedAt: $startedAt, lastActivityAt: $lastActivityAt, version: $version, createdBy: $createdBy, updatedBy: $updatedBy)';
   }
 
   @override
@@ -955,6 +974,8 @@ class _$InvoiceModelImpl implements _InvoiceModel {
                 other.invoiceType == invoiceType) &&
             (identical(other.invoiceCode, invoiceCode) ||
                 other.invoiceCode == invoiceCode) &&
+            (identical(other.reimbursementSetId, reimbursementSetId) ||
+                other.reimbursementSetId == reimbursementSetId) &&
             (identical(other.fileUrl, fileUrl) || other.fileUrl == fileUrl) &&
             (identical(other.filePath, filePath) ||
                 other.filePath == filePath) &&
@@ -1023,6 +1044,7 @@ class _$InvoiceModelImpl implements _InvoiceModel {
         status,
         invoiceType,
         invoiceCode,
+        reimbursementSetId,
         fileUrl,
         filePath,
         fileHash,
@@ -1086,6 +1108,7 @@ abstract class _InvoiceModel implements InvoiceModel {
       final InvoiceStatus status,
       @JsonKey(name: 'invoice_type') final String? invoiceType,
       @JsonKey(name: 'invoice_code') final String? invoiceCode,
+      @JsonKey(name: 'reimbursement_set_id') final String? reimbursementSetId,
       @JsonKey(name: 'file_url') final String? fileUrl,
       @JsonKey(name: 'file_path') final String? filePath,
       @JsonKey(name: 'file_hash') final String? fileHash,
@@ -1169,7 +1192,10 @@ abstract class _InvoiceModel implements InvoiceModel {
   String? get invoiceType;
   @override
   @JsonKey(name: 'invoice_code')
-  String? get invoiceCode; // 文件信息
+  String? get invoiceCode; // 报销集关联
+  @override
+  @JsonKey(name: 'reimbursement_set_id')
+  String? get reimbursementSetId; // 文件信息
   @override
   @JsonKey(name: 'file_url')
   String? get fileUrl;

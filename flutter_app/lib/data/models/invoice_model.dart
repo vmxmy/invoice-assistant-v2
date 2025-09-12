@@ -35,6 +35,9 @@ class InvoiceModel with _$InvoiceModel {
     @Default(InvoiceStatus.unsubmitted) InvoiceStatus status,
     @JsonKey(name: 'invoice_type') String? invoiceType,
     @JsonKey(name: 'invoice_code') String? invoiceCode,
+    
+    // 报销集关联
+    @JsonKey(name: 'reimbursement_set_id') String? reimbursementSetId,
 
     // 文件信息
     @JsonKey(name: 'file_url') String? fileUrl,
@@ -111,6 +114,7 @@ extension InvoiceModelToEntity on InvoiceModel {
       status: status,
       invoiceType: invoiceType,
       invoiceCode: invoiceCode,
+      reimbursementSetId: reimbursementSetId,
       fileUrl: fileUrl,
       filePath: filePath,
       fileHash: fileHash,
@@ -175,6 +179,7 @@ extension InvoiceEntityToModel on InvoiceEntity {
       status: status,
       invoiceType: invoiceType,
       invoiceCode: invoiceCode,
+      reimbursementSetId: reimbursementSetId,
       fileUrl: fileUrl,
       filePath: filePath,
       fileHash: fileHash,

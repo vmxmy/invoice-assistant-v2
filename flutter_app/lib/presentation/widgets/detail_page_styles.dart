@@ -161,8 +161,6 @@ class DetailPageStyles {
     Color? textColor,
     Color? iconColor,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>代码质量检测报告</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .warning { color: #ff6b6b; }
+        .success { color: #51cf66; }
+    </style>
+</head>
+<body>
+<h1>代码质量检测报告</h3>
+</h3>
+<strong>生成时间</strong>: 2025年 9月13日 星期六 03时25分48秒 CST</h3>
+<strong>项目路径</strong>: /Users/xumingyang/app/invoice-assistant-v2/flutter_app</h3>
+<strong>Flutter版本</strong>: Flutter 3.35.3 • channel stable • https://github.com/flutter/flutter.git</h3>
+<strong>Dart版本</strong>: Dart SDK version: 3.9.2 (stable) (Wed Aug 27 03:49:40 2025 -0700) on "macos_arm64"</h3>
+</h3>
+</h1>
+<h2>代码统计</h3>
+</h3>
+| 类型 | 数量 |</h3>
+|------|------|</h3>
+| Dart 文件 | 107 |</h3>
+| 生成文件 | 4 |</h3>
+| 总行数 | 32785 |</h3>
+</h3>
+</h1>
+<h2>死代码检测</h3>
+</h3>
+</h2>
+<h3>可能未使用的文件</h3>
+</h3>
+<li>`lib/core/cache/enhanced_cache_manager.dart` - 可能未被引用</h3>
+<li>`lib/core/network/network_info.dart` - 可能未被引用</h3>
+<li>`lib/core/network/optimized_network_service.dart` - 可能未被引用</h3>
+<li>`lib/core/utils/accessibility_validator.dart` - 可能未被引用</h3>
+<li>`lib/core/events/alternative_solutions.dart` - 可能未被引用</h3>
+<li>`lib/core/data/smart_pagination_manager.dart` - 可能未被引用</h3>
+<li>`lib/core/animations/page_transitions.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/atoms/app_divider.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/error_widget.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/loading_widget.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/organisms/invoice_card/invoice_card_selection.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/organisms/invoice_grid_view.dart` - 可能未被引用</h3>
+<li>`lib/core/widgets/organisms/reimbursement_set_grid_view.dart` - 可能未被引用</h3>
+<li>`lib/data/dtos/invoice_dto.dart` - 可能未被引用</h3>
+<li>`lib/domain/entities/dynamic_invoice_entity.dart` - 可能未被引用</h3>
+<li>`lib/presentation/state/app_state.dart` - 可能未被引用</h3>
+<li>`lib/presentation/pages/event_bus_test_page.dart` - 可能未被引用</h3>
+<li>`lib/presentation/pages/analysis_page.dart` - 可能未被引用</h3>
+<li>`lib/presentation/widgets/invoice_image_viewer.dart` - 可能未被引用</h3>
+</h3>
+</h2>
+<h3>依赖概况</h3>
+</h3>
+<pre><code></h3>
+Dart SDK 3.9.2</h3>
+Flutter SDK 3.35.3</h3>
+invoice_assistant 1.0.0+1</h3>
+├── archive 3.6.1</h3>
+│   ├── crypto...</h3>
+│   └── path...</h3>
+├── build_runner 2.4.13</h3>
+│   ├── analyzer 6.4.1</h3>
+│   │   ├── _fe_analyzer_shared 67.0.0</h3>
+│   │   │   └── meta...</h3>
+│   │   ├── collection...</h3>
+│   │   ├── convert...</h3>
+│   │   ├── crypto...</h3>
+│   │   ├── glob...</h3>
+│   │   ├── meta...</h3>
+│   │   ├── package_config...</h3>
+│   │   ├── path...</h3>
+│   │   ├── pub_semver...</h3>
+│   │   ├── source_span...</h3>
+│   │   ├── watcher...</h3>
+...</h3>
+<pre><code></h3>
+</h3>
+</h2>
+<h3>潜在的未使用导入</h3>
+</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:2:import 'package:flutter_bloc/flutter_bloc.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:5:import '../../domain/exceptions/invoice_exceptions.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:10:import '../../domain/entities/invoice_entity.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:11:import '../../domain/repositories/invoice_repository.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:13:import '../../core/config/app_config.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:14:import '../../core/events/app_event_bus.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:15:import '../widgets/optimistic_ui_handler.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:17:import 'invoice_event.dart';</h3>
+<li>lib/presentation/bloc/invoice_bloc.dart:18:import 'invoice_state.dart';</h3>
+<li>lib/presentation/bloc/reimbursement_set_state.dart:1:import 'package:equatable/equatable.dart';</h3>
+<li>lib/presentation/bloc/reimbursement_set_state.dart:2:import '../../domain/entities/reimbursement_set_entity.dart';</h3>
+<li>lib/presentation/bloc/reimbursement_set_state.dart:3:import '../../domain/entities/invoice_entity.dart';</h3>
+<li>lib/presentation/bloc/reimbursement_set_state.dart:4:import '../../domain/repositories/reimbursement_set_repository.dart';</h3>
+</h3>
+</h2>
+<h3>代码复杂度指标</h3>
+</h3>
+| 指标 | 值 |</h3>
+|------|------|</h3>
+| 平均文件长度 | 638 行 |</h3>
+| 最长文件 | total (35095 行) |</h3>
+| 类总数估计 | 324 |</h3>
+</h3>
+</h1>
+<h2>建议</h3>
+</h3>
+</h2>
+<h3>🔍 代码清理建议</h3>
+1. 手动验证上述"可能未使用"的文件是否真的可以删除</h3>
+2. 检查导入语句，移除真正未使用的导入</h3>
+3. 使用专业工具如 `dead_code_analyzer` 进行深度分析</h3>
+</h3>
+</h2>
+<h3>⚠️ 重要提醒</h3>
+<li>**不要使用 `flutter analyze` 进行死代码检测** - 它有很高的误报率</h3>
+<li>删除任何代码前都要仔细验证</h3>
+<li>优先删除明显未使用的导入和变量</h3>
+</h3>
+</h2>
+<h3>🛠️ 推荐工具</h3>
+<li>`dead_code_analyzer` - 专业死代码检测</h3>
+<li>VS Code "Find All References" - IDE 级别的引用查找</h3>
+<li>`ripgrep` - 命令行搜索验证</h3>
+</h3>
+---</h3>
+*报告生成于: 2025年 9月13日 星期六 03时25分51秒 CST*</h3>
+</body>
+</html>

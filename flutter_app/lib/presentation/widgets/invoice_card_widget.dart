@@ -12,6 +12,7 @@ import '../../core/widgets/organisms/invoice_card/invoice_card_header.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_body.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_actions.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
+import '../../core/widgets/molecules/reimbursement_set_badge.dart';
 import 'unified_bottom_sheet.dart';
 
 /// 发票卡片组件 - 展示单个发票的信息
@@ -25,6 +26,18 @@ class InvoiceCardWidget extends StatefulWidget {
   final bool isSelected;
   final VoidCallback? onLongPress;
   final VoidCallback? onSelectionToggle;
+  
+  /// 自定义左滑操作（从右往左滑动时显示的操作）
+  final List<SlideAction>? customStartActions;
+  
+  /// 自定义右滑操作（从左往右滑动时显示的操作）  
+  final List<SlideAction>? customEndActions;
+  
+  /// 是否启用滑动功能
+  final bool enableSwipe;
+  
+  /// 报销集跳转回调
+  final ValueChanged<String>? onReimbursementSetTap;
 
   const InvoiceCardWidget({
     super.key,
@@ -37,6 +50,10 @@ class InvoiceCardWidget extends StatefulWidget {
     this.isSelected = false,
     this.onLongPress,
     this.onSelectionToggle,
+    this.customStartActions,
+    this.customEndActions,
+    this.enableSwipe = true,
+    this.onReimbursementSetTap,
   });
 
   @override
@@ -62,6 +79,31 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     super.dispose();
   }
 
+  /// 构建头部右侧内容（报销集徽章 + 状态徽章）
+  Widget? _buildHeaderTrailing() {
+    // 在选择模式下，不显示额外的trailing内容，让选择框更突出
+    if (widget.isSelectionMode) {
+      return null;
+    }
+
+    final reimbursementBadge = ReimbursementSetBadge(
+      invoice: widget.invoice,
+      size: BadgeSize.small,
+      showLabel: false, // 在卡片头部只显示图标，节省空间
+      onTap: widget.onReimbursementSetTap != null && widget.invoice.reimbursementSetId != null
+          ? () => widget.onReimbursementSetTap!(widget.invoice.reimbursementSetId!)
+          : null,
+    );
+
+    // 如果发票在报销集中，显示报销集徽章
+    if (widget.invoice.isInReimbursementSet) {
+      return reimbursementBadge;
+    }
+
+    // 否则返回null，让InvoiceCardHeader显示默认的状态徽章
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -69,7 +111,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
       hint: AccessibilityConstants.cardActionHint,
       child: InvoiceCardSlidable(
         slidableKey: _slidableController.key,
-        enabled: !widget.isSelectionMode,
+        enabled: !widget.isSelectionMode && widget.enableSwipe,
         startActions: _buildStartActions(),
         endActions: _buildEndActions(),
         child: AppCard(
@@ -90,6 +132,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
                 isSelectionMode: widget.isSelectionMode,
                 isSelected: widget.isSelected,
                 onSelectionToggle: widget.onSelectionToggle,
+                trailing: _buildHeaderTrailing(),
               ),
               
               // 主体组件
@@ -113,6 +156,12 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 构建左滑操作
   List<SlideAction> _buildStartActions() {
+    // 如果提供了自定义操作，使用自定义操作
+    if (widget.customStartActions != null) {
+      return widget.customStartActions!;
+    }
+    
+    // 否则使用默认操作
     return [
       InvoiceSlideActions.share(
         onPressed: () => _handleDownloadAndShare(context),
@@ -122,6 +171,12 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 构建右滑操作
   List<SlideAction> _buildEndActions() {
+    // 如果提供了自定义操作，使用自定义操作
+    if (widget.customEndActions != null) {
+      return widget.customEndActions!;
+    }
+    
+    // 否则使用默认操作
     return [
       InvoiceSlideActions.delete(
         onPressed: () => _handleDelete(context),

@@ -186,28 +186,12 @@ class _ConfirmBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // 按钮组
-                Row(
+                // 按钮组 - iOS 标准垂直布局
+                Column(
                   children: [
-                    // 取消按钮
-                    Expanded(
-                      child: CupertinoButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Text(
-                          cancelText,
-                          style: AppTypography.labelLarge(context).copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // 确认按钮
-                    Expanded(
+                    // 确认按钮（主要操作在顶部）
+                    SizedBox(
+                      width: double.infinity,
                       child: CupertinoButton(
                         onPressed: () => Navigator.of(context).pop(true),
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -217,6 +201,24 @@ class _ConfirmBottomSheet extends StatelessWidget {
                           confirmText,
                           style: AppTypography.labelLarge(context).copyWith(
                             color: colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // 取消按钮（次要操作在底部）
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        color: colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Text(
+                          cancelText,
+                          style: AppTypography.labelLarge(context).copyWith(
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),

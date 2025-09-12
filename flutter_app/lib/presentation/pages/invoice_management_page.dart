@@ -37,6 +37,7 @@ import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
 import '../widgets/optimized_reimbursement_set_card.dart';
 import '../widgets/responsive_stats_card.dart';
+import '../../core/events/app_lifecycle_manager.dart';
 
 /// 发票管理页面 - 使用新的分层架构
 class InvoiceManagementPage extends StatefulWidget {
@@ -66,45 +67,32 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
 
 class _InvoiceManagementPageContentState
     extends State<_InvoiceManagementPageContent>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late AppLifecycleManager _lifecycleManager;
   final String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleManager = AppLifecycleManager();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
-      // print('📋 [TabController] 切换到Tab: ${_tabController.index}');
-      // 当切换到报销集页签(index=1)时，刷新报销集数据
-      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
-        // print('📋 [TabController] 切换到报销集页签，刷新数据');
-        context
-            .read<ReimbursementSetBloc>()
-            .add(const LoadReimbursementSets(refresh: true));
+      if (!_tabController.indexIsChanging) {
+        final tabNames = ['发票', '报销集', '统计'];
+        final tabName = _tabController.index < tabNames.length 
+            ? tabNames[_tabController.index] 
+            : '未知';
+            
+        // 通过生命周期管理器发送Tab切换事件
+        _lifecycleManager.onTabChanged(_tabController.index, tabName);
       }
     });
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      // print('🔄 [AppLifecycle] 应用恢复前台，当前页签: ${_tabController.index}');
-      // 如果当前在报销集页签，刷新数据
-      if (_tabController.index == 1) {
-        // print('🔄 [AppLifecycle] 刷新报销集数据');
-        context
-            .read<ReimbursementSetBloc>()
-            .add(const LoadReimbursementSets(refresh: true));
-      }
-    }
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleManager.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -1276,41 +1264,19 @@ class _ReimbursementSetsTab extends StatefulWidget {
 }
 
 class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
-    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // 加载报销集数据
+    // 加载报销集数据（应用生命周期现在通过事件总线处理）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context
           .read<ReimbursementSetBloc>()
           .add(const LoadReimbursementSets(refresh: true));
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      // 应用从后台恢复时刷新数据
-      _refreshData();
-    }
-  }
-
-  void _refreshData() {
-    context
-        .read<ReimbursementSetBloc>()
-        .add(const LoadReimbursementSets(refresh: true));
   }
 
   @override

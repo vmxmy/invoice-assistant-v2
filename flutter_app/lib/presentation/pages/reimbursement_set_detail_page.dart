@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../domain/entities/invoice_entity.dart';
@@ -8,6 +9,8 @@ import '../../core/theme/app_theme_constants.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
+import '../bloc/invoice_bloc.dart';
+import '../bloc/invoice_event.dart';
 import '../widgets/invoice_card_widget.dart';
 import '../widgets/skeleton_loader.dart';
 import '../widgets/app_feedback.dart';
@@ -380,6 +383,17 @@ class _ReimbursementSetDetailPageState
             child: InvoiceCardWidget(
               invoice: invoice,
               onTap: () => context.push('/invoice-detail/${invoice.id}'),
+              // 自定义右滑操作：根据报销集状态显示不同操作
+              customEndActions: _buildReimbursementSetDetailEndActions(invoice),
+              // 保持默认的左滑分享功能
+              customStartActions: [
+                InvoiceSlideActions.share(
+                  onPressed: () {
+                    // 这里需要从 InvoiceCardWidget 中提取分享逻辑
+                    // 或者创建一个分享处理器
+                  },
+                ),
+              ],
             ),
           );
         },
@@ -655,5 +669,108 @@ class _ReimbursementSetDetailPageState
             );
       }
     });
+  }
+
+  /// 从报销集中移出发票
+  void _removeInvoiceFromSet(String invoiceId) {
+    UnifiedBottomSheet.showConfirmDialog(
+      context: context,
+      title: '移出发票',
+      content: '确定要将此发票从当前报销集中移出吗？\n\n'
+          '• 发票将变为未分配状态\n'
+          '• 发票本身不会被删除\n'
+          '• 可以重新加入其他报销集',
+      confirmText: '确认移出',
+      cancelText: '取消',
+      confirmColor: Colors.orange,
+      icon: CupertinoIcons.minus_circle,
+    ).then((result) {
+      if (result == true) {
+        context.read<ReimbursementSetBloc>().add(
+              RemoveInvoicesFromReimbursementSet([invoiceId]),
+            );
+        
+        // 显示成功反馈
+        AppFeedback.success(
+          context,
+          '发票已从报销集中移出',
+        );
+        
+        // 刷新发票列表
+        setState(() {
+          _invoices.removeWhere((invoice) => invoice.id == invoiceId);
+        });
+      }
+    });
+  }
+
+  /// 删除发票
+  void _deleteInvoice(String invoiceId) {
+    UnifiedBottomSheet.showConfirmDialog(
+      context: context,
+      title: '删除发票',
+      content: '确定要删除此发票吗？\n\n'
+          '• 发票将被永久删除\n'
+          '• 此操作无法撤销\n'
+          '• 相关文件也将被清理\n'
+          '• 会自动从当前报销集中移除',
+      confirmText: '确认删除',
+      cancelText: '取消',
+      confirmColor: Theme.of(context).colorScheme.error,
+      icon: CupertinoIcons.delete,
+    ).then((result) {
+      if (result == true) {
+        // 直接删除发票（InvoiceBloc会发送删除事件，ReimbursementSetBloc会监听并自动刷新）
+        context.read<InvoiceBloc>().add(DeleteInvoice(invoiceId));
+        
+        // 显示成功反馈
+        AppFeedback.success(
+          context,
+          '发票已删除',
+        );
+        
+        // 刷新发票列表
+        setState(() {
+          _invoices.removeWhere((invoice) => invoice.id == invoiceId);
+        });
+      }
+    });
+  }
+
+  /// 构建报销单详情页面的右滑操作
+  List<SlideAction> _buildReimbursementSetDetailEndActions(InvoiceEntity invoice) {
+    List<SlideAction> actions = [];
+
+    // 检查报销集状态，决定显示什么操作
+    if (_reimbursementSet?.status == ReimbursementSetStatus.unsubmitted) {
+      // 未提交状态：可以移出和删除
+      actions.add(InvoiceSlideActions.remove(
+        onPressed: () => _removeInvoiceFromSet(invoice.id),
+      ));
+      actions.add(InvoiceSlideActions.delete(
+        onPressed: () => _deleteInvoice(invoice.id),
+      ));
+    } else if (_reimbursementSet?.status == ReimbursementSetStatus.submitted) {
+      // 已提交状态：只能查看，不能修改
+      actions.add(InvoiceSlideActions.view(
+        onPressed: () => context.push('/invoice-detail/${invoice.id}'),
+      ));
+    } else if (_reimbursementSet?.status == ReimbursementSetStatus.reimbursed) {
+      // 已报销状态：只能查看和归档
+      actions.add(InvoiceSlideActions.view(
+        onPressed: () => context.push('/invoice-detail/${invoice.id}'),
+      ));
+      actions.add(InvoiceSlideActions.archive(
+        onPressed: () => _archiveInvoice(invoice.id),
+      ));
+    }
+
+    return actions;
+  }
+
+  /// 归档发票
+  void _archiveInvoice(String invoiceId) {
+    // TODO: 实现归档逻辑
+    AppFeedback.info(context, '归档功能待实现');
   }
 }

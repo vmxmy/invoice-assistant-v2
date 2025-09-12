@@ -52,6 +52,7 @@ class ComponentThemeConstants {
   static const double buttonHeightLarge = 48.0;
   
   /// 底部导航栏高度（符合最小触摸目标）
+  /// 注意：现在使用自动高度，这个值仅供参考
   static const double bottomNavigationBarHeight = 56.0;
 
   // ==================== 图标尺寸常量 ====================
@@ -211,6 +212,44 @@ class ComponentThemeConstants {
   /// 大屏断点
   static const double breakpointLarge = 1440.0;
 
+  // ==================== 网格布局常量 ====================
+  
+  /// 网格最小卡片宽度 - 发票卡片
+  static const double gridInvoiceCardMinWidth = 280.0;
+  
+  /// 网格最小卡片宽度 - 报销集合卡片
+  static const double gridReimbursementSetCardMinWidth = 320.0;
+  
+  /// 网格卡片宽高比 - 发票卡片移动端
+  static const double gridInvoiceCardAspectRatioMobile = 3.5;
+  
+  /// 网格卡片宽高比 - 发票卡片平板端
+  static const double gridInvoiceCardAspectRatioTablet = 1.6;
+  
+  /// 网格卡片宽高比 - 发票卡片桌面端
+  static const double gridInvoiceCardAspectRatioDesktop = 1.4;
+  
+  /// 网格卡片宽高比 - 发票卡片大屏端
+  static const double gridInvoiceCardAspectRatioLarge = 1.3;
+  
+  /// 网格卡片宽高比 - 报销集合卡片移动端
+  static const double gridReimbursementSetCardAspectRatioMobile = 2.8;
+  
+  /// 网格卡片宽高比 - 报销集合卡片平板端
+  static const double gridReimbursementSetCardAspectRatioTablet = 1.4;
+  
+  /// 网格卡片宽高比 - 报销集合卡片桌面端
+  static const double gridReimbursementSetCardAspectRatioDesktop = 1.6;
+  
+  /// 网格卡片宽高比 - 报销集合卡片大屏端
+  static const double gridReimbursementSetCardAspectRatioLarge = 1.5;
+  
+  /// 网格最大横轴范围 - 发票卡片
+  static const double gridInvoiceCardMaxCrossAxisExtent = 300.0;
+  
+  /// 网格最大横轴范围 - 报销集合卡片
+  static const double gridReimbursementSetCardMaxCrossAxisExtent = 350.0;
+
   // ==================== 实用方法 ====================
   
   /// 根据屏幕宽度获取设备类型
@@ -245,6 +284,82 @@ class ComponentThemeConstants {
       case DeviceType.large:
         return 800.0;
     }
+  }
+
+  // ==================== 网格布局实用方法 ====================
+
+  /// 根据设备类型获取发票网格列数
+  static int getInvoiceGridCrossAxisCount(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.mobile:
+        return 1;
+      case DeviceType.tablet:
+        return 2;
+      case DeviceType.desktop:
+        return 3;
+      case DeviceType.large:
+        return 4;
+    }
+  }
+
+  /// 根据设备类型获取报销集合网格列数
+  static int getReimbursementSetGridCrossAxisCount(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.mobile:
+        return 1;
+      case DeviceType.tablet:
+        return 2;
+      case DeviceType.desktop:
+        return 2;
+      case DeviceType.large:
+        return 3;
+    }
+  }
+
+  /// 根据设备类型获取发票卡片宽高比
+  static double getInvoiceCardAspectRatio(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.mobile:
+        return gridInvoiceCardAspectRatioMobile;
+      case DeviceType.tablet:
+        return gridInvoiceCardAspectRatioTablet;
+      case DeviceType.desktop:
+        return gridInvoiceCardAspectRatioDesktop;
+      case DeviceType.large:
+        return gridInvoiceCardAspectRatioLarge;
+    }
+  }
+
+  /// 根据设备类型获取报销集合卡片宽高比
+  static double getReimbursementSetCardAspectRatio(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.mobile:
+        return gridReimbursementSetCardAspectRatioMobile;
+      case DeviceType.tablet:
+        return gridReimbursementSetCardAspectRatioTablet;
+      case DeviceType.desktop:
+        return gridReimbursementSetCardAspectRatioDesktop;
+      case DeviceType.large:
+        return gridReimbursementSetCardAspectRatioLarge;
+    }
+  }
+
+  /// 根据可用宽度计算最优网格列数
+  static int calculateOptimalCrossAxisCount({
+    required double availableWidth,
+    required double minItemWidth,
+    required double crossAxisSpacing,
+    required EdgeInsets padding,
+    int maxColumns = 4,
+  }) {
+    // 减去内边距
+    final contentWidth = availableWidth - padding.horizontal;
+    
+    // 计算理论上可以容纳的列数
+    final theoreticalCount = (contentWidth + crossAxisSpacing) / (minItemWidth + crossAxisSpacing);
+    
+    // 至少1列，最多不超过maxColumns
+    return theoreticalCount.floor().clamp(1, maxColumns);
   }
 }
 

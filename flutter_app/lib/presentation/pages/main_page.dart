@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/component_theme_constants.dart';
 import '../bloc/invoice_bloc.dart';
-// import '../bloc/invoice_event.dart'; // 未使用
 import 'invoice_management_page.dart';
 import 'invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
@@ -104,11 +103,10 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  /// 构建Cupertino标签栏（标准高度）
+  /// 构建Cupertino标签栏（自动高度）
   Widget _buildCupertinoTabBar(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      height: ComponentThemeConstants.bottomNavigationBarHeight,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
@@ -118,41 +116,44 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
       ),
-      child: CupertinoTabBar(
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.transparent, // 使用容器背景色
-        border: null, // 移除默认边框，使用容器边框
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              CupertinoIcons.doc_text_fill,
-              size: ComponentThemeConstants.iconSizeL,
+      child: SafeArea(
+        top: false, // 不需要顶部安全区域
+        child: CupertinoTabBar(
+          currentIndex: _currentIndex,
+          onTap: _onItemTapped,
+          backgroundColor: Colors.transparent, // 使用容器背景色
+          border: null, // 移除默认边框，使用容器边框
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(
+                CupertinoIcons.doc_text_fill,
+                size: ComponentThemeConstants.iconSizeL,
+              ),
+              label: '发票管理',
             ),
-            label: '发票管理',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              CupertinoIcons.cloud_upload_fill,
-              size: ComponentThemeConstants.iconSizeL,
+            BottomNavigationBarItem(
+              icon: Icon(
+                CupertinoIcons.cloud_upload_fill,
+                size: ComponentThemeConstants.iconSizeL,
+              ),
+              label: '上传发票',
             ),
-            label: '上传发票',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              CupertinoIcons.chart_bar_fill,
-              size: ComponentThemeConstants.iconSizeL,
+            BottomNavigationBarItem(
+              icon: Icon(
+                CupertinoIcons.chart_bar_fill,
+                size: ComponentThemeConstants.iconSizeL,
+              ),
+              label: '数据分析',
             ),
-            label: '数据分析',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              CupertinoIcons.settings_solid,
-              size: ComponentThemeConstants.iconSizeL,
+            BottomNavigationBarItem(
+              icon: Icon(
+                CupertinoIcons.settings_solid,
+                size: ComponentThemeConstants.iconSizeL,
+              ),
+              label: '设置',
             ),
-            label: '设置',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
