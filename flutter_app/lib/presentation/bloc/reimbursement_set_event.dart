@@ -12,9 +12,9 @@ abstract class ReimbursementSetEvent extends Equatable {
 /// 加载报销集列表
 class LoadReimbursementSets extends ReimbursementSetEvent {
   final bool refresh;
-  
+
   const LoadReimbursementSets({this.refresh = false});
-  
+
   @override
   List<Object?> get props => [refresh];
 }
@@ -24,13 +24,13 @@ class CreateReimbursementSet extends ReimbursementSetEvent {
   final String setName;
   final String? description;
   final List<String> invoiceIds;
-  
+
   const CreateReimbursementSet({
     required this.setName,
     this.description,
     required this.invoiceIds,
   });
-  
+
   @override
   List<Object?> get props => [setName, description, invoiceIds];
 }
@@ -40,13 +40,13 @@ class UpdateReimbursementSet extends ReimbursementSetEvent {
   final String setId;
   final String? setName;
   final String? description;
-  
+
   const UpdateReimbursementSet({
     required this.setId,
     this.setName,
     this.description,
   });
-  
+
   @override
   List<Object?> get props => [setId, setName, description];
 }
@@ -56,13 +56,13 @@ class UpdateReimbursementSetStatus extends ReimbursementSetEvent {
   final String setId;
   final ReimbursementSetStatus status;
   final String? approvalNotes;
-  
+
   const UpdateReimbursementSetStatus({
     required this.setId,
     required this.status,
     this.approvalNotes,
   });
-  
+
   @override
   List<Object?> get props => [setId, status, approvalNotes];
 }
@@ -70,9 +70,9 @@ class UpdateReimbursementSetStatus extends ReimbursementSetEvent {
 /// 删除报销集
 class DeleteReimbursementSet extends ReimbursementSetEvent {
   final String setId;
-  
+
   const DeleteReimbursementSet(this.setId);
-  
+
   @override
   List<Object?> get props => [setId];
 }
@@ -81,12 +81,12 @@ class DeleteReimbursementSet extends ReimbursementSetEvent {
 class AddInvoicesToReimbursementSet extends ReimbursementSetEvent {
   final String setId;
   final List<String> invoiceIds;
-  
+
   const AddInvoicesToReimbursementSet({
     required this.setId,
     required this.invoiceIds,
   });
-  
+
   @override
   List<Object?> get props => [setId, invoiceIds];
 }
@@ -94,9 +94,9 @@ class AddInvoicesToReimbursementSet extends ReimbursementSetEvent {
 /// 从报销集移除发票
 class RemoveInvoicesFromReimbursementSet extends ReimbursementSetEvent {
   final List<String> invoiceIds;
-  
+
   const RemoveInvoicesFromReimbursementSet(this.invoiceIds);
-  
+
   @override
   List<Object?> get props => [invoiceIds];
 }
@@ -104,9 +104,9 @@ class RemoveInvoicesFromReimbursementSet extends ReimbursementSetEvent {
 /// 获取报销集详情
 class LoadReimbursementSetDetail extends ReimbursementSetEvent {
   final String setId;
-  
+
   const LoadReimbursementSetDetail(this.setId);
-  
+
   @override
   List<Object?> get props => [setId];
 }
@@ -114,9 +114,9 @@ class LoadReimbursementSetDetail extends ReimbursementSetEvent {
 /// 获取报销集中的发票列表
 class LoadReimbursementSetInvoices extends ReimbursementSetEvent {
   final String setId;
-  
+
   const LoadReimbursementSetInvoices(this.setId);
-  
+
   @override
   List<Object?> get props => [setId];
 }
@@ -125,9 +125,9 @@ class LoadReimbursementSetInvoices extends ReimbursementSetEvent {
 class LoadUnassignedInvoices extends ReimbursementSetEvent {
   final int? limit;
   final int? offset;
-  
+
   const LoadUnassignedInvoices({this.limit, this.offset});
-  
+
   @override
   List<Object?> get props => [limit, offset];
 }

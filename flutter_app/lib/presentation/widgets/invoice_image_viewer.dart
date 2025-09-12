@@ -29,7 +29,10 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
           ),
           child: ClipRRect(
@@ -52,7 +55,7 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                       });
                       return child;
                     }
-                    
+
                     return Center(
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
@@ -70,11 +73,11 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                         });
                       }
                     });
-                    
+
                     // 调试输出错误信息
-                    print('🖼️ [图片加载失败] URL: ${widget.imageUrl}');
-                    print('🖼️ [错误详情] $error');
-                    
+                    // print('🖼️ [图片加载失败] URL: ${widget.imageUrl}');
+                    // print('🖼️ [错误详情] $error');
+
                     return Center(
                       child: Container(
                         padding: const EdgeInsets.all(16),
@@ -108,12 +111,16 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                             ),
                             const SizedBox(height: 8),
                             OutlinedButton.icon(
-                              onPressed: () => setState(() { _hasError = false; }),
+                              onPressed: () => setState(() {
+                                _hasError = false;
+                              }),
                               icon: const Icon(Icons.refresh, size: 16),
                               label: const Text('重试'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.grey,
-                                side: const BorderSide(color: Colors.grey),
+                                side: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
@@ -126,7 +133,7 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                     );
                   },
                 ),
-                
+
                 // 预览提示
                 if (!_hasError)
                   Positioned(
@@ -138,7 +145,10 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Row(
@@ -171,12 +181,13 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
 
   void _showFullScreenImage(BuildContext context) {
     if (_hasError) return;
-    
+
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierDismissible: true,
-        barrierColor: Colors.black87,
+        barrierColor:
+            Theme.of(context).colorScheme.scrim.withValues(alpha: 0.85),
         pageBuilder: (context, animation, secondaryAnimation) {
           return FullScreenImageViewer(
             imageUrl: widget.imageUrl,
@@ -223,7 +234,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    
+
     // 设置沉浸式状态栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
@@ -232,7 +243,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
   void dispose() {
     _transformationController.dispose();
     _animationController.dispose();
-    
+
     // 恢复状态栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
@@ -241,13 +252,14 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor:
+          Theme.of(context).colorScheme.surface.withValues(alpha: 0.0),
       body: GestureDetector(
         onTap: () => Navigator.of(context).pop(),
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.85),
           child: Stack(
             children: [
               // 图片查看器
@@ -290,7 +302,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                   ),
                 ),
               ),
-              
+
               // 顶部操作栏
               Positioned(
                 top: 0,
@@ -308,15 +320,21 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withValues(alpha: 0.7),
-                        Colors.transparent,
+                        Theme.of(context)
+                            .colorScheme
+                            .scrim
+                            .withValues(alpha: 0.7),
+                        Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.0),
                       ],
                     ),
                   ),
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close,
                           color: Colors.white,
                           size: 28,
@@ -325,7 +343,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.share,
                           color: Colors.white,
                           size: 24,
@@ -333,7 +351,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                         onPressed: _shareImage,
                       ),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.download,
                           color: Colors.white,
                           size: 24,
@@ -344,7 +362,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                   ),
                 ),
               ),
-              
+
               // 底部提示
               Positioned(
                 bottom: 0,
@@ -362,8 +380,14 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withValues(alpha: 0.7),
-                        Colors.transparent,
+                        Theme.of(context)
+                            .colorScheme
+                            .scrim
+                            .withValues(alpha: 0.7),
+                        Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.0),
                       ],
                     ),
                   ),
@@ -395,11 +419,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
         parent: _animationController,
         curve: Curves.easeInOut,
       ));
-      
+
       _animation!.addListener(() {
         _transformationController.value = _animation!.value;
       });
-      
+
       _animationController.forward(from: 0);
     }
   }
@@ -407,9 +431,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
   void _shareImage() {
     // 实现图片分享功能
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('分享功能开发中...'),
-        backgroundColor: Colors.black,
+      SnackBar(
+        content: const Text('分享功能开发中...'),
+        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
       ),
     );
   }
@@ -417,9 +441,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
   void _downloadImage() {
     // 实现图片下载功能
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('下载功能开发中...'),
-        backgroundColor: Colors.black,
+      SnackBar(
+        content: const Text('下载功能开发中...'),
+        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
       ),
     );
   }

@@ -13,7 +13,7 @@ class ThemeManager extends ChangeNotifier {
   static const String _appBarStyleKey = 'app_bar_style';
   static const String _useMaterial3Key = 'use_material3';
   static const String _defaultRadiusKey = 'default_radius';
-  
+
   FlexScheme _currentScheme = FlexScheme.deepBlue;
   ThemeMode _themeMode = ThemeMode.system;
   FlexSurfaceMode _surfaceMode = FlexSurfaceMode.levelSurfacesLowScaffold;
@@ -22,7 +22,7 @@ class ThemeManager extends ChangeNotifier {
   bool _useMaterial3 = true;
   double _defaultRadius = 14.0;
   ThemePlaygroundPreset? _currentPreset;
-  
+
   FlexScheme get currentScheme => _currentScheme;
   ThemeMode get themeMode => _themeMode;
   FlexSurfaceMode get surfaceMode => _surfaceMode;
@@ -30,16 +30,18 @@ class ThemeManager extends ChangeNotifier {
   FlexAppBarStyle get appBarStyle => _appBarStyle;
   bool get useMaterial3 => _useMaterial3;
   double get defaultRadius => _defaultRadius;
-  
+
   /// 获取当前主题的显示名称
   String get currentThemeName => _getThemeDisplayName(_currentScheme);
-  
+
   /// 获取预设主题（从配置文件加载）
-  static List<ThemePlaygroundPreset> get playgroundPresets => ThemePresetManager.presets;
-  
+  static List<ThemePlaygroundPreset> get playgroundPresets =>
+      ThemePresetManager.presets;
+
   /// 按分类获取预设主题
-  static Map<String, List<ThemePlaygroundPreset>> get presetsByCategory => ThemePresetManager.presetsByCategory;
-  
+  static Map<String, List<ThemePlaygroundPreset>> get presetsByCategory =>
+      ThemePresetManager.presetsByCategory;
+
   /// 所有可用的主题配置
   static const List<ThemeConfig> availableThemes = [
     // Material主题系列
@@ -55,7 +57,7 @@ class ThemeManager extends ChangeNotifier {
       description: 'Material Design 高对比度版本',
       category: 'Material',
     ),
-    
+
     // 蓝色系列
     ThemeConfig(
       scheme: FlexScheme.blue,
@@ -117,7 +119,7 @@ class ThemeManager extends ChangeNotifier {
       description: '深沉的红酒色',
       category: '红色系',
     ),
-    
+
     // 绿色系列
     ThemeConfig(
       scheme: FlexScheme.purpleM3,
@@ -149,7 +151,7 @@ class ThemeManager extends ChangeNotifier {
       description: '专业的法律灰色',
       category: '绿色系',
     ),
-    
+
     // 暖色系列
     ThemeConfig(
       scheme: FlexScheme.wasabi,
@@ -175,7 +177,7 @@ class ThemeManager extends ChangeNotifier {
       description: '温暖的琥珀黄',
       category: '暖色系',
     ),
-    
+
     // 冷色系列
     ThemeConfig(
       scheme: FlexScheme.vesuviusBurn,
@@ -213,7 +215,7 @@ class ThemeManager extends ChangeNotifier {
       description: '坚实的巨石灰',
       category: '冷色系',
     ),
-    
+
     // 特殊主题
     ThemeConfig(
       scheme: FlexScheme.damask,
@@ -270,7 +272,7 @@ class ThemeManager extends ChangeNotifier {
       category: '特殊',
     ),
   ];
-  
+
   /// 根据分类获取主题列表
   static Map<String, List<ThemeConfig>> get themesByCategory {
     final Map<String, List<ThemeConfig>> grouped = {};
@@ -279,14 +281,14 @@ class ThemeManager extends ChangeNotifier {
     }
     return grouped;
   }
-  
+
   /// 初始化主题管理器
   Future<void> initialize() async {
     // 首先加载预设配置
     await ThemePresetManager.loadPresets();
-    
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     // 加载保存的主题
     final savedTheme = prefs.getString(_themeKey);
     if (savedTheme != null) {
@@ -296,7 +298,7 @@ class ThemeManager extends ChangeNotifier {
       );
       _currentScheme = scheme;
     }
-    
+
     // 加载保存的主题模式
     final savedMode = prefs.getString(_themeModeKey);
     if (savedMode != null) {
@@ -305,7 +307,7 @@ class ThemeManager extends ChangeNotifier {
         orElse: () => ThemeMode.system,
       );
     }
-    
+
     // 加载表面模式
     final savedSurfaceMode = prefs.getString(_surfaceModeKey);
     if (savedSurfaceMode != null) {
@@ -314,10 +316,10 @@ class ThemeManager extends ChangeNotifier {
         orElse: () => FlexSurfaceMode.levelSurfacesLowScaffold,
       );
     }
-    
+
     // 加载混合级别
     _blendLevel = prefs.getInt(_blendLevelKey) ?? 15;
-    
+
     // 加载应用栏样式
     final savedAppBarStyle = prefs.getString(_appBarStyleKey);
     if (savedAppBarStyle != null) {
@@ -326,16 +328,16 @@ class ThemeManager extends ChangeNotifier {
         orElse: () => FlexAppBarStyle.primary,
       );
     }
-    
+
     // 加载Material 3设置
     _useMaterial3 = prefs.getBool(_useMaterial3Key) ?? true;
-    
+
     // 加载默认圆角
     _defaultRadius = prefs.getDouble(_defaultRadiusKey) ?? 14.0;
-    
+
     notifyListeners();
   }
-  
+
   /// 切换主题
   Future<void> setTheme(FlexScheme scheme) async {
     if (_currentScheme != scheme) {
@@ -344,7 +346,7 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   /// 切换主题模式（亮色/暗色/系统）
   Future<void> setThemeMode(ThemeMode mode) async {
     if (_themeMode != mode) {
@@ -353,7 +355,7 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   /// 应用 Themes Playground 预设配置
   Future<void> applyPlaygroundPreset(ThemePlaygroundPreset preset) async {
     _currentScheme = preset.scheme;
@@ -361,14 +363,14 @@ class ThemeManager extends ChangeNotifier {
     _blendLevel = preset.blendLevel;
     _appBarStyle = preset.appBarStyle;
     _defaultRadius = preset.defaultRadius;
-    
+
     // 保存当前应用的预设，用于主题创建时参考
     _currentPreset = preset;
-    
+
     await _saveAllSettings();
     notifyListeners();
   }
-  
+
   /// 自定义主题设置
   Future<void> setSurfaceMode(FlexSurfaceMode mode) async {
     if (_surfaceMode != mode) {
@@ -377,7 +379,7 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> setBlendLevel(int level) async {
     if (_blendLevel != level) {
       _blendLevel = level;
@@ -385,7 +387,7 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> setAppBarStyle(FlexAppBarStyle style) async {
     if (_appBarStyle != style) {
       _appBarStyle = style;
@@ -393,7 +395,7 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> setDefaultRadius(double radius) async {
     if (_defaultRadius != radius) {
       _defaultRadius = radius;
@@ -401,19 +403,19 @@ class ThemeManager extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   /// 保存主题到本地存储
   Future<void> _saveTheme() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_themeKey, _currentScheme.name);
   }
-  
+
   /// 保存主题模式到本地存储
   Future<void> _saveThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_themeModeKey, _themeMode.name);
   }
-  
+
   /// 保存所有设置
   Future<void> _saveAllSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -426,41 +428,41 @@ class ThemeManager extends ChangeNotifier {
       prefs.setDouble(_defaultRadiusKey, _defaultRadius),
     ]);
   }
-  
+
   /// 保存表面模式
   Future<void> _saveSurfaceMode() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_surfaceModeKey, _surfaceMode.name);
   }
-  
+
   /// 保存混合级别
   Future<void> _saveBlendLevel() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_blendLevelKey, _blendLevel);
   }
-  
+
   /// 保存应用栏样式
   Future<void> _saveAppBarStyle() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_appBarStyleKey, _appBarStyle.name);
   }
-  
+
   /// 保存默认圆角
   Future<void> _saveDefaultRadius() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_defaultRadiusKey, _defaultRadius);
   }
-  
+
   /// 获取亮色主题
   ThemeData get lightTheme => _createTheme(Brightness.light);
-  
+
   /// 获取暗色主题
   ThemeData get darkTheme => _createTheme(Brightness.dark);
-  
+
   /// 创建主题
   ThemeData _createTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    
+
     if (isDark) {
       // 检查是否使用自定义颜色
       if (_currentPreset?.isCustomColors == true) {
@@ -490,7 +492,8 @@ class ThemeManager extends ChangeNotifier {
             dialogRadius: 20.0,
             bottomSheetRadius: 24.0,
             bottomNavigationBarElevation: 6.0,
-            navigationBarLabelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            navigationBarLabelBehavior:
+                NavigationDestinationLabelBehavior.alwaysShow,
             navigationBarOpacity: 0.93,
             interactionEffects: true,
             tintedDisabledControls: true,
@@ -511,9 +514,10 @@ class ThemeManager extends ChangeNotifier {
           useMaterial3: _useMaterial3,
           swapLegacyOnMaterial3: true,
           // 支持Cupertino主题覆盖（当预设启用时）
-          cupertinoOverrideTheme: (_currentPreset?.useCupertinoOverride ?? false)
-            ? const CupertinoThemeData(applyThemeToAll: true)
-            : null,
+          cupertinoOverrideTheme:
+              (_currentPreset?.useCupertinoOverride ?? false)
+                  ? const CupertinoThemeData(applyThemeToAll: true)
+                  : null,
         );
       } else {
         return FlexThemeData.dark(
@@ -542,7 +546,8 @@ class ThemeManager extends ChangeNotifier {
             dialogRadius: 20.0,
             bottomSheetRadius: 24.0,
             bottomNavigationBarElevation: 6.0,
-            navigationBarLabelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            navigationBarLabelBehavior:
+                NavigationDestinationLabelBehavior.alwaysShow,
             navigationBarOpacity: 0.93,
             interactionEffects: true,
             tintedDisabledControls: true,
@@ -563,13 +568,14 @@ class ThemeManager extends ChangeNotifier {
           useMaterial3: _useMaterial3,
           swapLegacyOnMaterial3: true,
           // 支持Cupertino主题覆盖（当预设启用时）
-          cupertinoOverrideTheme: (_currentPreset?.useCupertinoOverride ?? false)
-            ? const CupertinoThemeData(applyThemeToAll: true)
-            : null,
+          cupertinoOverrideTheme:
+              (_currentPreset?.useCupertinoOverride ?? false)
+                  ? const CupertinoThemeData(applyThemeToAll: true)
+                  : null,
         );
       }
     }
-    
+
     return FlexThemeData.light(
       scheme: _currentScheme,
       surfaceMode: _surfaceMode,
@@ -587,8 +593,10 @@ class ThemeManager extends ChangeNotifier {
         alignedDropdown: _currentPreset?.alignedDropdown ?? true,
         useInputDecoratorThemeInDialogs: true,
         inputDecoratorIsFilled: _currentPreset?.inputDecoratorIsFilled ?? false,
-        inputDecoratorBorderType: _currentPreset?.inputDecoratorBorderType ?? FlexInputBorderType.outline,
-        navigationRailUseIndicator: _currentPreset?.navigationRailUseIndicator ?? false,
+        inputDecoratorBorderType: _currentPreset?.inputDecoratorBorderType ??
+            FlexInputBorderType.outline,
+        navigationRailUseIndicator:
+            _currentPreset?.navigationRailUseIndicator ?? false,
         defaultRadius: _defaultRadius,
         cardRadius: _defaultRadius + 4.0,
         elevatedButtonRadius: _defaultRadius - 2.0,
@@ -599,7 +607,8 @@ class ThemeManager extends ChangeNotifier {
         dialogRadius: _defaultRadius + 6.0,
         bottomSheetRadius: _defaultRadius + 10.0,
         bottomNavigationBarElevation: isDark ? 6.0 : 8.0,
-        navigationBarLabelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        navigationBarLabelBehavior:
+            NavigationDestinationLabelBehavior.alwaysShow,
         navigationBarOpacity: isDark ? 0.93 : 0.96,
         interactionEffects: _currentPreset?.interactionEffects ?? true,
         tintedDisabledControls: _currentPreset?.tintedDisabledControls ?? true,
@@ -621,11 +630,11 @@ class ThemeManager extends ChangeNotifier {
       swapLegacyOnMaterial3: true,
       // 支持Cupertino主题覆盖（当预设启用时）
       cupertinoOverrideTheme: (_currentPreset?.useCupertinoOverride ?? false)
-        ? const CupertinoThemeData(applyThemeToAll: true)
-        : null,
+          ? const CupertinoThemeData(applyThemeToAll: true)
+          : null,
     );
   }
-  
+
   /// 获取主题显示名称
   String _getThemeDisplayName(FlexScheme scheme) {
     final config = availableThemes.firstWhere(
@@ -639,7 +648,7 @@ class ThemeManager extends ChangeNotifier {
     );
     return config.name;
   }
-  
+
   /// 获取主题描述
   String getThemeDescription(FlexScheme scheme) {
     final config = availableThemes.firstWhere(
@@ -653,25 +662,25 @@ class ThemeManager extends ChangeNotifier {
     );
     return config.description;
   }
-  
+
   /// 预览主题颜色
   ColorScheme getPreviewColorScheme(FlexScheme scheme, Brightness brightness) {
     final themeData = FlexThemeData.light(
       scheme: scheme,
       useMaterial3: true,
     );
-    return brightness == Brightness.dark 
-      ? FlexThemeData.dark(scheme: scheme, useMaterial3: true).colorScheme
-      : themeData.colorScheme;
+    return brightness == Brightness.dark
+        ? FlexThemeData.dark(scheme: scheme, useMaterial3: true).colorScheme
+        : themeData.colorScheme;
   }
-  
+
   /// 从 Themes Playground URL 解析配置
   static ThemePlaygroundPreset? parsePlaygroundUrl(String url) {
     try {
       final uri = Uri.parse(url);
       final config = uri.queryParameters['config'];
       if (config == null) return null;
-      
+
       // 在实际应用中，这里会解码 Base64 + gzip 数据
       // 目前我们使用您提供的配置创建一个预设
       return const ThemePlaygroundPreset(
@@ -698,10 +707,9 @@ class ThemeConfig {
     required this.description,
     required this.category,
   });
-  
+
   final FlexScheme scheme;
   final String name;
   final String description;
   final String category;
 }
-

@@ -18,7 +18,7 @@ class GetInvoicesUseCase {
     if (page < 1) {
       throw ArgumentError('页码必须大于0');
     }
-    
+
     if (pageSize < 1 || pageSize > 100) {
       throw ArgumentError('每页大小必须在1-100之间');
     }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/invoice_entity.dart';
@@ -8,15 +7,16 @@ import '../../domain/value_objects/invoice_status.dart';
 import '../bloc/invoice_bloc.dart';
 import '../bloc/invoice_event.dart';
 import '../bloc/invoice_state.dart';
-import '../widgets/invoice_pdf_viewer.dart';
+// import '../widgets/invoice_pdf_viewer.dart'; // 未使用
 import '../widgets/adaptive_pdf_container.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/invoice_status_badge.dart';
+import '../widgets/detail_page_styles.dart';
 
 /// 发票详情页面 - iOS风格设计
 class InvoiceDetailPage extends StatefulWidget {
   final String invoiceId;
-  
+
   const InvoiceDetailPage({
     super.key,
     required this.invoiceId,
@@ -27,7 +27,6 @@ class InvoiceDetailPage extends StatefulWidget {
 }
 
 class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
-  bool _isEditing = false;
   bool _showAdvancedInfo = false;
 
   @override
@@ -57,15 +56,15 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
         if (state is InvoiceDetailLoading) {
           return _buildLoadingPage();
         }
-        
+
         if (state is InvoiceError) {
           return _buildErrorPage(state.message);
         }
-        
+
         if (state is InvoiceDetailLoaded) {
           return _buildDetailPage(state.invoice);
         }
-        
+
         return _buildErrorPage('发票未找到');
       },
     );
@@ -125,7 +124,9 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                context.read<InvoiceBloc>().add(LoadInvoiceDetail(widget.invoiceId));
+                context
+                    .read<InvoiceBloc>()
+                    .add(LoadInvoiceDetail(widget.invoiceId));
               },
               child: const Text('重试'),
             ),
@@ -138,13 +139,13 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   Widget _buildDetailPage(InvoiceEntity invoice) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           // 可折叠的应用栏 - 显示发票图片或状态
           _buildSliverAppBar(invoice, colorScheme),
-          
+
           // 主要内容区域
           SliverToBoxAdapter(
             child: Padding(
@@ -155,22 +156,23 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                   // 第一层：核心信息卡片
                   _buildCoreInfoCard(invoice, colorScheme),
                   const SizedBox(height: 16),
-                  
+
                   // 第二层：基本信息卡片
                   _buildBasicInfoCard(invoice, colorScheme),
                   const SizedBox(height: 16),
-                  
+
                   // PDF查看器容器
-                  if (invoice.hasFile) _buildPdfViewerCard(invoice, colorScheme),
+                  if (invoice.hasFile)
+                    _buildPdfViewerCard(invoice, colorScheme),
                   if (invoice.hasFile) const SizedBox(height: 16),
-                  
+
                   // 第三层：详细信息 (可展开)
                   _buildAdvancedInfoCard(invoice, colorScheme),
                   const SizedBox(height: 16),
-                  
+
                   // 操作按钮区域
                   _buildActionButtons(invoice, colorScheme),
-                  
+
                   // 底部安全区域
                   const SizedBox(height: 32),
                 ],
@@ -186,51 +188,6 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     return SliverAppBar(
       floating: false,
       pinned: true,
-      actions: [
-        IconButton(
-          icon: Icon(_isEditing ? CupertinoIcons.checkmark : CupertinoIcons.pencil),
-          onPressed: () {
-            setState(() {
-              _isEditing = !_isEditing;
-            });
-          },
-        ),
-        PopupMenuButton<String>(
-          onSelected: _handleMenuAction,
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'share',
-              child: Row(
-                children: [
-                  Icon(CupertinoIcons.share, size: 18),
-                  SizedBox(width: 8),
-                  Text('分享'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'export',
-              child: Row(
-                children: [
-                  Icon(CupertinoIcons.cloud_download, size: 18),
-                  SizedBox(width: 8),
-                  Text('导出'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(CupertinoIcons.delete, size: 18, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('删除', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
       title: Text(
         invoice.sellerName ?? invoice.invoiceNumber,
         style: const TextStyle(fontSize: 16),
@@ -253,14 +210,12 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               children: [
                 Text(
                   '发票金额',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
+                  style: DetailPageStyles.labelText(context),
                 ),
                 InteractiveInvoiceStatusBadge(
                   invoice: invoice,
-                  onStatusChanged: (newStatus) => _updateInvoiceStatus(invoice, newStatus),
+                  onStatusChanged: (newStatus) =>
+                      _updateInvoiceStatus(invoice, newStatus),
                   size: BadgeSize.large,
                 ),
               ],
@@ -270,45 +225,41 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               alignment: Alignment.centerRight,
               child: Text(
                 invoice.formattedAmount,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
+                style: DetailPageStyles.amountText(context),
                 textAlign: TextAlign.right,
               ),
             ),
-            
+
             if (invoice.taxAmount != null && invoice.taxAmount! > 0) ...[
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   '含税额：¥${invoice.taxAmount!.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
+                  style: DetailPageStyles.secondaryText(context),
                   textAlign: TextAlign.right,
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            
+
             // 基本信息行
-            _buildInfoRow('开票日期', invoice.formattedDate, CupertinoIcons.calendar),
+            _buildInfoRow(
+                '开票日期', invoice.formattedDate, CupertinoIcons.calendar),
             if (invoice.consumptionDate != null)
-              _buildInfoRow('消费日期', invoice.formattedConsumptionDate ?? '', CupertinoIcons.cart),
+              _buildInfoRow('消费日期', invoice.formattedConsumptionDate ?? '',
+                  CupertinoIcons.cart),
             if (invoice.sellerName?.isNotEmpty == true)
-              _buildInfoRow('销售方', invoice.sellerName ?? '', CupertinoIcons.building_2_fill),
+              _buildInfoRow('销售方', invoice.sellerName ?? '',
+                  CupertinoIcons.building_2_fill),
           ],
         ),
       ),
     );
   }
 
-  /// 第二层：基本信息卡片  
+  /// 第二层：基本信息卡片
   Widget _buildBasicInfoCard(InvoiceEntity invoice, ColorScheme colorScheme) {
     return Card(
       elevation: 1,
@@ -319,26 +270,20 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
           children: [
             Text(
               '基本信息',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
+              style: DetailPageStyles.mainTitle(context),
             ),
             const SizedBox(height: 12),
-            
             _buildInfoRow('发票号码', invoice.invoiceNumber, CupertinoIcons.number),
-            
             if (invoice.buyerName?.isNotEmpty == true)
-              _buildInfoRow('购买方', invoice.buyerName ?? '', CupertinoIcons.person),
-            
+              _buildInfoRow(
+                  '购买方', invoice.buyerName ?? '', CupertinoIcons.person),
             if (invoice.invoiceType?.isNotEmpty == true)
-              _buildInfoRow('发票类型', invoice.invoiceType ?? '', Icons.category_outlined),
-            
+              _buildInfoRow(
+                  '发票类型', invoice.invoiceType ?? '', Icons.category_outlined),
             if (invoice.category?.isNotEmpty == true)
               _buildInfoRow('分类', invoice.category ?? '', Icons.label_outline),
-              
-            _buildInfoRow('数据来源', invoice.source.displayName, Icons.source_outlined),
+            _buildInfoRow(
+                '数据来源', invoice.source.displayName, Icons.source_outlined),
           ],
         ),
       ),
@@ -346,7 +291,8 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   }
 
   /// 第三层：详细信息卡片 (可展开)
-  Widget _buildAdvancedInfoCard(InvoiceEntity invoice, ColorScheme colorScheme) {
+  Widget _buildAdvancedInfoCard(
+      InvoiceEntity invoice, ColorScheme colorScheme) {
     return Card(
       elevation: 1,
       child: Padding(
@@ -372,51 +318,48 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                     ),
                   ),
                   Icon(
-                    _showAdvancedInfo 
-                        ? Icons.keyboard_arrow_up 
+                    _showAdvancedInfo
+                        ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
                     color: colorScheme.primary,
                   ),
                 ],
               ),
             ),
-            
             if (_showAdvancedInfo) ...[
               const SizedBox(height: 12),
-              
+
               // 税务信息
               if (invoice.sellerTaxId?.isNotEmpty == true)
-                _buildInfoRow('销售方税号', invoice.sellerTaxId ?? '', Icons.account_balance_outlined),
-              
+                _buildInfoRow('销售方税号', invoice.sellerTaxId ?? '',
+                    Icons.account_balance_outlined),
+
               if (invoice.buyerTaxId?.isNotEmpty == true)
-                _buildInfoRow('购买方税号', invoice.buyerTaxId ?? '', Icons.credit_card_outlined),
-              
+                _buildInfoRow('购买方税号', invoice.buyerTaxId ?? '',
+                    Icons.credit_card_outlined),
+
               // 验证信息
               _buildInfoRow(
-                '验证状态', 
-                invoice.isVerified ? '已验证' : '未验证', 
+                '验证状态',
+                invoice.isVerified ? '已验证' : '未验证',
                 invoice.isVerified ? Icons.verified : Icons.pending_outlined,
                 textColor: invoice.isVerified ? Colors.green : Colors.orange,
               ),
-              
+
               if (invoice.verifiedAt != null)
-                _buildInfoRow(
-                  '验证时间', 
-                  _formatDateTime(invoice.verifiedAt!), 
-                  Icons.schedule
-                ),
-              
+                _buildInfoRow('验证时间', _formatDateTime(invoice.verifiedAt!),
+                    Icons.schedule),
+
               // 文件信息
               if (invoice.hasFile) ...[
                 _buildInfoRow(
-                  '文件大小', 
-                  invoice.fileSize != null 
-                      ? _formatFileSize(invoice.fileSize!) 
-                      : '未知', 
-                  Icons.attachment
-                ),
+                    '文件大小',
+                    invoice.fileSize != null
+                        ? _formatFileSize(invoice.fileSize!)
+                        : '未知',
+                    Icons.attachment),
               ],
-              
+
               // 标签
               if (invoice.tags.isNotEmpty) ...[
                 const SizedBox(height: 8),
@@ -432,19 +375,23 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children: invoice.tags.map((tag) => Chip(
-                    label: Text(tag),
-                    visualDensity: VisualDensity.compact,
-                  )).toList(),
+                  children: invoice.tags
+                      .map((tag) => Chip(
+                            label: Text(tag),
+                            visualDensity: VisualDensity.compact,
+                          ))
+                      .toList(),
                 ),
               ],
-              
+
               // 时间信息
               if (invoice.createdAt != null)
-                _buildInfoRow('创建时间', _formatDateTime(invoice.createdAt!), Icons.add_circle_outline),
-              
+                _buildInfoRow('创建时间', _formatDateTime(invoice.createdAt!),
+                    Icons.add_circle_outline),
+
               if (invoice.updatedAt != null)
-                _buildInfoRow('更新时间', _formatDateTime(invoice.updatedAt!), Icons.update),
+                _buildInfoRow(
+                    '更新时间', _formatDateTime(invoice.updatedAt!), Icons.update),
             ],
           ],
         ),
@@ -476,7 +423,8 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   }
 
   /// 信息行组件
-  Widget _buildInfoRow(String label, String value, IconData icon, {Color? textColor}) {
+  Widget _buildInfoRow(String label, String value, IconData icon,
+      {Color? textColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -492,7 +440,10 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
             ),
           ),
           Expanded(
@@ -514,7 +465,6 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     );
   }
 
-
   // 工具方法
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
@@ -526,29 +476,15 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
-  // 事件处理
-  void _handleMenuAction(String action) {
-    switch (action) {
-      case 'share':
-        // 分享功能
-        break;
-      case 'export':
-        // 导出功能
-        break;
-      case 'delete':
-        _showDeleteConfirmation();
-        break;
-    }
-  }
 
   /// 更新发票状态
   void _updateInvoiceStatus(InvoiceEntity invoice, InvoiceStatus newStatus) {
     context.read<InvoiceBloc>().add(
-      UpdateInvoiceStatus(
-        invoiceId: invoice.id,
-        newStatus: newStatus,
-      ),
-    );
+          UpdateInvoiceStatus(
+            invoiceId: invoice.id,
+            newStatus: newStatus,
+          ),
+        );
   }
 
   void _shareInvoice(InvoiceEntity invoice) {
@@ -607,7 +543,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               ],
             ),
           ),
-          
+
           // PDF查看器容器 - 自适应高度
           Container(
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),

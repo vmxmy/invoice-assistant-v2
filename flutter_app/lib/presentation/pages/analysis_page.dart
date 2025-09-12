@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/icon_mapping.dart';
 
 /// 数据分析页面
 class AnalysisPage extends StatelessWidget {
@@ -102,11 +103,11 @@ class _AnalysisContentState extends State<_AnalysisContent>
           // 总体统计卡片
           _buildOverallStatsCard(),
           const SizedBox(height: 16),
-          
+
           // 环形图表
           _buildPieChartCard(),
           const SizedBox(height: 16),
-          
+
           // 快速统计
           _buildQuickStats(),
         ],
@@ -123,7 +124,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
           // 趋势图表
           _buildTrendChartCard(),
           const SizedBox(height: 16),
-          
+
           // 同比环比
           _buildComparisonCard(),
         ],
@@ -140,7 +141,7 @@ class _AnalysisContentState extends State<_AnalysisContent>
           // 分类柱状图
           _buildCategoryChartCard(),
           const SizedBox(height: 16),
-          
+
           // 分类详情
           _buildCategoryDetails(),
         ],
@@ -159,8 +160,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               '$_selectedPeriod统计',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -217,15 +218,15 @@ class _AnalysisContentState extends State<_AnalysisContent>
               TextSpan(
                 text: value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
               ),
               TextSpan(
                 text: unit,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: color,
-                ),
+                      color: color,
+                    ),
               ),
             ],
           ),
@@ -234,8 +235,11 @@ class _AnalysisContentState extends State<_AnalysisContent>
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
+              ),
         ),
         const SizedBox(height: 2),
         Text(
@@ -261,8 +265,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               '费用分布',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -280,18 +284,23 @@ class _AnalysisContentState extends State<_AnalysisContent>
                       ),
                     ),
                   ),
-                  
+
                   // 图例
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLegendItem('餐饮', AppColors.getCategoryColor(context, 0), 35),
-                        _buildLegendItem('交通', AppColors.getCategoryColor(context, 1), 25),
-                        _buildLegendItem('办公', AppColors.getCategoryColor(context, 2), 20),
-                        _buildLegendItem('住宿', AppColors.getCategoryColor(context, 3), 15),
-                        _buildLegendItem('其他', AppColors.getCategoryColor(context, 4), 5),
+                        _buildLegendItem(
+                            '餐饮', AppColors.getCategoryColor(context, 0), 35),
+                        _buildLegendItem(
+                            '交通', AppColors.getCategoryColor(context, 1), 25),
+                        _buildLegendItem(
+                            '办公', AppColors.getCategoryColor(context, 2), 20),
+                        _buildLegendItem(
+                            '住宿', AppColors.getCategoryColor(context, 3), 15),
+                        _buildLegendItem(
+                            '其他', AppColors.getCategoryColor(context, 4), 5),
                       ],
                     ),
                   ),
@@ -389,8 +398,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
           Text(
             '$percentage%',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
@@ -405,8 +414,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
         Text(
           '快速统计',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 12),
         Row(
@@ -435,7 +444,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
   }
 
   /// 构建快速统计卡片
-  Widget _buildQuickStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildQuickStatCard(
+      String label, String value, IconData icon, Color color) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -446,15 +456,18 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               value,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
             ),
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
+                  ),
             ),
           ],
         ),
@@ -473,8 +486,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               '发票趋势',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -491,7 +504,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           const days = ['1日', '7日', '14日', '21日', '28日'];
-                          if (value.toInt() >= 0 && value.toInt() < days.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < days.length) {
                             return Text(days[value.toInt()]);
                           }
                           return const Text('');
@@ -541,8 +555,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               '同期对比',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -568,15 +582,18 @@ class _AnalysisContentState extends State<_AnalysisContent>
         Text(
           value,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
+              ),
         ),
       ],
     );
@@ -593,8 +610,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
             Text(
               '分类统计',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -611,7 +628,8 @@ class _AnalysisContentState extends State<_AnalysisContent>
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
                           const categories = ['餐饮', '交通', '办公', '住宿', '其他'];
-                          if (value.toInt() >= 0 && value.toInt() < categories.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < categories.length) {
                             return Text(categories[value.toInt()]);
                           }
                           return const Text('');
@@ -630,11 +648,31 @@ class _AnalysisContentState extends State<_AnalysisContent>
                   ),
                   borderData: FlBorderData(show: false),
                   barGroups: [
-                    BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 4320, color: AppColors.getCategoryColor(context, 0))]),
-                    BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 3080, color: AppColors.getCategoryColor(context, 1))]),
-                    BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 2470, color: AppColors.getCategoryColor(context, 2))]),
-                    BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 1850, color: AppColors.getCategoryColor(context, 3))]),
-                    BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 620, color: AppColors.getCategoryColor(context, 4))]),
+                    BarChartGroupData(x: 0, barRods: [
+                      BarChartRodData(
+                          toY: 4320,
+                          color: AppColors.getCategoryColor(context, 0))
+                    ]),
+                    BarChartGroupData(x: 1, barRods: [
+                      BarChartRodData(
+                          toY: 3080,
+                          color: AppColors.getCategoryColor(context, 1))
+                    ]),
+                    BarChartGroupData(x: 2, barRods: [
+                      BarChartRodData(
+                          toY: 2470,
+                          color: AppColors.getCategoryColor(context, 2))
+                    ]),
+                    BarChartGroupData(x: 3, barRods: [
+                      BarChartRodData(
+                          toY: 1850,
+                          color: AppColors.getCategoryColor(context, 3))
+                    ]),
+                    BarChartGroupData(x: 4, barRods: [
+                      BarChartRodData(
+                          toY: 620,
+                          color: AppColors.getCategoryColor(context, 4))
+                    ]),
                   ],
                 ),
               ),
@@ -702,26 +740,16 @@ class _AnalysisContentState extends State<_AnalysisContent>
       trailing: Text(
         amount,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
       ),
     );
   }
 
   /// 获取分类图标
   IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case '餐饮费用':
-        return CupertinoIcons.house;
-      case '交通费用':
-        return CupertinoIcons.car;
-      case '办公费用':
-        return CupertinoIcons.briefcase;
-      case '住宿费用':
-        return CupertinoIcons.building_2_fill;
-      default:
-        return CupertinoIcons.ellipsis;
-    }
+    return IconMapping.getCategoryIcon(category,
+        fallback: CupertinoIcons.ellipsis);
   }
 }

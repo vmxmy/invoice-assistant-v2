@@ -44,9 +44,9 @@ enum InvoiceStatus {
 
   /// 是否为最终状态
   bool get isFinalStatus {
-    return this == InvoiceStatus.completed || 
-           this == InvoiceStatus.failed || 
-           this == InvoiceStatus.verified ||
-           this == InvoiceStatus.reimbursed;
+    return this == InvoiceStatus.completed ||
+        this == InvoiceStatus.failed ||
+        this == InvoiceStatus.verified ||
+        this == InvoiceStatus.reimbursed;
   }
 }

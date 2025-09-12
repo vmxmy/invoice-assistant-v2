@@ -6,7 +6,7 @@ import '../../core/config/app_config.dart';
 class DynamicEnumManager {
   static final DynamicEnumManager _instance = DynamicEnumManager._();
   static DynamicEnumManager get instance => _instance;
-  
+
   DynamicEnumManager._();
 
   // 缓存枚举值，避免重复查询
@@ -16,28 +16,33 @@ class DynamicEnumManager {
 
   /// 获取发票状态枚举值
   Future<List<EnumValue>> getInvoiceStatuses() async {
-    return _getEnumValues('invoice_status', 'SELECT DISTINCT status, status as display_name FROM invoices WHERE status IS NOT NULL ORDER BY status');
+    return _getEnumValues('invoice_status',
+        'SELECT DISTINCT status, status as display_name FROM invoices WHERE status IS NOT NULL ORDER BY status');
   }
 
   /// 获取发票来源枚举值
   Future<List<EnumValue>> getInvoiceSources() async {
-    return _getEnumValues('invoice_source', 'SELECT DISTINCT source, source as display_name FROM invoices WHERE source IS NOT NULL ORDER BY source');
+    return _getEnumValues('invoice_source',
+        'SELECT DISTINCT source, source as display_name FROM invoices WHERE source IS NOT NULL ORDER BY source');
   }
 
   /// 获取发票类型枚举值
   Future<List<EnumValue>> getInvoiceTypes() async {
-    return _getEnumValues('invoice_type', 'SELECT DISTINCT invoice_type, invoice_type as display_name FROM invoices WHERE invoice_type IS NOT NULL ORDER BY invoice_type');
+    return _getEnumValues('invoice_type',
+        'SELECT DISTINCT invoice_type, invoice_type as display_name FROM invoices WHERE invoice_type IS NOT NULL ORDER BY invoice_type');
   }
 
   /// 获取发票分类枚举值
   Future<List<EnumValue>> getInvoiceCategories() async {
-    return _getEnumValues('invoice_category', 'SELECT DISTINCT category, category as display_name FROM invoices WHERE category IS NOT NULL ORDER BY category');
+    return _getEnumValues('invoice_category',
+        'SELECT DISTINCT category, category as display_name FROM invoices WHERE category IS NOT NULL ORDER BY category');
   }
 
   /// 通用的枚举值获取方法
   Future<List<EnumValue>> _getEnumValues(String enumType, String query) async {
     // 检查缓存
-    if (_cachedEnums.containsKey(enumType) && _cacheTime.containsKey(enumType)) {
+    if (_cachedEnums.containsKey(enumType) &&
+        _cacheTime.containsKey(enumType)) {
       final cacheTime = _cacheTime[enumType]!;
       if (DateTime.now().difference(cacheTime) < _cacheExpiry) {
         return _cachedEnums[enumType]!;
@@ -47,7 +52,7 @@ class DynamicEnumManager {
     try {
       // 根据不同的枚举类型执行不同的查询
       List<Map<String, dynamic>> response;
-      
+
       switch (enumType) {
         case 'invoice_status':
           response = await SupabaseClientManager.client
@@ -106,7 +111,8 @@ class DynamicEnumManager {
       _cacheTime[enumType] = DateTime.now();
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('✅ 动态获取 $enumType 枚举值: ${enumValues.length} 项', tag: 'Debug');
+        AppLogger.debug('✅ 动态获取 $enumType 枚举值: ${enumValues.length} 项',
+            tag: 'Debug');
       }
 
       return enumValues;
@@ -114,7 +120,7 @@ class DynamicEnumManager {
       if (AppConfig.enableLogging) {
         AppLogger.debug('❌ 获取 $enumType 枚举值失败: $e', tag: 'Debug');
       }
-      
+
       // 返回默认值或缓存值
       return _cachedEnums[enumType] ?? _getDefaultValues(enumType);
     }

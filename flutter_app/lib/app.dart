@@ -59,7 +59,8 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                 create: (context) {
                   AppLogger.debug('创建全局唯一InvoiceBloc', tag: 'App');
                   final bloc = di.sl<InvoiceBloc>();
-                  AppLogger.debug('InvoiceBloc实例创建完成 [${bloc.hashCode}]', tag: 'App');
+                  AppLogger.debug('InvoiceBloc实例创建完成 [${bloc.hashCode}]',
+                      tag: 'App');
                   return bloc
                     ..add(const LoadInvoices(refresh: true))
                     ..add(const LoadInvoiceStats());
@@ -69,7 +70,9 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                 create: (context) {
                   AppLogger.debug('创建全局唯一ReimbursementSetBloc', tag: 'App');
                   final bloc = di.sl<ReimbursementSetBloc>();
-                  AppLogger.debug('ReimbursementSetBloc实例创建完成 [${bloc.hashCode}]', tag: 'App');
+                  AppLogger.debug(
+                      'ReimbursementSetBloc实例创建完成 [${bloc.hashCode}]',
+                      tag: 'App');
                   return bloc;
                 },
               ),
@@ -77,23 +80,24 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
             child: MaterialApp.router(
               title: AppConfig.appName,
               debugShowCheckedModeBanner: false,
-              
+
               // 使用 ThemeManager 动态主题管理
               theme: themeManager.lightTheme,
               darkTheme: themeManager.darkTheme,
               themeMode: themeManager.themeMode,
-              
+
               // 应用配置
               locale: const Locale('zh', 'CN'),
-              
+
               // 路由配置
               routerConfig: _router,
-              
+
               // 全局导航配置
               builder: (context, child) {
                 return MediaQuery(
                   // 强制文字缩放为1.0，保持设计一致性
-                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                  data: MediaQuery.of(context)
+                      .copyWith(textScaler: const TextScaler.linear(1.0)),
                   child: child!,
                 );
               },
@@ -108,20 +112,23 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
 /// 应用路由配置
 final _router = GoRouter(
   initialLocation: '/',
-  refreshListenable: GoRouterRefreshStream(SupabaseClientManager.authStateStream),
+  refreshListenable:
+      GoRouterRefreshStream(SupabaseClientManager.authStateStream),
   redirect: (context, state) {
     final session = Supabase.instance.client.auth.currentSession;
     final user = Supabase.instance.client.auth.currentUser;
     final isAuthenticated = session != null && user != null;
     final isLoginPage = state.uri.toString() == '/login';
-    
+
     if (AppConfig.enableLogging) {
-      AppLogger.debug('路由重定向检查 - 认证状态: $isAuthenticated, 当前页: ${state.uri}', tag: 'Auth');
+      AppLogger.debug('路由重定向检查 - 认证状态: $isAuthenticated, 当前页: ${state.uri}',
+          tag: 'Auth');
       if (user != null) {
-        AppLogger.debug('当前用户: ${user.email}, 会话过期: ${session?.expiresAt}', tag: 'Auth');
+        AppLogger.debug('当前用户: ${user.email}, 会话过期: ${session?.expiresAt}',
+            tag: 'Auth');
       }
     }
-    
+
     // 如果未登录且不在登录页，重定向到登录页
     if (!isAuthenticated && !isLoginPage) {
       if (AppConfig.enableLogging) {
@@ -129,7 +136,7 @@ final _router = GoRouter(
       }
       return '/login';
     }
-    
+
     // 如果已登录且在登录页，重定向到主页
     if (isAuthenticated && isLoginPage) {
       if (AppConfig.enableLogging) {
@@ -137,7 +144,7 @@ final _router = GoRouter(
       }
       return '/';
     }
-    
+
     return null;
   },
   routes: [

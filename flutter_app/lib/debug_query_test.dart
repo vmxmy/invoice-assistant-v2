@@ -4,7 +4,7 @@ import 'core/config/app_config.dart';
 
 /// 调试查询测试页面
 class DebugQueryTestPage extends StatefulWidget {
-  const DebugQueryTestPage({Key? key}) : super(key: key);
+  const DebugQueryTestPage({super.key});
 
   @override
   State<DebugQueryTestPage> createState() => _DebugQueryTestPageState();
@@ -37,7 +37,7 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
       // 2. 测试数据库连接
       _addOutput('\n2. 数据库连接测试:\n');
       try {
-        final testQuery = SupabaseClientManager.from('invoices').select('count');
+        // final testQuery = SupabaseClientManager.from('invoices').select('count'); // 未使用
         _addOutput('   ✅ 数据库连接正常\n');
       } catch (e) {
         _addOutput('   ❌ 数据库连接失败: $e\n');
@@ -50,13 +50,15 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
         final allRecords = await SupabaseClientManager.from('invoices')
             .select('id, user_id, status, created_at, invoice_number');
         _addOutput('   📊 表中总记录数: ${allRecords.length}\n');
-        
+
         if (allRecords.isNotEmpty) {
           _addOutput('   🔍 前3条记录:\n');
           for (int i = 0; i < 3 && i < allRecords.length; i++) {
             final record = allRecords[i];
-            _addOutput('     ${i + 1}. ID: ${record['id']?.toString().substring(0, 8)}...\n');
-            _addOutput('        user_id: ${record['user_id']?.toString().substring(0, 8)}...\n');
+            _addOutput(
+                '     ${i + 1}. ID: ${record['id']?.toString().substring(0, 8)}...\n');
+            _addOutput(
+                '        user_id: ${record['user_id']?.toString().substring(0, 8)}...\n');
             _addOutput('        status: ${record['status']}\n');
             _addOutput('        发票号: ${record['invoice_number']}\n');
           }
@@ -72,11 +74,12 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
             .select('id, user_id, status, invoice_number')
             .eq('user_id', currentUser.id);
         _addOutput('   📊 当前用户记录数: ${userRecords.length}\n');
-        
+
         if (userRecords.isNotEmpty) {
           _addOutput('   🔍 用户记录:\n');
           for (final record in userRecords) {
-            _addOutput('     - ${record['invoice_number']} (状态: ${record['status']})\n');
+            _addOutput(
+                '     - ${record['invoice_number']} (状态: ${record['status']})\n');
           }
         }
       } catch (e) {
@@ -94,7 +97,6 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
       } catch (e) {
         _addOutput('   ❌ 筛选查询失败: $e\n');
       }
-
     } catch (e) {
       _addOutput('\n❌ 调试测试失败: $e\n');
     }
@@ -105,7 +107,7 @@ class _DebugQueryTestPageState extends State<DebugQueryTestPage> {
       _debugOutput += text;
     });
     if (AppConfig.enableLogging) {
-      print('[DEBUG] $text');
+      // print('[DEBUG] $text');
     }
   }
 

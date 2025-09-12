@@ -8,13 +8,13 @@ class InvoiceCache {
 
   // 发票列表缓存
   final Map<String, _CacheEntry<List<InvoiceEntity>>> _listCache = {};
-  
+
   // 发票详情缓存
   final Map<String, _CacheEntry<InvoiceEntity>> _detailCache = {};
-  
+
   // 统计数据缓存
   _CacheEntry<int>? _countCache;
-  
+
   // 缓存配置
   static const Duration _defaultTtl = Duration(minutes: 5);
   static const Duration _countTtl = Duration(minutes: 2);
@@ -23,18 +23,18 @@ class InvoiceCache {
 
   /// 缓存发票列表
   void cacheInvoiceList(
-    String cacheKey, 
+    String cacheKey,
     List<InvoiceEntity> invoices, {
     Duration? ttl,
   }) {
     _cleanExpiredEntries(_listCache);
-    
+
     // 限制缓存大小
     if (_listCache.length >= _maxListCacheSize) {
       final oldestKey = _listCache.keys.first;
       _listCache.remove(oldestKey);
     }
-    
+
     _listCache[cacheKey] = _CacheEntry(
       data: invoices,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
@@ -47,29 +47,29 @@ class InvoiceCache {
     if (entry != null && !entry.isExpired) {
       return entry.data;
     }
-    
+
     // 清理过期条目
     if (entry != null && entry.isExpired) {
       _listCache.remove(cacheKey);
     }
-    
+
     return null;
   }
 
   /// 缓存发票详情
   void cacheInvoiceDetail(
-    String invoiceId, 
+    String invoiceId,
     InvoiceEntity invoice, {
     Duration? ttl,
   }) {
     _cleanExpiredEntries(_detailCache);
-    
+
     // 限制缓存大小
     if (_detailCache.length >= _maxDetailCacheSize) {
       final oldestKey = _detailCache.keys.first;
       _detailCache.remove(oldestKey);
     }
-    
+
     _detailCache[invoiceId] = _CacheEntry(
       data: invoice,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
@@ -82,12 +82,12 @@ class InvoiceCache {
     if (entry != null && !entry.isExpired) {
       return entry.data;
     }
-    
+
     // 清理过期条目
     if (entry != null && entry.isExpired) {
       _detailCache.remove(invoiceId);
     }
-    
+
     return null;
   }
 
@@ -104,12 +104,12 @@ class InvoiceCache {
     if (_countCache != null && !_countCache!.isExpired) {
       return _countCache!.data;
     }
-    
+
     // 清理过期条目
     if (_countCache != null && _countCache!.isExpired) {
       _countCache = null;
     }
-    
+
     return null;
   }
 
@@ -127,7 +127,7 @@ class InvoiceCache {
   /// 生成筛选条件哈希
   String? generateFiltersHash(dynamic filters) {
     if (filters == null) return null;
-    
+
     // 这里应该根据实际的筛选条件生成哈希
     // 简化实现，实际项目中应使用更复杂的哈希算法
     return filters.toString().hashCode.toString();
@@ -142,11 +142,11 @@ class InvoiceCache {
     if (invoiceId != null) {
       _detailCache.remove(invoiceId);
     }
-    
+
     if (invalidateList) {
       _listCache.clear();
     }
-    
+
     if (invalidateCount) {
       _countCache = null;
     }
@@ -162,13 +162,13 @@ class InvoiceCache {
   /// 清理过期条目
   void _cleanExpiredEntries<T>(Map<String, _CacheEntry<T>> cache) {
     final expiredKeys = <String>[];
-    
+
     cache.forEach((key, entry) {
       if (entry.isExpired) {
         expiredKeys.add(key);
       }
     });
-    
+
     for (final key in expiredKeys) {
       cache.remove(key);
     }
@@ -181,7 +181,8 @@ class InvoiceCache {
       'detailCacheSize': _detailCache.length,
       'hasCountCache': _countCache != null && !_countCache!.isExpired,
       'expiredListEntries': _listCache.values.where((e) => e.isExpired).length,
-      'expiredDetailEntries': _detailCache.values.where((e) => e.isExpired).length,
+      'expiredDetailEntries':
+          _detailCache.values.where((e) => e.isExpired).length,
     };
   }
 }

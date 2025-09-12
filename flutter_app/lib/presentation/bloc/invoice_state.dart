@@ -34,7 +34,8 @@ class InvoiceLoaded extends InvoiceState {
   });
 
   @override
-  List<Object> get props => [invoices, currentPage, totalCount, hasMore, isLoadingMore];
+  List<Object> get props =>
+      [invoices, currentPage, totalCount, hasMore, isLoadingMore];
 
   /// 创建加载更多状态的副本
   InvoiceLoaded copyWith({
@@ -123,14 +124,14 @@ class InvoiceCompleteState extends InvoiceState {
 
   @override
   List<Object?> get props => [
-    invoices, 
-    currentPage, 
-    totalCount, 
-    hasMore, 
-    isLoadingMore,
-    stats,
-    isLoadingStats,
-  ];
+        invoices,
+        currentPage,
+        totalCount,
+        hasMore,
+        isLoadingMore,
+        stats,
+        isLoadingStats,
+      ];
 
   InvoiceCompleteState copyWith({
     List<InvoiceEntity>? invoices,
@@ -181,7 +182,8 @@ class InvoiceUploading extends InvoiceState {
   bool get isAllCompleted => completedCount >= totalCount;
 
   /// 总体进度 (0.0 - 1.0)
-  double get overallProgress => totalCount > 0 ? completedCount / totalCount : 0.0;
+  double get overallProgress =>
+      totalCount > 0 ? completedCount / totalCount : 0.0;
 }
 
 /// 发票上传完成状态
@@ -199,7 +201,8 @@ class InvoiceUploadCompleted extends InvoiceState {
   });
 
   @override
-  List<Object> get props => [results, successCount, failureCount, duplicateCount];
+  List<Object> get props =>
+      [results, successCount, failureCount, duplicateCount];
 
   /// 是否有成功的上传
   bool get hasSuccess => successCount > 0;
@@ -250,7 +253,10 @@ class UploadProgress {
     );
   }
 
-  bool get isCompleted => stage == UploadStage.success || stage == UploadStage.duplicate || stage == UploadStage.error;
+  bool get isCompleted =>
+      stage == UploadStage.success ||
+      stage == UploadStage.duplicate ||
+      stage == UploadStage.error;
   bool get isError => stage == UploadStage.error;
   bool get isSuccess => stage == UploadStage.success;
   bool get isDuplicate => stage == UploadStage.duplicate;
@@ -258,13 +264,13 @@ class UploadProgress {
 
 /// 上传阶段
 enum UploadStage {
-  preparing,    // 准备中
-  hashing,      // 计算哈希
-  uploading,    // 上传中
-  processing,   // OCR处理中
-  success,      // 成功
-  duplicate,    // 重复
-  error,        // 错误
+  preparing, // 准备中
+  hashing, // 计算哈希
+  uploading, // 上传中
+  processing, // OCR处理中
+  success, // 成功
+  duplicate, // 重复
+  error, // 错误
 }
 
 /// 上传结果

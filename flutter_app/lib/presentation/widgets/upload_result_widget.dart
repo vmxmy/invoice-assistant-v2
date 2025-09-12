@@ -32,12 +32,12 @@ class UploadResultWidget extends StatelessWidget {
         // 结果摘要
         _buildResultSummary(context),
         const SizedBox(height: 24),
-        
+
         // 结果列表
         Expanded(
           child: _buildResultList(context),
         ),
-        
+
         // 操作按钮
         _buildActionButtons(context),
       ],
@@ -46,6 +46,7 @@ class UploadResultWidget extends StatelessWidget {
 
   /// 构建结果摘要
   Widget _buildResultSummary(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final hasFailure = failureCount > 0;
     final hasSuccess = successCount > 0;
     final hasDuplicate = duplicateCount > 0;
@@ -56,27 +57,27 @@ class UploadResultWidget extends StatelessWidget {
 
     if (hasFailure && hasSuccess) {
       // 既有成功又有失败
-      summaryColor = Colors.orange;
+      summaryColor = colorScheme.tertiary;
       summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '部分文件上传失败';
     } else if (hasFailure && !hasSuccess && !hasDuplicate) {
       // 只有失败
-      summaryColor = Colors.red;
+      summaryColor = colorScheme.error;
       summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '上传失败';
     } else if (hasSuccess && !hasFailure) {
       // 有成功，无失败
-      summaryColor = Colors.green;
+      summaryColor = colorScheme.primary;
       summaryIcon = CupertinoIcons.checkmark_circle_fill;
       summaryTitle = hasDuplicate ? '上传完成（含重复文件）' : '全部文件上传成功！';
     } else if (!hasSuccess && !hasFailure && hasDuplicate) {
       // 只有重复文件，没有成功和失败
-      summaryColor = Colors.amber;
+      summaryColor = colorScheme.tertiary;
       summaryIcon = CupertinoIcons.info_circle;
       summaryTitle = '文件重复处理完成';
     } else {
       // 兜底情况（可能包含失败+重复的情况）
-      summaryColor = Colors.orange;
+      summaryColor = colorScheme.tertiary;
       summaryIcon = CupertinoIcons.exclamationmark_triangle;
       summaryTitle = '处理完成';
     }
@@ -84,7 +85,7 @@ class UploadResultWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: summaryColor.withValues(alpha: 0.3)),
         boxShadow: [
@@ -128,7 +129,7 @@ class UploadResultWidget extends StatelessWidget {
                     Text(
                       '共处理 ${results.length} 个文件',
                       style: AppTypography.bodyMedium(context).copyWith(
-                        color: Colors.grey.shade600,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -136,9 +137,9 @@ class UploadResultWidget extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // 统计信息
           Row(
             children: [
@@ -146,7 +147,7 @@ class UploadResultWidget extends StatelessWidget {
                 _buildStatItem(
                   context,
                   CupertinoIcons.checkmark_circle_fill,
-                  Colors.green,
+                  colorScheme.primary,
                   '成功',
                   successCount,
                 ),
@@ -156,7 +157,7 @@ class UploadResultWidget extends StatelessWidget {
                 _buildStatItem(
                   context,
                   CupertinoIcons.doc_on_clipboard,
-                  Colors.amber,
+                  colorScheme.tertiary,
                   '重复',
                   duplicateCount,
                 ),
@@ -166,7 +167,7 @@ class UploadResultWidget extends StatelessWidget {
                 _buildStatItem(
                   context,
                   CupertinoIcons.exclamationmark_triangle,
-                  Colors.red,
+                  colorScheme.error,
                   '失败',
                   failureCount,
                 ),
@@ -230,17 +231,18 @@ class UploadResultWidget extends StatelessWidget {
 
   /// 构建单个结果项
   Widget _buildResultItem(BuildContext context, UploadResult result) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -254,7 +256,7 @@ class UploadResultWidget extends StatelessWidget {
             children: [
               Icon(
                 CupertinoIcons.doc_text,
-                color: Colors.red,
+                color: colorScheme.error,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -274,12 +276,12 @@ class UploadResultWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // 操作按钮
               _buildResultActions(context, result),
             ],
           ),
-          
+
           // 结果徽章
           const SizedBox(height: 12),
           _buildResultBadge(context, result),
@@ -290,19 +292,20 @@ class UploadResultWidget extends StatelessWidget {
 
   /// 构建结果徽章
   Widget _buildResultBadge(BuildContext context, UploadResult result) {
+    final colorScheme = Theme.of(context).colorScheme;
     String badgeText;
     Color badgeColor;
 
     if (result.isSuccess && !result.isDuplicate) {
       badgeText = '上传成功';
-      badgeColor = Colors.green;
+      badgeColor = colorScheme.primary;
     } else if (result.isDuplicate) {
       badgeText = '该发票已存在';
-      badgeColor = Colors.amber;
+      badgeColor = colorScheme.tertiary;
     } else {
       // 错误情况，显示友好错误信息
       badgeText = _getFriendlyErrorMessage(result.error ?? '上传失败');
-      badgeColor = Colors.red;
+      badgeColor = colorScheme.error;
     }
 
     return Container(
@@ -328,13 +331,15 @@ class UploadResultWidget extends StatelessWidget {
 
   /// 构建结果操作按钮
   Widget _buildResultActions(BuildContext context, UploadResult result) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (result.isSuccess && result.invoice != null) {
       // 成功上传，显示查看按钮
       return IconButton(
         onPressed: () => onViewInvoice?.call(result.invoice!),
         icon: const Icon(CupertinoIcons.eye),
         tooltip: '查看发票',
-        color: Colors.blue,
+        color: colorScheme.primary,
       );
     } else if (result.isError) {
       // 上传失败，显示重试按钮
@@ -342,15 +347,12 @@ class UploadResultWidget extends StatelessWidget {
         onPressed: () => onRetry?.call(result.filePath),
         icon: const Icon(CupertinoIcons.refresh),
         tooltip: '重试',
-        color: Colors.orange,
+        color: colorScheme.tertiary,
       );
     }
-    
+
     return const SizedBox.shrink();
   }
-
-
-
 
   /// 构建操作按钮
   Widget _buildActionButtons(BuildContext context) {
@@ -372,8 +374,9 @@ class UploadResultWidget extends StatelessWidget {
                 icon: const Icon(CupertinoIcons.refresh),
                 label: Text('重试失败文件 ($failureCount)'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.orange,
-                  side: const BorderSide(color: Colors.orange),
+                  foregroundColor: Theme.of(context).colorScheme.tertiary,
+                  side:
+                      BorderSide(color: Theme.of(context).colorScheme.tertiary),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
@@ -395,7 +398,6 @@ class UploadResultWidget extends StatelessWidget {
     );
   }
 
-
   /// 将技术错误信息转换为用户友好的错误信息
   String _getFriendlyErrorMessage(String originalError) {
     // 移除技术性前缀
@@ -403,19 +405,30 @@ class UploadResultWidget extends StatelessWidget {
     if (cleanError.contains('UploadInvoiceException:')) {
       cleanError = cleanError.split('UploadInvoiceException:').last.trim();
     }
-    
+
     // 常见错误模式匹配
-    if (cleanError.contains('网络连接') || cleanError.contains('connection') || cleanError.contains('timeout')) {
+    if (cleanError.contains('网络连接') ||
+        cleanError.contains('connection') ||
+        cleanError.contains('timeout')) {
       return '网络连接异常，请检查网络后重试';
-    } else if (cleanError.contains('文件大小') || cleanError.contains('file size') || cleanError.contains('too large')) {
+    } else if (cleanError.contains('文件大小') ||
+        cleanError.contains('file size') ||
+        cleanError.contains('too large')) {
       return '文件大小超出限制，单个文件不能超过10MB';
-    } else if (cleanError.contains('格式') || cleanError.contains('format') || cleanError.contains('invalid')) {
+    } else if (cleanError.contains('格式') ||
+        cleanError.contains('format') ||
+        cleanError.contains('invalid')) {
       return '文件格式不支持，请选择PDF格式的发票文件';
-    } else if (cleanError.contains('服务器错误') || cleanError.contains('server error') || cleanError.contains('internal error')) {
+    } else if (cleanError.contains('服务器错误') ||
+        cleanError.contains('server error') ||
+        cleanError.contains('internal error')) {
       return '服务器暂时无法处理请求，请稍后重试';
-    } else if (cleanError.contains('权限') || cleanError.contains('permission') || cleanError.contains('unauthorized')) {
+    } else if (cleanError.contains('权限') ||
+        cleanError.contains('permission') ||
+        cleanError.contains('unauthorized')) {
       return '操作权限不足，请重新登录后重试';
-    } else if (cleanError.contains('数据操作失败') || cleanError.contains('database')) {
+    } else if (cleanError.contains('数据操作失败') ||
+        cleanError.contains('database')) {
       return '数据保存失败，请检查网络连接后重试';
     } else if (cleanError.contains('重复') || cleanError.contains('duplicate')) {
       return '该文件已存在，无需重复上传';
@@ -424,13 +437,12 @@ class UploadResultWidget extends StatelessWidget {
     } else if (cleanError.contains('uploadInvoice')) {
       return '上传服务暂时不可用，请稍后重试';
     }
-    
+
     // 如果没有匹配到特定错误，返回简化的通用错误
     if (cleanError.length > 50) {
       return '上传失败，请检查文件格式和网络连接后重试';
     }
-    
+
     return cleanError.isNotEmpty ? cleanError : '上传失败，请重试';
   }
-
 }

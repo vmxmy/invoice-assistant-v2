@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// 替代DesignTokens，所有值都来源于FlexColorScheme主题
 class AppThemeConstants {
   AppThemeConstants._();
-  
+
   // ==================== 间距系统 ====================
   /// 基于Material Design 3的8dp网格系统
   static const double spacing2 = 2.0;
@@ -16,42 +16,43 @@ class AppThemeConstants {
   static const double spacing20 = 20.0;
   static const double spacing24 = 24.0;
   static const double spacing32 = 32.0;
-  
+
   // ==================== 圆角系统 ====================
   /// 与FlexColorScheme配置保持一致的圆角设计
   static const double radiusSmall = 8.0;
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;
   static const double radiusXLarge = 20.0;
-  
+
   // ==================== 尺寸系统 ====================
   /// Material Design指导原则的触摸目标和图标尺寸
   static const double minTouchTarget = 48.0;
-  
+
   static const double iconSmall = 16.0;
   static const double iconMedium = 20.0;
   static const double iconLarge = 24.0;
   static const double iconXLarge = 32.0;
-  
+
   static const double avatarSmall = 32.0;
   static const double avatarMedium = 40.0;
   static const double avatarLarge = 48.0;
-  
+
   // ==================== 动画系统 ====================
   static const Duration animationFast = Duration(milliseconds: 150);
   static const Duration animationMedium = Duration(milliseconds: 250);
   static const Duration animationSlow = Duration(milliseconds: 350);
-  
+
   static const Curve curveStandard = Curves.easeInOut;
   static const Curve curveDecelerate = Curves.easeOut;
   static const Curve curveAccelerate = Curves.easeIn;
-  
+
   // ==================== 主题感知的动态颜色获取 ====================
-  
+
   /// 获取状态配置（使用主题颜色）
-  static StatusConfig getStatusConfig(BuildContext context, String statusValue) {
+  static StatusConfig getStatusConfig(
+      BuildContext context, String statusValue) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     switch (statusValue) {
       case 'draft':
         return StatusConfig(
@@ -79,52 +80,52 @@ class AppThemeConstants {
         );
     }
   }
-  
+
   // ==================== 主题感知的阴影系统 ====================
-  
+
   /// 获取主题感知的卡片阴影
   static List<BoxShadow> getCardShadow(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return [
       BoxShadow(
-        color: isDark 
-          ? Colors.black.withValues(alpha: 0.3)
-          : Colors.black.withValues(alpha: 0.1),
+        color: isDark
+            ? Colors.black.withValues(alpha: 0.3)
+            : Colors.black.withValues(alpha: 0.1),
         blurRadius: 4,
         offset: const Offset(0, 2),
       ),
     ];
   }
-  
+
   /// 获取主题感知的浮起阴影
   static List<BoxShadow> getElevatedShadow(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return [
       BoxShadow(
-        color: isDark 
-          ? Colors.black.withValues(alpha: 0.4)
-          : Colors.black.withValues(alpha: 0.15),
+        color: isDark
+            ? Colors.black.withValues(alpha: 0.4)
+            : Colors.black.withValues(alpha: 0.15),
         blurRadius: 8,
         offset: const Offset(0, 4),
       ),
     ];
   }
-  
+
   // ==================== 辅助方法 ====================
-  
+
   /// 获取文本颜色（根据背景色自动判断，使用主题颜色）
   static Color getTextColor(BuildContext context, Color backgroundColor) {
     final colorScheme = Theme.of(context).colorScheme;
     final luminance = backgroundColor.computeLuminance();
     return luminance > 0.5 ? colorScheme.onSurface : colorScheme.onPrimary;
   }
-  
+
   /// 获取对比色（使用主题颜色）
   static Color getContrastColor(BuildContext context, Color color) {
     final colorScheme = Theme.of(context).colorScheme;
-    return color.computeLuminance() > 0.5 
-      ? colorScheme.onSurface 
-      : colorScheme.surface;
+    return color.computeLuminance() > 0.5
+        ? colorScheme.onSurface
+        : colorScheme.surface;
   }
 }
 
@@ -135,7 +136,7 @@ class StatusConfig {
     required this.label,
     required this.description,
   });
-  
+
   final Color color;
   final String label;
   final String description;
@@ -150,7 +151,7 @@ class StatItem {
     required this.color,
     this.unit,
   });
-  
+
   final String label;
   final String value;
   final IconData icon;
@@ -166,7 +167,7 @@ class StatusStep {
     required this.icon,
     this.description,
   });
-  
+
   final String statusValue;
   final String title;
   final IconData icon;

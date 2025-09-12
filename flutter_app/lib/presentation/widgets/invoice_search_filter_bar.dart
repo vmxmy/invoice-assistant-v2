@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../core/theme/app_colors.dart';
 
 /// 发票搜索和筛选工具栏
 /// 包含搜索框、快捷筛选按钮和状态管理
@@ -17,19 +16,19 @@ class InvoiceSearchFilterBar extends StatefulWidget {
 
   /// 搜索内容变化回调
   final ValueChanged<String>? onSearchChanged;
-  
+
   /// 筛选条件变化回调
   final ValueChanged<FilterOptions>? onFilterChanged;
-  
+
   /// 筛选条件清除回调（带刷新，绕过缓存）
   final ValueChanged<FilterOptions>? onFilterClearWithRefresh;
-  
+
   /// 初始搜索查询
   final String initialSearchQuery;
-  
+
   /// 是否显示快捷筛选按钮
   final bool showQuickFilters;
-  
+
   /// 是否显示搜索框
   final bool showSearchBox;
 
@@ -41,7 +40,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   late TextEditingController _searchController;
   late FilterOptions _currentFilter;
   bool _isSearchFocused = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +58,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12), // 减小内边距
       decoration: BoxDecoration(
@@ -76,11 +75,11 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         children: [
           // 搜索框区域
           if (widget.showSearchBox) _buildSearchBox(theme, colorScheme),
-          
+
           // 间距
           if (widget.showSearchBox && widget.showQuickFilters)
             const SizedBox(height: 12), // 减小间距
-          
+
           // 快捷筛选按钮区域
           if (widget.showQuickFilters) _buildQuickFilters(theme, colorScheme),
         ],
@@ -96,9 +95,9 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8), // 减小圆角
         border: Border.all(
-          color: _isSearchFocused 
-            ? colorScheme.primary
-            : colorScheme.outlineVariant,
+          color: _isSearchFocused
+              ? colorScheme.primary
+              : colorScheme.outlineVariant,
           width: _isSearchFocused ? 1.5 : 1,
         ),
       ),
@@ -116,34 +115,34 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         decoration: InputDecoration(
           hintText: '搜索发票号、销售方、金额...',
           hintStyle: TextStyle(
-            color: AppColors.onSurfaceVariant(context),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 14, // 减小字体
           ),
           prefixIcon: Icon(
             CupertinoIcons.search,
             color: _isSearchFocused
-              ? colorScheme.primary
-              : colorScheme.onSurfaceVariant,
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
             size: 16, // 减小图标
           ),
           suffixIcon: _searchController.text.isNotEmpty
-            ? IconButton(
-                icon: Icon(
-                  CupertinoIcons.clear_circled_solid,
-                  color: colorScheme.onSurfaceVariant,
-                  size: 14, // 减小图标
-                ),
-                onPressed: () {
-                  _searchController.clear();
-                  widget.onSearchChanged?.call('');
-                },
-                padding: EdgeInsets.zero, // 减小按钮内边距
-                constraints: const BoxConstraints(
-                  minWidth: 32,
-                  minHeight: 32,
-                ),
-              )
-            : null,
+              ? IconButton(
+                  icon: Icon(
+                    CupertinoIcons.clear_circled_solid,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 14, // 减小图标
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    widget.onSearchChanged?.call('');
+                  },
+                  padding: EdgeInsets.zero, // 减小按钮内边距
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12, // 减小内边距
@@ -174,21 +173,23 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showOverdue;
-            print('🔍 [FilterBar] 逾期发票按钮切换: $newState');
-            
-            final newFilter = newState ? FilterOptions.single(overdue: true) : FilterOptions.single();
+            // print('🔍 [FilterBar] 逾期发票按钮切换: $newState');
+
+            final newFilter = newState
+                ? FilterOptions.single(overdue: true)
+                : FilterOptions.single();
             _updateFilter(newFilter);
-            
+
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: AppColors.overdue(context),
+          color: Theme.of(context).colorScheme.error,
           badge: _currentFilter.showOverdue ? null : '!',
         ),
-        
+
         // 紧急处理
         _buildFilterChip(
           label: '紧急处理',
@@ -197,20 +198,22 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showUrgent;
-            print('🔍 [FilterBar] 紧急处理按钮切换: $newState');
-            
-            final newFilter = newState ? FilterOptions.single(urgent: true) : FilterOptions.single();
+            // print('🔍 [FilterBar] 紧急处理按钮切换: $newState');
+
+            final newFilter = newState
+                ? FilterOptions.single(urgent: true)
+                : FilterOptions.single();
             _updateFilter(newFilter);
-            
+
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: AppColors.urgent(context),
+          color: Theme.of(context).colorScheme.tertiary,
         ),
-        
+
         // 待报销
         _buildFilterChip(
           label: '待报销',
@@ -219,18 +222,20 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showUnreimbursed;
-            print('🔍 [FilterBar] 待报销按钮切换: $newState');
-            
-            final newFilter = newState ? FilterOptions.single(unreimbursed: true) : FilterOptions.single();
+            // print('🔍 [FilterBar] 待报销按钮切换: $newState');
+
+            final newFilter = newState
+                ? FilterOptions.single(unreimbursed: true)
+                : FilterOptions.single();
             _updateFilter(newFilter);
-            
+
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
+              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
-          color: AppColors.pending(context),
+          color: Theme.of(context).colorScheme.secondary,
         ),
       ],
     );
@@ -246,32 +251,30 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
     String? badge,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // 减小内边距
+        padding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // 减小内边距
         decoration: BoxDecoration(
-          color: isSelected
-            ? color.withValues(alpha: 0.15)
-            : colorScheme.surface,
+          color:
+              isSelected ? color.withValues(alpha: 0.15) : colorScheme.surface,
           borderRadius: BorderRadius.circular(16), // 减小圆角
           border: Border.all(
-            color: isSelected
-              ? color
-              : colorScheme.outlineVariant,
+            color: isSelected ? color : colorScheme.outlineVariant,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.2),
-                  blurRadius: 3, // 减小模糊半径
-                  offset: const Offset(0, 1), // 减小偏移
-                ),
-              ]
-            : null,
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.2),
+                    blurRadius: 3, // 减小模糊半径
+                    offset: const Offset(0, 1), // 减小偏移
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -283,9 +286,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                 Icon(
                   icon,
                   size: 14, // 减小图标尺寸
-                  color: isSelected
-                    ? color
-                    : colorScheme.onSurfaceVariant,
+                  color: isSelected ? color : colorScheme.onSurfaceVariant,
                 ),
                 // 徽章
                 if (badge != null && !isSelected)
@@ -303,7 +304,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                         child: Text(
                           badge,
                           style: TextStyle(
-                            color: AppColors.getContrastingColor(color),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 7, // 减小字体
                             fontWeight: FontWeight.bold,
                           ),
@@ -313,18 +314,16 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                   ),
               ],
             ),
-            
+
             const SizedBox(width: 4), // 减小间距
-            
+
             // 标签
             Text(
               label,
               style: TextStyle(
                 fontSize: 12, // 减小字体
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected
-                  ? color
-                  : colorScheme.onSurfaceVariant,
+                color: isSelected ? color : colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -335,11 +334,11 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
   /// 更新筛选条件
   void _updateFilter(FilterOptions newFilter) {
-    print('🔍 [FilterBar] _updateFilter 被调用: $newFilter');
+    // print('🔍 [FilterBar] _updateFilter 被调用: $newFilter');
     setState(() {
       _currentFilter = newFilter;
     });
-    print('🔍 [FilterBar] 调用回调函数 onFilterChanged');
+    // print('🔍 [FilterBar] 调用回调函数 onFilterChanged');
     widget.onFilterChanged?.call(newFilter);
   }
 }
@@ -400,8 +399,7 @@ class FilterOptions {
   bool get isAllInvoices => showAll && !hasActiveFilters;
 
   /// 是否有任何筛选条件激活
-  bool get hasActiveFilters => 
-    showOverdue || showUrgent || showUnreimbursed;
+  bool get hasActiveFilters => showOverdue || showUrgent || showUnreimbursed;
 
   /// 复制并修改筛选选项
   FilterOptions copyWith({
@@ -421,17 +419,17 @@ class FilterOptions {
   @override
   String toString() {
     return 'FilterOptions(showAll: $showAll, showOverdue: $showOverdue, '
-           'showUrgent: $showUrgent, showUnreimbursed: $showUnreimbursed)';
+        'showUrgent: $showUrgent, showUnreimbursed: $showUnreimbursed)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is FilterOptions &&
-      other.showAll == showAll &&
-      other.showOverdue == showOverdue &&
-      other.showUrgent == showUrgent &&
-      other.showUnreimbursed == showUnreimbursed;
+        other.showAll == showAll &&
+        other.showOverdue == showOverdue &&
+        other.showUrgent == showUrgent &&
+        other.showUnreimbursed == showUnreimbursed;
   }
 
   @override

@@ -24,12 +24,12 @@ class UploadProgressWidget extends StatelessWidget {
         // 总体进度
         _buildOverallProgress(context),
         const SizedBox(height: 24),
-        
+
         // 文件列表进度
         Expanded(
           child: _buildFileProgressList(context),
         ),
-        
+
         // 处理说明
         _buildProcessDescription(context),
       ],
@@ -39,15 +39,15 @@ class UploadProgressWidget extends StatelessWidget {
   /// 构建总体进度
   Widget _buildOverallProgress(BuildContext context) {
     final overallProgress = totalCount > 0 ? completedCount / totalCount : 0.0;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -69,15 +69,17 @@ class UploadProgressWidget extends StatelessWidget {
                   children: [
                     Text(
                       '正在处理文件...',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     Text(
                       '$completedCount / $totalCount 完成',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ],
                 ),
@@ -87,9 +89,9 @@ class UploadProgressWidget extends StatelessWidget {
                   Text(
                     '${(overallProgress * 100).toInt()}%',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
                   ),
                   if (onCancel != null) ...[
                     const SizedBox(height: 8),
@@ -100,8 +102,11 @@ class UploadProgressWidget extends StatelessWidget {
                         onPressed: () => _showCancelConfirmDialog(context),
                         icon: const Icon(CupertinoIcons.xmark, size: 18),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.red.withValues(alpha: 0.1),
-                          foregroundColor: Colors.red,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .error
+                              .withValues(alpha: 0.1),
+                          foregroundColor: Theme.of(context).colorScheme.error,
                         ),
                         tooltip: '取消上传',
                       ),
@@ -112,16 +117,17 @@ class UploadProgressWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // 总体进度条
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: overallProgress,
               minHeight: 8,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).primaryColor,
+                Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -147,14 +153,14 @@ class UploadProgressWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _getStageColor(progress.stage).withValues(alpha: 0.2),
+          color: _getStageColor(context, progress.stage).withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -168,7 +174,7 @@ class UploadProgressWidget extends StatelessWidget {
             children: [
               Icon(
                 CupertinoIcons.doc_text,
-                color: Colors.red,
+                color: Theme.of(context).colorScheme.error,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -190,15 +196,15 @@ class UploadProgressWidget extends StatelessWidget {
                       progress.message ?? progress.stage.displayName,
                       style: TextStyle(
                         fontSize: 12,
-                        color: _getStageColor(progress.stage),
+                        color: _getStageColor(context, progress.stage),
                       ),
                     ),
                   ],
                 ),
               ),
-              
+
               // 状态图标和进度
-              _buildStageIcon(progress.stage),
+              _buildStageIcon(context, progress.stage),
               const SizedBox(width: 8),
               if (!progress.isCompleted) ...[
                 SizedBox(
@@ -208,16 +214,16 @@ class UploadProgressWidget extends StatelessWidget {
                     value: progress.progress,
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _getStageColor(progress.stage),
+                      _getStageColor(context, progress.stage),
                     ),
                   ),
                 ),
               ],
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 进度条
           if (!progress.isCompleted) ...[
             ClipRRect(
@@ -225,30 +231,35 @@ class UploadProgressWidget extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress.progress,
                 minHeight: 6,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  _getStageColor(progress.stage),
+                  _getStageColor(context, progress.stage),
                 ),
               ),
             ),
           ],
-          
+
           // 错误信息
           if (progress.error != null) ...[
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Theme.of(context).colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.red.shade200),
+                border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.error_outline,
                     size: 16,
-                    color: Colors.red.shade600,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -256,7 +267,7 @@ class UploadProgressWidget extends StatelessWidget {
                       progress.error!,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.red.shade600,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
                   ),
@@ -274,9 +285,11 @@ class UploadProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +298,7 @@ class UploadProgressWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.info_outline,
-                color: Colors.blue.shade600,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
                 size: 18,
               ),
               const SizedBox(width: 8),
@@ -293,7 +306,7 @@ class UploadProgressWidget extends StatelessWidget {
                 '处理流程',
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.blue.shade700,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
             ],
@@ -303,7 +316,7 @@ class UploadProgressWidget extends StatelessWidget {
             '计算哈希 → 检查重复 → 上传文件 → OCR识别 → 保存数据',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.blue.shade600,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
         ],
@@ -312,9 +325,9 @@ class UploadProgressWidget extends StatelessWidget {
   }
 
   /// 构建阶段图标
-  Widget _buildStageIcon(UploadStage stage) {
+  Widget _buildStageIcon(BuildContext context, UploadStage stage) {
     IconData icon;
-    Color color = _getStageColor(stage);
+    Color color = _getStageColor(context, stage);
 
     switch (stage) {
       case UploadStage.preparing:
@@ -344,22 +357,24 @@ class UploadProgressWidget extends StatelessWidget {
   }
 
   /// 获取阶段颜色
-  Color _getStageColor(UploadStage stage) {
+  Color _getStageColor(BuildContext context, UploadStage stage) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     switch (stage) {
       case UploadStage.preparing:
-        return Colors.grey;
+        return colorScheme.onSurfaceVariant;
       case UploadStage.hashing:
-        return Colors.blue;
+        return colorScheme.primary;
       case UploadStage.uploading:
-        return Colors.orange;
+        return colorScheme.tertiary;
       case UploadStage.processing:
-        return Colors.purple;
+        return colorScheme.secondary;
       case UploadStage.success:
-        return Colors.green;
+        return colorScheme.primary;
       case UploadStage.duplicate:
-        return Colors.amber;
+        return colorScheme.tertiary;
       case UploadStage.error:
-        return Colors.red;
+        return colorScheme.error;
     }
   }
 
@@ -370,7 +385,8 @@ class UploadProgressWidget extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.warning_amber_outlined, color: Colors.orange),
+            Icon(Icons.warning_amber_outlined,
+                color: Theme.of(context).colorScheme.tertiary),
             const SizedBox(width: 8),
             const Text('取消上传'),
           ],
@@ -387,7 +403,7 @@ class UploadProgressWidget extends StatelessWidget {
               onCancel?.call();
             },
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              foregroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('确认取消'),
           ),

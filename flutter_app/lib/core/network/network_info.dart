@@ -70,11 +70,11 @@ class NetworkInfo {
 class NetworkService {
   static NetworkService? _instance;
   static final Connectivity _connectivity = Connectivity();
-  
+
   StreamSubscription<List<ConnectivityResult>>? _subscription;
-  final StreamController<NetworkInfo> _networkStatusController = 
+  final StreamController<NetworkInfo> _networkStatusController =
       StreamController<NetworkInfo>.broadcast();
-  
+
   NetworkInfo _currentNetworkInfo = NetworkInfo.unknown();
 
   NetworkService._();
@@ -89,7 +89,8 @@ class NetworkService {
   NetworkInfo get currentNetworkInfo => _currentNetworkInfo;
 
   /// 网络状态变化流
-  Stream<NetworkInfo> get networkStatusStream => _networkStatusController.stream;
+  Stream<NetworkInfo> get networkStatusStream =>
+      _networkStatusController.stream;
 
   /// 是否已连接网络
   bool get isConnected => _currentNetworkInfo.status == NetworkStatus.connected;
@@ -115,19 +116,22 @@ class NetworkService {
         _onConnectivityChanged,
         onError: (error) {
           if (AppConfig.enableLogging) {
-            AppLogger.error('Network connectivity error', tag: 'Network', error: error);
+            AppLogger.error('Network connectivity error',
+                tag: 'Network', error: error);
           }
           _updateNetworkInfo(NetworkInfo.unknown());
         },
       );
 
       if (AppConfig.enableLogging) {
-        AppLogger.info('Network service initialized successfully', tag: 'Network');
+        AppLogger.info('Network service initialized successfully',
+            tag: 'Network');
         printNetworkStatus();
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.error('Failed to initialize network service', tag: 'Network', error: e);
+        AppLogger.error('Failed to initialize network service',
+            tag: 'Network', error: e);
       }
       _updateNetworkInfo(NetworkInfo.unknown());
     }
@@ -149,7 +153,8 @@ class NetworkService {
       return _currentNetworkInfo;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.error('Failed to check network status', tag: 'Network', error: e);
+        AppLogger.error('Failed to check network status',
+            tag: 'Network', error: e);
       }
       final unknownInfo = NetworkInfo.unknown();
       _updateNetworkInfo(unknownInfo);
@@ -173,7 +178,8 @@ class NetworkService {
       _updateNetworkInfo(networkInfo);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.error('Error updating network status', tag: 'Network', error: e);
+        AppLogger.error('Error updating network status',
+            tag: 'Network', error: e);
       }
       _updateNetworkInfo(NetworkInfo.unknown());
     }
@@ -220,7 +226,9 @@ class NetworkService {
     _networkStatusController.add(networkInfo);
 
     if (AppConfig.enableLogging) {
-      AppLogger.debug('Network status updated: ${networkInfo.status.name} (${networkInfo.typeName ?? networkInfo.type.name})', tag: 'Network');
+      AppLogger.debug(
+          'Network status updated: ${networkInfo.status.name} (${networkInfo.typeName ?? networkInfo.type.name})',
+          tag: 'Network');
     }
   }
 
@@ -233,13 +241,14 @@ class NetworkService {
     try {
       // 这里可以添加更复杂的网络质量检测逻辑
       // 例如：ping 测试、下载速度测试等
-      
+
       // 简单的连接测试
       final results = await _connectivity.checkConnectivity();
       return results.isNotEmpty && !results.contains(ConnectivityResult.none);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.warning('Network quality test failed', tag: 'Network', error: e);
+        AppLogger.warning('Network quality test failed',
+            tag: 'Network', error: e);
       }
       return false;
     }

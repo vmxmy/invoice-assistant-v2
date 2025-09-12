@@ -29,12 +29,12 @@ class InvoiceStatsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // 统计卡片网格
           _buildStatsGrid(context, colorScheme),
-          
+
           const SizedBox(height: 16),
-          
+
           // 本月统计
           _buildMonthlyStats(context, colorScheme),
         ],
@@ -148,7 +148,6 @@ class InvoiceStatsWidget extends StatelessWidget {
     required Color color,
     required Color backgroundColor,
   }) {
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

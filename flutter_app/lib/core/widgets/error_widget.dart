@@ -36,9 +36,9 @@ class AppErrorWidget extends StatelessWidget {
               Text(
                 title!,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.red.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: Colors.red.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -46,8 +46,11 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
+                  ),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

@@ -118,12 +118,14 @@ class CreateReimbursementSetRequest with _$CreateReimbursementSetRequest {
 
 /// 更新报销集状态的请求模型
 @freezed
-class UpdateReimbursementSetStatusRequest with _$UpdateReimbursementSetStatusRequest {
+class UpdateReimbursementSetStatusRequest
+    with _$UpdateReimbursementSetStatusRequest {
   const factory UpdateReimbursementSetStatusRequest({
     required String status,
     @JsonKey(name: 'approval_notes') String? approvalNotes,
   }) = _UpdateReimbursementSetStatusRequest;
 
-  factory UpdateReimbursementSetStatusRequest.fromJson(Map<String, dynamic> json) =>
+  factory UpdateReimbursementSetStatusRequest.fromJson(
+          Map<String, dynamic> json) =>
       _$UpdateReimbursementSetStatusRequestFromJson(json);
 }

@@ -8,7 +8,7 @@ import '../../core/config/app_config.dart';
 /// 简单的登录页面
 class LoginPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
-  
+
   const LoginPage({super.key, required this.onLoginSuccess});
 
   @override
@@ -32,11 +32,13 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final session = SupabaseClientManager.client.auth.currentSession;
       final user = SupabaseClientManager.client.auth.currentUser;
-      
+
       if (AppConfig.enableLogging) {
-        AppLogger.debug('🔐 [Login] 检查现有会话 - Session: ${session != null}, User: ${user?.email}', tag: 'Debug');
+        AppLogger.debug(
+            '🔐 [Login] 检查现有会话 - Session: ${session != null}, User: ${user?.email}',
+            tag: 'Debug');
       }
-      
+
       if (session != null && user != null) {
         if (AppConfig.enableLogging) {
           AppLogger.debug('✅ [Login] 找到有效会话，自动登录', tag: 'Debug');
@@ -86,12 +88,15 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('🔐 [Login] 登录响应 - User: ${response.user?.email}, Session: ${response.session != null}', tag: 'Debug');
+        AppLogger.debug(
+            '🔐 [Login] 登录响应 - User: ${response.user?.email}, Session: ${response.session != null}',
+            tag: 'Debug');
       }
 
       if (response.user != null && response.session != null) {
         if (AppConfig.enableLogging) {
-          AppLogger.debug('✅ [Login] 登录成功，用户ID: ${response.user!.id}', tag: 'Debug');
+          AppLogger.debug('✅ [Login] 登录成功，用户ID: ${response.user!.id}',
+              tag: 'Debug');
         }
         widget.onLoginSuccess();
       } else {
@@ -114,7 +119,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,145 +128,149 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom - 48,
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  48,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo区域
-              const Icon(
-                CupertinoIcons.doc_text,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '发票助手',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+              children: [
+                // Logo区域
+                const Icon(
+                  CupertinoIcons.doc_text,
+                  size: 80,
                   color: Colors.blue,
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '简化您的发票管理',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
+                const SizedBox(height: 16),
+                const Text(
+                  '发票助手',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 48),
+                const SizedBox(height: 8),
+                const Text(
+                  '简化您的发票管理',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 48),
 
-              // 表单区域
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: '邮箱地址',
-                          prefixIcon: Icon(CupertinoIcons.mail),
-                          border: OutlineInputBorder(),
+                // 表单区域
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: '邮箱地址',
+                            prefixIcon: Icon(CupertinoIcons.mail),
+                            border: OutlineInputBorder(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: '密码',
-                          prefixIcon: Icon(CupertinoIcons.lock),
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: '密码',
+                            prefixIcon: Icon(CupertinoIcons.lock),
+                            border: OutlineInputBorder(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
+                        const SizedBox(height: 24),
 
-                      // 错误消息
-                      if (_errorMessage != null)
-                        Container(
+                        // 错误消息
+                        if (_errorMessage != null)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red.shade700),
+                            ),
+                          ),
+
+                        // 登录按钮
+                        SizedBox(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.shade200),
-                          ),
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(color: Colors.red.shade700),
-                          ),
-                        ),
-
-                      // 登录按钮
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _login,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Text(
+                                    '登录',
+                                    style: TextStyle(fontSize: 16),
                                   ),
-                                )
-                              : const Text(
-                                  '登录',
-                                  style: TextStyle(fontSize: 16),
-                                ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // 注册链接
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '还没有账户？',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  TextButton(
-                    onPressed: () => context.push('/register'),
-                    child: const Text(
-                      '立即注册',
-                      style: TextStyle(color: Colors.blue),
+                      ],
                     ),
                   ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // 说明文字
-              const Text(
-                '请使用您的账户登录',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 24),
+
+                // 注册链接
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '还没有账户？',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/register'),
+                      child: const Text(
+                        '立即注册',
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // 说明文字
+                const Text(
+                  '请使用您的账户登录',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -36,7 +36,7 @@ Future<void> init() async {
       uploadInvoiceUseCase: sl(),
     ),
   );
-  
+
   sl.registerFactory(
     () => ReimbursementSetBloc(
       repository: sl(),
@@ -57,7 +57,7 @@ Future<void> init() async {
   sl.registerLazySingleton<InvoiceRepository>(
     () => InvoiceRepositoryImpl(sl()),
   );
-  
+
   sl.registerLazySingleton<ReimbursementSetRepository>(
     () => ReimbursementSetRepositoryImpl(),
   );
@@ -69,7 +69,7 @@ Future<void> init() async {
 
   //! 外部依赖 (External Dependencies)
   // 这里可以注册外部服务，如网络客户端、本地存储等
-  
+
   //! 核心服务 (Core Services)
   // 这里可以注册核心服务，如网络检查、错误处理等
 }

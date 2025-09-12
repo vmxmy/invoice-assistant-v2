@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 class SkeletonLoader extends StatefulWidget {
   final Widget child;
   final bool isLoading;
-  final Color baseColor;
-  final Color highlightColor;
+  final Color? baseColor;
+  final Color? highlightColor;
   final Duration duration;
 
   const SkeletonLoader({
     super.key,
     required this.child,
     required this.isLoading,
-    this.baseColor = const Color(0xFFE0E0E0),
-    this.highlightColor = const Color(0xFFF5F5F5),
+    this.baseColor,
+    this.highlightColor,
     this.duration = const Duration(milliseconds: 1500),
   });
 
@@ -37,7 +37,7 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
     _animation = Tween<double>(begin: -2, end: 2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    
+
     if (widget.isLoading) {
       _controller.repeat();
     }
@@ -67,6 +67,12 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
       return widget.child;
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor =
+        widget.baseColor ?? colorScheme.surfaceContainer.withValues(alpha: 0.8);
+    final highlightColor =
+        widget.highlightColor ?? colorScheme.surface.withValues(alpha: 0.4);
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
@@ -76,9 +82,9 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                widget.baseColor,
-                widget.highlightColor,
-                widget.baseColor,
+                baseColor,
+                highlightColor,
+                baseColor,
               ],
               stops: const [0.0, 0.5, 1.0],
               transform: GradientRotation(_animation.value),
@@ -97,6 +103,9 @@ class InvoiceCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final skeletonColor = colorScheme.surfaceContainer;
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -111,7 +120,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: skeletonColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -124,7 +133,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                         height: 18,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: skeletonColor,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -133,7 +142,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                         height: 14,
                         width: 120,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: skeletonColor,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -144,7 +153,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                   width: 60,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: skeletonColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -159,7 +168,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                   height: 20,
                   width: 80,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: skeletonColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -167,7 +176,7 @@ class InvoiceCardSkeleton extends StatelessWidget {
                   height: 16,
                   width: 100,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: skeletonColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -243,8 +252,8 @@ class SmartLoadingIndicator extends StatelessWidget {
             Text(
               message!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -295,8 +304,8 @@ class _LoadMoreIndicatorState extends State<LoadMoreIndicator> {
           Text(
             widget.message ?? (widget.isLoadingMore ? '加载中...' : '上拉加载更多'),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -332,14 +341,17 @@ class EmptyStatePlaceholder extends StatelessWidget {
             Icon(
               icon,
               size: 64,
-              color: Colors.grey[400],
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant
+                  .withValues(alpha: 0.6),
             ),
             const SizedBox(height: 16),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[700],
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
@@ -347,8 +359,11 @@ class EmptyStatePlaceholder extends StatelessWidget {
               Text(
                 subtitle!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withValues(alpha: 0.8),
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],

@@ -94,35 +94,37 @@ class FeedbackTheme {
     required this.textColor,
   });
 
-  static const Map<FeedbackType, FeedbackTheme> _themes = {
-    FeedbackType.success: FeedbackTheme(
-      backgroundColor: Color(0xFF4CAF50),
-      icon: Icons.check_circle,
-      iconColor: Colors.white,
-      textColor: Colors.white,
-    ),
-    FeedbackType.error: FeedbackTheme(
-      backgroundColor: Color(0xFFF44336),
-      icon: Icons.error,
-      iconColor: Colors.white,
-      textColor: Colors.white,
-    ),
-    FeedbackType.warning: FeedbackTheme(
-      backgroundColor: Color(0xFFFF9800),
-      icon: Icons.warning,
-      iconColor: Colors.white,
-      textColor: Colors.white,
-    ),
-    FeedbackType.info: FeedbackTheme(
-      backgroundColor: Color(0xFF2196F3),
-      icon: Icons.info,
-      iconColor: Colors.white,
-      textColor: Colors.white,
-    ),
-  };
+  static Map<FeedbackType, FeedbackTheme> _getThemes(BuildContext context) => {
+        FeedbackType.success: FeedbackTheme(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          icon: Icons.check_circle,
+          iconColor: Theme.of(context).colorScheme.onPrimary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
+        ),
+        FeedbackType.error: FeedbackTheme(
+          backgroundColor: Theme.of(context).colorScheme.error,
+          icon: Icons.error,
+          iconColor: Theme.of(context).colorScheme.onError,
+          textColor: Theme.of(context).colorScheme.onError,
+        ),
+        FeedbackType.warning: FeedbackTheme(
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
+          icon: Icons.warning,
+          iconColor: Theme.of(context).colorScheme.onTertiary,
+          textColor: Theme.of(context).colorScheme.onTertiary,
+        ),
+        FeedbackType.info: FeedbackTheme(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          icon: Icons.info,
+          iconColor: Theme.of(context).colorScheme.onSecondary,
+          textColor: Theme.of(context).colorScheme.onSecondary,
+        ),
+      };
 
-  static FeedbackTheme getTheme(FeedbackType type) =>
-      _themes[type] ?? _themes[FeedbackType.info]!;
+  static FeedbackTheme getTheme(BuildContext context, FeedbackType type) {
+    final themes = _getThemes(context);
+    return themes[type] ?? themes[FeedbackType.info]!;
+  }
 }
 
 /// 统一反馈管理器
@@ -132,15 +134,15 @@ class AppFeedback {
     BuildContext context,
     FeedbackConfig config,
   ) {
-    print('🍕 [AppFeedback] show方法被调用 - 类型: ${config.type}, 标题: ${config.title}');
-    final theme = FeedbackTheme.getTheme(config.type);
-    
+    // print('🍕 [AppFeedback] show方法被调用 - 类型: ${config.type}, 标题: ${config.title}');
+    final theme = FeedbackTheme.getTheme(context, config.type);
+
     // 确保在下一帧显示，避免上下文问题
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('🍕 [AppFeedback] addPostFrameCallback执行 - context.mounted: ${context.mounted}');
+      // print('🍕 [AppFeedback] addPostFrameCallback执行 - context.mounted: ${context.mounted}');
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        print('🍕 [AppFeedback] 正在显示SnackBar...');
+        // print('🍕 [AppFeedback] 正在显示SnackBar...');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: _buildContent(config, theme),
@@ -154,8 +156,8 @@ class AppFeedback {
             margin: const EdgeInsets.all(16),
             elevation: 8,
             // 只有错误类型且提供了重试操作时才显示action
-            action: config.action != null && 
-                    config.actionLabel != null && 
+            action: config.action != null &&
+                    config.actionLabel != null &&
                     config.type == FeedbackType.error
                 ? SnackBarAction(
                     label: config.actionLabel!,

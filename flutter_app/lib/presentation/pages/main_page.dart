@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import '../bloc/invoice_bloc.dart';
-import '../bloc/invoice_event.dart';
+// import '../bloc/invoice_event.dart'; // 未使用
 import 'invoice_management_page.dart';
 import 'invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
@@ -73,10 +73,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLogger.debug('🏗️ [MainPage] MainPage重建 - currentIndex: $_currentIndex', tag: 'Debug');
+    AppLogger.debug('🏗️ [MainPage] MainPage重建 - currentIndex: $_currentIndex',
+        tag: 'Debug');
     final bloc = context.read<InvoiceBloc>();
-    AppLogger.debug('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc', tag: 'Debug');
-    
+    AppLogger.debug('🏭 [MainPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc',
+        tag: 'Debug');
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
@@ -88,13 +90,13 @@ class _MainPageState extends State<MainPage> {
         children: [
           // 发票管理页面
           const InvoiceManagementPage(),
-          
+
           // 上传发票页面
           const InvoiceUploadPage(),
-          
+
           // 数据分析页面
           _buildAnalysisPage(),
-          
+
           // 设置页面
           _buildSettingsPage(),
         ],
@@ -105,7 +107,7 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -147,7 +149,7 @@ class _MainPageState extends State<MainPage> {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -162,7 +164,7 @@ class _MainPageState extends State<MainPage> {
                 decoration: BoxDecoration(
                   color: isActive
                       ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                      : Colors.transparent,
+                      : theme.colorScheme.surface.withValues(alpha: 0),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -174,7 +176,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               const SizedBox(height: 2),
-              
+
               // 标签文字
               Text(
                 item.label,
@@ -192,7 +194,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-
   // 数据分析页面
   Widget _buildAnalysisPage() {
     return Scaffold(
@@ -201,39 +202,45 @@ class _MainPageState extends State<MainPage> {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.chart_bar,
-              size: 80,
-              color: Colors.grey,
+      body: Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.chart_bar,
+                  size: 80,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '数据分析功能',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '敬请期待',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              '数据分析功能',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              '敬请期待',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
   // 设置页面
   Widget _buildSettingsPage() {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('设置'),
@@ -254,9 +261,9 @@ class _MainPageState extends State<MainPage> {
               subtitle: const Text('当前用户'),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 设置选项
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -270,7 +277,8 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(CupertinoIcons.exclamationmark_triangle, color: Colors.orange),
+                  leading: Icon(CupertinoIcons.exclamationmark_triangle,
+                      color: theme.colorScheme.tertiary),
                   title: const Text('调试信息'),
                   subtitle: const Text('查看用户ID和数据库连接状态'),
                   trailing: const Icon(CupertinoIcons.chevron_right),
@@ -287,7 +295,8 @@ class _MainPageState extends State<MainPage> {
                 ListTile(
                   leading: const Icon(CupertinoIcons.paintbrush_fill),
                   title: const Text('主题设置'),
-                  subtitle: Text('当前：${context.watch<ThemeManager>().currentThemeName}'),
+                  subtitle: Text(
+                      '当前：${context.watch<ThemeManager>().currentThemeName}'),
                   trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: () {
                     final themeManager = context.read<ThemeManager>();
@@ -302,8 +311,10 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
-                  title: const Text('退出登录', style: TextStyle(color: Colors.red)),
+                  leading: Icon(CupertinoIcons.square_arrow_right,
+                      color: theme.colorScheme.error),
+                  title: Text('退出登录',
+                      style: TextStyle(color: theme.colorScheme.error)),
                   onTap: () async {
                     final shouldLogout = await showDialog<bool>(
                       context: context,
@@ -322,7 +333,7 @@ class _MainPageState extends State<MainPage> {
                         ],
                       ),
                     );
-                    
+
                     if (shouldLogout == true && mounted) {
                       try {
                         await SupabaseClientManager.signOut();
@@ -337,7 +348,7 @@ class _MainPageState extends State<MainPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('退出登录失败: ${e.toString()}'),
-                              backgroundColor: Colors.red,
+                              backgroundColor: theme.colorScheme.error,
                             ),
                           );
                         }

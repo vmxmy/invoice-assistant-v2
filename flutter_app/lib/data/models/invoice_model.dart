@@ -15,19 +15,19 @@ class InvoiceModel with _$InvoiceModel {
     @JsonKey(name: 'invoice_date') required DateTime invoiceDate,
     @JsonKey(name: 'consumption_date') DateTime? consumptionDate,
     @JsonKey(name: 'user_id') required String userId,
-    
+
     // 基本信息
     @JsonKey(name: 'seller_name') String? sellerName,
     @JsonKey(name: 'buyer_name') String? buyerName,
     @JsonKey(name: 'seller_tax_number') String? sellerTaxId,
     @JsonKey(name: 'buyer_tax_number') String? buyerTaxId,
-    
+
     // 金额信息
-    @Default(0.0) @JsonKey(name: 'amount_without_tax') double amount,
+    @JsonKey(name: 'amount_without_tax') @Default(0.0) double amount,
     @JsonKey(name: 'total_amount') double? totalAmount,
     @JsonKey(name: 'tax_amount') double? taxAmount,
     @Default('CNY') String currency,
-    
+
     // 分类和状态
     String? category,
     @JsonKey(name: 'expense_category') String? expenseCategory,
@@ -35,30 +35,30 @@ class InvoiceModel with _$InvoiceModel {
     @Default(InvoiceStatus.unreimbursed) InvoiceStatus status,
     @JsonKey(name: 'invoice_type') String? invoiceType,
     @JsonKey(name: 'invoice_code') String? invoiceCode,
-    
+
     // 文件信息
     @JsonKey(name: 'file_url') String? fileUrl,
     @JsonKey(name: 'file_path') String? filePath,
     @JsonKey(name: 'file_hash') String? fileHash,
     @JsonKey(name: 'file_size') int? fileSize,
-    
+
     // 处理状态
     @JsonKey(name: 'processing_status') String? processingStatus,
-    @Default(false) @JsonKey(name: 'is_verified') bool isVerified,
+    @JsonKey(name: 'is_verified') @Default(false) bool isVerified,
     @JsonKey(name: 'verification_notes') String? verificationNotes,
     @JsonKey(name: 'verified_at') DateTime? verifiedAt,
     @JsonKey(name: 'verified_by') String? verifiedBy,
-    
+
     // 数据来源
     @Default(InvoiceSource.upload) InvoiceSource source,
     @JsonKey(name: 'source_metadata') Map<String, dynamic>? sourceMetadata,
     @JsonKey(name: 'email_task_id') String? emailTaskId,
-    
+
     // 标签和元数据
     @Default([]) List<String> tags,
     @JsonKey(name: 'extracted_data') Map<String, dynamic>? extractedData,
     Map<String, dynamic>? metadata,
-    
+
     // 时间戳
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
@@ -66,14 +66,15 @@ class InvoiceModel with _$InvoiceModel {
     @JsonKey(name: 'completed_at') DateTime? completedAt,
     @JsonKey(name: 'started_at') DateTime? startedAt,
     @JsonKey(name: 'last_activity_at') DateTime? lastActivityAt,
-    
+
     // 版本控制
     @Default(1) int version,
     @JsonKey(name: 'created_by') String? createdBy,
     @JsonKey(name: 'updated_by') String? updatedBy,
   }) = _InvoiceModel;
 
-  factory InvoiceModel.fromJson(Map<String, dynamic> json) => _$InvoiceModelFromJson(json);
+  factory InvoiceModel.fromJson(Map<String, dynamic> json) =>
+      _$InvoiceModelFromJson(json);
 }
 
 /// 扩展方法 - 将数据模型转换为领域实体
@@ -81,10 +82,15 @@ extension InvoiceModelToEntity on InvoiceModel {
   InvoiceEntity toEntity() {
     // 添加调试日志检查模型到实体的转换
     AppLogger.debug('🔍 [Model->Entity] 转换前 Model ID: $id', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.category: "$category"', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.expenseCategory: "$expenseCategory"', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.primaryCategoryName: "$primaryCategoryName"', tag: 'Debug');
-    
+    AppLogger.debug('🔍 [Model->Entity] 转换前 Model.category: "$category"',
+        tag: 'Debug');
+    AppLogger.debug(
+        '🔍 [Model->Entity] 转换前 Model.expenseCategory: "$expenseCategory"',
+        tag: 'Debug');
+    AppLogger.debug(
+        '🔍 [Model->Entity] 转换前 Model.primaryCategoryName: "$primaryCategoryName"',
+        tag: 'Debug');
+
     final entity = InvoiceEntity(
       id: id,
       invoiceNumber: invoiceNumber,
@@ -130,13 +136,20 @@ extension InvoiceModelToEntity on InvoiceModel {
       createdBy: createdBy,
       updatedBy: updatedBy,
     );
-    
+
     // 添加调试日志检查实体转换后的值
-    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity ID: ${entity.id}', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.category: "${entity.category}"', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.expenseCategory: "${entity.expenseCategory}"', tag: 'Debug');
-    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity.primaryCategoryName: "${entity.primaryCategoryName}"', tag: 'Debug');
-    
+    AppLogger.debug('🔍 [Model->Entity] 转换后 Entity ID: ${entity.id}',
+        tag: 'Debug');
+    AppLogger.debug(
+        '🔍 [Model->Entity] 转换后 Entity.category: "${entity.category}"',
+        tag: 'Debug');
+    AppLogger.debug(
+        '🔍 [Model->Entity] 转换后 Entity.expenseCategory: "${entity.expenseCategory}"',
+        tag: 'Debug');
+    AppLogger.debug(
+        '🔍 [Model->Entity] 转换后 Entity.primaryCategoryName: "${entity.primaryCategoryName}"',
+        tag: 'Debug');
+
     return entity;
   }
 }

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
-import '../../core/theme/app_colors.dart';
 
 /// 发票紧急程度枚举
 enum UrgencyLevel {
-  normal,   // 普通（≤60天）
-  urgent,   // 紧急（60-90天）
-  overdue,  // 逾期（>90天）
+  normal, // 普通（≤60天）
+  urgent, // 紧急（60-90天）
+  overdue, // 逾期（>90天）
 }
 
 /// 统一的发票状态徽章组件
@@ -18,7 +17,7 @@ class InvoiceStatusBadge extends StatelessWidget {
   final VoidCallback? onTap;
   final BadgeSize size;
   final bool showConsumptionDateOnly;
-  
+
   const InvoiceStatusBadge({
     super.key,
     required this.invoice,
@@ -33,7 +32,7 @@ class InvoiceStatusBadge extends StatelessWidget {
     final statusColor = _getStatusColor(context, isReimbursed);
     final statusText = _getStatusText(isReimbursed);
     final statusIcon = _getStatusIcon(isReimbursed);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -72,17 +71,17 @@ class InvoiceStatusBadge extends StatelessWidget {
   /// 获取状态颜色（基于紧急程度）
   Color _getStatusColor(BuildContext context, bool isReimbursed) {
     if (isReimbursed) {
-      return AppColors.reimbursed(context); // 已报销：绿色
+      return Theme.of(context).colorScheme.primary; // 已报销：绿色
     }
-    
+
     // 未报销状态根据紧急程度确定颜色
     switch (_getUrgencyLevel()) {
       case UrgencyLevel.overdue:
-        return AppColors.overdue(context); // 逾期：红色
+        return Theme.of(context).colorScheme.error; // 逾期：红色
       case UrgencyLevel.urgent:
-        return AppColors.urgent(context); // 紧急：橙色
+        return Theme.of(context).colorScheme.tertiary; // 紧急：橙色
       case UrgencyLevel.normal:
-        return AppColors.pending(context); // 普通：蓝色
+        return Theme.of(context).colorScheme.secondary; // 普通：蓝色
     }
   }
 
@@ -91,7 +90,7 @@ class InvoiceStatusBadge extends StatelessWidget {
     final now = DateTime.now();
     final consumptionDate = invoice.consumptionDate ?? invoice.invoiceDate;
     final daysSinceConsumption = now.difference(consumptionDate).inDays;
-    
+
     if (daysSinceConsumption > 90) {
       return UrgencyLevel.overdue; // 超过90天：逾期
     } else if (daysSinceConsumption > 60) {
@@ -106,7 +105,7 @@ class InvoiceStatusBadge extends StatelessWidget {
     if (isReimbursed) {
       return '已报销';
     }
-    
+
     // 根据紧急程度返回不同的文本
     switch (_getUrgencyLevel()) {
       case UrgencyLevel.overdue:
@@ -123,7 +122,7 @@ class InvoiceStatusBadge extends StatelessWidget {
     if (isReimbursed) {
       return CupertinoIcons.checkmark_circle_fill;
     }
-    
+
     switch (_getUrgencyLevel()) {
       case UrgencyLevel.overdue:
         return CupertinoIcons.exclamationmark_triangle_fill;
@@ -197,9 +196,9 @@ class InvoiceStatusBadge extends StatelessWidget {
 
 /// 徽章大小枚举
 enum BadgeSize {
-  small,   // 小型（适用于列表项）
-  medium,  // 中型（默认）
-  large,   // 大型（适用于详情页面）
+  small, // 小型（适用于列表项）
+  medium, // 中型（默认）
+  large, // 大型（适用于详情页面）
 }
 
 /// 带操作表的发票状态徽章
@@ -209,7 +208,7 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
   final ValueChanged<InvoiceStatus>? onStatusChanged;
   final BadgeSize size;
   final bool showConsumptionDateOnly;
-  
+
   const InteractiveInvoiceStatusBadge({
     super.key,
     required this.invoice,
@@ -224,14 +223,16 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
       invoice: invoice,
       size: size,
       showConsumptionDateOnly: showConsumptionDateOnly,
-      onTap: onStatusChanged != null ? () => _showStatusActionSheet(context) : null,
+      onTap: onStatusChanged != null
+          ? () => _showStatusActionSheet(context)
+          : null,
     );
   }
 
   /// 显示状态切换操作表（iOS风格）
   void _showStatusActionSheet(BuildContext context) {
     final isCurrentlyReimbursed = invoice.status == InvoiceStatus.reimbursed;
-    
+
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
@@ -240,8 +241,10 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         message: Text(
-          invoice.sellerName ?? (invoice.invoiceNumber ?? '未知发票'),
-          style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant(context)),
+          invoice.sellerName ?? invoice.invoiceNumber,
+          style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           if (!isCurrentlyReimbursed)
@@ -256,14 +259,14 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
                 children: [
                   Icon(
                     CupertinoIcons.checkmark_circle_fill,
-                    color: AppColors.reimbursed(context),
+                    color: Theme.of(context).colorScheme.primary,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
                   Text(
                     '标记为已报销',
                     style: TextStyle(
-                      color: AppColors.reimbursed(context),
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
@@ -283,14 +286,14 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
                 children: [
                   Icon(
                     CupertinoIcons.time_solid,
-                    color: AppColors.urgent(context),
+                    color: Theme.of(context).colorScheme.tertiary,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
                   Text(
                     '标记为未报销',
                     style: TextStyle(
-                      color: AppColors.urgent(context),
+                      color: Theme.of(context).colorScheme.tertiary,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
@@ -316,12 +319,13 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.check_circle, color: AppColors.onSuccess(context)),
+            Icon(Icons.check_circle,
+                color: Theme.of(context).colorScheme.onPrimary),
             const SizedBox(width: 8),
             Text('已标记为$statusText'),
           ],
         ),
-        backgroundColor: AppColors.success(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

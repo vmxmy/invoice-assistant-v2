@@ -7,7 +7,7 @@ import '../../core/config/app_config.dart';
 /// 用户注册页面
 class RegisterPage extends StatefulWidget {
   final VoidCallback onRegisterSuccess;
-  
+
   const RegisterPage({super.key, required this.onRegisterSuccess});
 
   @override
@@ -20,7 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  
+
   bool _isLoading = false;
   String? _errorMessage;
   String? _successMessage;
@@ -73,7 +73,9 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📝 [Register] 注册响应 - User: ${response.user?.email}, Session: ${response.session != null}', tag: 'Debug');
+        AppLogger.debug(
+            '📝 [Register] 注册响应 - User: ${response.user?.email}, Session: ${response.session != null}',
+            tag: 'Debug');
       }
 
       if (response.user != null) {
@@ -82,14 +84,16 @@ class _RegisterPageState extends State<RegisterPage> {
           setState(() {
             _successMessage = '注册成功！请查看您的邮箱并点击确认链接以激活账户。';
           });
-          
+
           if (AppConfig.enableLogging) {
-            AppLogger.debug('📧 [Register] 等待邮箱确认: ${response.user!.email}', tag: 'Debug');
+            AppLogger.debug('📧 [Register] 等待邮箱确认: ${response.user!.email}',
+                tag: 'Debug');
           }
         } else {
           // 邮箱已确认，直接登录
           if (AppConfig.enableLogging) {
-            AppLogger.debug('✅ [Register] 注册成功并自动登录: ${response.user!.email}', tag: 'Debug');
+            AppLogger.debug('✅ [Register] 注册成功并自动登录: ${response.user!.email}',
+                tag: 'Debug');
           }
           widget.onRegisterSuccess();
         }
@@ -130,10 +134,11 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom - 
-                         kToolbarHeight - 48,
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  kToolbarHeight -
+                  48,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // 邮箱输入
                           TextFormField(
                             controller: _emailController,
@@ -215,7 +220,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // 密码输入
                           TextFormField(
                             controller: _passwordController,
@@ -224,8 +229,11 @@ class _RegisterPageState extends State<RegisterPage> {
                               labelText: '密码',
                               prefixIcon: const Icon(CupertinoIcons.lock),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscurePassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash),
-                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                icon: Icon(_obscurePassword
+                                    ? CupertinoIcons.eye
+                                    : CupertinoIcons.eye_slash),
+                                onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword),
                               ),
                               border: const OutlineInputBorder(),
                             ),
@@ -240,7 +248,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // 确认密码输入
                           TextFormField(
                             controller: _confirmPasswordController,
@@ -249,8 +257,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               labelText: '确认密码',
                               prefixIcon: const Icon(CupertinoIcons.lock),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscureConfirmPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash),
-                                onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                                icon: Icon(_obscureConfirmPassword
+                                    ? CupertinoIcons.eye
+                                    : CupertinoIcons.eye_slash),
+                                onPressed: () => setState(() =>
+                                    _obscureConfirmPassword =
+                                        !_obscureConfirmPassword),
                               ),
                               border: const OutlineInputBorder(),
                             ),
@@ -272,16 +284,19 @@ class _RegisterPageState extends State<RegisterPage> {
                               decoration: BoxDecoration(
                                 color: Colors.green.shade50,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.green.shade200),
+                                border:
+                                    Border.all(color: Colors.green.shade200),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(CupertinoIcons.checkmark_circle_fill, color: Colors.green.shade700),
+                                  Icon(CupertinoIcons.checkmark_circle_fill,
+                                      color: Colors.green.shade700),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       _successMessage!,
-                                      style: TextStyle(color: Colors.green.shade700),
+                                      style: TextStyle(
+                                          color: Colors.green.shade700),
                                     ),
                                   ),
                                 ],
@@ -301,12 +316,14 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(CupertinoIcons.exclamationmark_triangle, color: Colors.red.shade700),
+                                  Icon(CupertinoIcons.exclamationmark_triangle,
+                                      color: Colors.red.shade700),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       _errorMessage!,
-                                      style: TextStyle(color: Colors.red.shade700),
+                                      style:
+                                          TextStyle(color: Colors.red.shade700),
                                     ),
                                   ),
                                 ],
@@ -329,7 +346,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
                                       ),
                                     )
                                   : const Text(
@@ -343,9 +362,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // 登录链接
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

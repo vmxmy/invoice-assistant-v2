@@ -30,9 +30,10 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
     // 使用App级别的BLoC实例，确保状态同步
     final bloc = context.read<InvoiceBloc>();
     if (AppConfig.enableLogging) {
-      AppLogger.debug('📤 [UploadPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc', tag: 'Debug');
+      AppLogger.debug('📤 [UploadPage:${bloc.hashCode}] 使用来自App级的全局InvoiceBloc',
+          tag: 'Debug');
     }
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('上传发票'),
@@ -64,21 +65,23 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                 builder: (context, constraints) {
                   // 对于宽屏设备（如Mac），限制内容宽度并居中显示
                   final bool isWideScreen = constraints.maxWidth > 800;
-                  final double contentWidth = isWideScreen ? 600.0 : constraints.maxWidth;
-                  
+                  final double contentWidth =
+                      isWideScreen ? 600.0 : constraints.maxWidth;
+
                   Widget content = Column(
                     children: [
                       // 上传区域
                       Expanded(
                         child: _buildUploadArea(context, state),
                       ),
-                      
+
                       // 底部操作栏
-                      if (_selectedFiles.isNotEmpty && state is! InvoiceUploading)
+                      if (_selectedFiles.isNotEmpty &&
+                          state is! InvoiceUploading)
                         _buildActionBar(context),
                     ],
                   );
-                  
+
                   if (isWideScreen) {
                     return Center(
                       child: SizedBox(
@@ -87,7 +90,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                       ),
                     );
                   }
-                  
+
                   return content;
                 },
               ),
@@ -160,19 +163,21 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         return Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: _isDragging ? Theme.of(context).primaryColor : Colors.grey.shade300,
+              color: _isDragging
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey.shade300,
               width: _isDragging ? 3 : 2,
               style: _isDragging ? BorderStyle.solid : BorderStyle.solid,
             ),
             borderRadius: BorderRadius.circular(12),
-            color: _isDragging 
-              ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
-              : Colors.grey.shade50,
+            color: _isDragging
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
+                : Colors.grey.shade50,
           ),
           child: Semantics(
-            label: _selectedFiles.isEmpty 
-              ? '选择PDF发票文件或拖拽文件到此处上传，最多5个文件，单文件不超过10MB'
-              : '已选择${_selectedFiles.length}个文件，点击重新选择',
+            label: _selectedFiles.isEmpty
+                ? '选择PDF发票文件或拖拽文件到此处上传，最多5个文件，单文件不超过10MB'
+                : '已选择${_selectedFiles.length}个文件，点击重新选择',
             button: true,
             child: InkWell(
               onTap: _pickFiles,
@@ -185,100 +190,120 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _selectedFiles.isEmpty ? CupertinoIcons.cloud_upload : CupertinoIcons.folder_open,
-                            size: 32,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _selectedFiles.isEmpty ? '选择PDF发票文件' : '已选择 ${_selectedFiles.length} 个文件',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _selectedFiles.isEmpty 
-                                  ? (_isDragging 
-                                    ? '释放文件到此处上传'
-                                    : '点击选择或拖拽文件')
-                                  : '点击重新选择文件',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: _isDragging ? Theme.of(context).primaryColor : Colors.grey.shade600,
-                                  fontWeight: _isDragging ? FontWeight.w500 : FontWeight.normal,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      
-                      // 已选文件列表
-                      if (_selectedFiles.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        
-                        ...List.generate(_selectedFiles.length, (index) {
-                          final filePath = _selectedFiles[index];
-                          final fileName = filePath.split('/').last;
-                          final file = File(filePath);
-                          final fileSize = file.existsSync() ? file.lengthSync() : 0;
-                          
-                          return Semantics(
-                            label: 'PDF文件 $fileName，大小 ${_formatFileSize(fileSize)}',
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey.shade200),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                leading: const Icon(CupertinoIcons.doc_text, color: Colors.red),
-                                title: Text(
-                                  fileName,
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: Text(
-                                  _formatFileSize(fileSize),
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                trailing: Semantics(
-                                  label: '移除文件 $fileName',
-                                  button: true,
-                                  child: IconButton(
-                                    icon: const Icon(CupertinoIcons.xmark, color: Colors.grey),
-                                    onPressed: () => _removeFile(index),
-                                    tooltip: '移除此文件',
-                                    constraints: const BoxConstraints(
-                                      minWidth: 40,
-                                      minHeight: 40,
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                  ),
-                                ),
-                              ),
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _selectedFiles.isEmpty
+                                  ? CupertinoIcons.cloud_upload
+                                  : CupertinoIcons.folder_open,
+                              size: 32,
+                              color: Theme.of(context).primaryColor,
                             ),
-                          );
-                        }),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _selectedFiles.isEmpty
+                                      ? '选择PDF发票文件'
+                                      : '已选择 ${_selectedFiles.length} 个文件',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context).primaryColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _selectedFiles.isEmpty
+                                      ? (_isDragging
+                                          ? '释放文件到此处上传'
+                                          : '点击选择或拖拽文件')
+                                      : '点击重新选择文件',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: _isDragging
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.grey.shade600,
+                                        fontWeight: _isDragging
+                                            ? FontWeight.w500
+                                            : FontWeight.normal,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // 已选文件列表
+                        if (_selectedFiles.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          ...List.generate(_selectedFiles.length, (index) {
+                            final filePath = _selectedFiles[index];
+                            final fileName = filePath.split('/').last;
+                            final file = File(filePath);
+                            final fileSize =
+                                file.existsSync() ? file.lengthSync() : 0;
+
+                            return Semantics(
+                              label:
+                                  'PDF文件 $fileName，大小 ${_formatFileSize(fileSize)}',
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border:
+                                      Border.all(color: Colors.grey.shade200),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  leading: const Icon(CupertinoIcons.doc_text,
+                                      color: Colors.red),
+                                  title: Text(
+                                    fileName,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    _formatFileSize(fileSize),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  trailing: Semantics(
+                                    label: '移除文件 $fileName',
+                                    button: true,
+                                    child: IconButton(
+                                      icon: const Icon(CupertinoIcons.xmark,
+                                          color: Colors.grey),
+                                      onPressed: () => _removeFile(index),
+                                      tooltip: '移除此文件',
+                                      constraints: const BoxConstraints(
+                                        minWidth: 40,
+                                        minHeight: 40,
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
                 ),
               ),
             ),
@@ -287,7 +312,6 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       },
     );
   }
-
 
   /// 构建底部操作栏
   Widget _buildActionBar(BuildContext context) {
@@ -348,7 +372,9 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
     try {
       if (AppConfig.enableLogging) {
         AppLogger.debug('📁 [UploadPage] 开始选择文件', tag: 'Debug');
-        AppLogger.debug('📁 [UploadPage] FilePicker平台: ${FilePicker.platform.runtimeType}', tag: 'Debug');
+        AppLogger.debug(
+            '📁 [UploadPage] FilePicker平台: ${FilePicker.platform.runtimeType}',
+            tag: 'Debug');
       }
 
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -356,22 +382,23 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         allowedExtensions: ['pdf'],
         allowMultiple: true,
       );
-      
+
       if (AppConfig.enableLogging) {
-        print('📁 [UploadPage] FilePicker结果: ${result != null ? '有结果' : 'null'}');
+        // print('📁 [UploadPage] FilePicker结果: ${result != null ? '有结果' : 'null'}');
         if (result != null) {
-          AppLogger.debug('📁 [UploadPage] 文件数量: ${result.files.length}', tag: 'Debug');
+          AppLogger.debug('📁 [UploadPage] 文件数量: ${result.files.length}',
+              tag: 'Debug');
           for (var file in result.files) {
-            AppLogger.debug('📁 [UploadPage] 文件: ${file.name}, 路径: ${file.path}', tag: 'Debug');
+            AppLogger.debug(
+                '📁 [UploadPage] 文件: ${file.name}, 路径: ${file.path}',
+                tag: 'Debug');
           }
         }
       }
 
       if (result != null && result.files.isNotEmpty) {
-        final selectedPaths = result.paths
-            .where((path) => path != null)
-            .cast<String>()
-            .toList();
+        final selectedPaths =
+            result.paths.where((path) => path != null).cast<String>().toList();
 
         // 检查文件大小
         const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -391,14 +418,16 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         }
 
         // 显示相应的警告信息
-        if (oversizedFiles.isNotEmpty) {
-          AppFeedback.warning(context, '文件过大', 
-            message: '${oversizedFiles.length}个文件超过10MB大小限制，已自动忽略');
-        }
+        if (mounted) {
+          if (oversizedFiles.isNotEmpty) {
+            AppFeedback.warning(context, '文件过大',
+                message: '${oversizedFiles.length}个文件超过10MB大小限制，已自动忽略');
+          }
 
-        if (selectedPaths.length > 5) {
-          AppFeedback.warning(context, '文件数量限制', 
-            message: '最多只能选择5个文件，已自动截取前5个有效文件');
+          if (selectedPaths.length > 5) {
+            AppFeedback.warning(context, '文件数量限制',
+                message: '最多只能选择5个文件，已自动截取前5个有效文件');
+          }
         }
 
         if (validFiles.isNotEmpty) {
@@ -408,17 +437,20 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
           });
 
           if (AppConfig.enableLogging) {
-            AppLogger.debug('📁 [UploadPage] 选择了 ${validFiles.length} 个有效文件', tag: 'Debug');
+            AppLogger.debug('📁 [UploadPage] 选择了 ${validFiles.length} 个有效文件',
+                tag: 'Debug');
           }
         } else {
-          AppFeedback.error(context, '无有效文件', message: '所选文件都不符合要求（格式或大小）');
+          if (mounted) {
+            AppFeedback.error(context, '无有效文件', message: '所选文件都不符合要求（格式或大小）');
+          }
         }
       }
     } catch (error) {
       if (AppConfig.enableLogging) {
         AppLogger.debug('❌ [UploadPage] 选择文件失败: $error', tag: 'Debug');
       }
-      
+
       if (mounted) {
         AppFeedback.error(context, '文件选择失败', message: error.toString());
       }
@@ -436,7 +468,8 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
   Future<void> _handleDroppedFiles(List<String> filePaths) async {
     try {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📁 [UploadPage] 处理拖拽文件: ${filePaths.length}个', tag: 'Debug');
+        AppLogger.debug('📁 [UploadPage] 处理拖拽文件: ${filePaths.length}个',
+            tag: 'Debug');
       }
 
       // 过滤PDF文件
@@ -450,8 +483,8 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       }
 
       if (pdfFiles.length != filePaths.length) {
-        AppFeedback.warning(context, '部分文件已过滤', 
-          message: '已过滤掉非PDF格式的文件，仅保留${pdfFiles.length}个PDF文件');
+        AppFeedback.warning(context, '部分文件已过滤',
+            message: '已过滤掉非PDF格式的文件，仅保留${pdfFiles.length}个PDF文件');
       }
 
       // 检查文件大小
@@ -472,13 +505,13 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       }
 
       if (oversizedFiles.isNotEmpty) {
-        AppFeedback.warning(context, '文件过大', 
-          message: '${oversizedFiles.length}个文件超过10MB大小限制，已自动忽略');
+        AppFeedback.warning(context, '文件过大',
+            message: '${oversizedFiles.length}个文件超过10MB大小限制，已自动忽略');
       }
 
       if (pdfFiles.length > 5) {
-        AppFeedback.warning(context, '文件数量限制', 
-          message: '最多只能选择5个文件，已自动截取前5个有效文件');
+        AppFeedback.warning(context, '文件数量限制',
+            message: '最多只能选择5个文件，已自动截取前5个有效文件');
       }
 
       if (validFiles.isNotEmpty) {
@@ -488,7 +521,8 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         });
 
         if (AppConfig.enableLogging) {
-          AppLogger.debug('📁 [UploadPage] 拖拽添加了 ${validFiles.length} 个有效文件', tag: 'Debug');
+          AppLogger.debug('📁 [UploadPage] 拖拽添加了 ${validFiles.length} 个有效文件',
+              tag: 'Debug');
         }
       } else {
         AppFeedback.error(context, '无有效文件', message: '没有找到符合要求的PDF文件');
@@ -509,26 +543,30 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
     }
 
     if (AppConfig.enableLogging) {
-      AppLogger.debug('🚀 [UploadPage] 开始上传 ${_selectedFiles.length} 个文件', tag: 'Debug');
+      AppLogger.debug('🚀 [UploadPage] 开始上传 ${_selectedFiles.length} 个文件',
+          tag: 'Debug');
     }
 
     // 发送批量上传事件
     context.read<InvoiceBloc>().add(
-      UploadInvoices(filePaths: List.from(_selectedFiles)),
-    );
+          UploadInvoices(filePaths: List.from(_selectedFiles)),
+        );
   }
 
   /// 处理上传完成
-  void _handleUploadCompleted(BuildContext context, InvoiceUploadCompleted state) {
+  void _handleUploadCompleted(
+      BuildContext context, InvoiceUploadCompleted state) {
     if (AppConfig.enableLogging) {
-      AppLogger.debug('✅ [UploadPage] 上传完成 - 成功: ${state.successCount}, 失败: ${state.failureCount}, 重复: ${state.duplicateCount}', tag: 'Debug');
+      AppLogger.debug(
+          '✅ [UploadPage] 上传完成 - 成功: ${state.successCount}, 失败: ${state.failureCount}, 重复: ${state.duplicateCount}',
+          tag: 'Debug');
     }
-    
+
     // 构建消息内容
     String title;
     String details;
     FeedbackType type;
-    
+
     if (state.hasFailure && !state.hasSuccess) {
       title = '上传失败';
       details = '${state.failureCount}个文件上传失败，请检查网络连接后重试';
@@ -553,7 +591,7 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       details = '所有文件已处理';
       type = FeedbackType.info;
     }
-    
+
     AppFeedback.show(
       context,
       FeedbackConfig(
@@ -572,7 +610,8 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(CupertinoIcons.question_circle, color: Theme.of(context).primaryColor),
+            Icon(CupertinoIcons.question_circle,
+                color: Theme.of(context).primaryColor),
             const SizedBox(width: 8),
             const Text('上传帮助'),
           ],
@@ -582,46 +621,34 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHelpSection(
-                '📄 支持的文件格式',
-                [
-                  'PDF格式的发票文件',
-                  '单文件大小不超过10MB',
-                  '支持拖拽和点击上传',
-                ]
-              ),
+              _buildHelpSection('📄 支持的文件格式', [
+                'PDF格式的发票文件',
+                '单文件大小不超过10MB',
+                '支持拖拽和点击上传',
+              ]),
               const SizedBox(height: 16),
-              _buildHelpSection(
-                '📊 功能特性',
-                [
-                  '自动OCR识别发票信息',
-                  '智能去重检查（基于文件哈希）',
-                  '支持批量上传（最多5个文件）',
-                  '支持火车票和普通发票',
-                  '实时上传进度显示',
-                ]
-              ),
+              _buildHelpSection('📊 功能特性', [
+                '自动OCR识别发票信息',
+                '智能去重检查（基于文件哈希）',
+                '支持批量上传（最多5个文件）',
+                '支持火车票和普通发票',
+                '实时上传进度显示',
+              ]),
               const SizedBox(height: 16),
-              _buildHelpSection(
-                '🎯 操作指南',
-                [
-                  '点击上传区域选择文件',
-                  '拖拽PDF文件到上传区域',
-                  '可在上传前预览和移除文件',
-                  '上传过程中可查看实时进度',
-                ]
-              ),
+              _buildHelpSection('🎯 操作指南', [
+                '点击上传区域选择文件',
+                '拖拽PDF文件到上传区域',
+                '可在上传前预览和移除文件',
+                '上传过程中可查看实时进度',
+              ]),
               const SizedBox(height: 16),
-              _buildHelpSection(
-                '⚠️ 注意事项',
-                [
-                  '请确保PDF文件清晰可读',
-                  '重复文件会自动跳过',
-                  '处理时间取决于文件大小和复杂度',
-                  '网络较慢时请耐心等待',
-                  '建议在WiFi环境下上传大文件',
-                ]
-              ),
+              _buildHelpSection('⚠️ 注意事项', [
+                '请确保PDF文件清晰可读',
+                '重复文件会自动跳过',
+                '处理时间取决于文件大小和复杂度',
+                '网络较慢时请耐心等待',
+                '建议在WiFi环境下上传大文件',
+              ]),
             ],
           ),
         ),
@@ -646,20 +673,20 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
         ),
         const SizedBox(height: 8),
         ...items.map((item) => Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('• ', style: TextStyle(fontSize: 14)),
-              Expanded(
-                child: Text(
-                  item,
-                  style: const TextStyle(fontSize: 14),
-                ),
+              padding: const EdgeInsets.only(left: 8, bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('• ', style: TextStyle(fontSize: 14)),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        )).toList(),
+            )),
       ],
     );
   }

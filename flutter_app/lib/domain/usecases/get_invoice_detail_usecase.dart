@@ -8,7 +8,7 @@ class GetInvoiceDetailUseCase {
   const GetInvoiceDetailUseCase(this._repository);
 
   /// 通过ID获取发票详情
-  /// 
+  ///
   /// [invoiceId] 发票ID
   /// 返回 [InvoiceEntity] 发票详情实体
   Future<InvoiceEntity> call(String invoiceId) async {

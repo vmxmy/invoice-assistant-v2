@@ -4,7 +4,7 @@ import '../../core/config/app_config.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/reimbursement_set_repository.dart';
-import '../../domain/exceptions/invoice_exceptions.dart';
+// import '../../domain/exceptions/invoice_exceptions.dart'; // 未使用
 import '../models/reimbursement_set_model.dart';
 import '../models/invoice_model.dart';
 
@@ -25,7 +25,9 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .order('created_at', ascending: false);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 获取报销集列表: ${response.length} 个', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 获取报销集列表: ${response.length} 个',
+            tag: 'Debug');
       }
 
       return response
@@ -33,7 +35,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .toList();
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集列表失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集列表失败: $e',
+            tag: 'Debug');
       }
       throw Exception('获取报销集列表失败: ${e.toString()}');
     }
@@ -50,13 +53,15 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .single();
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 获取报销集详情: $id', tag: 'Debug');
+        AppLogger.debug('📊 [ReimbursementSetRepository] 获取报销集详情: $id',
+            tag: 'Debug');
       }
 
       return ReimbursementSetModel.fromJson(response).toEntity();
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集详情失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集详情失败: $e',
+            tag: 'Debug');
       }
       throw Exception('获取报销集详情失败: ${e.toString()}');
     }
@@ -76,21 +81,25 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       }
 
       // 开始数据库事务
-      final response = await _supabaseClient.rpc('create_reimbursement_set_with_invoices', params: {
+      final response = await _supabaseClient
+          .rpc('create_reimbursement_set_with_invoices', params: {
         'p_set_name': setName,
         'p_description': description,
         'p_invoice_ids': invoiceIds,
       });
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 创建报销集成功: $setName, 包含 ${invoiceIds.length} 张发票', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 创建报销集成功: $setName, 包含 ${invoiceIds.length} 张发票',
+            tag: 'Debug');
       }
 
       // 获取创建的报销集详情
       return await getReimbursementSetById(response);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 创建报销集失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 创建报销集失败: $e',
+            tag: 'Debug');
       }
       throw Exception('创建报销集失败: ${e.toString()}');
     }
@@ -106,7 +115,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       final updateData = <String, dynamic>{};
       if (setName != null) updateData['set_name'] = setName;
       if (description != null) updateData['description'] = description;
-      
+
       await _supabaseClient
           .from('reimbursement_sets')
           .update(updateData)
@@ -114,13 +123,15 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 更新报销集成功: $id', tag: 'Debug');
+        AppLogger.debug('📊 [ReimbursementSetRepository] 更新报销集成功: $id',
+            tag: 'Debug');
       }
 
       return await getReimbursementSetById(id);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 更新报销集失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 更新报销集失败: $e',
+            tag: 'Debug');
       }
       throw Exception('更新报销集失败: ${e.toString()}');
     }
@@ -138,7 +149,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       };
 
       final now = DateTime.now().toIso8601String();
-      
+
       switch (status) {
         case ReimbursementSetStatus.submitted:
           updateData['submitted_at'] = now;
@@ -164,13 +175,16 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 更新报销集状态成功: $id -> ${status.value}', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 更新报销集状态成功: $id -> ${status.value}',
+            tag: 'Debug');
       }
 
       return await getReimbursementSetById(id);
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 更新报销集状态失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 更新报销集状态失败: $e',
+            tag: 'Debug');
       }
       throw Exception('更新报销集状态失败: ${e.toString()}');
     }
@@ -180,13 +194,10 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   Future<void> deleteReimbursementSet(String id) async {
     try {
       // 先将关联的发票从报销集中移除
-      await _supabaseClient
-          .from('invoices')
-          .update({
-            'reimbursement_set_id': null,
-            'assigned_to_set_at': null,
-          })
-          .eq('reimbursement_set_id', id);
+      await _supabaseClient.from('invoices').update({
+        'reimbursement_set_id': null,
+        'assigned_to_set_at': null,
+      }).eq('reimbursement_set_id', id);
 
       // 然后删除报销集
       await _supabaseClient
@@ -196,11 +207,13 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 删除报销集成功: $id', tag: 'Debug');
+        AppLogger.debug('📊 [ReimbursementSetRepository] 删除报销集成功: $id',
+            tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 删除报销集失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 删除报销集失败: $e',
+            tag: 'Debug');
       }
       throw Exception('删除报销集失败: ${e.toString()}');
     }
@@ -225,11 +238,14 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 添加发票到报销集成功: ${invoiceIds.length} 张', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 添加发票到报销集成功: ${invoiceIds.length} 张',
+            tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 添加发票到报销集失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 添加发票到报销集失败: $e',
+            tag: 'Debug');
       }
       throw Exception('添加发票到报销集失败: ${e.toString()}');
     }
@@ -248,11 +264,14 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 从报销集移除发票成功: ${invoiceIds.length} 张', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 从报销集移除发票成功: ${invoiceIds.length} 张',
+            tag: 'Debug');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 从报销集移除发票失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 从报销集移除发票失败: $e',
+            tag: 'Debug');
       }
       throw Exception('从报销集移除发票失败: ${e.toString()}');
     }
@@ -269,7 +288,9 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .order('invoice_date', ascending: false);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 获取报销集发票列表: ${response.length} 张', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 获取报销集发票列表: ${response.length} 张',
+            tag: 'Debug');
       }
 
       return response
@@ -277,7 +298,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .toList();
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集发票列表失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 获取报销集发票列表失败: $e',
+            tag: 'Debug');
       }
       throw Exception('获取报销集发票列表失败: ${e.toString()}');
     }
@@ -295,7 +317,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       PostgrestTransformBuilder<PostgrestList> query = baseQuery;
-      
+
       if (limit != null) {
         query = query.limit(limit);
       }
@@ -306,7 +328,9 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       final response = await query;
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 获取未分配发票列表: ${response.length} 张', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 获取未分配发票列表: ${response.length} 张',
+            tag: 'Debug');
       }
 
       return response
@@ -314,7 +338,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .toList();
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 获取未分配发票列表失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 获取未分配发票列表失败: $e',
+            tag: 'Debug');
       }
       throw Exception('获取未分配发票列表失败: ${e.toString()}');
     }
@@ -330,16 +355,20 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       // 检查是否所有发票都未分配
-      final canAssign = response.every((invoice) => invoice['reimbursement_set_id'] == null);
+      final canAssign =
+          response.every((invoice) => invoice['reimbursement_set_id'] == null);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 检查发票分配状态: ${invoiceIds.length} 张发票, 可分配: $canAssign', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 检查发票分配状态: ${invoiceIds.length} 张发票, 可分配: $canAssign',
+            tag: 'Debug');
       }
 
       return canAssign;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 检查发票分配状态失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 检查发票分配状态失败: $e',
+            tag: 'Debug');
       }
       return false;
     }
@@ -394,13 +423,16 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       );
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📊 [ReimbursementSetRepository] 获取统计信息: 总计 $totalSets 个报销集', tag: 'Debug');
+        AppLogger.debug(
+            '📊 [ReimbursementSetRepository] 获取统计信息: 总计 $totalSets 个报销集',
+            tag: 'Debug');
       }
 
       return stats;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('❌ [ReimbursementSetRepository] 获取统计信息失败: $e', tag: 'Debug');
+        AppLogger.debug('❌ [ReimbursementSetRepository] 获取统计信息失败: $e',
+            tag: 'Debug');
       }
       throw Exception('获取统计信息失败: ${e.toString()}');
     }

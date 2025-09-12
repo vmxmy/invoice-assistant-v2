@@ -1,0 +1,455 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import '../../core/theme/app_typography.dart';
+
+/// 统一的底部弹出Sheet组件
+/// 提供一致的视觉体验和交互模式
+class UnifiedBottomSheet {
+  // 私有构造函数，防止实例化
+  UnifiedBottomSheet._();
+
+  /// 显示确认对话框
+  static Future<bool?> showConfirmDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    String confirmText = '确认',
+    String cancelText = '取消',
+    Color? confirmColor,
+    IconData? icon,
+  }) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ConfirmBottomSheet(
+        title: title,
+        content: content,
+        confirmText: confirmText,
+        cancelText: cancelText,
+        confirmColor: confirmColor,
+        icon: icon,
+      ),
+    );
+  }
+
+  /// 显示操作选择Sheet
+  static Future<T?> showActionSheet<T>({
+    required BuildContext context,
+    required String title,
+    String? message,
+    required List<BottomSheetAction<T>> actions,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ActionBottomSheet<T>(
+        title: title,
+        message: message,
+        actions: actions,
+      ),
+    );
+  }
+
+  /// 显示自定义内容Sheet
+  static Future<T?> showCustomSheet<T>({
+    required BuildContext context,
+    required Widget child,
+    String? title,
+    bool showCloseButton = true,
+    double? height,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _CustomBottomSheet(
+        title: title,
+        showCloseButton: showCloseButton,
+        height: height,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// 确认对话框底部Sheet
+class _ConfirmBottomSheet extends StatelessWidget {
+  final String title;
+  final String content;
+  final String confirmText;
+  final String cancelText;
+  final Color? confirmColor;
+  final IconData? icon;
+
+  const _ConfirmBottomSheet({
+    required this.title,
+    required this.content,
+    required this.confirmText,
+    required this.cancelText,
+    this.confirmColor,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final effectiveConfirmColor = confirmColor ?? colorScheme.primary;
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽指示器
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 图标
+                if (icon != null) ...[
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: effectiveConfirmColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 28,
+                      color: effectiveConfirmColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // 标题
+                Text(
+                  title,
+                  style: AppTypography.headlineSmall(context).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                // 内容
+                Text(
+                  content,
+                  style: AppTypography.bodyMedium(context).copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+
+                // 按钮组
+                Row(
+                  children: [
+                    // 取消按钮
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          cancelText,
+                          style: AppTypography.labelLarge(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // 确认按钮
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: effectiveConfirmColor,
+                          foregroundColor: colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          confirmText,
+                          style: AppTypography.labelLarge(context).copyWith(
+                            color: colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 操作选择底部Sheet
+class _ActionBottomSheet<T> extends StatelessWidget {
+  final String title;
+  final String? message;
+  final List<BottomSheetAction<T>> actions;
+
+  const _ActionBottomSheet({
+    required this.title,
+    this.message,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽指示器
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 标题
+                Text(
+                  title,
+                  style: AppTypography.titleLarge(context).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                
+                // 消息
+                if (message != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    message!,
+                    style: AppTypography.bodyMedium(context).copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                // 操作按钮列表
+                ...actions.map(
+                  (action) => Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(action.value);
+                        action.onPressed?.call();
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (action.icon != null) ...[
+                            Icon(
+                              action.icon,
+                              size: 20,
+                              color: action.color ?? colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            action.title,
+                            style: AppTypography.labelLarge(context).copyWith(
+                              color: action.color ?? colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 取消按钮
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 8),
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      '取消',
+                      style: AppTypography.labelLarge(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 自定义内容底部Sheet
+class _CustomBottomSheet extends StatelessWidget {
+  final String? title;
+  final bool showCloseButton;
+  final double? height;
+  final Widget child;
+
+  const _CustomBottomSheet({
+    this.title,
+    required this.showCloseButton,
+    this.height,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      height: height,
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽指示器
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // 标题栏
+          if (title != null || showCloseButton)
+            Container(
+              padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
+              child: Row(
+                children: [
+                  if (title != null)
+                    Expanded(
+                      child: Text(
+                        title!,
+                        style: AppTypography.titleLarge(context).copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  if (showCloseButton)
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        CupertinoIcons.xmark,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+          // 内容
+          Flexible(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+/// 底部Sheet操作项
+class BottomSheetAction<T> {
+  final String title;
+  final T value;
+  final IconData? icon;
+  final Color? color;
+  final VoidCallback? onPressed;
+
+  const BottomSheetAction({
+    required this.title,
+    required this.value,
+    this.icon,
+    this.color,
+    this.onPressed,
+  });
+}

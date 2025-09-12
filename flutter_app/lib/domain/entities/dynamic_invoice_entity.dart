@@ -7,48 +7,48 @@ class DynamicInvoiceEntity {
   final DateTime invoiceDate;
   final DateTime? consumptionDate;
   final String userId;
-  
+
   // 基本信息
   final String? sellerName;
   final String? buyerName;
   final String? sellerTaxId;
   final String? buyerTaxId;
-  
+
   // 金额信息
   final double amount;
   final double? totalAmount;
   final double? taxAmount;
   final String currency;
-  
+
   // 分类和状态 - 使用字符串而非枚举
   final String? category;
-  final String status;  // 动态状态
+  final String status; // 动态状态
   final String? invoiceType;
   final String? invoiceCode;
-  
+
   // 文件信息
   final String? fileUrl;
   final String? filePath;
   final String? fileHash;
   final int? fileSize;
-  
+
   // 处理状态
   final String? processingStatus;
   final bool isVerified;
   final String? verificationNotes;
   final DateTime? verifiedAt;
   final String? verifiedBy;
-  
+
   // 数据来源 - 使用字符串而非枚举
-  final String source;  // 动态来源
+  final String source; // 动态来源
   final Map<String, dynamic>? sourceMetadata;
   final String? emailTaskId;
-  
+
   // 标签和元数据
   final List<String> tags;
   final Map<String, dynamic>? extractedData;
   final Map<String, dynamic>? metadata;
-  
+
   // 时间戳
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -56,7 +56,7 @@ class DynamicInvoiceEntity {
   final DateTime? completedAt;
   final DateTime? startedAt;
   final DateTime? lastActivityAt;
-  
+
   // 版本控制
   final int version;
   final String? createdBy;
@@ -77,7 +77,7 @@ class DynamicInvoiceEntity {
     this.taxAmount,
     this.currency = 'CNY',
     this.category,
-    this.status = 'unreimbursed',  // 默认未报销
+    this.status = 'unreimbursed', // 默认未报销
     this.invoiceType,
     this.invoiceCode,
     this.fileUrl,
@@ -89,7 +89,7 @@ class DynamicInvoiceEntity {
     this.verificationNotes,
     this.verifiedAt,
     this.verifiedBy,
-    this.source = 'upload',  // 默认上传
+    this.source = 'upload', // 默认上传
     this.sourceMetadata,
     this.emailTaskId,
     this.tags = const [],
@@ -108,7 +108,7 @@ class DynamicInvoiceEntity {
 
   /// 业务逻辑：获取显示用的金额
   double get displayAmount => totalAmount ?? amount;
-  
+
   /// 业务逻辑：获取格式化的金额字符串
   String get formattedAmount {
     final amount = displayAmount;
@@ -117,30 +117,30 @@ class DynamicInvoiceEntity {
     }
     return '$currency ${amount.toStringAsFixed(2)}';
   }
-  
+
   /// 业务逻辑：获取格式化的日期字符串
   String get formattedDate {
     return '${invoiceDate.year}-${invoiceDate.month.toString().padLeft(2, '0')}-${invoiceDate.day.toString().padLeft(2, '0')}';
   }
-  
+
   /// 业务逻辑：获取格式化的消费日期字符串
   String? get formattedConsumptionDate {
     if (consumptionDate == null) return null;
     return '${consumptionDate!.year}-${consumptionDate!.month.toString().padLeft(2, '0')}-${consumptionDate!.day.toString().padLeft(2, '0')}';
   }
-  
+
   /// 业务逻辑：是否已报销
   bool get isReimbursed => status == 'reimbursed';
-  
+
   /// 业务逻辑：是否未报销
   bool get isUnreimbursed => status == 'unreimbursed';
-  
+
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;
-  
+
   /// 业务逻辑：是否有附件
   bool get hasFile => fileUrl != null && fileUrl!.isNotEmpty;
-  
+
   /// 业务逻辑：获取报销进度百分比
   double get progressPercent {
     return isReimbursed ? 1.0 : 0.0;
@@ -148,12 +148,14 @@ class DynamicInvoiceEntity {
 
   /// 动态获取状态显示名称
   String get statusDisplayName {
-    return DynamicEnumManager.instance.getDisplayNameByValue('invoice_status', status);
+    return DynamicEnumManager.instance
+        .getDisplayNameByValue('invoice_status', status);
   }
 
   /// 动态获取来源显示名称
   String get sourceDisplayName {
-    return DynamicEnumManager.instance.getDisplayNameByValue('invoice_source', source);
+    return DynamicEnumManager.instance
+        .getDisplayNameByValue('invoice_source', source);
   }
 
   /// 复制实体并更新字段

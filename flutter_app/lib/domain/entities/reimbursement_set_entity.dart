@@ -3,14 +3,14 @@ import 'package:equatable/equatable.dart';
 /// 报销集状态枚举
 enum ReimbursementSetStatus {
   draft('draft', '草稿'),
-  submitted('submitted', '已提交'), 
+  submitted('submitted', '已提交'),
   reimbursed('reimbursed', '已报销');
 
   const ReimbursementSetStatus(this.value, this.displayName);
-  
+
   final String value;
   final String displayName;
-  
+
   static ReimbursementSetStatus fromString(String value) {
     return ReimbursementSetStatus.values.firstWhere(
       (status) => status.value == value,
@@ -34,7 +34,7 @@ class ReimbursementSetEntity extends Equatable {
   final String? approvalNotes;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // 扩展信息（来自视图）
   final String? userEmail;
   final String? approverEmail;
@@ -67,43 +67,43 @@ class ReimbursementSetEntity extends Equatable {
 
   /// 是否为草稿状态
   bool get isDraft => status == ReimbursementSetStatus.draft;
-  
+
   /// 是否已提交
   bool get isSubmitted => status == ReimbursementSetStatus.submitted;
-  
+
   /// 是否已报销
   bool get isReimbursed => status == ReimbursementSetStatus.reimbursed;
-  
+
   /// 是否可以编辑（只有草稿状态可以编辑）
   bool get canEdit => isDraft;
-  
+
   /// 是否可以提交（草稿状态且有发票）
   bool get canSubmit => isDraft && invoiceCount > 0;
-  
+
   /// 是否可以标记为已报销（已提交状态）
   bool get canMarkReimbursed => isSubmitted;
-  
+
   /// 获取状态显示文本
   String get statusDisplayName => status.displayName;
-  
+
   /// 获取时间范围文本
   String get dateRangeText {
     if (earliestInvoiceDate == null || latestInvoiceDate == null) {
       return '暂无发票';
     }
-    
+
     if (earliestInvoiceDate == latestInvoiceDate) {
       return '${earliestInvoiceDate!.year}-${earliestInvoiceDate!.month.toString().padLeft(2, '0')}-${earliestInvoiceDate!.day.toString().padLeft(2, '0')}';
     }
-    
+
     return '${earliestInvoiceDate!.year}-${earliestInvoiceDate!.month.toString().padLeft(2, '0')}-${earliestInvoiceDate!.day.toString().padLeft(2, '0')} 至 ${latestInvoiceDate!.year}-${latestInvoiceDate!.month.toString().padLeft(2, '0')}-${latestInvoiceDate!.day.toString().padLeft(2, '0')}';
   }
-  
+
   /// 获取分类统计文本
   String get categorySummary {
     final regions = regionCount ?? 0;
     final categories = categoryCount ?? 0;
-    
+
     final List<String> parts = [];
     if (regions > 0) {
       parts.add('$regions个地区');
@@ -111,32 +111,32 @@ class ReimbursementSetEntity extends Equatable {
     if (categories > 0) {
       parts.add('$categories种类型');
     }
-    
+
     return parts.isEmpty ? '无分类' : parts.join('，');
   }
 
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    setName,
-    description,
-    status,
-    submittedAt,
-    reimbursedAt,
-    totalAmount,
-    invoiceCount,
-    approverId,
-    approvalNotes,
-    createdAt,
-    updatedAt,
-    userEmail,
-    approverEmail,
-    earliestInvoiceDate,
-    latestInvoiceDate,
-    regionCount,
-    categoryCount,
-  ];
+        id,
+        userId,
+        setName,
+        description,
+        status,
+        submittedAt,
+        reimbursedAt,
+        totalAmount,
+        invoiceCount,
+        approverId,
+        approvalNotes,
+        createdAt,
+        updatedAt,
+        userEmail,
+        approverEmail,
+        earliestInvoiceDate,
+        latestInvoiceDate,
+        regionCount,
+        categoryCount,
+      ];
 
   /// 复制并修改部分字段
   ReimbursementSetEntity copyWith({

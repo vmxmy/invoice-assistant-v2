@@ -37,28 +37,28 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
   Future<void> _loadSignedUrl() async {
     try {
       String? filePath;
-      
+
       // 优先使用 filePath，如果没有则从 fileUrl 解析
       if (widget.filePath != null && widget.filePath!.isNotEmpty) {
         filePath = widget.filePath;
-        print('📄 [PDF] 使用 filePath: $filePath');
+        // print('📄 [PDF] 使用 filePath: $filePath');
       } else {
         // 从完整URL提取文件路径（fallback方式）
         filePath = SupabaseClientManager.extractFilePathFromUrl(widget.pdfUrl);
-        print('📄 [PDF] 从 URL 解析 filePath: $filePath');
+        // print('📄 [PDF] 从 URL 解析 filePath: $filePath');
       }
-      
+
       if (filePath == null || filePath.isEmpty) {
         throw Exception('文件路径不能为空');
       }
-      
+
       // 获取签名URL
       final signedUrl = await SupabaseClientManager.getSignedUrl(
         bucketName: 'invoice-files',
         filePath: filePath,
         expiresIn: 3600, // 1小时过期
       );
-      
+
       if (mounted) {
         setState(() {
           _signedUrl = signedUrl;
@@ -66,10 +66,10 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
           _hasError = false;
         });
       }
-      
-      print('📄 [PDF] 签名URL获取成功: $signedUrl');
+
+      // print('📄 [PDF] 签名URL获取成功: $signedUrl');
     } catch (e) {
-      print('📄 [PDF] 签名URL获取失败: $e');
+      // print('📄 [PDF] 签名URL获取失败: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -90,7 +90,7 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context).colorScheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(8),
           ),
           child: ClipRRect(
@@ -100,45 +100,48 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
               children: [
                 // PDF预览
                 if (_signedUrl != null && !_hasError)
-                  kIsWeb 
-                    ? _buildWebPdfPreview() 
-                    : SfPdfViewer.network(
-                        _signedUrl!,
-                        enableDoubleTapZooming: false,
-                        enableTextSelection: false,
-                        canShowScrollHead: false,
-                        canShowScrollStatus: false,
-                        canShowPaginationDialog: false,
-                        onDocumentLoaded: (details) {
-                          print('📄 [PDF] 文档加载成功: ${details.document.pages.count} 页');
-                        },
-                        onDocumentLoadFailed: (details) {
-                          print('📄 [PDF] 文档加载失败: ${details.error}');
-                          print('📄 [PDF] 完整签名URL: $_signedUrl');
-                          print('📄 [PDF] 错误详情: ${details.description}');
-                          if (mounted) {
-                            setState(() {
-                              _hasError = true;
-                              _errorMessage = details.error;
-                            });
-                          }
-                        },
-                      ),
-                
+                  kIsWeb
+                      ? _buildWebPdfPreview()
+                      : SfPdfViewer.network(
+                          _signedUrl!,
+                          enableDoubleTapZooming: false,
+                          enableTextSelection: false,
+                          canShowScrollHead: false,
+                          canShowScrollStatus: false,
+                          canShowPaginationDialog: false,
+                          onDocumentLoaded: (details) {
+                            // print('📄 [PDF] 文档加载成功: ${details.document.pages.count} 页');
+                          },
+                          onDocumentLoadFailed: (details) {
+                            // print('📄 [PDF] 文档加载失败: ${details.error}');
+                            // print('📄 [PDF] 完整签名URL: $_signedUrl');
+                            // print('📄 [PDF] 错误详情: ${details.description}');
+                            if (mounted) {
+                              setState(() {
+                                _hasError = true;
+                                _errorMessage = details.error;
+                              });
+                            }
+                          },
+                        ),
+
                 // 加载中指示器
                 if (_isLoading)
                   Container(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    child: const Center(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.8),
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
                           Text(
                             '正在加载PDF...',
                             style: TextStyle(
-                              color: Colors.grey,
+                              color: Theme.of(context).colorScheme.outline,
                               fontSize: 14,
                             ),
                           ),
@@ -146,27 +149,27 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                       ),
                     ),
                   ),
-                
+
                 // 错误状态
                 if (_hasError)
                   Container(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.picture_as_pdf,
                               size: 48,
-                              color: Colors.red,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               'PDF加载失败',
                               style: TextStyle(
-                                color: Colors.red,
+                                color: Theme.of(context).colorScheme.error,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -174,8 +177,8 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                             const SizedBox(height: 4),
                             Text(
                               _getErrorMessage(_errorMessage),
-                              style: const TextStyle(
-                                color: Colors.grey,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline,
                                 fontSize: 12,
                               ),
                               textAlign: TextAlign.center,
@@ -188,8 +191,10 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                               icon: const Icon(Icons.refresh, size: 16),
                               label: const Text('重试'),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red),
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.error,
+                                side: BorderSide(
+                                    color: Theme.of(context).colorScheme.error),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
@@ -201,7 +206,7 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                       ),
                     ),
                   ),
-                
+
                 // 预览提示
                 if (!_hasError && !_isLoading)
                   Positioned(
@@ -213,22 +218,28 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .inverseSurface
+                            .withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.fullscreen,
                             size: 16,
-                            color: Colors.white,
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             '点击查看',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onInverseSurface,
                               fontSize: 12,
                             ),
                           ),
@@ -246,7 +257,7 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
 
   String _getErrorMessage(String? error) {
     if (error == null) return '未知错误';
-    
+
     if (error.toLowerCase().contains('network')) {
       return '网络连接问题';
     } else if (error.toLowerCase().contains('403')) {
@@ -270,11 +281,10 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
     _loadSignedUrl();
   }
 
-
   Widget _buildWebPdfPreview() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -284,23 +294,23 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
             Icon(
               Icons.picture_as_pdf,
               size: 64,
-              color: Colors.red[400],
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'PDF预览',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               '点击在新窗口中查看',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.outline,
               ),
             ),
           ],
@@ -318,18 +328,18 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
           mode: LaunchMode.externalApplication, // 在新标签页中打开
           webOnlyWindowName: '_blank',
         );
-        print('📄 [PDF] 在新窗口打开PDF: $url');
+        // print('📄 [PDF] 在新窗口打开PDF: $url');
       } else {
         throw Exception('无法打开URL');
       }
     } catch (e) {
-      print('📄 [PDF] 打开新窗口失败: $e');
+      // print('📄 [PDF] 打开新窗口失败: $e');
       // 显示错误信息
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('无法在新窗口中打开PDF: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -338,7 +348,7 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
 
   void _showFullScreenPdf(BuildContext context) {
     if (_hasError || _isLoading) return;
-    
+
     if (kIsWeb) {
       // Web平台：使用url_launcher在新窗口打开PDF
       if (_signedUrl != null) {
@@ -350,7 +360,10 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
         PageRouteBuilder(
           opaque: false,
           barrierDismissible: true,
-          barrierColor: Colors.black87,
+          barrierColor: Theme.of(context)
+              .colorScheme
+              .inverseSurface
+              .withValues(alpha: 0.87),
           pageBuilder: (context, animation, secondaryAnimation) {
             return FullScreenPdfViewer(
               pdfUrl: _signedUrl ?? widget.pdfUrl,
@@ -399,7 +412,7 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
   void initState() {
     super.initState();
     _pdfController = PdfViewerController();
-    
+
     // 设置沉浸式状态栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
@@ -407,7 +420,7 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
   @override
   void dispose() {
     _pdfController.dispose();
-    
+
     // 恢复状态栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
@@ -416,14 +429,15 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor:
+          Theme.of(context).colorScheme.inverseSurface.withValues(alpha: 0.87),
       body: Stack(
         children: [
           // PDF查看器
           Center(
             child: Hero(
               tag: widget.heroTag,
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: double.infinity,
                 child: SfPdfViewer.network(
@@ -457,21 +471,25 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
               ),
             ),
           ),
-          
+
           // 加载中指示器
           if (_isLoading)
             Container(
-              color: Colors.black87,
-              child: const Center(
+              color: Theme.of(context)
+                  .colorScheme
+                  .inverseSurface
+                  .withValues(alpha: 0.87),
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: Colors.white),
-                    SizedBox(height: 16),
+                    CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.onInverseSurface),
+                    const SizedBox(height: 16),
                     Text(
                       '正在加载PDF文档...',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         fontSize: 16,
                       ),
                     ),
@@ -479,25 +497,28 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                 ),
               ),
             ),
-          
+
           // 错误状态
           if (_hasError)
             Container(
-              color: Colors.black87,
+              color: Theme.of(context)
+                  .colorScheme
+                  .inverseSurface
+                  .withValues(alpha: 0.87),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'PDF加载失败',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -505,8 +526,11 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                     const SizedBox(height: 8),
                     Text(
                       _errorMessage ?? '未知错误',
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onInverseSurface
+                            .withValues(alpha: 0.7),
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -517,15 +541,16 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                       icon: const Icon(Icons.close),
                       label: const Text('关闭'),
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurface,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          
+
           // 顶部操作栏
           if (!_isLoading && !_hasError)
             Positioned(
@@ -544,7 +569,10 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.7),
+                      Theme.of(context)
+                          .colorScheme
+                          .inverseSurface
+                          .withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
@@ -552,9 +580,9 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 28,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
@@ -562,25 +590,25 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                     Expanded(
                       child: Text(
                         '第 $_currentPage 页，共 $_totalPages 页',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onInverseSurface,
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.share,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 24,
                       ),
                       onPressed: _sharePdf,
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.download,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 24,
                       ),
                       onPressed: _downloadPdf,
@@ -589,7 +617,7 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                 ),
               ),
             ),
-          
+
           // 底部导航栏
           if (!_isLoading && !_hasError && _totalPages > 1)
             Positioned(
@@ -608,7 +636,10 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.7),
+                      Theme.of(context)
+                          .colorScheme
+                          .inverseSurface
+                          .withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
@@ -618,25 +649,25 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
                   children: [
                     IconButton(
                       onPressed: _currentPage > 1 ? _previousPage : null,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.navigate_before,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 32,
                       ),
                     ),
                     IconButton(
                       onPressed: _jumpToPage,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.apps,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 24,
                       ),
                     ),
                     IconButton(
                       onPressed: _currentPage < _totalPages ? _nextPage : null,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.navigate_next,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                         size: 32,
                       ),
                     ),
@@ -667,20 +698,19 @@ class _FullScreenPdfViewerState extends State<FullScreenPdfViewer> {
 
   void _sharePdf() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('分享功能开发中...'),
-        backgroundColor: Colors.black,
+      SnackBar(
+        content: const Text('分享功能开发中...'),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
     );
   }
 
   void _downloadPdf() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('下载功能开发中...'),
-        backgroundColor: Colors.black,
+      SnackBar(
+        content: const Text('下载功能开发中...'),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
     );
   }
-
 }

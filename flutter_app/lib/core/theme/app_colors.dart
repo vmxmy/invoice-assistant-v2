@@ -16,24 +16,33 @@ class AppColors {
   // ======================
 
   /// 成功状态颜色 (绿色系)
-  static Color success(BuildContext context) => _getColorScheme(context).tertiary;
-  static Color onSuccess(BuildContext context) => _getColorScheme(context).onTertiary;
-  static Color successContainer(BuildContext context) => _getColorScheme(context).tertiaryContainer;
+  static Color success(BuildContext context) =>
+      _getColorScheme(context).tertiary;
+  static Color onSuccess(BuildContext context) =>
+      _getColorScheme(context).onTertiary;
+  static Color successContainer(BuildContext context) =>
+      _getColorScheme(context).tertiaryContainer;
 
   /// 警告状态颜色 (橙色系)
-  static Color warning(BuildContext context) => const Color(0xFFFF9500); // iOS 橙色
+  static Color warning(BuildContext context) =>
+      const Color(0xFFFF9500); // iOS 橙色
   static Color onWarning(BuildContext context) => Colors.white;
-  static Color warningContainer(BuildContext context) => warning(context).withValues(alpha: 0.1);
+  static Color warningContainer(BuildContext context) =>
+      warning(context).withValues(alpha: 0.1);
 
   /// 错误状态颜色 (红色系)
   static Color error(BuildContext context) => _getColorScheme(context).error;
-  static Color onError(BuildContext context) => _getColorScheme(context).onError;
-  static Color errorContainer(BuildContext context) => _getColorScheme(context).errorContainer;
+  static Color onError(BuildContext context) =>
+      _getColorScheme(context).onError;
+  static Color errorContainer(BuildContext context) =>
+      _getColorScheme(context).errorContainer;
 
   /// 信息状态颜色 (蓝色系)
   static Color info(BuildContext context) => _getColorScheme(context).primary;
-  static Color onInfo(BuildContext context) => _getColorScheme(context).onPrimary;
-  static Color infoContainer(BuildContext context) => _getColorScheme(context).primaryContainer;
+  static Color onInfo(BuildContext context) =>
+      _getColorScheme(context).onPrimary;
+  static Color infoContainer(BuildContext context) =>
+      _getColorScheme(context).primaryContainer;
 
   // ======================
   // 发票状态特定颜色
@@ -60,51 +69,64 @@ class AppColors {
   // ======================
 
   /// 主要背景色
-  static Color background(BuildContext context) => _getColorScheme(context).surface;
-  
+  static Color background(BuildContext context) =>
+      _getColorScheme(context).surface;
+
   /// 卡片背景色
-  static Color cardBackground(BuildContext context) => _getColorScheme(context).surfaceContainerLowest;
-  
+  static Color cardBackground(BuildContext context) =>
+      _getColorScheme(context).surfaceContainerLowest;
+
   /// 高亮背景色
-  static Color elevatedBackground(BuildContext context) => _getColorScheme(context).surfaceContainerHigh;
+  static Color elevatedBackground(BuildContext context) =>
+      _getColorScheme(context).surfaceContainerHigh;
 
   /// 分割线颜色
-  static Color divider(BuildContext context) => _getColorScheme(context).outlineVariant;
+  static Color divider(BuildContext context) =>
+      _getColorScheme(context).outlineVariant;
 
   // ======================
   // 文本颜色
   // ======================
 
   /// 主要文本颜色
-  static Color onSurface(BuildContext context) => _getColorScheme(context).onSurface;
-  
+  static Color onSurface(BuildContext context) =>
+      _getColorScheme(context).onSurface;
+
   /// 次要文本颜色
-  static Color onSurfaceVariant(BuildContext context) => _getColorScheme(context).onSurfaceVariant;
-  
+  static Color onSurfaceVariant(BuildContext context) =>
+      _getColorScheme(context).onSurfaceVariant;
+
   /// 禁用文本颜色
-  static Color disabled(BuildContext context) => _getColorScheme(context).onSurface.withValues(alpha: 0.38);
+  static Color disabled(BuildContext context) =>
+      _getColorScheme(context).onSurface.withValues(alpha: 0.38);
 
   // ======================
   // 交互颜色
   // ======================
 
   /// 主要操作颜色
-  static Color primary(BuildContext context) => _getColorScheme(context).primary;
-  static Color onPrimary(BuildContext context) => _getColorScheme(context).onPrimary;
+  static Color primary(BuildContext context) =>
+      _getColorScheme(context).primary;
+  static Color onPrimary(BuildContext context) =>
+      _getColorScheme(context).onPrimary;
 
-  /// 次要操作颜色  
-  static Color secondary(BuildContext context) => _getColorScheme(context).secondary;
-  static Color onSecondary(BuildContext context) => _getColorScheme(context).onSecondary;
+  /// 次要操作颜色
+  static Color secondary(BuildContext context) =>
+      _getColorScheme(context).secondary;
+  static Color onSecondary(BuildContext context) =>
+      _getColorScheme(context).onSecondary;
 
   // ======================
   // 特殊场景颜色
   // ======================
 
   /// 覆盖层背景 (模态、对话框等)
-  static Color overlay(BuildContext context) => Colors.black.withValues(alpha: 0.6);
+  static Color overlay(BuildContext context) =>
+      Colors.black.withValues(alpha: 0.6);
 
   /// 骨架屏颜色
-  static Color skeleton(BuildContext context) => _getColorScheme(context).surfaceContainerHighest;
+  static Color skeleton(BuildContext context) =>
+      _getColorScheme(context).surfaceContainerHighest;
 
   /// 图片查看器背景
   static Color imageViewerBackground(BuildContext context) => Colors.black;
@@ -121,7 +143,7 @@ class AppColors {
 
   static const List<Color> _chartColorsLight = [
     Color(0xFF2196F3), // 蓝色
-    Color(0xFFFF9800), // 橙色  
+    Color(0xFFFF9800), // 橙色
     Color(0xFF4CAF50), // 绿色
     Color(0xFF9C27B0), // 紫色
     Color(0xFF607D8B), // 蓝灰色
@@ -178,13 +200,13 @@ class AppColors {
 extension AppColorsLegacy on AppColors {
   /// 兼容性：成功色
   static const Color successStatic = Color(0xFF4CAF50);
-  
+
   /// 兼容性：警告色
   static const Color warningStatic = Color(0xFFFF9500);
-  
+
   /// 兼容性：错误色
   static const Color errorStatic = Color(0xFFF44336);
-  
+
   /// 兼容性：信息色
   static const Color infoStatic = Color(0xFF2196F3);
 }

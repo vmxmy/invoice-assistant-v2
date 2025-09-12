@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../core/theme/app_theme_constants.dart';
-import '../../core/theme/app_typography.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
 import '../widgets/invoice_card_widget.dart';
 import '../widgets/skeleton_loader.dart';
 import '../widgets/app_feedback.dart';
+import '../widgets/detail_page_styles.dart';
 
 /// 报销集详情页面
 class ReimbursementSetDetailPage extends StatefulWidget {
@@ -23,10 +23,12 @@ class ReimbursementSetDetailPage extends StatefulWidget {
   });
 
   @override
-  State<ReimbursementSetDetailPage> createState() => _ReimbursementSetDetailPageState();
+  State<ReimbursementSetDetailPage> createState() =>
+      _ReimbursementSetDetailPageState();
 }
 
-class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage> {
+class _ReimbursementSetDetailPageState
+    extends State<ReimbursementSetDetailPage> {
   ReimbursementSetEntity? _reimbursementSet;
   List<InvoiceEntity> _invoices = [];
   bool _isLoading = true;
@@ -39,8 +41,8 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
 
   void _loadReimbursementSetDetail() {
     context.read<ReimbursementSetBloc>().add(
-      LoadReimbursementSetDetail(widget.reimbursementSetId),
-    );
+          LoadReimbursementSetDetail(widget.reimbursementSetId),
+        );
   }
 
   @override
@@ -82,7 +84,7 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
               slivers: [
                 // 极简AppBar
                 _buildSimpleAppBar(),
-                
+
                 // 简化的报销集信息
                 SliverToBoxAdapter(
                   child: _buildSimplifiedHeader(),
@@ -100,30 +102,45 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
 
   /// 构建极简AppBar
   Widget _buildSimpleAppBar() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SliverAppBar(
       pinned: true,
       floating: false,
       expandedHeight: 0,
       toolbarHeight: kToolbarHeight,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
       title: Text(
         _reimbursementSet?.setName ?? '报销集详情',
-        style: AppTypography.titleLarge(context).copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: DetailPageStyles.pageTitle(context),
       ),
       actions: [
         if (_reimbursementSet != null)
           PopupMenuButton<String>(
-            icon: const Icon(CupertinoIcons.ellipsis),
+            icon: Icon(
+              CupertinoIcons.ellipsis,
+              color: colorScheme.onSurface,
+            ),
             onSelected: _handleMenuAction,
+            color: colorScheme.surfaceContainer,
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(CupertinoIcons.pencil, size: AppThemeConstants.iconMedium),
+                    Icon(
+                      CupertinoIcons.pencil,
+                      size: AppThemeConstants.iconMedium,
+                      color: colorScheme.primary,
+                    ),
                     const SizedBox(width: AppThemeConstants.spacing8),
-                    const Text('编辑'),
+                    Text(
+                      '编辑',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
+                    ),
                   ],
                 ),
               ),
@@ -132,9 +149,18 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                   value: 'submit',
                   child: Row(
                     children: [
-                      Icon(CupertinoIcons.paperplane, size: AppThemeConstants.iconMedium),
+                      Icon(
+                        CupertinoIcons.paperplane,
+                        size: AppThemeConstants.iconMedium,
+                        color: colorScheme.tertiary,
+                      ),
                       const SizedBox(width: AppThemeConstants.spacing8),
-                      const Text('提交'),
+                      Text(
+                        '提交',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                      ),
                     ],
                   ),
                 ),
@@ -143,9 +169,18 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                   value: 'reimburse',
                   child: Row(
                     children: [
-                      Icon(CupertinoIcons.checkmark_circle, size: AppThemeConstants.iconMedium),
+                      Icon(
+                        CupertinoIcons.checkmark_circle,
+                        size: AppThemeConstants.iconMedium,
+                        color: colorScheme.secondary,
+                      ),
                       const SizedBox(width: AppThemeConstants.spacing8),
-                      const Text('已报销'),
+                      Text(
+                        '已报销',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                      ),
                     ],
                   ),
                 ),
@@ -154,9 +189,18 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(CupertinoIcons.delete, size: AppThemeConstants.iconMedium, color: Theme.of(context).colorScheme.error),
+                    Icon(
+                      CupertinoIcons.delete,
+                      size: AppThemeConstants.iconMedium,
+                      color: colorScheme.error,
+                    ),
                     const SizedBox(width: AppThemeConstants.spacing8),
-                    Text('删除', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    Text(
+                      '删除',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: colorScheme.error,
+                          ),
+                    ),
                   ],
                 ),
               ),
@@ -169,9 +213,19 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
   /// 构建简化的头部信息
   Widget _buildSimplifiedHeader() {
     final set = _reimbursementSet!;
-    
-    return Padding(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.all(AppThemeConstants.spacing16),
       padding: const EdgeInsets.all(AppThemeConstants.spacing16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,67 +238,96 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                   children: [
                     Text(
                       set.setName,
-                      style: AppTypography.headlineMedium(context).copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
+                      style: DetailPageStyles.amountText(context).copyWith(
+                        fontSize: 24, // 略小于发票金额的字体
                       ),
                     ),
                     if (set.description?.isNotEmpty == true) ...[
                       const SizedBox(height: AppThemeConstants.spacing4),
                       Text(
                         set.description!,
-                        style: AppTypography.bodyMedium(context).copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        style: DetailPageStyles.secondaryText(context).copyWith(
+                              height: 1.4,
+                            ),
                       ),
                     ],
                   ],
                 ),
               ),
+              const SizedBox(width: AppThemeConstants.spacing12),
               // 状态标签
               _buildCompactStatusChip(set.status),
             ],
           ),
-          
-          const SizedBox(height: AppThemeConstants.spacing16),
-          
-          // 简洁的统计信息
-          Row(
-            children: [
-              _buildSimpleStatItem(
-                CupertinoIcons.doc_text,
-                '${set.invoiceCount}',
-                '张发票',
-                Theme.of(context).colorScheme.primary,
+
+          const SizedBox(height: AppThemeConstants.spacing20),
+
+          // 简洁的统计信息卡片
+          Container(
+            padding: const EdgeInsets.all(AppThemeConstants.spacing16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colorScheme.primary.withValues(alpha: 0.03),
+                  colorScheme.primary.withValues(alpha: 0.08),
+                ],
               ),
-              const SizedBox(width: AppThemeConstants.spacing24),
-              _buildSimpleStatItem(
-                CupertinoIcons.money_dollar_circle,
-                '¥${set.totalAmount.toStringAsFixed(2)}',
-                '总金额',
-                Theme.of(context).colorScheme.tertiary,
+              borderRadius:
+                  BorderRadius.circular(AppThemeConstants.radiusMedium),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                width: 1,
               ),
-              const SizedBox(width: AppThemeConstants.spacing24),
-              _buildSimpleStatItem(
-                CupertinoIcons.clock,
-                _formatSimpleDate(set.createdAt),
-                '创建时间',
-                Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildSimpleStatItem(
+                    CupertinoIcons.doc_text,
+                    '${set.invoiceCount}',
+                    '张发票',
+                    colorScheme.primary,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 32,
+                  color: colorScheme.outline.withValues(alpha: 0.2),
+                ),
+                Expanded(
+                  child: _buildSimpleStatItem(
+                    CupertinoIcons.money_dollar_circle,
+                    '¥${set.totalAmount.toStringAsFixed(2)}',
+                    '总金额',
+                    colorScheme.secondary,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 32,
+                  color: colorScheme.outline.withValues(alpha: 0.2),
+                ),
+                Expanded(
+                  child: _buildSimpleStatItem(
+                    CupertinoIcons.clock,
+                    _formatSimpleDate(set.createdAt),
+                    '创建时间',
+                    colorScheme.tertiary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          
-          const SizedBox(height: AppThemeConstants.spacing16),
-          const Divider(height: 1),
         ],
       ),
     );
   }
 
-
   /// 显示状态转换对话框
   void _showStatusTransitionDialog(ReimbursementSetStatus nextStatus) {
     if (_reimbursementSet == null) return;
 
+    final colorScheme = Theme.of(context).colorScheme;
     String title;
     String content;
     String confirmText;
@@ -255,21 +338,21 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
       case ReimbursementSetStatus.submitted:
         title = '提交报销集';
         content = '确定要提交报销集 "${_reimbursementSet!.setName}" 吗？\n\n'
-                 '⚠️ 提交后将无法再修改报销集和发票内容\n'
-                 '📋 请确认所有信息都已填写正确\n'
-                 '💰 确认发票金额和明细无误';
+            '⚠️ 提交后将无法再修改报销集和发票内容\n'
+            '📋 请确认所有信息都已填写正确\n'
+            '💰 确认发票金额和明细无误';
         confirmText = '确认提交';
-        confirmColor = Theme.of(context).colorScheme.tertiary;
+        confirmColor = colorScheme.tertiary;
         confirmIcon = CupertinoIcons.paperplane;
         break;
       case ReimbursementSetStatus.reimbursed:
         title = '标记已报销';
         content = '确定要将报销集 "${_reimbursementSet!.setName}" 标记为已报销吗？\n\n'
-                 '✅ 标记后将进入归档状态\n'
-                 '🔒 将无法再进行任何修改操作\n'
-                 '📁 可以导出报销凭证留档';
+            '✅ 标记后将进入归档状态\n'
+            '🔒 将无法再进行任何修改操作\n'
+            '📁 可以导出报销凭证留档';
         confirmText = '确认标记';
-        confirmColor = Theme.of(context).colorScheme.secondary;
+        confirmColor = colorScheme.secondary;
         confirmIcon = CupertinoIcons.checkmark_circle;
         break;
       default:
@@ -280,30 +363,35 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
+        ),
         title: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding:
+              const EdgeInsets.symmetric(vertical: AppThemeConstants.spacing8),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(AppThemeConstants.spacing8),
                 decoration: BoxDecoration(
                   color: confirmColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius:
+                      BorderRadius.circular(AppThemeConstants.radiusSmall),
                 ),
                 child: Icon(
                   confirmIcon,
                   color: confirmColor,
-                  size: 24,
+                  size: AppThemeConstants.iconLarge,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppThemeConstants.spacing12),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: colorScheme.onSurface,
+                      ),
                 ),
               ),
             ],
@@ -315,13 +403,16 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
           children: [
             Text(
               content,
-              style: const TextStyle(height: 1.5),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
             ),
-            const SizedBox(height: 20),
-            
+            const SizedBox(height: AppThemeConstants.spacing20),
+
             // 报销集信息摘要
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppThemeConstants.spacing16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -329,7 +420,8 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                     confirmColor.withValues(alpha: 0.1),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusMedium),
                 border: Border.all(
                   color: confirmColor.withValues(alpha: 0.2),
                 ),
@@ -341,23 +433,23 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
                       Icon(
                         CupertinoIcons.folder_badge_plus,
                         color: confirmColor,
-                        size: 20,
+                        size: AppThemeConstants.iconMedium,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppThemeConstants.spacing8),
                       Expanded(
                         child: Text(
                           _reimbursementSet!.setName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: confirmColor,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: confirmColor,
+                                  ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppThemeConstants.spacing12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -383,20 +475,30 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurfaceVariant,
+            ),
             child: const Text('取消'),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppThemeConstants.spacing8),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.of(dialogContext).pop();
               _updateStatus(nextStatus);
             },
-            icon: Icon(confirmIcon, size: 18),
+            icon: Icon(confirmIcon, size: AppThemeConstants.iconSmall),
             label: Text(confirmText),
             style: ElevatedButton.styleFrom(
               backgroundColor: confirmColor,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppThemeConstants.spacing20,
+                vertical: AppThemeConstants.spacing12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusMedium),
+              ),
             ),
           ),
         ],
@@ -405,44 +507,71 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
   }
 
   /// 构建摘要信息项
-  Widget _buildSummaryItem(String label, String value, IconData icon, Color color) {
+  Widget _buildSummaryItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(height: 4),
+        Icon(
+          icon,
+          color: color,
+          size: AppThemeConstants.iconMedium,
+        ),
+        const SizedBox(height: AppThemeConstants.spacing4),
         Text(
           value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 16,
-          ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: color.withValues(alpha: 0.7),
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: color.withValues(alpha: 0.7),
+              ),
         ),
       ],
     );
   }
 
-
-
-
-
   Widget _buildInvoiceList() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (_invoices.isEmpty) {
       return SliverFillRemaining(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(CupertinoIcons.doc, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              const SizedBox(height: 16),
-              Text('该报销集暂无发票', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Container(
+                padding: const EdgeInsets.all(AppThemeConstants.spacing20),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius:
+                      BorderRadius.circular(AppThemeConstants.radiusXLarge),
+                ),
+                child: Icon(
+                  CupertinoIcons.doc,
+                  size: 48,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: AppThemeConstants.spacing16),
+              Text(
+                '该报销集暂无发票',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: AppThemeConstants.spacing8),
+              Text(
+                '可以从发票管理页面添加发票到此报销集',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color:
+                          colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                    ),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
@@ -470,27 +599,67 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
   }
 
   Widget _buildErrorView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(CupertinoIcons.exclamationmark_triangle, size: 64, color: Theme.of(context).colorScheme.error),
-          const SizedBox(height: 16),
-          Text(
-            '加载失败',
-            style: AppTypography.headlineSmall(context),
-          ),
-          const SizedBox(height: 8),
-          const Text('无法获取报销集详情'),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              setState(() => _isLoading = true);
-              _loadReimbursementSetDetail();
-            },
-            child: const Text('重试'),
-          ),
-        ],
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(AppThemeConstants.spacing20),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppThemeConstants.spacing20),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer,
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusXLarge),
+              ),
+              child: Icon(
+                CupertinoIcons.exclamationmark_triangle,
+                size: 48,
+                color: colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: AppThemeConstants.spacing16),
+            Text(
+              '加载失败',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+            ),
+            const SizedBox(height: AppThemeConstants.spacing8),
+            Text(
+              '无法获取报销集详情',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: AppThemeConstants.spacing20),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() => _isLoading = true);
+                _loadReimbursementSetDetail();
+              },
+              icon: Icon(
+                CupertinoIcons.refresh,
+                size: AppThemeConstants.iconSmall,
+              ),
+              label: const Text('重试'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppThemeConstants.spacing24,
+                  vertical: AppThemeConstants.spacing12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppThemeConstants.radiusMedium),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -513,13 +682,43 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
   }
 
   void _showEditDialog() {
-    final nameController = TextEditingController(text: _reimbursementSet?.setName);
-    final descriptionController = TextEditingController(text: _reimbursementSet?.description);
+    final colorScheme = Theme.of(context).colorScheme;
+    final nameController =
+        TextEditingController(text: _reimbursementSet?.setName);
+    final descriptionController =
+        TextEditingController(text: _reimbursementSet?.description);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('编辑报销集'),
+        backgroundColor: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppThemeConstants.spacing8),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusSmall),
+              ),
+              child: Icon(
+                CupertinoIcons.pencil,
+                color: colorScheme.primary,
+                size: AppThemeConstants.iconMedium,
+              ),
+            ),
+            const SizedBox(width: AppThemeConstants.spacing12),
+            Text(
+              '编辑报销集',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+            ),
+          ],
+        ),
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
@@ -527,18 +726,54 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                decoration: InputDecoration(
                   labelText: '报销集名称',
-                  border: OutlineInputBorder(),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppThemeConstants.radiusMedium),
+                    borderSide: BorderSide(color: colorScheme.outline),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppThemeConstants.radiusMedium),
+                    borderSide:
+                        BorderSide(color: colorScheme.primary, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: colorScheme.surface,
                 ),
                 maxLength: 100,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppThemeConstants.spacing16),
               TextField(
                 controller: descriptionController,
-                decoration: const InputDecoration(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                decoration: InputDecoration(
                   labelText: '描述（可选）',
-                  border: OutlineInputBorder(),
+                  labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppThemeConstants.radiusMedium),
+                    borderSide: BorderSide(color: colorScheme.outline),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppThemeConstants.radiusMedium),
+                    borderSide:
+                        BorderSide(color: colorScheme.primary, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: colorScheme.surface,
                 ),
                 maxLines: 3,
                 maxLength: 500,
@@ -549,24 +784,40 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurfaceVariant,
+            ),
             child: const Text('取消'),
           ),
-          ElevatedButton(
+          ElevatedButton.icon(
             onPressed: () {
               final name = nameController.text.trim();
               if (name.isNotEmpty) {
                 Navigator.pop(context);
                 context.read<ReimbursementSetBloc>().add(
-                  UpdateReimbursementSet(
-                    setId: widget.reimbursementSetId,
-                    setName: name,
-                    description: descriptionController.text.trim().isEmpty 
-                        ? null : descriptionController.text.trim(),
-                  ),
-                );
+                      UpdateReimbursementSet(
+                        setId: widget.reimbursementSetId,
+                        setName: name,
+                        description: descriptionController.text.trim().isEmpty
+                            ? null
+                            : descriptionController.text.trim(),
+                      ),
+                    );
               }
             },
-            child: const Text('保存'),
+            icon: Icon(
+              CupertinoIcons.checkmark,
+              size: AppThemeConstants.iconSmall,
+            ),
+            label: const Text('保存'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusMedium),
+              ),
+            ),
           ),
         ],
       ),
@@ -575,52 +826,150 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
 
   void _updateStatus(ReimbursementSetStatus newStatus) {
     context.read<ReimbursementSetBloc>().add(
-      UpdateReimbursementSetStatus(
-        setId: widget.reimbursementSetId,
-        status: newStatus,
-      ),
-    );
+          UpdateReimbursementSetStatus(
+            setId: widget.reimbursementSetId,
+            status: newStatus,
+          ),
+        );
   }
 
   void _showDeleteConfirmation() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除报销集'),
-        content: Text(
-          '确定要删除报销集 "${_reimbursementSet?.setName}" 吗？\n\n'
-          '包含的 ${_invoices.length} 张发票将重新变为未分配状态。\n\n'
-          '此操作无法撤销。'
+        backgroundColor: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppThemeConstants.spacing8),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer,
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusSmall),
+              ),
+              child: Icon(
+                CupertinoIcons.delete,
+                color: colorScheme.error,
+                size: AppThemeConstants.iconMedium,
+              ),
+            ),
+            const SizedBox(width: AppThemeConstants.spacing12),
+            Text(
+              '删除报销集',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '确定要删除报销集 "${_reimbursementSet?.setName}" 吗？',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const SizedBox(height: AppThemeConstants.spacing12),
+            Container(
+              padding: const EdgeInsets.all(AppThemeConstants.spacing16),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withValues(alpha: 0.3),
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusMedium),
+                border: Border.all(
+                  color: colorScheme.error.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.exclamationmark_triangle_fill,
+                        color: colorScheme.error,
+                        size: AppThemeConstants.iconSmall,
+                      ),
+                      const SizedBox(width: AppThemeConstants.spacing8),
+                      Text(
+                        '注意事项：',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: colorScheme.error,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppThemeConstants.spacing8),
+                  Text(
+                    '• 包含的 ${_invoices.length} 张发票将重新变为未分配状态\n'
+                    '• 此操作无法撤销\n'
+                    '• 所有相关的历史记录将被清除',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onErrorContainer,
+                          height: 1.4,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurfaceVariant,
+            ),
             child: const Text('取消'),
           ),
-          TextButton(
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
               context.read<ReimbursementSetBloc>().add(
-                DeleteReimbursementSet(widget.reimbursementSetId),
-              );
+                    DeleteReimbursementSet(widget.reimbursementSetId),
+                  );
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('删除'),
+            icon: Icon(
+              CupertinoIcons.delete,
+              size: AppThemeConstants.iconSmall,
+            ),
+            label: const Text('确认删除'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(AppThemeConstants.radiusMedium),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-
   /// 构建简洁的状态芯片
   Widget _buildCompactStatusChip(ReimbursementSetStatus status) {
-    final statusConfig = AppThemeConstants.getStatusConfig(context, status.value);
+    final statusConfig =
+        AppThemeConstants.getStatusConfig(context, status.value);
     final nextStatus = _getNextStatus(status);
     final isClickable = nextStatus != null;
-    
+
     return InkWell(
-      onTap: nextStatus != null ? () => _showStatusTransitionDialog(nextStatus) : null,
+      onTap: nextStatus != null
+          ? () => _showStatusTransitionDialog(nextStatus)
+          : null,
       borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
       child: Container(
         padding: const EdgeInsets.symmetric(
@@ -646,10 +995,10 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
             const SizedBox(width: AppThemeConstants.spacing4),
             Text(
               statusConfig.label,
-              style: AppTypography.labelMedium(context).copyWith(
-                color: statusConfig.color,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: statusConfig.color,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
             if (isClickable) ...[
               const SizedBox(width: AppThemeConstants.spacing4),
@@ -672,34 +1021,41 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
     String label,
     Color color,
   ) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          size: AppThemeConstants.iconSmall,
-          color: color,
-        ),
-        const SizedBox(width: AppThemeConstants.spacing4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              value,
-              style: AppTypography.titleSmall(context).copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              label,
-              style: AppTypography.bodySmall(context).copyWith(
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppThemeConstants.spacing4,
+        horizontal: AppThemeConstants.spacing8,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: AppThemeConstants.iconMedium,
+            color: color,
+          ),
+          const SizedBox(height: AppThemeConstants.spacing4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 
@@ -719,7 +1075,7 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
   String _formatSimpleDate(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays == 0) {
       return '今天';
     } else if (difference.inDays == 1) {
@@ -743,4 +1099,3 @@ class _ReimbursementSetDetailPageState extends State<ReimbursementSetDetailPage>
     }
   }
 }
-

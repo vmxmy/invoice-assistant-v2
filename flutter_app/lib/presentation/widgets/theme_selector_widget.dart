@@ -23,7 +23,8 @@ class ThemeSelectorWidget extends StatefulWidget {
 class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  final Map<String, List<ThemePlaygroundPreset>> _playgroundPresets = ThemeManager.presetsByCategory;
+  final Map<String, List<ThemePlaygroundPreset>> _playgroundPresets =
+      ThemeManager.presetsByCategory;
   late List<String> _categories;
 
   @override
@@ -31,13 +32,13 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
     super.initState();
     _updateCategories();
   }
-  
+
   void _updateCategories() {
     _categories = _playgroundPresets.keys.toList();
-    
+
     // 如果已存在TabController，先dispose掉
     _tabController?.dispose();
-    
+
     _tabController = TabController(length: _categories.length, vsync: this);
   }
 
@@ -50,7 +51,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: BoxDecoration(
@@ -63,13 +64,13 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
         children: [
           // 顶部标题栏
           _buildHeader(context),
-          
+
           // 主题模式切换
           _buildThemeModeSelector(context),
-          
+
           // 分类标签栏
           _buildCategoryTabs(context),
-          
+
           // 主题网格
           Expanded(
             child: _buildThemeGrid(context),
@@ -82,7 +83,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
   /// 构建标题栏
   Widget _buildHeader(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.all(AppThemeConstants.spacing20),
       decoration: BoxDecoration(
@@ -97,7 +98,8 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
             padding: const EdgeInsets.all(AppThemeConstants.spacing8),
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppThemeConstants.radiusSmall),
+              borderRadius:
+                  BorderRadius.circular(AppThemeConstants.radiusSmall),
             ),
             child: Icon(
               CupertinoIcons.paintbrush_fill,
@@ -141,7 +143,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
   /// 构建主题模式选择器
   Widget _buildThemeModeSelector(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.all(AppThemeConstants.spacing16),
       padding: const EdgeInsets.all(AppThemeConstants.spacing4),
@@ -189,7 +191,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
   ) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = widget.themeManager.themeMode == mode;
-    
+
     return GestureDetector(
       onTap: () {
         widget.themeManager.setThemeMode(mode);
@@ -201,27 +203,31 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
           vertical: AppThemeConstants.spacing12,
         ),
         decoration: BoxDecoration(
-          color: isSelected 
-            ? colorScheme.primary.withValues(alpha: 0.1)
-            : Colors.transparent,
+          color: isSelected
+              ? colorScheme.primary.withValues(alpha: 0.1)
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(AppThemeConstants.radiusSmall),
-          border: isSelected 
-            ? Border.all(color: colorScheme.primary, width: 2)
-            : null,
+          border: isSelected
+              ? Border.all(color: colorScheme.primary, width: 2)
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
               size: AppThemeConstants.iconMedium,
             ),
             const SizedBox(height: AppThemeConstants.spacing4),
             Text(
               label,
               style: AppTypography.labelMedium(context).copyWith(
-                color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
@@ -231,18 +237,18 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
     );
   }
 
-
   /// 构建分类标签栏
   Widget _buildCategoryTabs(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     if (_tabController == null || _categories.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return Container(
       height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: AppThemeConstants.spacing16),
+      margin:
+          const EdgeInsets.symmetric(horizontal: AppThemeConstants.spacing16),
       child: TabBar(
         controller: _tabController!,
         isScrollable: true,
@@ -272,7 +278,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
         child: CircularProgressIndicator(),
       );
     }
-    
+
     return TabBarView(
       controller: _tabController!,
       children: _categories.map((category) {
@@ -283,7 +289,8 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
   }
 
   /// 构建 Playground 预设网格
-  Widget _buildPlaygroundPresetsGrid(BuildContext context, List<ThemePlaygroundPreset> presets) {
+  Widget _buildPlaygroundPresetsGrid(
+      BuildContext context, List<ThemePlaygroundPreset> presets) {
     return Padding(
       padding: const EdgeInsets.all(AppThemeConstants.spacing16),
       child: GridView.builder(
@@ -301,15 +308,16 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
       ),
     );
   }
-  
+
   /// 构建单个预设卡片
-  Widget _buildPlaygroundPresetCard(BuildContext context, ThemePlaygroundPreset preset) {
+  Widget _buildPlaygroundPresetCard(
+      BuildContext context, ThemePlaygroundPreset preset) {
     final isSelected = widget.themeManager.currentScheme == preset.scheme;
     final colorScheme = widget.themeManager.getPreviewColorScheme(
       preset.scheme,
       Theme.of(context).brightness,
     );
-    
+
     return GestureDetector(
       onTap: () {
         widget.themeManager.applyPlaygroundPreset(preset);
@@ -319,18 +327,20 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppThemeConstants.radiusLarge),
           border: Border.all(
-            color: isSelected 
-              ? colorScheme.primary 
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+            color: isSelected
+                ? colorScheme.primary
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             width: isSelected ? 3 : 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -360,7 +370,8 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                         decoration: BoxDecoration(
                           color: colorScheme.primary,
                           borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(AppThemeConstants.radiusLarge),
+                            topLeft:
+                                Radius.circular(AppThemeConstants.radiusLarge),
                           ),
                         ),
                       ),
@@ -373,7 +384,8 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                         decoration: BoxDecoration(
                           color: colorScheme.tertiary,
                           borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(AppThemeConstants.radiusLarge),
+                            bottomLeft:
+                                Radius.circular(AppThemeConstants.radiusLarge),
                           ),
                         ),
                       ),
@@ -382,7 +394,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                 ),
               ),
             ),
-            
+
             // 右侧信息区域
             Expanded(
               flex: 2,
@@ -402,16 +414,17 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                     Text(
                       preset.name,
                       style: AppTypography.titleMedium(context).copyWith(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        color: isSelected 
-                          ? colorScheme.primary 
-                          : Theme.of(context).colorScheme.onSurface,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w600,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: AppThemeConstants.spacing4),
-                    
+
                     // 主题描述
                     Text(
                       preset.description,
@@ -422,13 +435,17 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: AppThemeConstants.spacing8),
-                    
+
                     // 配置信息
                     Wrap(
                       spacing: AppThemeConstants.spacing8,
                       children: [
-                        _buildConfigChip(context, 'R${preset.defaultRadius.toInt()}', colorScheme.tertiary),
-                        _buildConfigChip(context, 'B${preset.blendLevel}', colorScheme.secondary),
+                        _buildConfigChip(
+                            context,
+                            'R${preset.defaultRadius.toInt()}',
+                            colorScheme.tertiary),
+                        _buildConfigChip(context, 'B${preset.blendLevel}',
+                            colorScheme.secondary),
                         if (isSelected)
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -437,11 +454,12 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                             ),
                             decoration: BoxDecoration(
                               color: colorScheme.primary,
-                              borderRadius: BorderRadius.circular(AppThemeConstants.radiusSmall),
+                              borderRadius: BorderRadius.circular(
+                                  AppThemeConstants.radiusSmall),
                             ),
                             child: Icon(
                               CupertinoIcons.checkmark,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               size: AppThemeConstants.iconSmall,
                             ),
                           ),
@@ -456,7 +474,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
       ),
     );
   }
-  
+
   /// 构建配置芯片
   Widget _buildConfigChip(BuildContext context, String label, Color color) {
     return Container(
@@ -481,7 +499,6 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
       ),
     );
   }
-
 }
 
 /// 显示主题选择器的便捷方法
@@ -489,7 +506,8 @@ void showThemeSelector(BuildContext context, ThemeManager themeManager) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor:
+        Theme.of(context).colorScheme.surface.withValues(alpha: 0.0),
     builder: (context) => ThemeSelectorWidget(
       themeManager: themeManager,
       onThemeChanged: () {

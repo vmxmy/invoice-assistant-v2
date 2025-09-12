@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/invoice_entity.dart';
+// import '../../domain/entities/invoice_entity.dart'; // 未使用
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/value_objects/invoice_status.dart';
 
@@ -30,7 +30,8 @@ class LoadInvoices extends InvoiceEvent {
   });
 
   @override
-  List<Object?> get props => [page, pageSize, filters, sortField, sortAscending, refresh];
+  List<Object?> get props =>
+      [page, pageSize, filters, sortField, sortAscending, refresh];
 }
 
 /// 加载更多发票事件

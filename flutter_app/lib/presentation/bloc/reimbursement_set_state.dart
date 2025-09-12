@@ -25,15 +25,15 @@ class ReimbursementSetLoading extends ReimbursementSetState {
 class ReimbursementSetLoaded extends ReimbursementSetState {
   final List<ReimbursementSetEntity> reimbursementSets;
   final bool isRefreshing;
-  
+
   const ReimbursementSetLoaded({
     required this.reimbursementSets,
     this.isRefreshing = false,
   });
-  
+
   @override
   List<Object?> get props => [reimbursementSets, isRefreshing];
-  
+
   /// 复制状态并修改字段
   ReimbursementSetLoaded copyWith({
     List<ReimbursementSetEntity>? reimbursementSets,
@@ -50,12 +50,12 @@ class ReimbursementSetLoaded extends ReimbursementSetState {
 class ReimbursementSetDetailLoaded extends ReimbursementSetState {
   final ReimbursementSetEntity reimbursementSet;
   final List<InvoiceEntity> invoices;
-  
+
   const ReimbursementSetDetailLoaded({
     required this.reimbursementSet,
     required this.invoices,
   });
-  
+
   @override
   List<Object?> get props => [reimbursementSet, invoices];
 }
@@ -63,9 +63,9 @@ class ReimbursementSetDetailLoaded extends ReimbursementSetState {
 /// 未分配发票加载成功
 class UnassignedInvoicesLoaded extends ReimbursementSetState {
   final List<InvoiceEntity> unassignedInvoices;
-  
+
   const UnassignedInvoicesLoaded(this.unassignedInvoices);
-  
+
   @override
   List<Object?> get props => [unassignedInvoices];
 }
@@ -73,9 +73,9 @@ class UnassignedInvoicesLoaded extends ReimbursementSetState {
 /// 报销集统计信息加载成功
 class ReimbursementSetStatsLoaded extends ReimbursementSetState {
   final ReimbursementSetStats stats;
-  
+
   const ReimbursementSetStatsLoaded(this.stats);
-  
+
   @override
   List<Object?> get props => [stats];
 }
@@ -85,13 +85,13 @@ class ReimbursementSetOperationSuccess extends ReimbursementSetState {
   final String message;
   final ReimbursementSetOperationType operationType;
   final String? entityId; // 可以是报销集ID或其他相关ID
-  
+
   const ReimbursementSetOperationSuccess({
     required this.message,
     required this.operationType,
     this.entityId,
   });
-  
+
   @override
   List<Object?> get props => [message, operationType, entityId];
 }
@@ -100,12 +100,12 @@ class ReimbursementSetOperationSuccess extends ReimbursementSetState {
 class ReimbursementSetError extends ReimbursementSetState {
   final String message;
   final ReimbursementSetOperationType? operationType;
-  
+
   const ReimbursementSetError({
     required this.message,
     this.operationType,
   });
-  
+
   @override
   List<Object?> get props => [message, operationType];
 }
@@ -114,12 +114,12 @@ class ReimbursementSetError extends ReimbursementSetState {
 class ReimbursementSetCreateSuccess extends ReimbursementSetState {
   final ReimbursementSetEntity createdSet;
   final String message;
-  
+
   const ReimbursementSetCreateSuccess({
     required this.createdSet,
     required this.message,
   });
-  
+
   @override
   List<Object?> get props => [createdSet, message];
 }
@@ -128,12 +128,12 @@ class ReimbursementSetCreateSuccess extends ReimbursementSetState {
 class ReimbursementSetDeleteSuccess extends ReimbursementSetState {
   final String message;
   final String deletedSetId;
-  
+
   const ReimbursementSetDeleteSuccess({
     required this.message,
     required this.deletedSetId,
   });
-  
+
   @override
   List<Object?> get props => [message, deletedSetId];
 }
@@ -142,12 +142,12 @@ class ReimbursementSetDeleteSuccess extends ReimbursementSetState {
 class ReimbursementSetStatusUpdateSuccess extends ReimbursementSetState {
   final ReimbursementSetEntity updatedSet;
   final String message;
-  
+
   const ReimbursementSetStatusUpdateSuccess({
     required this.updatedSet,
     required this.message,
   });
-  
+
   @override
   List<Object?> get props => [updatedSet, message];
 }
@@ -165,7 +165,8 @@ enum ReimbursementSetOperationType {
 }
 
 /// 扩展操作类型以获得用户友好的描述
-extension ReimbursementSetOperationTypeExtension on ReimbursementSetOperationType {
+extension ReimbursementSetOperationTypeExtension
+    on ReimbursementSetOperationType {
   String get description {
     switch (this) {
       case ReimbursementSetOperationType.create:

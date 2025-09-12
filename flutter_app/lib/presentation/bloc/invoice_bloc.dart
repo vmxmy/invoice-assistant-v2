@@ -8,10 +8,10 @@ import '../../domain/usecases/update_invoice_status_usecase.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
-import '../../domain/value_objects/invoice_status.dart';
+// import '../../domain/value_objects/invoice_status.dart'; // 未使用
 import '../../core/config/app_config.dart';
 import '../widgets/optimistic_ui_handler.dart';
-import '../widgets/enhanced_error_handler.dart';
+// import '../widgets/enhanced_error_handler.dart'; // 未使用
 import 'invoice_event.dart';
 import 'invoice_state.dart';
 
@@ -23,7 +23,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   final DeleteInvoiceUseCase _deleteInvoiceUseCase;
   final UpdateInvoiceStatusUseCase _updateInvoiceStatusUseCase;
   final UploadInvoiceUseCase _uploadInvoiceUseCase;
-  
+
   // 乐观UI处理器
   final OptimisticUIHandler _optimisticUI = OptimisticUIHandler();
   final SmartLoadingManager _loadingManager = SmartLoadingManager();
@@ -42,15 +42,13 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     required DeleteInvoiceUseCase deleteInvoiceUseCase,
     required UpdateInvoiceStatusUseCase updateInvoiceStatusUseCase,
     required UploadInvoiceUseCase uploadInvoiceUseCase,
-  }) : 
-    _getInvoicesUseCase = getInvoicesUseCase,
-    _getInvoiceDetailUseCase = getInvoiceDetailUseCase,
-    _getInvoiceStatsUseCase = getInvoiceStatsUseCase,
-    _deleteInvoiceUseCase = deleteInvoiceUseCase,
-    _updateInvoiceStatusUseCase = updateInvoiceStatusUseCase,
-    _uploadInvoiceUseCase = uploadInvoiceUseCase,
-    super(InvoiceInitial()) {
-    
+  })  : _getInvoicesUseCase = getInvoicesUseCase,
+        _getInvoiceDetailUseCase = getInvoiceDetailUseCase,
+        _getInvoiceStatsUseCase = getInvoiceStatsUseCase,
+        _deleteInvoiceUseCase = deleteInvoiceUseCase,
+        _updateInvoiceStatusUseCase = updateInvoiceStatusUseCase,
+        _uploadInvoiceUseCase = uploadInvoiceUseCase,
+        super(InvoiceInitial()) {
     // 注册事件处理器
     on<LoadInvoices>(_onLoadInvoices);
     on<LoadMoreInvoices>(_onLoadMoreInvoices);
@@ -68,12 +66,13 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理加载发票列表事件
-  Future<void> _onLoadInvoices(LoadInvoices event, Emitter<InvoiceState> emit) async {
+  Future<void> _onLoadInvoices(
+      LoadInvoices event, Emitter<InvoiceState> emit) async {
     final loadingKey = 'load_invoices_${event.page}';
-    
+
     try {
       if (AppConfig.enableLogging) {
-        print('🔄 [InvoiceBloc] 开始加载发票列表 - 页码: ${event.page}, 刷新: ${event.refresh}');
+        // print('🔄 [InvoiceBloc] 开始加载发票列表 - 页码: ${event.page}, 刷新: ${event.refresh}');
       }
 
       // 设置智能加载状态
@@ -81,17 +80,17 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         _loadingManager.setLoading(loadingKey, message: '正在加载发票列表...');
         emit(InvoiceLoading());
         if (AppConfig.enableLogging) {
-          print('🔄 [InvoiceBloc] 显示全屏加载状态');
+          // print('🔄 [InvoiceBloc] 显示全屏加载状态');
         }
       } else if (event.refresh) {
         _loadingManager.setLoading(loadingKey, message: '正在刷新数据...');
         if (AppConfig.enableLogging) {
-          print('🔄 [InvoiceBloc] 下拉刷新 - 不显示全屏加载状态');
+          // print('🔄 [InvoiceBloc] 下拉刷新 - 不显示全屏加载状态');
         }
       } else {
         _loadingManager.setLoading(loadingKey, message: '正在加载更多...');
       }
-      
+
       // 如果是刷新操作或第一页，清空数据
       if (event.refresh || event.page == 1) {
         _allInvoices.clear();
@@ -100,7 +99,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
       // 保存当前筛选条件
       _currentFilters = event.filters;
-      
+
       // 调用用例获取数据
       final result = await _getInvoicesUseCase(
         page: event.page,
@@ -131,18 +130,17 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 发票列表加载成功 - 总数: ${_allInvoices.length}');
-        print('✅ [InvoiceBloc] 分页状态 - currentPage: $_currentPage, totalCount: $_totalCount, hasMore: $_hasMore');
+        // print('✅ [InvoiceBloc] 发票列表加载成功 - 总数: ${_allInvoices.length}');
+        // print('✅ [InvoiceBloc] 分页状态 - currentPage: $_currentPage, totalCount: $_totalCount, hasMore: $_hasMore');
       }
-
     } catch (error) {
       // 清除加载状态
       _loadingManager.clearLoading(loadingKey);
-      
+
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 加载发票列表失败: $error');
+        // print('❌ [InvoiceBloc] 加载发票列表失败: $error');
       }
-      
+
       emit(InvoiceError(
         message: '加载发票列表失败: ${error.toString()}',
         errorCode: 'LOAD_INVOICES_ERROR',
@@ -151,38 +149,41 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理加载更多发票事件
-  Future<void> _onLoadMoreInvoices(LoadMoreInvoices event, Emitter<InvoiceState> emit) async {
+  Future<void> _onLoadMoreInvoices(
+      LoadMoreInvoices event, Emitter<InvoiceState> emit) async {
     final currentState = state;
-    
+
     if (AppConfig.enableLogging) {
-      print('🔄 [InvoiceBloc] 收到加载更多请求');
-      print('🔄 [InvoiceBloc] 当前状态: ${currentState.runtimeType}');
+      // print('🔄 [InvoiceBloc] 收到加载更多请求');
+      // print('🔄 [InvoiceBloc] 当前状态: ${currentState.runtimeType}');
       if (currentState is InvoiceLoaded) {
-        print('🔄 [InvoiceBloc] hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}');
+        // print('🔄 [InvoiceBloc] hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}');
       }
     }
-    
-    if (currentState is! InvoiceLoaded || !currentState.hasMore || currentState.isLoadingMore) {
+
+    if (currentState is! InvoiceLoaded ||
+        !currentState.hasMore ||
+        currentState.isLoadingMore) {
       if (AppConfig.enableLogging) {
-        print('🔄 [InvoiceBloc] 跳过加载更多 - 条件不满足');
+        // print('🔄 [InvoiceBloc] 跳过加载更多 - 条件不满足');
       }
       return;
     }
 
     try {
       if (AppConfig.enableLogging) {
-        print('🔄 [InvoiceBloc] 加载更多发票 - 下一页: ${_currentPage + 1}');
+        // print('🔄 [InvoiceBloc] 加载更多发票 - 下一页: ${_currentPage + 1}');
       }
 
       // 显示加载更多状态
       emit(currentState.copyWith(isLoadingMore: true));
 
       if (AppConfig.enableLogging) {
-        print('🔄 [InvoiceBloc] LoadMoreInvoices - 当前保存的筛选条件: $_currentFilters');
+        // print('🔄 [InvoiceBloc] LoadMoreInvoices - 当前保存的筛选条件: $_currentFilters');
         if (_currentFilters != null) {
-          print('🔄 [InvoiceBloc] LoadMoreInvoices - overdue: ${_currentFilters!.overdue}');
-          print('🔄 [InvoiceBloc] LoadMoreInvoices - urgent: ${_currentFilters!.urgent}');
-          print('🔄 [InvoiceBloc] LoadMoreInvoices - status: ${_currentFilters!.status}');
+          // print('🔄 [InvoiceBloc] LoadMoreInvoices - overdue: ${_currentFilters!.overdue}');
+          // print('🔄 [InvoiceBloc] LoadMoreInvoices - urgent: ${_currentFilters!.urgent}');
+          // print('🔄 [InvoiceBloc] LoadMoreInvoices - status: ${_currentFilters!.status}');
         }
       }
 
@@ -206,12 +207,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 加载更多发票成功 - 当前总数: ${_allInvoices.length}');
+        // print('✅ [InvoiceBloc] 加载更多发票成功 - 当前总数: ${_allInvoices.length}');
       }
-
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 加载更多发票失败: $error');
+        // print('❌ [InvoiceBloc] 加载更多发票失败: $error');
       }
 
       emit(currentState.copyWith(isLoadingMore: false));
@@ -223,19 +223,21 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理刷新发票列表事件
-  Future<void> _onRefreshInvoices(RefreshInvoices event, Emitter<InvoiceState> emit) async {
+  Future<void> _onRefreshInvoices(
+      RefreshInvoices event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('🔄 [InvoiceBloc] 下拉刷新 - 使用当前筛选条件: $_currentFilters');
+      // print('🔄 [InvoiceBloc] 下拉刷新 - 使用当前筛选条件: $_currentFilters');
     }
     add(LoadInvoices(
-      page: 1, 
+      page: 1,
       refresh: true,
       filters: _currentFilters, // 使用保存的筛选条件
     ));
   }
 
   /// 处理删除单个发票事件
-  Future<void> _onDeleteInvoice(DeleteInvoice event, Emitter<InvoiceState> emit) async {
+  Future<void> _onDeleteInvoice(
+      DeleteInvoice event, Emitter<InvoiceState> emit) async {
     // 找到要删除的发票
     final invoiceToDelete = _allInvoices.firstWhere(
       (invoice) => invoice.id == event.invoiceId,
@@ -251,11 +253,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         // 立即从UI移除
         _allInvoices.removeWhere((invoice) => invoice.id == event.invoiceId);
         _totalCount--;
-        
+
         if (AppConfig.enableLogging) {
-          print('🗑️ [Optimistic] 发票已从UI移除: ${event.invoiceId}');
+          // print('🗑️ [Optimistic] 发票已从UI移除: ${event.invoiceId}');
         }
-        
+
         emit(InvoiceDeleteSuccess('发票删除成功'));
         emit(InvoiceLoaded(
           invoices: List.from(_allInvoices),
@@ -270,16 +272,16 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           _allInvoices.add(invoiceToDelete);
           _totalCount++;
         }
-        
+
         if (AppConfig.enableLogging) {
-          print('❌ [Optimistic] 删除失败，已恢复发票: $error');
+          // print('❌ [Optimistic] 删除失败，已恢复发票: $error');
         }
-        
+
         emit(InvoiceError(
           message: '删除发票失败: ${error.toString()}',
           errorCode: 'DELETE_INVOICE_ERROR',
         ));
-        
+
         // 更新列表状态
         emit(InvoiceLoaded(
           invoices: List.from(_allInvoices),
@@ -292,20 +294,22 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理批量删除发票事件
-  Future<void> _onDeleteInvoices(DeleteInvoices event, Emitter<InvoiceState> emit) async {
+  Future<void> _onDeleteInvoices(
+      DeleteInvoices event, Emitter<InvoiceState> emit) async {
     try {
       if (AppConfig.enableLogging) {
-        print('🗑️ [InvoiceBloc] 批量删除发票: ${event.invoiceIds.length}个');
+        // print('🗑️ [InvoiceBloc] 批量删除发票: ${event.invoiceIds.length}个');
       }
 
       await _deleteInvoiceUseCase.callBatch(event.invoiceIds);
 
       // 从本地列表中批量移除
-      _allInvoices.removeWhere((invoice) => event.invoiceIds.contains(invoice.id));
+      _allInvoices
+          .removeWhere((invoice) => event.invoiceIds.contains(invoice.id));
       _totalCount -= event.invoiceIds.length;
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 批量删除发票成功');
+        // print('✅ [InvoiceBloc] 批量删除发票成功');
       }
 
       // 先发送删除成功状态用于显示snackbar
@@ -321,10 +325,9 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         totalCount: _totalCount,
         hasMore: _hasMore,
       ));
-
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 批量删除发票失败: $error');
+        // print('❌ [InvoiceBloc] 批量删除发票失败: $error');
       }
 
       emit(InvoiceError(
@@ -335,23 +338,23 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理加载发票统计事件
-  Future<void> _onLoadInvoiceStats(LoadInvoiceStats event, Emitter<InvoiceState> emit) async {
+  Future<void> _onLoadInvoiceStats(
+      LoadInvoiceStats event, Emitter<InvoiceState> emit) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [InvoiceBloc] 加载发票统计');
+        // print('📊 [InvoiceBloc] 加载发票统计');
       }
 
       final stats = await _getInvoiceStatsUseCase();
-      
+
       emit(InvoiceStatsLoaded(stats));
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 发票统计加载成功 - 总数: ${stats.totalCount}');
+        // print('✅ [InvoiceBloc] 发票统计加载成功 - 总数: ${stats.totalCount}');
       }
-
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 加载发票统计失败: $error');
+        // print('❌ [InvoiceBloc] 加载发票统计失败: $error');
       }
 
       emit(InvoiceError(
@@ -362,10 +365,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理加载发票详情事件
-  Future<void> _onLoadInvoiceDetail(LoadInvoiceDetail event, Emitter<InvoiceState> emit) async {
+  Future<void> _onLoadInvoiceDetail(
+      LoadInvoiceDetail event, Emitter<InvoiceState> emit) async {
     try {
       if (AppConfig.enableLogging) {
-        print('🔄 [InvoiceBloc] 加载发票详情: ${event.invoiceId}');
+        // print('🔄 [InvoiceBloc] 加载发票详情: ${event.invoiceId}');
       }
 
       emit(InvoiceDetailLoading());
@@ -376,18 +380,18 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         invoice = _allInvoices.firstWhere(
           (inv) => inv.id == event.invoiceId,
         );
-        
+
         if (AppConfig.enableLogging) {
-          print('✅ [InvoiceBloc] 从本地缓存加载发票详情: ${invoice.invoiceNumber}');
+          // print('✅ [InvoiceBloc] 从本地缓存加载发票详情: ${invoice.invoiceNumber}');
         }
       } catch (e) {
         // 如果本地没有找到，从远程获取
         if (AppConfig.enableLogging) {
-          print('🌐 [InvoiceBloc] 本地缓存未找到，从远程服务器获取发票详情');
+          // print('🌐 [InvoiceBloc] 本地缓存未找到，从远程服务器获取发票详情');
         }
-        
+
         invoice = await _getInvoiceDetailUseCase(event.invoiceId);
-        
+
         // 将获取到的发票添加到本地缓存中
         if (!_allInvoices.any((inv) => inv.id == invoice!.id)) {
           _allInvoices.add(invoice);
@@ -397,12 +401,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       emit(InvoiceDetailLoaded(invoice));
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 发票详情加载成功: ${invoice.invoiceNumber}');
+        // print('✅ [InvoiceBloc] 发票详情加载成功: ${invoice.invoiceNumber}');
       }
-
     } on InvoiceNotFoundException catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 发票未找到: ${e.message}');
+        // print('❌ [InvoiceBloc] 发票未找到: ${e.message}');
       }
       emit(InvoiceError(
         message: e.message,
@@ -410,7 +413,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
     } on InvoicePermissionDeniedException catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 权限不足: ${e.message}');
+        // print('❌ [InvoiceBloc] 权限不足: ${e.message}');
       }
       emit(InvoiceError(
         message: e.message,
@@ -418,7 +421,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
     } on InvoiceNetworkException catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 网络错误: ${e.message}');
+        // print('❌ [InvoiceBloc] 网络错误: ${e.message}');
       }
       emit(InvoiceError(
         message: e.message,
@@ -426,7 +429,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
     } on InvoiceDataFormatException catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 数据格式错误: ${e.message}');
+        // print('❌ [InvoiceBloc] 数据格式错误: ${e.message}');
       }
       emit(InvoiceError(
         message: e.message,
@@ -434,7 +437,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
     } on InvoiceServerException catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 服务器错误: ${e.message}');
+        // print('❌ [InvoiceBloc] 服务器错误: ${e.message}');
       }
       emit(InvoiceError(
         message: e.message,
@@ -442,7 +445,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 加载发票详情失败: $error');
+        // print('❌ [InvoiceBloc] 加载发票详情失败: $error');
       }
       emit(InvoiceError(
         message: '加载发票详情时发生未知错误',
@@ -452,16 +455,18 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理更新发票状态事件
-  Future<void> _onUpdateInvoiceStatus(UpdateInvoiceStatus event, Emitter<InvoiceState> emit) async {
+  Future<void> _onUpdateInvoiceStatus(
+      UpdateInvoiceStatus event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('🔄 [InvoiceBloc] 更新发票状态: ${event.invoiceId} -> ${event.newStatus.displayName}');
+      // print('🔄 [InvoiceBloc] 更新发票状态: ${event.invoiceId} -> ${event.newStatus.displayName}');
     }
 
     // 查找要更新的发票
-    final invoiceIndex = _allInvoices.indexWhere((invoice) => invoice.id == event.invoiceId);
+    final invoiceIndex =
+        _allInvoices.indexWhere((invoice) => invoice.id == event.invoiceId);
     if (invoiceIndex == -1) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 发票不存在: ${event.invoiceId}');
+        // print('❌ [InvoiceBloc] 发票不存在: ${event.invoiceId}');
       }
       return;
     }
@@ -472,10 +477,12 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     await _optimisticUI.optimisticUpdateInvoiceStatus(
       invoiceId: event.invoiceId,
       newStatus: event.newStatus,
-      serverUpdate: () => _updateInvoiceStatusUseCase(event.invoiceId, event.newStatus),
+      serverUpdate: () =>
+          _updateInvoiceStatusUseCase(event.invoiceId, event.newStatus),
       onSuccess: () {
         // 立即更新UI
-        final updatedInvoice = originalInvoice.copyWith(status: event.newStatus);
+        final updatedInvoice =
+            originalInvoice.copyWith(status: event.newStatus);
         _allInvoices[invoiceIndex] = updatedInvoice;
 
         emit(InvoiceLoaded(
@@ -486,13 +493,13 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         ));
 
         if (AppConfig.enableLogging) {
-          print('✅ [InvoiceBloc] 发票状态即时更新: ${event.newStatus.displayName}');
+          // print('✅ [InvoiceBloc] 发票状态即时更新: ${event.newStatus.displayName}');
         }
       },
       onError: (error) {
         // 回滚UI状态
         if (AppConfig.enableLogging) {
-          print('❌ [InvoiceBloc] 发票状态更新失败，回滚: $error');
+          // print('❌ [InvoiceBloc] 发票状态更新失败，回滚: $error');
         }
 
         emit(InvoiceLoaded(
@@ -505,19 +512,20 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     );
 
     if (AppConfig.enableLogging) {
-      print('✅ [InvoiceBloc] 发票状态更新流程完成: ${event.newStatus.displayName}');
+      // print('✅ [InvoiceBloc] 发票状态更新流程完成: ${event.newStatus.displayName}');
     }
   }
 
   /// 处理单个发票上传事件
-  Future<void> _onUploadInvoice(UploadInvoice event, Emitter<InvoiceState> emit) async {
+  Future<void> _onUploadInvoice(
+      UploadInvoice event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('📤 [InvoiceBloc] 开始上传单个发票: ${event.filePath}');
+      // print('📤 [InvoiceBloc] 开始上传单个发票: ${event.filePath}');
     }
 
     try {
       final fileName = event.filePath.split('/').last;
-      
+
       // 初始化上传状态
       emit(InvoiceUploading(
         progresses: [
@@ -612,7 +620,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
             failureCount: 0,
             duplicateCount: 0,
           ));
-          
+
           // 如果有新发票，添加到本地列表并刷新列表
           if (result.invoice != null) {
             _allInvoices.insert(0, result.invoice!); // 插入到列表开头
@@ -637,12 +645,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       }
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 单个发票上传完成');
+        // print('✅ [InvoiceBloc] 单个发票上传完成');
       }
-
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 上传发票失败: $error');
+        // print('❌ [InvoiceBloc] 上传发票失败: $error');
       }
 
       final fileName = event.filePath.split('/').last;
@@ -663,9 +670,10 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理批量发票上传事件
-  Future<void> _onUploadInvoices(UploadInvoices event, Emitter<InvoiceState> emit) async {
+  Future<void> _onUploadInvoices(
+      UploadInvoices event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('📤 [InvoiceBloc] 开始批量上传 ${event.filePaths.length} 个发票');
+      // print('📤 [InvoiceBloc] 开始批量上传 ${event.filePaths.length} 个发票');
     }
 
     final List<UploadProgress> progresses = [];
@@ -702,7 +710,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
         try {
           if (AppConfig.enableLogging) {
-            print('📤 [InvoiceBloc] 上传进度: ${i + 1}/${event.filePaths.length} - $fileName');
+            // print('📤 [InvoiceBloc] 上传进度: ${i + 1}/${event.filePaths.length} - $fileName');
           }
 
           // 更新当前文件状态
@@ -763,7 +771,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
                 message: '上传成功',
               );
               successCount++;
-              
+
               // 添加到本地列表
               if (result.invoice != null) {
                 _allInvoices.insert(0, result.invoice!);
@@ -794,10 +802,9 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
               error: result.error?.message ?? '上传失败',
             ));
           }
-
         } catch (fileError) {
           if (AppConfig.enableLogging) {
-            print('❌ [InvoiceBloc] 文件上传失败: $fileName - $fileError');
+            // print('❌ [InvoiceBloc] 文件上传失败: $fileName - $fileError');
           }
 
           progresses[i] = progresses[i].copyWith(
@@ -833,12 +840,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       ));
 
       if (AppConfig.enableLogging) {
-        print('✅ [InvoiceBloc] 批量上传完成 - 成功: $successCount, 失败: $failureCount, 重复: $duplicateCount');
+        // print('✅ [InvoiceBloc] 批量上传完成 - 成功: $successCount, 失败: $failureCount, 重复: $duplicateCount');
       }
-
     } catch (error) {
       if (AppConfig.enableLogging) {
-        print('❌ [InvoiceBloc] 批量上传失败: $error');
+        // print('❌ [InvoiceBloc] 批量上传失败: $error');
       }
 
       emit(InvoiceError(
@@ -849,21 +855,23 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理取消上传事件
-  Future<void> _onCancelUpload(CancelUpload event, Emitter<InvoiceState> emit) async {
+  Future<void> _onCancelUpload(
+      CancelUpload event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('⏹️ [InvoiceBloc] 取消上传');
+      // print('⏹️ [InvoiceBloc] 取消上传');
     }
-    
+
     // 这里可以实现取消逻辑，目前简单返回初始状态
     emit(InvoiceInitial());
   }
 
   /// 处理重试上传事件
-  Future<void> _onRetryUpload(RetryUpload event, Emitter<InvoiceState> emit) async {
+  Future<void> _onRetryUpload(
+      RetryUpload event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('🔄 [InvoiceBloc] 重试上传: ${event.filePath}');
+      // print('🔄 [InvoiceBloc] 重试上传: ${event.filePath}');
     }
-    
+
     // 重新触发上传事件
     add(UploadInvoice(
       filePath: event.filePath,
@@ -872,11 +880,12 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
 
   /// 处理清除上传结果事件
-  Future<void> _onClearUploadResults(ClearUploadResults event, Emitter<InvoiceState> emit) async {
+  Future<void> _onClearUploadResults(
+      ClearUploadResults event, Emitter<InvoiceState> emit) async {
     if (AppConfig.enableLogging) {
-      print('🧹 [InvoiceBloc] 清除上传结果');
+      // print('🧹 [InvoiceBloc] 清除上传结果');
     }
-    
+
     emit(InvoiceInitial());
   }
 }

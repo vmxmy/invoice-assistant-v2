@@ -8,19 +8,19 @@ class InvoiceEntity extends Equatable {
   final DateTime invoiceDate;
   final DateTime? consumptionDate;
   final String userId;
-  
+
   // 基本信息
   final String? sellerName;
   final String? buyerName;
   final String? sellerTaxId;
   final String? buyerTaxId;
-  
+
   // 金额信息
   final double amount;
   final double? totalAmount;
   final double? taxAmount;
   final String currency;
-  
+
   // 分类和状态
   final String? category;
   final String? expenseCategory;
@@ -28,30 +28,30 @@ class InvoiceEntity extends Equatable {
   final InvoiceStatus status;
   final String? invoiceType;
   final String? invoiceCode;
-  
+
   // 文件信息
   final String? fileUrl;
   final String? filePath;
   final String? fileHash;
   final int? fileSize;
-  
+
   // 处理状态
   final String? processingStatus;
   final bool isVerified;
   final String? verificationNotes;
   final DateTime? verifiedAt;
   final String? verifiedBy;
-  
+
   // 数据来源
   final InvoiceSource source;
   final Map<String, dynamic>? sourceMetadata;
   final String? emailTaskId;
-  
+
   // 标签和元数据
   final List<String> tags;
   final Map<String, dynamic>? extractedData;
   final Map<String, dynamic>? metadata;
-  
+
   // 时间戳
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -59,7 +59,7 @@ class InvoiceEntity extends Equatable {
   final DateTime? completedAt;
   final DateTime? startedAt;
   final DateTime? lastActivityAt;
-  
+
   // 版本控制
   final int version;
   final String? createdBy;
@@ -113,7 +113,7 @@ class InvoiceEntity extends Equatable {
 
   /// 业务逻辑：获取显示用的金额
   double get displayAmount => totalAmount ?? amount;
-  
+
   /// 业务逻辑：获取格式化的金额字符串
   String get formattedAmount {
     final amount = displayAmount;
@@ -122,30 +122,30 @@ class InvoiceEntity extends Equatable {
     }
     return '$currency ${amount.toStringAsFixed(2)}';
   }
-  
+
   /// 业务逻辑：获取格式化的日期字符串
   String get formattedDate {
     return '${invoiceDate.year}-${invoiceDate.month.toString().padLeft(2, '0')}-${invoiceDate.day.toString().padLeft(2, '0')}';
   }
-  
+
   /// 业务逻辑：获取格式化的消费日期字符串
   String? get formattedConsumptionDate {
     if (consumptionDate == null) return null;
     return '${consumptionDate!.year}-${consumptionDate!.month.toString().padLeft(2, '0')}-${consumptionDate!.day.toString().padLeft(2, '0')}';
   }
-  
+
   /// 业务逻辑：是否已报销
   bool get isReimbursed => status == InvoiceStatus.reimbursed;
-  
+
   /// 业务逻辑：是否未报销
   bool get isUnreimbursed => status == InvoiceStatus.unreimbursed;
-  
+
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;
-  
+
   /// 业务逻辑：是否有附件
   bool get hasFile => fileUrl != null && fileUrl!.isNotEmpty;
-  
+
   /// 业务逻辑：获取报销进度百分比
   double get progressPercent {
     switch (status) {
@@ -261,52 +261,51 @@ class InvoiceEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    invoiceNumber,
-    invoiceDate,
-    consumptionDate,
-    userId,
-    sellerName,
-    buyerName,
-    sellerTaxId,
-    buyerTaxId,
-    amount,
-    totalAmount,
-    taxAmount,
-    currency,
-    category,
-    expenseCategory,
-    primaryCategoryName,
-    status, // 重要：包含status字段用于比较
-    invoiceType,
-    invoiceCode,
-    fileUrl,
-    filePath,
-    fileHash,
-    fileSize,
-    processingStatus,
-    isVerified,
-    verificationNotes,
-    verifiedAt,
-    verifiedBy,
-    source,
-    sourceMetadata,
-    emailTaskId,
-    tags,
-    extractedData,
-    metadata,
-    createdAt,
-    updatedAt,
-    deletedAt,
-    completedAt,
-    startedAt,
-    lastActivityAt,
-    version,
-    createdBy,
-    updatedBy,
-  ];
+        id,
+        invoiceNumber,
+        invoiceDate,
+        consumptionDate,
+        userId,
+        sellerName,
+        buyerName,
+        sellerTaxId,
+        buyerTaxId,
+        amount,
+        totalAmount,
+        taxAmount,
+        currency,
+        category,
+        expenseCategory,
+        primaryCategoryName,
+        status, // 重要：包含status字段用于比较
+        invoiceType,
+        invoiceCode,
+        fileUrl,
+        filePath,
+        fileHash,
+        fileSize,
+        processingStatus,
+        isVerified,
+        verificationNotes,
+        verifiedAt,
+        verifiedBy,
+        source,
+        sourceMetadata,
+        emailTaskId,
+        tags,
+        extractedData,
+        metadata,
+        createdAt,
+        updatedAt,
+        deletedAt,
+        completedAt,
+        startedAt,
+        lastActivityAt,
+        version,
+        createdBy,
+        updatedBy,
+      ];
 }
-
 
 /// 发票来源枚举
 enum InvoiceSource {

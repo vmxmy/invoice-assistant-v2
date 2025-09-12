@@ -17,7 +17,9 @@ class ResponsiveStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppThemeConstants.spacing16, vertical: AppThemeConstants.spacing8),
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppThemeConstants.spacing16,
+          vertical: AppThemeConstants.spacing8),
       child: _buildCompactStatsCard(context),
     );
   }
@@ -26,11 +28,11 @@ class ResponsiveStatsCard extends StatelessWidget {
   Widget _buildCompactStatsCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final stats = _calculateStats();
-    
+
     if (stats.totalCount == 0) {
       return const SizedBox.shrink(); // 无数据时不显示
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(AppThemeConstants.spacing12),
       decoration: BoxDecoration(
@@ -50,24 +52,30 @@ class ResponsiveStatsCard extends StatelessWidget {
             size: AppThemeConstants.iconMedium,
           ),
           const SizedBox(width: AppThemeConstants.spacing8),
-          
+
           // 核心统计 - 紧凑显示
           Expanded(
             child: Row(
               children: [
                 // 总数
-                _buildCompactStat(context, '报销集', '${stats.totalCount}', colorScheme.onSurface),
+                _buildCompactStat(context, '报销集', '${stats.totalCount}',
+                    colorScheme.onSurface),
                 const SizedBox(width: AppThemeConstants.spacing16),
-                
+
                 // 草稿数（仅在有草稿时显示）
                 if (stats.draftCount > 0) ...[
-                  _buildCompactStat(context, '草稿', '${stats.draftCount}', colorScheme.primary),
+                  _buildCompactStat(context, '草稿', '${stats.draftCount}',
+                      colorScheme.primary),
                   const SizedBox(width: AppThemeConstants.spacing16),
                 ],
-                
+
                 // 总金额（仅在大于0时显示）
                 if (stats.totalAmount > 0)
-                  _buildCompactStat(context, '总额', '¥${stats.totalAmount.toStringAsFixed(0)}', colorScheme.tertiary),
+                  _buildCompactStat(
+                      context,
+                      '总额',
+                      '¥${stats.totalAmount.toStringAsFixed(0)}',
+                      colorScheme.tertiary),
               ],
             ),
           ),
@@ -77,7 +85,8 @@ class ResponsiveStatsCard extends StatelessWidget {
   }
 
   /// 构建紧凑统计项 - 标签:数值格式
-  Widget _buildCompactStat(BuildContext context, String label, String value, Color color) {
+  Widget _buildCompactStat(
+      BuildContext context, String label, String value, Color color) {
     return RichText(
       text: TextSpan(
         children: [
@@ -101,15 +110,16 @@ class ResponsiveStatsCard extends StatelessWidget {
 
   // ==================== 数据处理 ====================
 
-
   /// 计算统计数据
   ReimbursementSetStats _calculateStats() {
     final totalCount = reimbursementSets.length;
     final draftCount = reimbursementSets.where((set) => set.isDraft).length;
-    final submittedCount = reimbursementSets.where((set) => set.isSubmitted).length;
-    final reimbursedCount = reimbursementSets.where((set) => set.isReimbursed).length;
+    final submittedCount =
+        reimbursementSets.where((set) => set.isSubmitted).length;
+    final reimbursedCount =
+        reimbursementSets.where((set) => set.isReimbursed).length;
     final totalAmount = reimbursementSets.fold<double>(
-      0, 
+      0,
       (sum, set) => sum + set.totalAmount,
     );
 
@@ -121,7 +131,6 @@ class ResponsiveStatsCard extends StatelessWidget {
       totalAmount: totalAmount,
     );
   }
-
 }
 
 /// 报销集统计数据类

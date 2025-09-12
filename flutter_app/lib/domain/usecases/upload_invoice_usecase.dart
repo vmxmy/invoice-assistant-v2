@@ -1,7 +1,7 @@
 import '../../core/utils/logger.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:convert';
+// import 'dart:convert'; // 未使用
 import 'package:crypto/crypto.dart';
 import '../repositories/invoice_repository.dart';
 import '../entities/invoice_entity.dart';
@@ -17,7 +17,8 @@ class UploadInvoiceUseCase {
   Future<UploadInvoiceResult> call(UploadInvoiceParams params) async {
     if (AppConfig.enableLogging) {
       AppLogger.debug('📤 [UploadInvoiceUseCase] 开始上传发票文件', tag: 'Debug');
-      AppLogger.debug('📤 [UploadInvoiceUseCase] 文件路径: ${params.filePath}', tag: 'Debug');
+      AppLogger.debug('📤 [UploadInvoiceUseCase] 文件路径: ${params.filePath}',
+          tag: 'Debug');
     }
 
     try {
@@ -34,10 +35,14 @@ class UploadInvoiceUseCase {
 
       // 计算文件哈希用于去重检查
       final fileHash = _calculateFileHash(fileBytes);
-      
+
       if (AppConfig.enableLogging) {
-        AppLogger.debug('📤 [UploadInvoiceUseCase] 文件哈希: ${fileHash.substring(0, 16)}...', tag: 'Debug');
-        AppLogger.debug('📤 [UploadInvoiceUseCase] 文件大小: ${fileBytes.length} bytes', tag: 'Debug');
+        AppLogger.debug(
+            '📤 [UploadInvoiceUseCase] 文件哈希: ${fileHash.substring(0, 16)}...',
+            tag: 'Debug');
+        AppLogger.debug(
+            '📤 [UploadInvoiceUseCase] 文件大小: ${fileBytes.length} bytes',
+            tag: 'Debug');
       }
 
       // 调用远程数据源进行上传和OCR处理
@@ -49,8 +54,10 @@ class UploadInvoiceUseCase {
 
       if (AppConfig.enableLogging) {
         AppLogger.debug('✅ [UploadInvoiceUseCase] 发票上传成功', tag: 'Debug');
-        AppLogger.debug('✅ [UploadInvoiceUseCase] 发票ID: ${result.invoice?.id}', tag: 'Debug');
-        AppLogger.debug('✅ [UploadInvoiceUseCase] 是否重复: ${result.isDuplicate}', tag: 'Debug');
+        AppLogger.debug('✅ [UploadInvoiceUseCase] 发票ID: ${result.invoice?.id}',
+            tag: 'Debug');
+        AppLogger.debug('✅ [UploadInvoiceUseCase] 是否重复: ${result.isDuplicate}',
+            tag: 'Debug');
       }
 
       return result;
@@ -58,38 +65,46 @@ class UploadInvoiceUseCase {
       if (AppConfig.enableLogging) {
         AppLogger.debug('❌ [UploadInvoiceUseCase] 上传失败: $e', tag: 'Debug');
       }
-      
+
       if (e is UploadInvoiceException) {
         rethrow;
       }
-      
+
       throw UploadInvoiceException('上传失败: ${e.toString()}');
     }
   }
 
   /// 批量上传发票文件
-  Future<List<UploadInvoiceResult>> callBatch(List<UploadInvoiceParams> paramsList) async {
+  Future<List<UploadInvoiceResult>> callBatch(
+      List<UploadInvoiceParams> paramsList) async {
     if (AppConfig.enableLogging) {
-      AppLogger.debug('📤 [UploadInvoiceUseCase] 开始批量上传 ${paramsList.length} 个文件', tag: 'Debug');
+      AppLogger.debug(
+          '📤 [UploadInvoiceUseCase] 开始批量上传 ${paramsList.length} 个文件',
+          tag: 'Debug');
     }
 
     final results = <UploadInvoiceResult>[];
-    
+
     for (int i = 0; i < paramsList.length; i++) {
       try {
         final result = await call(paramsList[i]);
         results.add(result);
-        
+
         if (AppConfig.enableLogging) {
-          AppLogger.debug('✅ [UploadInvoiceUseCase] 批量上传进度: ${i + 1}/${paramsList.length}', tag: 'Debug');
+          AppLogger.debug(
+              '✅ [UploadInvoiceUseCase] 批量上传进度: ${i + 1}/${paramsList.length}',
+              tag: 'Debug');
         }
       } catch (e) {
         if (AppConfig.enableLogging) {
-          AppLogger.debug('❌ [UploadInvoiceUseCase] 批量上传第${i + 1}个文件失败: $e', tag: 'Debug');
+          AppLogger.debug('❌ [UploadInvoiceUseCase] 批量上传第${i + 1}个文件失败: $e',
+              tag: 'Debug');
         }
-        
+
         results.add(UploadInvoiceResult.error(
-          error: e is UploadInvoiceException ? e : UploadInvoiceException(e.toString()),
+          error: e is UploadInvoiceException
+              ? e
+              : UploadInvoiceException(e.toString()),
           fileName: _getFileName(paramsList[i].filePath),
         ));
       }
@@ -97,7 +112,9 @@ class UploadInvoiceUseCase {
 
     if (AppConfig.enableLogging) {
       final successCount = results.where((r) => r.isSuccess).length;
-      AppLogger.debug('✅ [UploadInvoiceUseCase] 批量上传完成: ${successCount}/${paramsList.length} 成功', tag: 'Debug');
+      AppLogger.debug(
+          '✅ [UploadInvoiceUseCase] 批量上传完成: $successCount/${paramsList.length} 成功',
+          tag: 'Debug');
     }
 
     return results;

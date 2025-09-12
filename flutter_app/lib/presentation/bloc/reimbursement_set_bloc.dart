@@ -7,14 +7,14 @@ import '../../domain/repositories/reimbursement_set_repository.dart';
 import 'reimbursement_set_event.dart';
 import 'reimbursement_set_state.dart';
 
-class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetState> {
+class ReimbursementSetBloc
+    extends Bloc<ReimbursementSetEvent, ReimbursementSetState> {
   final ReimbursementSetRepository _repository;
-  
+
   ReimbursementSetBloc({
     required ReimbursementSetRepository repository,
-  }) : _repository = repository,
-       super(const ReimbursementSetInitial()) {
-    
+  })  : _repository = repository,
+        super(const ReimbursementSetInitial()) {
     // 注册事件处理器
     on<LoadReimbursementSets>(_onLoadReimbursementSets);
     on<CreateReimbursementSet>(_onCreateReimbursementSet);
@@ -22,7 +22,8 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
     on<UpdateReimbursementSetStatus>(_onUpdateReimbursementSetStatus);
     on<DeleteReimbursementSet>(_onDeleteReimbursementSet);
     on<AddInvoicesToReimbursementSet>(_onAddInvoicesToReimbursementSet);
-    on<RemoveInvoicesFromReimbursementSet>(_onRemoveInvoicesFromReimbursementSet);
+    on<RemoveInvoicesFromReimbursementSet>(
+        _onRemoveInvoicesFromReimbursementSet);
     on<LoadReimbursementSetDetail>(_onLoadReimbursementSetDetail);
     on<LoadReimbursementSetInvoices>(_onLoadReimbursementSetInvoices);
     on<LoadUnassignedInvoices>(_onLoadUnassignedInvoices);
@@ -37,7 +38,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始加载报销集列表, refresh: ${event.refresh}');
+        // print('📊 [ReimbursementSetBloc] 开始加载报销集列表, refresh: ${event.refresh}');
       }
 
       // 如果是刷新操作，显示刷新状态
@@ -52,19 +53,18 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       final reimbursementSets = await _repository.getReimbursementSets();
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功加载 ${reimbursementSets.length} 个报销集');
+        // print('📊 [ReimbursementSetBloc] 成功加载 ${reimbursementSets.length} 个报销集');
       }
 
       emit(ReimbursementSetLoaded(
         reimbursementSets: reimbursementSets,
         isRefreshing: false,
       ));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 加载报销集列表失败: $e');
+        // print('❌ [ReimbursementSetBloc] 加载报销集列表失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -79,7 +79,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始创建报销集: ${event.setName}');
+        // print('📊 [ReimbursementSetBloc] 开始创建报销集: ${event.setName}');
       }
 
       final createdSet = await _repository.createReimbursementSet(
@@ -89,7 +89,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       );
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功创建报销集: ${createdSet.id}');
+        // print('📊 [ReimbursementSetBloc] 成功创建报销集: ${createdSet.id}');
       }
 
       emit(ReimbursementSetCreateSuccess(
@@ -99,12 +99,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 创建成功后自动刷新列表
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 创建报销集失败: $e');
+        // print('❌ [ReimbursementSetBloc] 创建报销集失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.create,
@@ -119,7 +118,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始更新报销集: ${event.setId}');
+        // print('📊 [ReimbursementSetBloc] 开始更新报销集: ${event.setId}');
       }
 
       final updatedSet = await _repository.updateReimbursementSet(
@@ -129,7 +128,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       );
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功更新报销集: ${updatedSet.id}');
+        // print('📊 [ReimbursementSetBloc] 成功更新报销集: ${updatedSet.id}');
       }
 
       emit(ReimbursementSetOperationSuccess(
@@ -140,12 +139,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 更新成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 更新报销集失败: $e');
+        // print('❌ [ReimbursementSetBloc] 更新报销集失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.update,
@@ -160,7 +158,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始更新报销集状态: ${event.setId} -> ${event.status.value}');
+        // print('📊 [ReimbursementSetBloc] 开始更新报销集状态: ${event.setId} -> ${event.status.value}');
       }
 
       final updatedSet = await _repository.updateReimbursementSetStatus(
@@ -170,7 +168,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       );
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功更新报销集状态: ${updatedSet.statusDisplayName}');
+        // print('📊 [ReimbursementSetBloc] 成功更新报销集状态: ${updatedSet.statusDisplayName}');
       }
 
       emit(ReimbursementSetStatusUpdateSuccess(
@@ -180,12 +178,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 状态更新成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 更新报销集状态失败: $e');
+        // print('❌ [ReimbursementSetBloc] 更新报销集状态失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.statusUpdate,
@@ -200,13 +197,13 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始删除报销集: ${event.setId}');
+        // print('📊 [ReimbursementSetBloc] 开始删除报销集: ${event.setId}');
       }
 
       await _repository.deleteReimbursementSet(event.setId);
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功删除报销集: ${event.setId}');
+        // print('📊 [ReimbursementSetBloc] 成功删除报销集: ${event.setId}');
       }
 
       emit(ReimbursementSetDeleteSuccess(
@@ -216,12 +213,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 删除成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 删除报销集失败: $e');
+        // print('❌ [ReimbursementSetBloc] 删除报销集失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.delete,
@@ -236,13 +232,13 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 向报销集添加发票: ${event.setId}, ${event.invoiceIds.length} 张');
+        // print('📊 [ReimbursementSetBloc] 向报销集添加发票: ${event.setId}, ${event.invoiceIds.length} 张');
       }
 
       await _repository.addInvoicesToSet(event.setId, event.invoiceIds);
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功向报销集添加发票');
+        // print('📊 [ReimbursementSetBloc] 成功向报销集添加发票');
       }
 
       emit(ReimbursementSetOperationSuccess(
@@ -253,12 +249,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 添加成功后刷新相关数据
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 向报销集添加发票失败: $e');
+        // print('❌ [ReimbursementSetBloc] 向报销集添加发票失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.addInvoices,
@@ -273,13 +268,13 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 从报销集移除发票: ${event.invoiceIds.length} 张');
+        // print('📊 [ReimbursementSetBloc] 从报销集移除发票: ${event.invoiceIds.length} 张');
       }
 
       await _repository.removeInvoicesFromSet(event.invoiceIds);
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功从报销集移除发票');
+        // print('📊 [ReimbursementSetBloc] 成功从报销集移除发票');
       }
 
       emit(ReimbursementSetOperationSuccess(
@@ -289,12 +284,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
 
       // 移除成功后刷新相关数据
       add(const LoadReimbursementSets(refresh: true));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 从报销集移除发票失败: $e');
+        // print('❌ [ReimbursementSetBloc] 从报销集移除发票失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.removeInvoices,
@@ -309,7 +303,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始加载报销集详情: ${event.setId}');
+        // print('📊 [ReimbursementSetBloc] 开始加载报销集详情: ${event.setId}');
       }
 
       emit(const ReimbursementSetLoading());
@@ -320,19 +314,18 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       ]);
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功加载报销集详情和发票列表');
+        // print('📊 [ReimbursementSetBloc] 成功加载报销集详情和发票列表');
       }
 
       emit(ReimbursementSetDetailLoaded(
         reimbursementSet: reimbursementSet as ReimbursementSetEntity,
         invoices: (invoices as List).cast<InvoiceEntity>(),
       ));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 加载报销集详情失败: $e');
+        // print('❌ [ReimbursementSetBloc] 加载报销集详情失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -347,13 +340,13 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始加载报销集发票: ${event.setId}');
+        // print('📊 [ReimbursementSetBloc] 开始加载报销集发票: ${event.setId}');
       }
 
       final invoices = await _repository.getInvoicesInSet(event.setId);
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功加载 ${invoices.length} 张发票');
+        // print('📊 [ReimbursementSetBloc] 成功加载 ${invoices.length} 张发票');
       }
 
       // 如果当前状态是详情加载状态，更新发票列表
@@ -364,12 +357,11 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
           invoices: invoices,
         ));
       }
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 加载报销集发票失败: $e');
+        // print('❌ [ReimbursementSetBloc] 加载报销集发票失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -384,7 +376,7 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始加载未分配发票');
+        // print('📊 [ReimbursementSetBloc] 开始加载未分配发票');
       }
 
       final unassignedInvoices = await _repository.getUnassignedInvoices(
@@ -393,16 +385,15 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
       );
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功加载 ${unassignedInvoices.length} 张未分配发票');
+        // print('📊 [ReimbursementSetBloc] 成功加载 ${unassignedInvoices.length} 张未分配发票');
       }
 
       emit(UnassignedInvoicesLoaded(unassignedInvoices));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 加载未分配发票失败: $e');
+        // print('❌ [ReimbursementSetBloc] 加载未分配发票失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -417,22 +408,21 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 开始加载报销集统计信息');
+        // print('📊 [ReimbursementSetBloc] 开始加载报销集统计信息');
       }
 
       final stats = await _repository.getReimbursementSetStats();
 
       if (AppConfig.enableLogging) {
-        print('📊 [ReimbursementSetBloc] 成功加载统计信息: 总计 ${stats.totalSets} 个报销集');
+        // print('📊 [ReimbursementSetBloc] 成功加载统计信息: 总计 ${stats.totalSets} 个报销集');
       }
 
       emit(ReimbursementSetStatsLoaded(stats));
-
     } catch (e) {
       if (AppConfig.enableLogging) {
-        print('❌ [ReimbursementSetBloc] 加载统计信息失败: $e');
+        // print('❌ [ReimbursementSetBloc] 加载统计信息失败: $e');
       }
-      
+
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -453,22 +443,22 @@ class ReimbursementSetBloc extends Bloc<ReimbursementSetEvent, ReimbursementSetS
     if (error is Exception) {
       return error.toString().replaceAll('Exception:', '').trim();
     }
-    
+
     final errorString = error.toString();
-    
+
     // 常见错误信息转换
     if (errorString.contains('网络')) {
       return '网络连接异常，请检查网络后重试';
     }
-    
+
     if (errorString.contains('权限') || errorString.contains('unauthorized')) {
       return '权限不足，请重新登录';
     }
-    
+
     if (errorString.contains('超时') || errorString.contains('timeout')) {
       return '请求超时，请稍后重试';
     }
-    
+
     // 返回通用错误信息
     return '操作失败，请稍后重试';
   }
