@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_slidable/flutter_slidable.dart' as flutter_slidable;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../theme/component_theme_constants.dart';
 import '../../../utils/icon_mapping.dart';
@@ -59,7 +60,10 @@ class InvoiceCardSlidable extends StatefulWidget {
   final bool closeOnScroll;
   
   /// 滑动键，用于控制滑动状态
-  final Key? slidableKey;
+  final GlobalKey<State<Slidable>>? slidableKey;
+  
+  /// 分组标识，具有相同 groupTag 的滑动卡片将互斥
+  final Object? groupTag;
 
   const InvoiceCardSlidable({
     super.key,
@@ -72,13 +76,28 @@ class InvoiceCardSlidable extends StatefulWidget {
     this.dismissalThreshold = 0.4,
     this.closeOnScroll = true,
     this.slidableKey,
+    this.groupTag,
   });
 
   @override
   State<InvoiceCardSlidable> createState() => _InvoiceCardSlidableState();
 }
 
-class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
+class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerProviderStateMixin {
+  late final flutter_slidable.SlidableController _internalController;
+  
+  @override
+  void initState() {
+    super.initState();
+    _internalController = flutter_slidable.SlidableController(this);
+  }
+  
+  @override
+  void dispose() {
+    _internalController.dispose();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     // 如果没有操作或禁用，直接返回子组件
@@ -89,8 +108,10 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
     
     return Slidable(
       key: widget.slidableKey,
+      controller: _internalController, // 使用内部控制器
       enabled: widget.enabled,
       closeOnScroll: widget.closeOnScroll,
+      groupTag: widget.groupTag,
       
       // 左滑操作面板
       startActionPane: widget.startActions.isNotEmpty
@@ -119,10 +140,46 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
   /// 构建滑动操作项
   Widget _buildSlidableAction(SlideAction action) {
     return CustomSlidableAction(
-      action: action,
+      action: _wrapActionWithAutoClose(action),
       isStart: widget.startActions.contains(action),
       isLast: (widget.startActions.isNotEmpty && widget.startActions.last == action) ||
               (widget.endActions.isNotEmpty && widget.endActions.last == action),
+    );
+  }
+
+  /// 包装操作回调，添加自动复位功能
+  SlideAction _wrapActionWithAutoClose(SlideAction action) {
+    return SlideAction(
+      icon: action.icon,
+      label: action.label,
+      backgroundColor: action.backgroundColor,
+      foregroundColor: action.foregroundColor,
+      tooltip: action.tooltip,
+      isDestructive: action.isDestructive,
+      flex: action.flex,
+      // 标准方法：禁用默认的自动关闭，手动控制
+      onPressed: () {
+        print('🔄 [SlidableAutoClose] 操作被触发: ${action.label}');
+        
+        // 立即执行原始操作
+        action.onPressed();
+        
+        // 标准方法：延迟关闭给用户视觉反馈时间
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
+            print('🔄 [SlidableAutoClose] 延迟后执行关闭操作');
+            
+            try {
+              // 直接使用内部控制器关闭
+              print('✅ [SlidableAutoClose] 使用内部控制器关闭');
+              _internalController.close();
+              print('✅ [SlidableAutoClose] 内部控制器关闭完成');
+            } catch (e) {
+              print('❌ [SlidableAutoClose] 内部控制器关闭失败: $e');
+            }
+          }
+        });
+      },
     );
   }
 }

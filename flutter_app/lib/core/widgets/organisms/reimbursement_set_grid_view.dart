@@ -197,6 +197,7 @@ class ReimbursementSetGridView extends StatelessWidget {
       onTap: () => onSetTap?.call(reimbursementSet),
       onDelete: () => onSetDelete?.call(reimbursementSet),
       onStatusChange: (newStatus) => onStatusChange?.call(reimbursementSet, newStatus),
+      groupTag: 'reimbursement-set-cards',
     );
   }
 }
@@ -255,6 +256,7 @@ class ReimbursementSetSliverGridView extends StatelessWidget {
                 onTap: () => onSetTap?.call(reimbursementSet),
                 onDelete: () => onSetDelete?.call(reimbursementSet),
                 onStatusChange: (newStatus) => onStatusChange?.call(reimbursementSet, newStatus),
+                groupTag: 'reimbursement-set-cards',
               );
             },
             childCount: reimbursementSets.length,
@@ -346,6 +348,7 @@ class MixedItemGridView extends StatelessWidget {
             onTap: () => onSetTap?.call(item),
             onDelete: () {}, // No-op for now
             onStatusChange: (status) {}, // No-op for now
+            groupTag: 'reimbursement-set-cards',
           );
         } else if (item is InvoiceEntity) {
           return InvoiceCardWidget(

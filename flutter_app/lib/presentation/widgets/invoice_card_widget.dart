@@ -94,6 +94,18 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     super.dispose();
   }
 
+  /// 延迟复位滑动状态
+  /// 提供视觉反馈时间后自动关闭滑动面板
+  void _closeWithDelay({int delayMs = 200}) {
+    if (mounted) {
+      Future.delayed(Duration(milliseconds: delayMs), () {
+        if (mounted) {
+          _slidableController.close();
+        }
+      });
+    }
+  }
+
   /// 构建头部右侧内容（报销集徽章 + 状态徽章）
   Widget? _buildHeaderTrailing() {
     // 在选择模式下，不显示额外的trailing内容，让选择框更突出
@@ -141,15 +153,18 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   Widget build(BuildContext context) {
     // 移除BlocListener - 报销集状态监听已统一到InvoiceManagementPage
     // 避免重复显示成功消息
+    print('🎯 [InvoiceCard] 构建滑动卡片组件');
+    
     return Semantics(
-        label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
-        hint: AccessibilityConstants.cardActionHint,
-        child: InvoiceCardSlidable(
-          slidableKey: _slidableController.key,
-          enabled: !widget.isSelectionMode && widget.enableSwipe,
-          startActions: _buildStartActions(),
-          endActions: _buildEndActions(),
-          child: AppCard(
+      label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
+      hint: AccessibilityConstants.cardActionHint,
+      child: InvoiceCardSlidable(
+        slidableKey: _slidableController.key,
+        enabled: !widget.isSelectionMode && widget.enableSwipe,
+        startActions: _buildStartActions(),
+        endActions: _buildEndActions(),
+        groupTag: 'invoice-cards', // 所有发票卡片使用相同的 groupTag
+        child: AppCard(
           isSelected: widget.isSelected,
           onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
           onLongPress: widget.onLongPress,

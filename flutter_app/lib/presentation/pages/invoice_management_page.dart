@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_typography.dart';
 import '../utils/cupertino_notification_utils.dart';
 import 'package:sliver_tools/sliver_tools.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:archive/archive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -1047,9 +1048,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       onRefresh: () async {
         context.read<InvoiceBloc>().add(const RefreshInvoices());
       },
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
+      child: SlidableAutoCloseBehavior(
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
           // 为每个月份创建一个MultiSliver section
           ...monthKeys.map(
             (monthKey) => MultiSliver(
@@ -1108,7 +1110,8 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                 message: '正在加载更多发票...',
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1382,10 +1385,11 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
             .read<ReimbursementSetBloc>()
             .add(const LoadReimbursementSets(refresh: true));
       },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: reimbursementSets.length,
-        itemBuilder: (context, index) {
+      child: SlidableAutoCloseBehavior(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: reimbursementSets.length,
+          itemBuilder: (context, index) {
           final reimbursementSet = reimbursementSets[index];
           return OptimizedReimbursementSetCard(
             reimbursementSet: reimbursementSet,
@@ -1403,8 +1407,10 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
                     status: newStatus,
                   ));
             },
+            groupTag: 'reimbursement-set-cards', // 所有报销集卡片使用相同的 groupTag
           );
         },
+        ),
       ),
     );
   }

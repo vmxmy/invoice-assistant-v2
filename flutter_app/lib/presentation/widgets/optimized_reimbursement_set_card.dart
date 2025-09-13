@@ -17,6 +17,9 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final Function(ReimbursementSetStatus) onStatusChange;
+  
+  /// 分组标识，具有相同 groupTag 的滑动卡片将互斥
+  final Object? groupTag;
 
   const OptimizedReimbursementSetCard({
     super.key,
@@ -24,6 +27,7 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onStatusChange,
+    this.groupTag,
   });
 
   @override
@@ -32,6 +36,7 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
     
     return Slidable(
       key: ValueKey(reimbursementSet.id),
+      groupTag: groupTag,
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         extentRatio: 0.25, // 固定宽度比例
