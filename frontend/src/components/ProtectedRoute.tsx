@@ -27,5 +27,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
+  // 🚨 安全检查：验证邮箱是否已确认
+  if (!user.email_confirmed_at) {
+    console.error('🚨 [Security] 未确认邮箱的用户尝试访问受保护页面:', user.email)
+    return <Navigate to="/login" state={{ 
+      from: location, 
+      error: 'please_confirm_email' 
+    }} replace />
+  }
+
   return <>{children}</>
 }

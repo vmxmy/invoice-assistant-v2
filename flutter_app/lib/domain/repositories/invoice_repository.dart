@@ -41,6 +41,7 @@ abstract class InvoiceRepository {
     required Uint8List fileBytes,
     required String fileName,
     required String fileHash,
+    Function(int sent, int total)? onProgress,
   });
 }
 

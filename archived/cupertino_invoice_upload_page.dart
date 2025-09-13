@@ -159,35 +159,21 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
 
   /// 构建主体内容
   Widget _buildBody(BuildContext context, InvoiceState state) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                key: const ValueKey('main_upload_column'),
-                children: [
-                  // 上传区域
-                  SizedBox(
-                    height: constraints.maxHeight - 32 - 
-                           (_selectedFiles.isNotEmpty && state is! InvoiceUploading ? 120 : 0),
-                    child: _buildUploadArea(context, state),
-                  ),
-
-                  // 底部操作栏
-                  if (_selectedFiles.isNotEmpty && state is! InvoiceUploading)
-                    _buildActionBar(context),
-                ],
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        key: const ValueKey('main_upload_column'),
+        children: [
+          // 上传区域 - 使用Expanded自动填充可用空间
+          Expanded(
+            child: _buildUploadArea(context, state),
           ),
-        );
-      },
+
+          // 底部操作栏
+          if (_selectedFiles.isNotEmpty && state is! InvoiceUploading)
+            _buildActionBar(context),
+        ],
+      ),
     );
   }
 
@@ -269,11 +255,11 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
   /// 构建文件选择器
   Widget _buildFilePicker(BuildContext context) {
     return AnimatedBuilder(
-      animation: _bounceAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _isDragging ? _bounceAnimation.value : 1.0,
-          child: DragTarget<List<String>>(
+        animation: _bounceAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _isDragging ? _bounceAnimation.value : 1.0,
+            child: DragTarget<List<String>>(
             onWillAcceptWithDetails: (details) {
               if (mounted) {
                 setState(() {
@@ -307,7 +293,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
             },
           ),
         );
-      },
+        },
     );
   }
 
@@ -315,13 +301,16 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
   Widget _buildDropZone(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 400;
+        // 降低紧凑模式阈值，让更多设备使用宽松布局
+        final isCompact = constraints.maxWidth < 300;
         final padding = isCompact ? 16.0 : 24.0;
         final borderRadius = isCompact ? 12.0 : 16.0;
         final spacing = isCompact ? 24.0 : 32.0;
         final fileListSpacing = isCompact ? 8.0 : 12.0;
         
         return Container(
+          width: double.infinity,
+          constraints: const BoxConstraints.expand(),
           decoration: BoxDecoration(
             color: _isDragging
                 ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
@@ -334,10 +323,11 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
             ),
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          child: CupertinoButton(
-            padding: EdgeInsets.all(padding),
-            onPressed: _pickFiles,
-            child: Column(
+          child: InkWell(
+            onTap: _pickFiles,
+            child: Padding(
+              padding: EdgeInsets.all(padding),
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // 图标和主要文本
@@ -355,6 +345,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                 _buildDropZoneDescription(context, isCompact: isCompact),
               ],
             ),
+          ),
           ),
         );
       },

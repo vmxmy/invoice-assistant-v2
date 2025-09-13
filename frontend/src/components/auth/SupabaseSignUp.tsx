@@ -53,7 +53,7 @@ const SupabaseSignUp: React.FC = () => {
     await signUp(email, password, displayName)
   }
 
-  const handleResendConfirmation = async () => {
+  const _handleResendConfirmation = async () => {
     if (!email) {
       toast.error('请输入邮箱地址')
       return

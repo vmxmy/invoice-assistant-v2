@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ChevronDown, Tag, Filter } from 'lucide-react'
 import { getAvailableCategories, categoryIcons, categoryColors } from '../utils/categoryUtils'
 

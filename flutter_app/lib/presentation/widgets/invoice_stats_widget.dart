@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/repositories/invoice_repository.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_typography.dart';
 
 /// 发票统计组件 - 显示发票统计信息
 class InvoiceStatsWidget extends StatelessWidget {
@@ -24,7 +25,7 @@ class InvoiceStatsWidget extends StatelessWidget {
           // 标题
           Text(
             '发票统计',
-            style: AppTypography.titleMedium(context).copyWith(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -93,7 +94,7 @@ class InvoiceStatsWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '本月统计',
-                style: AppTypography.titleSmall(context).copyWith(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -162,7 +163,7 @@ class InvoiceStatsWidget extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTypography.bodyMedium(context).copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: color,
                   fontWeight: FontWeight.w500,
                 ),
@@ -177,7 +178,7 @@ class InvoiceStatsWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: AppTypography.headlineSmall(context).copyWith(
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
             ),
@@ -206,14 +207,14 @@ class InvoiceStatsWidget extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTypography.titleSmall(context).copyWith(
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onSurface,
           ),
         ),
         Text(
           label,
-          style: AppTypography.bodySmall(context).copyWith(
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
         ),

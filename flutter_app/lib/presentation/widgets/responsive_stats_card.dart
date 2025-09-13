@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../core/theme/app_theme_constants.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_typography.dart';
 
 /// 简化的统计卡片组件
 /// 极简设计，紧凑布局，减少视觉干扰
@@ -92,13 +93,13 @@ class ResponsiveStatsCard extends StatelessWidget {
         children: [
           TextSpan(
             text: '$label: ',
-            style: AppTypography.bodyMedium(context).copyWith(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: color.withValues(alpha: 0.7),
             ),
           ),
           TextSpan(
             text: value,
-            style: AppTypography.titleMedium(context).copyWith(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
             ),

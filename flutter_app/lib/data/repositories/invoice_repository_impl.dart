@@ -360,6 +360,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
     required Uint8List fileBytes,
     required String fileName,
     required String fileHash,
+    Function(int sent, int total)? onProgress,
   }) async {
     try {
       if (AppConfig.enableLogging) {
@@ -376,6 +377,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         fileBytes: fileBytes,
         fileName: fileName,
         fileHash: fileHash,
+        onProgress: onProgress,
       );
 
       if (AppConfig.enableLogging) {

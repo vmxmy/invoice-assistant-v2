@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_typography.dart';
 import '../utils/cupertino_notification_utils.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -552,7 +553,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                     // 标题
                     Text(
                       '已下载',
-                      style: AppTypography.headlineSmall(context).copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -561,7 +562,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                     // 文件名
                     Text(
                       fileName,
-                      style: AppTypography.bodyMedium(context).copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
@@ -571,7 +572,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                     // 文件信息
                     Text(
                       '$fileCount 张发票',
-                      style: AppTypography.bodySmall(context).copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
@@ -1156,7 +1157,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
           Expanded(
             child: Text(
               '已选择 ${_selectedInvoices.length} 项',
-              style: AppTypography.titleMedium(context).copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1352,7 +1353,7 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
                 Icon(Icons.error_outline,
                     size: 64, color: Theme.of(context).colorScheme.error),
                 const SizedBox(height: 16),
-                Text('加载失败', style: AppTypography.headlineSmall(context)),
+                Text('加载失败', style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 8),
                 Text(state.message, textAlign: TextAlign.center),
                 const SizedBox(height: 16),

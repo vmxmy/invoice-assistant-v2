@@ -4,10 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import '../../core/theme/component_theme_constants.dart';
+import '../../core/events/app_event_bus.dart';
+import '../../core/di/injection_container.dart' as di;
 import '../bloc/invoice_bloc.dart';
 import 'invoice_management_page.dart';
-import 'cupertino_invoice_upload_page.dart';
+import 'upload/ios_style_upload_page.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../core/theme/theme_manager.dart';
@@ -41,16 +44,32 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   late PageController _pageController;
-
+  StreamSubscription<TabChangedEvent>? _tabChangeSubscription;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    
+    // 监听tab切换事件
+    _tabChangeSubscription = di.sl<AppEventBus>().on<TabChangedEvent>().listen((event) {
+      if (mounted && event.newTabIndex != _currentIndex) {
+        print('🔥 收到tab切换事件，从 ${event.oldTabIndex} 切换到 ${event.newTabIndex}');
+        setState(() {
+          _currentIndex = event.newTabIndex;
+        });
+        _pageController.animateToPage(
+          event.newTabIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _tabChangeSubscription?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -90,7 +109,7 @@ class _MainPageState extends State<MainPage> {
                 const InvoiceManagementPage(),
 
                 // 上传发票页面
-                const CupertinoInvoiceUploadPage(),
+                const IOSStyleUploadPage(),
 
                 // 数据分析页面
                 _buildAnalysisPage(),

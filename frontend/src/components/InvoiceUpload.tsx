@@ -3,8 +3,7 @@
  * 支持拖拽和点击上传PDF文件，集成哈希计算和去重检查
  */
 import React, { useState, useRef } from 'react'
-import { fileHashCalculator, type FileHashProgress } from '../services/fileHashCalculator'
-import { edgeFunctionOCR } from '../services/edgeFunctionOCR'
+import { fileHashCalculator } from '../services/fileHashCalculator'
 import { supabase } from '../lib/supabase'
 import { logger } from '../utils/logger'
 

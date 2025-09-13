@@ -298,11 +298,11 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           .select()
           .eq('reimbursement_set_id', setId)
           .eq('user_id', _supabaseClient.auth.currentUser!.id)
-          .order('invoice_date', ascending: false);
+          .order('consumption_date', ascending: false);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
-            '📊 [ReimbursementSetRepository] 获取报销集发票列表: ${response.length} 张',
+            '📊 [ReimbursementSetRepository] 获取报销集发票列表: ${response.length} 张 (按消费时间排序)',
             tag: 'Debug');
       }
 

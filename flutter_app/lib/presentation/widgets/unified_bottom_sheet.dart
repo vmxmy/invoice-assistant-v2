@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_typography.dart';
 
 /// 统一的底部弹出Sheet组件
 /// 提供一致的视觉体验和交互模式
@@ -192,7 +193,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
                 // 标题
                 Text(
                   title,
-                  style: AppTypography.headlineSmall(context).copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
@@ -202,7 +203,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
                 // 内容
                 Text(
                   content,
-                  style: AppTypography.bodyMedium(context).copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
@@ -222,7 +223,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         child: Text(
                           confirmText,
-                          style: AppTypography.labelLarge(context).copyWith(
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: colorScheme.onPrimary,
                           ),
                         ),
@@ -240,7 +241,7 @@ class _ConfirmBottomSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         child: Text(
                           cancelText,
-                          style: AppTypography.labelLarge(context).copyWith(
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
@@ -308,7 +309,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                 // 标题
                 Text(
                   title,
-                  style: AppTypography.titleLarge(context).copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
@@ -319,7 +320,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     message!,
-                    style: AppTypography.bodyMedium(context).copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
@@ -354,7 +355,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                           ],
                           Text(
                             action.title,
-                            style: AppTypography.labelLarge(context).copyWith(
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
                               color: action.color ?? colorScheme.primary,
                             ),
                           ),
@@ -375,7 +376,7 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: Text(
                       '取消',
-                      style: AppTypography.labelLarge(context).copyWith(
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -446,7 +447,7 @@ class _CustomBottomSheet extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title!,
-                        style: AppTypography.titleLarge(context).copyWith(
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -529,7 +530,7 @@ class _LoadingBottomSheet extends StatelessWidget {
                   // 加载消息
                   Text(
                     message,
-                    style: AppTypography.bodyLarge(context).copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
@@ -587,7 +588,7 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
     super.initState();
     // 自动关闭
     Future.delayed(widget.autoCloseDuration, () {
-      if (mounted) {
+      if (mounted && Navigator.canPop(context)) {
         Navigator.of(context).pop();
       }
     });
@@ -642,7 +643,7 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
               // 标题
               Text(
                 widget.title,
-                style: AppTypography.headlineSmall(context).copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.bold,
                 ),
@@ -654,7 +655,7 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
               // 消息
               Text(
                 widget.message,
-                style: AppTypography.bodyMedium(context).copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: textColor.withValues(alpha: 0.9),
                 ),
                 textAlign: TextAlign.center,

@@ -14,7 +14,10 @@ class UploadInvoiceUseCase {
   const UploadInvoiceUseCase(this.repository);
 
   /// 上传单个发票文件并进行OCR处理
-  Future<UploadInvoiceResult> call(UploadInvoiceParams params) async {
+  Future<UploadInvoiceResult> call(
+    UploadInvoiceParams params, {
+    Function(int sent, int total)? onProgress,
+  }) async {
     if (AppConfig.enableLogging) {
       AppLogger.debug('📤 [UploadInvoiceUseCase] 开始上传发票文件', tag: 'Debug');
       AppLogger.debug('📤 [UploadInvoiceUseCase] 文件路径: ${params.filePath}',
@@ -50,6 +53,7 @@ class UploadInvoiceUseCase {
         fileBytes: fileBytes,
         fileName: _getFileName(params.filePath),
         fileHash: fileHash,
+        onProgress: onProgress,
       );
 
       if (AppConfig.enableLogging) {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../core/theme/theme_preset_manager.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_typography.dart';
 import '../../core/theme/app_theme_constants.dart';
 
 /// 主题选择器组件 - 支持所有FlexColorScheme官方主题
@@ -114,7 +115,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
               children: [
                 Text(
                   '主题选择器',
-                  style: AppTypography.headlineSmall(context).copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
@@ -122,7 +123,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                 const SizedBox(height: AppThemeConstants.spacing4),
                 Text(
                   '当前主题：${widget.themeManager.currentThemeName}',
-                  style: AppTypography.bodyMedium(context).copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -224,7 +225,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
             const SizedBox(height: AppThemeConstants.spacing4),
             Text(
               label,
-              style: AppTypography.labelMedium(context).copyWith(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: isSelected
                     ? colorScheme.primary
                     : colorScheme.onSurfaceVariant,
@@ -254,10 +255,10 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
         isScrollable: true,
         labelColor: colorScheme.primary,
         unselectedLabelColor: colorScheme.onSurfaceVariant,
-        labelStyle: AppTypography.labelLarge(context).copyWith(
+        labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: AppTypography.labelLarge(context),
+        unselectedLabelStyle: Theme.of(context).textTheme.labelLarge,
         indicator: BoxDecoration(
           color: colorScheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(AppThemeConstants.radiusSmall),
@@ -413,7 +414,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                     // 主题名称
                     Text(
                       preset.name,
-                      style: AppTypography.titleMedium(context).copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.w600,
                         color: isSelected
@@ -428,7 +429,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                     // 主题描述
                     Text(
                       preset.description,
-                      style: AppTypography.bodyMedium(context).copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 2,
@@ -492,7 +493,7 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
       ),
       child: Text(
         label,
-        style: AppTypography.labelSmall(context).copyWith(
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
           fontWeight: FontWeight.w500,
         ),

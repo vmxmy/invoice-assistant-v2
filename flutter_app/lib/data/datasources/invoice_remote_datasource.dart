@@ -1,6 +1,7 @@
 import '../../core/utils/logger.dart';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:async';
 // import 'package:supabase_flutter/supabase_flutter.dart'; // 未使用
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -36,6 +37,7 @@ abstract class InvoiceRemoteDataSource {
     required Uint8List fileBytes,
     required String fileName,
     required String fileHash,
+    Function(int sent, int total)? onProgress,
   });
 }
 
@@ -801,6 +803,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     required Uint8List fileBytes,
     required String fileName,
     required String fileHash,
+    Function(int sent, int total)? onProgress,
   }) async {
     try {
       // 验证认证状态
@@ -865,8 +868,15 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
             tag: 'Debug');
       }
 
-      // 发送请求
-      final streamedResponse = await request.send();
+      // 发送请求（带进度监听）
+      http.StreamedResponse streamedResponse;
+      if (onProgress != null) {
+        // 使用自定义进度监听
+        streamedResponse = await _sendWithProgress(request, fileBytes.length, onProgress);
+      } else {
+        // 普通发送
+        streamedResponse = await request.send();
+      }
       final response = await http.Response.fromStream(streamedResponse);
 
       if (AppConfig.enableLogging) {
@@ -1012,5 +1022,56 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
       rethrow;
     }
+  }
+
+  /// 带进度监听的HTTP请求发送
+  Future<http.StreamedResponse> _sendWithProgress(
+    http.MultipartRequest request,
+    int totalBytes,
+    Function(int sent, int total) onProgress,
+  ) async {
+    final completer = Completer<http.StreamedResponse>();
+    
+    try {
+      // 模拟分块上传进度
+      // 由于HTTP包的限制，我们无法获取真实的上传进度
+      // 这里使用更持久的进度模拟，确保用户能看到进度变化
+      print('🚀 [DataSource] Starting progress simulation for ${totalBytes} bytes');
+      
+      // 初始进度报告
+      onProgress(0, totalBytes);
+      
+      // 创建进度模拟，确保至少持续2秒钟
+      int progressStep = 0;
+      const totalSteps = 20; // 20步完成，每步约150ms
+      
+      // 异步发送实际请求
+      final requestFuture = request.send();
+      
+      // 进度模拟循环
+      while (progressStep < totalSteps) {
+        await Future.delayed(const Duration(milliseconds: 150));
+        progressStep++;
+        
+        final progress = progressStep / totalSteps;
+        final simulatedSent = (totalBytes * progress).round();
+        
+        print('📊 [DataSource] Progress: $progressStep/$totalSteps ($progress)');
+        onProgress(simulatedSent, totalBytes);
+      }
+      
+      // 等待实际请求完成（如果还没完成）
+      final response = await requestFuture;
+      
+      // 确保进度到达100%
+      onProgress(totalBytes, totalBytes);
+      print('✅ [DataSource] Progress simulation completed');
+      
+      completer.complete(response);
+    } catch (e) {
+      completer.completeError(e);
+    }
+    
+    return completer.future;
   }
 }

@@ -40,7 +40,6 @@ const AccountSettingsPage = createLazyPage(() => import('./pages/AccountSettings
 const StatisticsPage = createLazyPage(() => import('./pages/StatisticsPage'));
 
 // 认证相关页面（同步加载以确保快速响应）
-import { LoginPage } from './pages/LoginPage'
 import EmailConfirmationPage from './pages/EmailConfirmationPage'
 import MagicLinkCallbackPage from './pages/MagicLinkCallbackPage'
 import SupabaseSignIn from './components/auth/SupabaseSignIn'
@@ -81,6 +80,16 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuthContext()
+  const location = useLocation()
+  
+  // 路由状态监控
+  useEffect(() => {
+    console.log('🔗 [Navigation] 路由变化:', location.pathname)
+    console.log('🔗 [Navigation] 完整路径:', location.pathname + location.search + location.hash)
+    console.log('🔗 [Navigation] 用户状态:', user ? `已登录: ${user.email}` : '未登录')
+    console.log('🔗 [Navigation] 时间戳:', new Date().toISOString())
+    console.log('---')
+  }, [location.pathname, location.search, location.hash, user])
 
   if (loading) {
     return (

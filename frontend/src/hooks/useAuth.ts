@@ -20,6 +20,19 @@ export enum AuthStatus {
   ERROR = 'error'
 }
 
+// 用户权限信息接口
+export interface UserPermissions {
+  user_id: string
+  roles: string[]
+  permissions: string[]
+  permission_level: 'user' | 'moderator' | 'admin' | 'super_admin'
+  is_admin: boolean
+  is_super_admin: boolean
+  is_moderator: boolean
+  can_manage_users: boolean
+  can_view_system_logs: boolean
+}
+
 export interface UseAuthReturn {
   user: User | null
   session: Session | null
@@ -27,12 +40,19 @@ export interface UseAuthReturn {
   error: AuthError | null
   status: AuthStatus
   message: string
+  isEmailVerified: boolean
+  userPermissions: UserPermissions | null
+  permissionsLoading: boolean
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; status: AuthStatus }>
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null; status: AuthStatus }>
   signOut: () => Promise<{ error: AuthError | null }>
   resendConfirmation: (email: string) => Promise<{ error: AuthError | null }>
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null; status: AuthStatus }>
   clearStatus: () => void
+  refreshPermissions: () => Promise<void>
+  hasPermission: (permission: string) => boolean
+  hasRole: (role: string) => boolean
+  hasAnyRole: (roles: string[]) => boolean
 }
 
 export function useAuth(): UseAuthReturn {
@@ -42,6 +62,91 @@ export function useAuth(): UseAuthReturn {
   const [error, setError] = useState<AuthError | null>(null)
   const [status, setStatus] = useState<AuthStatus>(AuthStatus.IDLE)
   const [message, setMessage] = useState('')
+  const [userPermissions, setUserPermissions] = useState<UserPermissions | null>(null)
+  const [permissionsLoading, setPermissionsLoading] = useState(false)
+
+  // 从JWT token解析权限（优先策略）
+  const loadPermissionsFromJWT = useCallback(() => {
+    if (!user?.email_confirmed_at) {
+      setUserPermissions(null)
+      return false
+    }
+
+    try {
+      // 检查JWT token中是否有权限信息
+      const token = session?.access_token
+      if (!token) return false
+
+      // 解析JWT payload（简单base64解码，生产环境应使用专门的JWT库）
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      
+      if (payload.user_role && payload.permissions) {
+        const permissions: UserPermissions = {
+          user_id: user.id,
+          roles: [payload.user_role],
+          permissions: payload.permissions || [],
+          permission_level: payload.permission_level || payload.user_role,
+          is_admin: payload.is_admin || false,
+          is_super_admin: payload.is_super_admin || false,
+          is_moderator: payload.is_moderator || false,
+          can_manage_users: payload.can_manage_users || false,
+          can_view_system_logs: payload.can_view_system_logs || false,
+        }
+        
+        console.log('🔐 [JWT] 从JWT token解析权限成功:', permissions)
+        setUserPermissions(permissions)
+        return true
+      }
+    } catch (error) {
+      console.warn('🔐 [JWT] JWT权限解析失败，将使用RPC fallback:', error)
+    }
+    
+    return false
+  }, [user, session])
+
+  // RPC权限加载（备用策略）
+  const loadPermissionsFromRPC = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.rpc('rpc_get_current_user_permissions')
+      
+      if (error) {
+        console.error('🔐 [RPC] 加载用户权限失败:', error)
+        setUserPermissions(null)
+      } else if (data?.error) {
+        console.error('🔐 [RPC] 权限服务错误:', data.error)
+        setUserPermissions(null)
+      } else {
+        console.log('🔐 [RPC] 用户权限加载成功:', data)
+        setUserPermissions(data as UserPermissions)
+      }
+    } catch (err) {
+      console.error('🔐 [RPC] 权限加载异常:', err)
+      setUserPermissions(null)
+    }
+  }, [])
+
+  // 混合权限加载策略：JWT优先，RPC备用
+  const loadUserPermissions = useCallback(async () => {
+    if (!user?.email_confirmed_at) {
+      setUserPermissions(null)
+      return
+    }
+
+    setPermissionsLoading(true)
+    
+    try {
+      // 1. 尝试从JWT获取权限（快速路径）
+      const jwtSuccess = loadPermissionsFromJWT()
+      
+      // 2. 如果JWT解析失败，使用RPC获取（备用路径）
+      if (!jwtSuccess) {
+        console.log('🔐 [Permission] JWT解析失败，使用RPC备用方案')
+        await loadPermissionsFromRPC()
+      }
+    } finally {
+      setPermissionsLoading(false)
+    }
+  }, [user, loadPermissionsFromJWT, loadPermissionsFromRPC])
 
   useEffect(() => {
     // 获取初始会话
@@ -52,6 +157,10 @@ export function useAuth(): UseAuthReturn {
       } else {
         setSession(session)
         setUser(session?.user ?? null)
+        // 如果用户已登录且邮箱已验证，加载权限信息
+        if (session?.user?.email_confirmed_at) {
+          setTimeout(() => loadUserPermissions(), 100) // 短暂延迟确保状态已更新
+        }
       }
       setLoading(false)
     })
@@ -81,16 +190,22 @@ export function useAuth(): UseAuthReturn {
         // 处理认证事件
         switch (event) {
           case 'SIGNED_IN':
-            // 不在这里设置status，让signIn函数自己处理
+            // 用户登录后加载权限信息
+            if (session?.user?.email_confirmed_at) {
+              loadUserPermissions()
+            }
             break
           case 'SIGNED_OUT':
             setStatus(AuthStatus.IDLE)
             setMessage('')
+            setUserPermissions(null)
             break
           case 'USER_UPDATED':
             if (session?.user?.email_confirmed_at) {
               setStatus(AuthStatus.SUCCESS)
               setMessage('邮箱确认成功！')
+              // 邮箱确认后加载权限
+              loadUserPermissions()
             }
             break
         }
@@ -295,11 +410,37 @@ export function useAuth(): UseAuthReturn {
     }
   }
 
+  // 刷新权限信息
+  const refreshPermissions = async () => {
+    await loadUserPermissions()
+  }
+
+  // 检查用户是否有特定权限
+  const hasPermission = (permission: string): boolean => {
+    if (!userPermissions) return false
+    return userPermissions.permissions.includes(permission)
+  }
+
+  // 检查用户是否有特定角色
+  const hasRole = (role: string): boolean => {
+    if (!userPermissions) return false
+    return userPermissions.roles.includes(role)
+  }
+
+  // 检查用户是否有任意一个指定角色
+  const hasAnyRole = (roles: string[]): boolean => {
+    if (!userPermissions) return false
+    return roles.some(role => userPermissions.roles.includes(role))
+  }
+
   const clearStatus = () => {
     setStatus(AuthStatus.IDLE)
     setMessage('')
     setError(null)
   }
+
+  // 🚨 安全计算属性：检查邮箱是否已验证
+  const isEmailVerified = user?.email_confirmed_at !== null && user?.email_confirmed_at !== undefined
 
   return {
     user,
@@ -308,11 +449,18 @@ export function useAuth(): UseAuthReturn {
     error,
     status,
     message,
+    isEmailVerified,
+    userPermissions,
+    permissionsLoading,
     signIn,
     signUp,
     signOut,
     resendConfirmation,
     signInWithMagicLink,
     clearStatus,
+    refreshPermissions,
+    hasPermission,
+    hasRole,
+    hasAnyRole,
   }
 }

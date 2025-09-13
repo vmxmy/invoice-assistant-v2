@@ -69,7 +69,7 @@ const SupabaseSignIn: React.FC = () => {
     await signIn(email, password)
   }
 
-  const handleResendConfirmation = async () => {
+  const _handleResendConfirmation = async () => {
     if (!email) {
       toast.error('请输入邮箱地址')
       return
@@ -177,7 +177,16 @@ const SupabaseSignIn: React.FC = () => {
           </div>
           
           <div className="text-center">
-            <Link to="/signup" className="btn btn-outline w-full">
+            <Link 
+              to="/signup" 
+              className="btn btn-outline w-full"
+              onClick={() => {
+                console.log('🔗 [Navigation] 点击立即注册按钮')
+                console.log('🔗 [Navigation] 当前路由:', window.location.pathname)
+                console.log('🔗 [Navigation] 目标路由: /signup')
+                console.log('🔗 [Navigation] 时间戳:', new Date().toISOString())
+              }}
+            >
               立即注册
             </Link>
           </div>

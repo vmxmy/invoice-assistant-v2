@@ -20,7 +20,7 @@ import 'presentation/pages/main_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
 import 'presentation/pages/invoice_detail_page.dart';
-import 'presentation/pages/cupertino_invoice_upload_page.dart';
+import 'presentation/pages/upload/ios_style_upload_page.dart';
 import 'presentation/pages/reimbursement_set_detail_page.dart';
 
 /// 发票助手应用根组件
@@ -328,7 +328,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/upload',
       name: 'upload',
-      builder: (context, state) => const CupertinoInvoiceUploadPage(),
+      builder: (context, state) => const IOSStyleUploadPage(),
     ),
     GoRoute(
       path: '/reimbursement-set/:id',
