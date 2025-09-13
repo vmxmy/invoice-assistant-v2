@@ -130,7 +130,8 @@ class DynamicEnumManager {
   String _getDisplayName(String value, String defaultDisplay) {
     // 状态映射
     const statusMap = {
-      'unreimbursed': '未报销',
+      'unsubmitted': '未报销',
+      'submitted': '已提交',
       'reimbursed': '已报销',
       'pending': '待处理',
       'processing': '处理中',
@@ -159,7 +160,7 @@ class DynamicEnumManager {
     switch (enumType) {
       case 'invoice_status':
         return [
-          const EnumValue(value: 'unreimbursed', displayName: '未报销'),
+          const EnumValue(value: 'unsubmitted', displayName: '未报销'),
           const EnumValue(value: 'reimbursed', displayName: '已报销'),
         ];
       case 'invoice_source':

@@ -77,7 +77,7 @@ class DynamicInvoiceEntity {
     this.taxAmount,
     this.currency = 'CNY',
     this.category,
-    this.status = 'unreimbursed', // 默认未报销
+    this.status = 'unsubmitted', // 默认未报销
     this.invoiceType,
     this.invoiceCode,
     this.fileUrl,
@@ -133,7 +133,7 @@ class DynamicInvoiceEntity {
   bool get isReimbursed => status == 'reimbursed';
 
   /// 业务逻辑：是否未报销
-  bool get isUnreimbursed => status == 'unreimbursed';
+  bool get isUnreimbursed => status == 'unsubmitted';
 
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;

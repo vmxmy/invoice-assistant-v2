@@ -692,7 +692,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         if (filters.overdue == true) 'overdue',
         if (filters.urgent == true) 'urgent',
         if (filters.status?.contains(InvoiceStatus.reimbursed) == true)
-          'unreimbursed_status'
+          'unsubmitted_status'
       ];
       AppLogger.debug('🔍 [RemoteDataSource] 激活的筛选: $activeFilters',
           tag: 'Debug');
