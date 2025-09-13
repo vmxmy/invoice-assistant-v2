@@ -19,6 +19,12 @@ class IconMapping {
     'receipt_outlined': CupertinoIcons.doc,
     'description': CupertinoIcons.doc_text,
     'content_copy': CupertinoIcons.doc_on_clipboard,
+    
+    // 文件夹和报销集相关图标
+    'folder_badge_plus': CupertinoIcons.folder_badge_plus,
+    'folder_badge_minus': CupertinoIcons.folder_badge_minus,
+    'add_to_reimbursement_set': CupertinoIcons.folder_badge_plus,
+    'remove_from_reimbursement_set': CupertinoIcons.folder_badge_minus,
 
     // 操作图标
     'delete': CupertinoIcons.delete,

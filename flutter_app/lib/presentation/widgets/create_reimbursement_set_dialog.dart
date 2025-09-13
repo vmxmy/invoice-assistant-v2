@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/reimbursement_set_bloc.dart';
-import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
+import '../utils/reimbursement_set_operation_utils.dart';
 
 /// 创建报销集对话框
 class CreateReimbursementSetDialog extends StatefulWidget {
@@ -53,20 +53,18 @@ class _CreateReimbursementSetDialogState
   void _createReimbursementSet() {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    // 使用BLoC创建报销集
-    context.read<ReimbursementSetBloc>().add(
-          CreateReimbursementSet(
-            setName: _setNameController.text.trim(),
-            description: _descriptionController.text.trim().isNotEmpty
-                ? _descriptionController.text.trim()
-                : null,
-            invoiceIds: widget.selectedInvoiceIds,
-          ),
-        );
+    // 关闭当前对话框
+    Navigator.of(context).pop();
+    
+    // 使用工具类显示创建对话框（职责分离）
+    ReimbursementSetOperationUtils.showCreateDialog(
+      context: context,
+      invoiceIds: widget.selectedInvoiceIds,
+      defaultName: _setNameController.text.trim(),
+      defaultDescription: _descriptionController.text.trim().isNotEmpty
+          ? _descriptionController.text.trim()
+          : null,
+    );
   }
 
   @override
@@ -77,28 +75,42 @@ class _CreateReimbursementSetDialogState
           Navigator.of(context).pop();
           widget.onCreateSuccess();
 
-          // 显示成功消息
+          // 显示简洁的成功反馈
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    size: 20,
-                  ),
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(state.message),
-                  ),
+                  Expanded(child: Text(state.message)),
                 ],
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
               margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          );
+        } else if (state is ReimbursementSetOperationSuccess) {
+          // 处理通过事件总线触发的操作成功
+          Navigator.of(context).pop();
+          widget.onCreateSuccess();
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(state.message)),
+                ],
+              ),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           );
         } else if (state is ReimbursementSetError) {
@@ -110,23 +122,16 @@ class _CreateReimbursementSetDialogState
             SnackBar(
               content: Row(
                 children: [
-                  Icon(
-                    Icons.error,
-                    color: Theme.of(context).colorScheme.onError,
-                    size: 20,
-                  ),
+                  const Icon(Icons.error, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(state.message),
-                  ),
+                  Expanded(child: Text(state.message)),
                 ],
               ),
               backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 3),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
               margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           );
         }
@@ -287,7 +292,7 @@ class _CreateReimbursementSetDialogState
                 child: const Text('取消'),
               ),
               ElevatedButton(
-                onPressed: _isLoading ? null : _createReimbursementSet,
+                onPressed: _createReimbursementSet,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -297,20 +302,10 @@ class _CreateReimbursementSetDialogState
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        '创建报销集',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
+                child: const Text(
+                  '继续创建',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
+import '../utils/invoice_status_operation_utils.dart';
 
 /// 发票紧急程度枚举
 enum UrgencyLevel {
@@ -28,10 +29,11 @@ class InvoiceStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isReimbursed = invoice.status == InvoiceStatus.reimbursed;
-    final statusColor = _getStatusColor(context, isReimbursed);
-    final statusText = _getStatusText(isReimbursed);
-    final statusIcon = _getStatusIcon(isReimbursed);
+    // 使用新的状态显示系统，遵循状态一致性约束
+    final effectiveStatus = invoice.effectiveStatus;
+    final statusColor = _getStatusColorNew(context, effectiveStatus);
+    final statusText = invoice.statusDisplayText; // 使用 entity 的状态显示文本
+    final statusIcon = _getStatusIconNew(effectiveStatus);
 
     return GestureDetector(
       onTap: onTap,
@@ -100,7 +102,7 @@ class InvoiceStatusBadge extends StatelessWidget {
     }
   }
 
-  /// 获取状态文本
+  /// 获取状态文本（旧方法，保留以防兼容性问题）
   String _getStatusText(bool isReimbursed) {
     if (isReimbursed) {
       return '已报销';
@@ -114,6 +116,44 @@ class InvoiceStatusBadge extends StatelessWidget {
         return '紧急';
       case UrgencyLevel.normal:
         return '未报销';
+    }
+  }
+
+  /// 新的状态颜色获取方法 - 基于紧急程度和状态
+  Color _getStatusColorNew(BuildContext context, InvoiceStatus status) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    // 获取要显示的状态（报销集中用有效状态，独立发票用原始状态）
+    final displayStatus = invoice.isInReimbursementSet ? status : invoice.rawStatus;
+    
+    // 如果发票已报销，直接显示绿色
+    if (displayStatus == InvoiceStatus.reimbursed) {
+      return colorScheme.secondary; // 绿色
+    }
+    
+    // 未报销发票根据紧急程度决定颜色
+    switch (_getUrgencyLevel()) {
+      case UrgencyLevel.overdue:
+        return colorScheme.error; // 逾期：红色
+      case UrgencyLevel.urgent:
+        return colorScheme.tertiary; // 紧急：橙色（使用语义颜色）
+      case UrgencyLevel.normal:
+        return colorScheme.primary; // 普通：蓝色
+    }
+  }
+
+  /// 新的状态图标获取方法 - 基于有效状态
+  IconData _getStatusIconNew(InvoiceStatus status) {
+    // 获取要显示的状态（报销集中用有效状态，独立发票用原始状态）
+    final displayStatus = invoice.isInReimbursementSet ? status : invoice.rawStatus;
+    
+    switch (displayStatus) {
+      case InvoiceStatus.unsubmitted:
+        return CupertinoIcons.doc_text;
+      case InvoiceStatus.submitted:
+        return CupertinoIcons.paperplane;
+      case InvoiceStatus.reimbursed:
+        return CupertinoIcons.checkmark_circle_fill;
     }
   }
 
@@ -203,16 +243,17 @@ enum BadgeSize {
 
 /// 带操作表的发票状态徽章
 /// 点击时显示iOS风格的状态切换菜单
+/// 职责：UI展示 + 触发操作工具类，不直接处理业务逻辑
 class InteractiveInvoiceStatusBadge extends StatelessWidget {
   final InvoiceEntity invoice;
-  final ValueChanged<InvoiceStatus>? onStatusChanged;
+  final bool enableStatusChange;
   final BadgeSize size;
   final bool showConsumptionDateOnly;
 
   const InteractiveInvoiceStatusBadge({
     super.key,
     required this.invoice,
-    this.onStatusChanged,
+    this.enableStatusChange = true,
     this.size = BadgeSize.medium,
     this.showConsumptionDateOnly = false,
   });
@@ -223,113 +264,18 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
       invoice: invoice,
       size: size,
       showConsumptionDateOnly: showConsumptionDateOnly,
-      onTap: onStatusChanged != null
-          ? () => _showStatusActionSheet(context)
+      onTap: enableStatusChange
+          ? () => _handleStatusTap(context)
           : null,
     );
   }
 
-  /// 显示状态切换操作表（iOS风格）
-  void _showStatusActionSheet(BuildContext context) {
-    final isCurrentlyReimbursed = invoice.status == InvoiceStatus.reimbursed;
-
-    showCupertinoModalPopup(
+  /// 处理状态点击 - 使用工具类（职责分离）
+  void _handleStatusTap(BuildContext context) {
+    InvoiceStatusOperationUtils.showStatusActionSheet(
       context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text(
-          '修改发票状态',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        message: Text(
-          invoice.sellerName ?? invoice.invoiceNumber,
-          style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-        actions: [
-          if (!isCurrentlyReimbursed)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                onStatusChanged?.call(InvoiceStatus.reimbursed);
-                _showStatusChangeSuccess(context, '已报销');
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.checkmark_circle_fill,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '标记为已报销',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (isCurrentlyReimbursed)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                onStatusChanged?.call(InvoiceStatus.unsubmitted);
-                _showStatusChangeSuccess(context, '未报销');
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.time_solid,
-                    color: Theme.of(context).colorScheme.tertiary,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '标记为未报销',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            '取消',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
+      invoice: invoice,
     );
   }
 
-  /// 显示状态修改成功提示
-  void _showStatusChangeSuccess(BuildContext context, String statusText) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle,
-                color: Theme.of(context).colorScheme.onPrimary),
-            const SizedBox(width: 8),
-            Text('已标记为$statusText'),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
 }

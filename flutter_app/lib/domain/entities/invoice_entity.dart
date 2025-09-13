@@ -138,20 +138,39 @@ class InvoiceEntity extends Equatable {
     return '${consumptionDate!.year}-${consumptionDate!.month.toString().padLeft(2, '0')}-${consumptionDate!.day.toString().padLeft(2, '0')}';
   }
 
-  /// 业务逻辑：是否已报销
-  bool get isReimbursed => status == InvoiceStatus.reimbursed;
+  /// 业务逻辑：获取有效状态（考虑报销集约束）
+  /// 核心原则：发票状态必须通过报销集来修改，独立发票永远是未提交状态
+  InvoiceStatus get effectiveStatus {
+    if (isInReimbursementSet) {
+      // 如果在报销集中，使用实际存储的状态
+      return status;
+    } else {
+      // 独立发票强制为未提交状态
+      return InvoiceStatus.unsubmitted;
+    }
+  }
 
-  /// 业务逻辑：是否未报销
-  bool get isUnreimbursed => status == InvoiceStatus.unsubmitted || status == InvoiceStatus.submitted;
+  /// 业务逻辑：原始状态（仅用于数据同步，不直接用于UI显示）
+  InvoiceStatus get rawStatus => status;
+
+  /// 业务逻辑：是否已报销（基于有效状态）
+  bool get isReimbursed => effectiveStatus == InvoiceStatus.reimbursed;
+
+  /// 业务逻辑：是否未报销（基于有效状态）
+  bool get isUnreimbursed => effectiveStatus == InvoiceStatus.unsubmitted || effectiveStatus == InvoiceStatus.submitted;
 
   /// 业务逻辑：是否在报销集中
   bool get isInReimbursementSet => reimbursementSetId != null && reimbursementSetId!.isNotEmpty;
 
+  /// 业务逻辑：是否可以独立修改状态（强制约束：不可以）
+  bool get canChangeStatusIndependently => false;
+
+  /// 业务逻辑：是否必须通过报销集修改状态
+  bool get mustChangeStatusThroughReimbursementSet => isInReimbursementSet;
+
   /// 业务逻辑：是否可以加入报销集
-  /// 发票状态和报销集归属是两个独立概念：
-  /// - 任何状态的发票都可以加入报销集（如果还没有在其他报销集中）
-  /// - 唯一的限制是不能同时在多个报销集中
-  bool get canAddToReimbursementSet => !isInReimbursementSet;
+  /// 只有未提交状态的独立发票才能加入报销集
+  bool get canAddToReimbursementSet => !isInReimbursementSet && effectiveStatus == InvoiceStatus.unsubmitted;
 
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;
@@ -159,15 +178,34 @@ class InvoiceEntity extends Equatable {
   /// 业务逻辑：是否有附件
   bool get hasFile => fileUrl != null && fileUrl!.isNotEmpty;
 
-  /// 业务逻辑：获取报销进度百分比
+  /// 业务逻辑：获取报销进度百分比（基于有效状态）
   double get progressPercent {
-    switch (status) {
+    switch (effectiveStatus) {
       case InvoiceStatus.unsubmitted:
         return 0.0;
       case InvoiceStatus.submitted:
         return 0.5;
       case InvoiceStatus.reimbursed:
         return 1.0;
+    }
+  }
+
+  /// 业务逻辑：获取状态显示文本
+  String get statusDisplayText {
+    if (isInReimbursementSet) {
+      return effectiveStatus.displayName;
+    } else {
+      // 独立发票显示其原始状态
+      return rawStatus.displayName;
+    }
+  }
+
+  /// 业务逻辑：获取状态描述文本
+  String get statusDescription {
+    if (isInReimbursementSet) {
+      return effectiveStatus.description;
+    } else {
+      return '发票尚未加入任何报销集，需要通过报销集来进行状态管理';
     }
   }
 

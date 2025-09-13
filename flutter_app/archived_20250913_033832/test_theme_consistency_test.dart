@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/constants/accessibility_constants.dart';
-import '../lib/core/utils/accessibility_validator.dart';
+// import '../lib/core/utils/accessibility_validator.dart'; // 已删除
 
 /// 主题一致性测试用例
 /// 确保应用主题符合无障碍标准和设计规范

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../theme/component_theme_constants.dart';
+import '../../../utils/icon_mapping.dart';
 import '../../atoms/app_icon.dart';
 import '../../atoms/app_text.dart';
 
@@ -66,8 +67,8 @@ class InvoiceCardSlidable extends StatefulWidget {
     this.startActions = const [],
     this.endActions = const [],
     this.enabled = true,
-    this.extentRatio = 0.25,
-    this.motion = const StretchMotion(),
+    this.extentRatio = 0.35,
+    this.motion = const BehindMotion(),
     this.dismissalThreshold = 0.4,
     this.closeOnScroll = true,
     this.slidableKey,
@@ -96,6 +97,7 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
           ? ActionPane(
               motion: widget.motion,
               extentRatio: widget.extentRatio,
+              dragDismissible: false,
               children: widget.startActions.map(_buildSlidableAction).toList(),
             )
           : null,
@@ -105,6 +107,7 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
           ? ActionPane(
               motion: widget.motion,
               extentRatio: widget.extentRatio,
+              dragDismissible: false,
               children: widget.endActions.map(_buildSlidableAction).toList(),
             )
           : null,
@@ -115,13 +118,11 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> {
 
   /// 构建滑动操作项
   Widget _buildSlidableAction(SlideAction action) {
-    return SlidableAction(
-      onPressed: (context) => action.onPressed(),
-      backgroundColor: action.backgroundColor,
-      foregroundColor: action.foregroundColor,
-      icon: action.icon,
-      label: action.label,
-      flex: (action.flex * 100).toInt(),
+    return CustomSlidableAction(
+      action: action,
+      isStart: widget.startActions.contains(action),
+      isLast: (widget.startActions.isNotEmpty && widget.startActions.last == action) ||
+              (widget.endActions.isNotEmpty && widget.endActions.last == action),
     );
   }
 }
@@ -155,14 +156,24 @@ class CustomSlidableAction extends StatelessWidget {
     return Expanded(
       flex: (action.flex * 100).toInt(),
       child: Container(
-        margin: const EdgeInsets.only(bottom: ComponentThemeConstants.spacingM),
+        height: double.infinity, // 填满整个滑动区域高度
+        decoration: BoxDecoration(
+          border: Border(
+            left: isStart ? BorderSide.none : BorderSide(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 0.5,
+            ),
+          ),
+        ),
         child: Material(
           color: action.backgroundColor,
-          elevation: 2,
-          borderRadius: _getBorderRadius(),
+          elevation: 0, // 去除阴影保持平整
+          borderRadius: BorderRadius.zero, // 去除圆角保持一体感
           child: InkWell(
             onTap: action.onPressed,
-            borderRadius: _getBorderRadius(),
+            borderRadius: BorderRadius.zero,
+            splashColor: action.foregroundColor.withValues(alpha: 0.1),
+            highlightColor: action.foregroundColor.withValues(alpha: 0.05),
             child: contentBuilder?.call(context, action) ?? _buildDefaultContent(),
           ),
         ),
@@ -170,27 +181,21 @@ class CustomSlidableAction extends StatelessWidget {
     );
   }
 
-  /// 获取圆角配置
+  /// 获取圆角配置（已废弃，保持一体感使用零圆角）
   BorderRadius _getBorderRadius() {
-    if (isStart) {
-      return const BorderRadius.only(
-        topLeft: Radius.circular(ComponentThemeConstants.radiusMedium),
-        bottomLeft: Radius.circular(ComponentThemeConstants.radiusMedium),
-      );
-    } else {
-      return const BorderRadius.only(
-        topRight: Radius.circular(ComponentThemeConstants.radiusMedium),
-        bottomRight: Radius.circular(ComponentThemeConstants.radiusMedium),
-      );
-    }
+    return BorderRadius.zero;
   }
 
   /// 构建默认内容
   Widget _buildDefaultContent() {
     return Container(
-      padding: const EdgeInsets.all(ComponentThemeConstants.spacingL),
+      padding: EdgeInsets.symmetric(
+        horizontal: ComponentThemeConstants.spacingM,
+        vertical: ComponentThemeConstants.spacingS,
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon(
             icon: action.icon,
@@ -199,12 +204,15 @@ class CustomSlidableAction extends StatelessWidget {
             semanticLabel: action.label,
           ),
           SizedBox(height: ComponentThemeConstants.spacingXS),
-          AppText(
-            text: action.label,
-            variant: TextVariant.bodySmall,
-            color: action.foregroundColor,
-            fontWeight: FontWeight.w500,
-            textAlign: TextAlign.center,
+          Flexible(
+            child: AppText(
+              text: action.label,
+              variant: TextVariant.labelMedium,
+              color: action.foregroundColor,
+              fontWeight: FontWeight.w600,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
           ),
         ],
       ),
@@ -339,7 +347,7 @@ class InvoiceSlideActions {
     Color? foregroundColor,
   }) {
     return SlideAction(
-      icon: CupertinoIcons.minus_circle,
+      icon: IconMapping.getCupertinoIcon('folder_badge_minus'),
       label: '移出',
       backgroundColor: backgroundColor ?? const Color(0xFFFF9800),
       foregroundColor: foregroundColor ?? Colors.white,
@@ -355,7 +363,7 @@ class InvoiceSlideActions {
     Color? foregroundColor,
   }) {
     return SlideAction(
-      icon: CupertinoIcons.add_circled,
+      icon: IconMapping.getCupertinoIcon('folder_badge_plus'),
       label: '加入',
       backgroundColor: backgroundColor ?? const Color(0xFF4CAF50),
       foregroundColor: foregroundColor ?? Colors.white,
@@ -379,6 +387,46 @@ class InvoiceSlideActions {
       tooltip: '查看所在报销集',
     );
   }
+}
+
+/// 发票状态相关的滑动操作工厂
+/// 
+/// 根据发票状态和是否在报销集中，生成对应的滑动操作
+class InvoiceStatusSlidableActionsFactory {
+  InvoiceStatusSlidableActionsFactory._();
+
+  /// 为独立发票（未加入报销集）生成滑动操作
+  static List<SlideAction> createForIndependentInvoice({
+    required VoidCallback onDelete,
+    required VoidCallback onAddToReimbursementSet,
+  }) {
+    return [
+      InvoiceSlideActions.addToReimbursementSet(onPressed: onAddToReimbursementSet),
+      InvoiceSlideActions.delete(onPressed: onDelete),
+    ];
+  }
+
+  /// 为未提交状态的报销集发票生成滑动操作
+  static List<SlideAction> createForUnsubmittedInSet({
+    required VoidCallback onRemoveFromSet,
+  }) {
+    return [
+      InvoiceSlideActions.remove(onPressed: onRemoveFromSet),
+    ];
+  }
+
+  /// 为已提交状态的报销集发票生成滑动操作
+  static List<SlideAction> createForSubmittedInSet() {
+    // 已提交状态的发票不允许任何左滑操作
+    return [];
+  }
+
+  /// 为已报销状态的发票生成滑动操作
+  static List<SlideAction> createForReimbursedInvoice() {
+    // 已报销状态的发票不允许任何左滑操作
+    return [];
+  }
+
 }
 
 /// 滑动操作构建器

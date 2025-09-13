@@ -1,4 +1,6 @@
 import 'dart:async';
+import '../../domain/entities/reimbursement_set_entity.dart';
+import '../../domain/value_objects/invoice_status.dart';
 
 /// 应用全局事件总线
 /// 
@@ -148,19 +150,58 @@ class InvoicesUploadedEvent extends InvoiceChangedEvent {
   });
 }
 
-/// 报销集状态变更事件
+/// 报销集状态变更事件 - 用于状态一致性约束
 class ReimbursementSetStatusChangedEvent extends ReimbursementSetChangedEvent {
   final String setId;
   final String newStatus;
   final String? oldStatus;
   final List<String> affectedInvoiceIds;
+  final DateTime timestamp;
   
   const ReimbursementSetStatusChangedEvent({
     required this.setId,
     required this.newStatus,
     this.oldStatus,
     this.affectedInvoiceIds = const [],
+    required this.timestamp,
   });
+  
+  @override
+  String toString() => 'ReimbursementSetStatusChangedEvent(setId: $setId, $oldStatus -> $newStatus, invoices: ${affectedInvoiceIds.length})';
+}
+
+/// 发票状态同步事件 - 专门用于报销集状态变更导致的发票状态同步
+class InvoiceStatusSyncedEvent extends InvoiceChangedEvent {
+  final List<String> invoiceIds;
+  final String newStatus;
+  final String? oldStatus;
+  final String reimbursementSetId;
+  final DateTime timestamp;
+
+  const InvoiceStatusSyncedEvent({
+    required this.invoiceIds,
+    required this.newStatus,
+    this.oldStatus,
+    required this.reimbursementSetId,
+    required this.timestamp,
+  });
+
+  @override
+  String toString() => 'InvoiceStatusSyncedEvent(invoices: ${invoiceIds.length}, $oldStatus -> $newStatus, setId: $reimbursementSetId)';
+}
+
+/// 状态一致性检查事件 - 用于验证发票与报销集状态同步
+class StatusConsistencyCheckEvent extends AppEvent {
+  final String reimbursementSetId;
+  final DateTime timestamp;
+  
+  const StatusConsistencyCheckEvent({
+    required this.reimbursementSetId,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'StatusConsistencyCheckEvent(setId: $reimbursementSetId)';
 }
 
 /// 应用生命周期事件
@@ -199,4 +240,159 @@ class DataRefreshRequestedEvent extends AppEvent {
     required this.moduleType,
     this.parameters = const {},
   });
+}
+
+/// UI操作请求事件基类
+abstract class UIActionRequestEvent extends AppEvent {
+  const UIActionRequestEvent();
+}
+
+/// 报销集操作请求事件
+abstract class ReimbursementSetActionRequestEvent extends UIActionRequestEvent {
+  const ReimbursementSetActionRequestEvent();
+}
+
+/// 创建报销集请求事件
+class CreateReimbursementSetRequestEvent extends ReimbursementSetActionRequestEvent {
+  final String setName;
+  final String? description;
+  final List<String> invoiceIds;
+  final DateTime timestamp;
+  
+  const CreateReimbursementSetRequestEvent({
+    required this.setName,
+    this.description,
+    required this.invoiceIds,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'CreateReimbursementSetRequestEvent(setName: $setName, invoices: ${invoiceIds.length})';
+}
+
+/// 删除报销集请求事件
+class DeleteReimbursementSetRequestEvent extends ReimbursementSetActionRequestEvent {
+  final String setId;
+  final DateTime timestamp;
+  
+  const DeleteReimbursementSetRequestEvent({
+    required this.setId,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'DeleteReimbursementSetRequestEvent(setId: $setId)';
+}
+
+/// 发票加入报销集请求事件
+class AddInvoicesToSetRequestEvent extends ReimbursementSetActionRequestEvent {
+  final String setId;
+  final List<String> invoiceIds;
+  final DateTime timestamp;
+  
+  const AddInvoicesToSetRequestEvent({
+    required this.setId,
+    required this.invoiceIds,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'AddInvoicesToSetRequestEvent(setId: $setId, invoices: ${invoiceIds.length})';
+}
+
+/// 发票移出报销集请求事件
+class RemoveInvoicesFromSetRequestEvent extends ReimbursementSetActionRequestEvent {
+  final List<String> invoiceIds;
+  final DateTime timestamp;
+  
+  const RemoveInvoicesFromSetRequestEvent({
+    required this.invoiceIds,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'RemoveInvoicesFromSetRequestEvent(invoices: ${invoiceIds.length})';
+}
+
+/// 发票操作请求事件基类
+abstract class InvoiceActionRequestEvent extends UIActionRequestEvent {
+  const InvoiceActionRequestEvent();
+}
+
+/// 发票删除请求事件
+class DeleteInvoiceRequestEvent extends InvoiceActionRequestEvent {
+  final String invoiceId;
+  final DateTime timestamp;
+  
+  const DeleteInvoiceRequestEvent({
+    required this.invoiceId,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'DeleteInvoiceRequestEvent(invoiceId: $invoiceId)';
+}
+
+/// 批量发票删除请求事件
+class DeleteInvoicesRequestEvent extends InvoiceActionRequestEvent {
+  final List<String> invoiceIds;
+  final DateTime timestamp;
+  
+  const DeleteInvoicesRequestEvent({
+    required this.invoiceIds,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'DeleteInvoicesRequestEvent(invoices: ${invoiceIds.length})';
+}
+
+/// 报销集更新请求事件
+class UpdateReimbursementSetRequestEvent extends ReimbursementSetActionRequestEvent {
+  final String setId;
+  final String setName;
+  final String? description;
+  final DateTime timestamp;
+  
+  const UpdateReimbursementSetRequestEvent({
+    required this.setId,
+    required this.setName,
+    this.description,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'UpdateReimbursementSetRequestEvent(setId: $setId, name: $setName)';
+}
+
+/// 报销集状态更新请求事件
+class UpdateReimbursementSetStatusRequestEvent extends ReimbursementSetActionRequestEvent {
+  final String setId;
+  final ReimbursementSetStatus newStatus;
+  final DateTime timestamp;
+  
+  const UpdateReimbursementSetStatusRequestEvent({
+    required this.setId,
+    required this.newStatus,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'UpdateReimbursementSetStatusRequestEvent(setId: $setId, status: $newStatus)';
+}
+
+/// 发票状态更新请求事件
+class UpdateInvoiceStatusRequestEvent extends InvoiceActionRequestEvent {
+  final String invoiceId;
+  final InvoiceStatus newStatus;
+  final DateTime timestamp;
+  
+  const UpdateInvoiceStatusRequestEvent({
+    required this.invoiceId,
+    required this.newStatus,
+    required this.timestamp,
+  });
+  
+  @override
+  String toString() => 'UpdateInvoiceStatusRequestEvent(invoiceId: $invoiceId, status: $newStatus)';
 }

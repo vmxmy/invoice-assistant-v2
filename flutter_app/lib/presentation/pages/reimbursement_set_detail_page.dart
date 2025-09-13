@@ -9,11 +9,11 @@ import '../../core/theme/app_theme_constants.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
-import '../bloc/invoice_bloc.dart';
-import '../bloc/invoice_event.dart';
 import '../widgets/invoice_card_widget.dart';
 import '../widgets/skeleton_loader.dart';
 import '../widgets/app_feedback.dart';
+import '../utils/invoice_delete_utils.dart';
+import '../utils/reimbursement_set_operation_utils.dart';
 import '../widgets/detail_page_styles.dart';
 import '../widgets/reimbursement_status_button.dart';
 import '../widgets/unified_bottom_sheet.dart';
@@ -72,6 +72,13 @@ class _ReimbursementSetDetailPageState
             // 状态更新成功，刷新数据
             _loadReimbursementSetDetail();
             AppFeedback.success(context, '状态更新成功');
+          } else if (state is ReimbursementSetOperationSuccess) {
+            // 处理所有其他操作成功状态（添加发票、移出发票等）
+            _loadReimbursementSetDetail();
+            AppFeedback.success(context, state.message);
+          } else if (state is ReimbursementSetCreateSuccess) {
+            // 创建报销集成功（虽然在详情页不太可能发生）
+            AppFeedback.success(context, state.message);
           }
         },
         builder: (context, state) {
@@ -386,14 +393,7 @@ class _ReimbursementSetDetailPageState
               // 自定义右滑操作：根据报销集状态显示不同操作
               customEndActions: _buildReimbursementSetDetailEndActions(invoice),
               // 保持默认的左滑分享功能
-              customStartActions: [
-                InvoiceSlideActions.share(
-                  onPressed: () {
-                    // 这里需要从 InvoiceCardWidget 中提取分享逻辑
-                    // 或者创建一个分享处理器
-                  },
-                ),
-              ],
+              customStartActions: null, // 使用默认的分享功能
             ),
           );
         },
@@ -486,189 +486,35 @@ class _ReimbursementSetDetailPageState
   }
 
   void _showEditDialog() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final nameController =
-        TextEditingController(text: _reimbursementSet?.setName);
-    final descriptionController =
-        TextEditingController(text: _reimbursementSet?.description);
-
-    // 构建编辑表单内容
-    final editForm = StatefulBuilder(
-      builder: (context, setState) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 标题区域
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Icon(
-                  CupertinoIcons.pencil,
-                  color: colorScheme.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                '编辑报销集',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // 表单字段
-          CupertinoTextField(
-            controller: nameController,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
-            placeholder: '报销集名称',
-            maxLength: 100,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: colorScheme.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-          ),
-          const SizedBox(height: 16),
-          
-          CupertinoTextField(
-            controller: descriptionController,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
-            placeholder: '描述（可选）',
-            maxLines: 3,
-            maxLength: 500,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: colorScheme.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-          ),
-          const SizedBox(height: 24),
-          
-          // 按钮组
-          Row(
-            children: [
-              // 取消按钮
-              Expanded(
-                child: CupertinoButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Text(
-                    '取消',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              
-              // 保存按钮
-              Expanded(
-                child: CupertinoButton(
-                  onPressed: () {
-                    final name = nameController.text.trim();
-                    if (name.isNotEmpty) {
-                      Navigator.pop(context);
-                      context.read<ReimbursementSetBloc>().add(
-                            UpdateReimbursementSet(
-                              setId: widget.reimbursementSetId,
-                              setName: name,
-                              description: descriptionController.text.trim().isEmpty
-                                  ? null
-                                  : descriptionController.text.trim(),
-                            ),
-                          );
-                    }
-                  },
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        CupertinoIcons.checkmark,
-                        size: 18,
-                        color: colorScheme.onPrimary,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '保存',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: colorScheme.onPrimary,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-    // 使用 UnifiedBottomSheet
-    UnifiedBottomSheet.showCustomSheet(
+    // 使用工具类处理编辑逻辑（职责分离）
+    ReimbursementSetOperationUtils.showEditDialog(
       context: context,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: editForm,
-      ),
-      showCloseButton: false,
+      setId: widget.reimbursementSetId,
+      currentName: _reimbursementSet?.setName,
+      currentDescription: _reimbursementSet?.description,
     );
   }
 
   void _updateStatus(ReimbursementSetStatus newStatus) {
-    context.read<ReimbursementSetBloc>().add(
-          UpdateReimbursementSetStatus(
-            setId: widget.reimbursementSetId,
-            status: newStatus,
-          ),
-        );
+    // 使用工具类处理状态更新逻辑（职责分离）
+    ReimbursementSetOperationUtils.showStatusUpdateConfirmation(
+      context: context,
+      setId: widget.reimbursementSetId,
+      currentStatus: _reimbursementSet!.status,
+      nextStatus: newStatus,
+      setName: _reimbursementSet!.setName,
+      invoiceCount: _invoices.length,
+    );
   }
 
   void _showDeleteConfirmation() {
-    UnifiedBottomSheet.showConfirmDialog(
+    // 使用工具类处理删除逻辑（职责分离）
+    ReimbursementSetOperationUtils.showDeleteConfirmation(
       context: context,
-      title: '删除报销集',
-      content: '确定要删除报销集"${_reimbursementSet?.setName}"吗？\n\n'
-          '• 包含的${_invoices.length}张发票将重新变为未分配状态\n'
-          '• 此操作无法撤销\n'
-          '• 所有相关的历史记录将被清除',
-      confirmText: '确认删除',
-      cancelText: '取消',
-      confirmColor: Theme.of(context).colorScheme.error,
-      icon: CupertinoIcons.delete,
-    ).then((result) {
-      if (result == true) {
-        context.read<ReimbursementSetBloc>().add(
-              DeleteReimbursementSet(widget.reimbursementSetId),
-            );
-      }
-    });
+      setId: widget.reimbursementSetId,
+      setName: _reimbursementSet?.setName,
+      invoiceCount: _invoices.length,
+    );
   }
 
   /// 从报销集中移出发票
@@ -706,24 +552,11 @@ class _ReimbursementSetDetailPageState
 
   /// 删除发票
   void _deleteInvoice(String invoiceId) {
-    UnifiedBottomSheet.showConfirmDialog(
+    InvoiceDeleteUtils.showDeleteFromSetConfirmation(
       context: context,
-      title: '删除发票',
-      content: '确定要删除此发票吗？\n\n'
-          '• 发票将被永久删除\n'
-          '• 此操作无法撤销\n'
-          '• 相关文件也将被清理\n'
-          '• 会自动从当前报销集中移除',
-      confirmText: '确认删除',
-      cancelText: '取消',
-      confirmColor: Theme.of(context).colorScheme.error,
-      icon: CupertinoIcons.delete,
-    ).then((result) {
-      if (result == true) {
-        // 直接删除发票（InvoiceBloc会发送删除事件，ReimbursementSetBloc会监听并自动刷新）
-        context.read<InvoiceBloc>().add(DeleteInvoice(invoiceId));
-        
-        // 显示成功反馈
+      invoiceId: invoiceId,
+      setName: _reimbursementSet?.setName,
+      onDeleted: () {
         AppFeedback.success(
           context,
           '发票已删除',
@@ -733,8 +566,8 @@ class _ReimbursementSetDetailPageState
         setState(() {
           _invoices.removeWhere((invoice) => invoice.id == invoiceId);
         });
-      }
-    });
+      },
+    );
   }
 
   /// 构建报销单详情页面的右滑操作

@@ -13,6 +13,7 @@ import '../../core/theme/theme_manager.dart';
 import '../widgets/theme_selector_widget.dart';
 import '../widgets/unified_bottom_sheet.dart';
 import '../../debug_query_test.dart';
+import 'status_consistency_test_page.dart';
 
 /// 导航项数据类
 class NavigationItem {
@@ -250,6 +251,22 @@ class _MainPageState extends State<MainPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const DebugQueryTestPage(),
+                      ),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(CupertinoIcons.checkmark_shield,
+                      color: theme.colorScheme.primary),
+                  title: const Text('状态一致性测试'),
+                  subtitle: const Text('测试发票与报销集状态约束'),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatusConsistencyTestPage(),
                       ),
                     );
                   },

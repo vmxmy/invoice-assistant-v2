@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../core/utils/invoice_file_utils.dart';
+import '../../core/utils/icon_mapping.dart';
 import '../../core/constants/accessibility_constants.dart';
+import '../../core/events/app_event_bus.dart';
 import '../../core/widgets/atoms/app_card.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_header.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_body.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_actions.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
 import '../../core/widgets/molecules/reimbursement_set_badge.dart';
+import '../../core/theme/component_theme_constants.dart';
+import '../bloc/reimbursement_set_bloc.dart';
+import '../bloc/reimbursement_set_state.dart';
+import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
 
 /// 发票卡片组件 - 展示单个发票的信息
@@ -20,7 +27,8 @@ class InvoiceCardWidget extends StatefulWidget {
   final InvoiceEntity invoice;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
-  final ValueChanged<InvoiceStatus>? onStatusChanged;
+  // 移除状态修改回调 - 发票状态必须通过报销集来修改
+  // final ValueChanged<InvoiceStatus>? onStatusChanged; 
   final bool showConsumptionDateOnly;
   final bool isSelectionMode;
   final bool isSelected;
@@ -44,7 +52,8 @@ class InvoiceCardWidget extends StatefulWidget {
     required this.invoice,
     this.onTap,
     this.onDelete,
-    this.onStatusChanged,
+    // 移除状态修改回调参数
+    // this.onStatusChanged,
     this.showConsumptionDateOnly = false,
     this.isSelectionMode = false,
     this.isSelected = false,
@@ -62,6 +71,13 @@ class InvoiceCardWidget extends StatefulWidget {
 
 class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   final SlidableController _slidableController = SlidableController();
+  late final AppEventBus _eventBus;
+
+  @override
+  void initState() {
+    super.initState();
+    _eventBus = AppEventBus.instance;
+  }
 
   @override
   void didUpdateWidget(InvoiceCardWidget oldWidget) {
@@ -86,38 +102,86 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
       return null;
     }
 
-    final reimbursementBadge = ReimbursementSetBadge(
+    // 创建状态徽章
+    final statusBadge = status_badge.InvoiceStatusBadge(
       invoice: widget.invoice,
-      size: BadgeSize.small,
-      showLabel: false, // 在卡片头部只显示图标，节省空间
-      onTap: widget.onReimbursementSetTap != null && widget.invoice.reimbursementSetId != null
-          ? () => widget.onReimbursementSetTap!(widget.invoice.reimbursementSetId!)
-          : null,
+      size: status_badge.BadgeSize.small,
+      showConsumptionDateOnly: widget.showConsumptionDateOnly,
     );
 
-    // 如果发票在报销集中，显示报销集徽章
+    // 如果发票在报销集中，同时显示报销集徽章和状态徽章
     if (widget.invoice.isInReimbursementSet) {
-      return reimbursementBadge;
+      final reimbursementBadge = ReimbursementSetBadge(
+        invoice: widget.invoice,
+        size: BadgeSize.small,
+        showLabel: false, // 在卡片头部只显示图标，节省空间
+        onTap: widget.onReimbursementSetTap != null && widget.invoice.reimbursementSetId != null
+            ? () => widget.onReimbursementSetTap!(widget.invoice.reimbursementSetId!)
+            : null,
+      );
+
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          reimbursementBadge,
+          const SizedBox(width: 6),
+          statusBadge,
+        ],
+      );
     }
 
-    // 否则返回null，让InvoiceCardHeader显示默认的状态徽章
-    return null;
+    // 独立发票只显示状态徽章
+    return statusBadge;
+  }
+
+  /// 处理报销集状态变化
+  void _handleReimbursementSetStateChange(BuildContext context, ReimbursementSetState state) {
+    // 处理操作成功状态
+    if (state is ReimbursementSetOperationSuccess) {
+      _showSuccessMessage(context, state.message);
+      return;
+    }
+    
+    // 处理特定操作成功状态
+    if (state is ReimbursementSetCreateSuccess) {
+      _showSuccessMessage(context, '已加入报销集');
+      return;
+    }
+    
+    if (state is ReimbursementSetStatusUpdateSuccess) {
+      _showSuccessMessage(context, '状态已更新');
+      return;
+    }
+    
+    // 处理错误状态
+    if (state is ReimbursementSetError) {
+      _showErrorMessage(context, state.message);
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
-      hint: AccessibilityConstants.cardActionHint,
-      child: InvoiceCardSlidable(
-        slidableKey: _slidableController.key,
-        enabled: !widget.isSelectionMode && widget.enableSwipe,
-        startActions: _buildStartActions(),
-        endActions: _buildEndActions(),
-        child: AppCard(
+    return BlocListener<ReimbursementSetBloc, ReimbursementSetState>(
+      listener: _handleReimbursementSetStateChange,
+      child: Semantics(
+        label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
+        hint: AccessibilityConstants.cardActionHint,
+        child: InvoiceCardSlidable(
+          slidableKey: _slidableController.key,
+          enabled: !widget.isSelectionMode && widget.enableSwipe,
+          startActions: _buildStartActions(),
+          endActions: _buildEndActions(),
+          child: AppCard(
           isSelected: widget.isSelected,
           onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
           onLongPress: widget.onLongPress,
+          margin: EdgeInsets.only(
+            left: ComponentThemeConstants.spacingL,
+            right: ComponentThemeConstants.spacingL,
+            top: ComponentThemeConstants.spacingS,
+            bottom: ComponentThemeConstants.spacingS,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -127,7 +191,8 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
                 invoice: widget.invoice,
                 title: (widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName! : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票',
                 subtitle: widget.invoice.buyerName,
-                onStatusChanged: widget.onStatusChanged,
+                // 移除状态修改回调参数
+                // onStatusChanged: widget.onStatusChanged,
                 showConsumptionDateOnly: widget.showConsumptionDateOnly,
                 isSelectionMode: widget.isSelectionMode,
                 isSelected: widget.isSelected,
@@ -151,17 +216,18 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           ),
         ),
       ),
+    ),
     );
   }
 
-  /// 构建左滑操作
+  /// 构建左滑操作 - 固定为分享功能
   List<SlideAction> _buildStartActions() {
     // 如果提供了自定义操作，使用自定义操作
     if (widget.customStartActions != null) {
       return widget.customStartActions!;
     }
     
-    // 否则使用默认操作
+    // 左滑固定显示分享操作
     return [
       InvoiceSlideActions.share(
         onPressed: () => _handleDownloadAndShare(context),
@@ -169,36 +235,48 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     ];
   }
 
-  /// 构建右滑操作
+  /// 构建右滑操作 - 根据发票状态智能生成
   List<SlideAction> _buildEndActions() {
     // 如果提供了自定义操作，使用自定义操作
     if (widget.customEndActions != null) {
       return widget.customEndActions!;
     }
     
-    // 否则使用默认操作
-    return [
-      InvoiceSlideActions.delete(
-        onPressed: () => _handleDelete(context),
-      ),
-    ];
+    // 根据发票状态生成操作（加入/移出报销集 + 删除）
+    return _createStatusBasedActions();
   }
 
-  /// 处理删除操作
-  Future<void> _handleDelete(BuildContext context) async {
-    final colorScheme = Theme.of(context).colorScheme;
-    final result = await UnifiedBottomSheet.showConfirmDialog(
-      context: context,
-      title: '删除发票',
-      content: '确定要删除 ${widget.invoice.sellerName ?? widget.invoice.invoiceNumber} 吗？此操作无法撤销。',
-      confirmText: '删除',
-      confirmColor: colorScheme.error,
-      icon: CupertinoIcons.delete,
-    );
-    
-    if (result == true) {
-      widget.onDelete?.call();
+  /// 根据发票状态创建滑动操作
+  List<SlideAction> _createStatusBasedActions() {
+    final invoice = widget.invoice;
+
+    // 独立发票（未加入报销集）
+    if (!invoice.isInReimbursementSet) {
+      return InvoiceStatusSlidableActionsFactory.createForIndependentInvoice(
+        onDelete: _handleDelete,
+        onAddToReimbursementSet: () => _handleAddToReimbursementSet(context),
+      );
     }
+
+    // 报销集中的发票
+    switch (invoice.effectiveStatus) {
+      case InvoiceStatus.unsubmitted:
+        return InvoiceStatusSlidableActionsFactory.createForUnsubmittedInSet(
+          onRemoveFromSet: () => _handleRemoveFromReimbursementSet(context),
+        );
+        
+      case InvoiceStatus.submitted:
+        return InvoiceStatusSlidableActionsFactory.createForSubmittedInSet();
+        
+      case InvoiceStatus.reimbursed:
+        return InvoiceStatusSlidableActionsFactory.createForReimbursedInvoice();
+    }
+  }
+
+
+  /// 处理删除操作 - 直接触发回调，由父组件处理确认逻辑
+  void _handleDelete() {
+    widget.onDelete?.call();
   }
 
 
@@ -414,38 +492,13 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     }
   }
 
-  /// 显示加载对话框（带取消按钮防止卡住）
+  /// 显示加载对话框（使用统一的BottomSheet）
   void _showLoadingDialog(BuildContext context, String message) {
-    // print('🔄 [UI] 显示加载对话框: $message');
-
-    showDialog(
+    UnifiedBottomSheet.showLoadingSheet(
       context: context,
-      barrierDismissible: true, // 允许点击外部取消
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CupertinoActivityIndicator(radius: 20),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                // print('🔄 [UI] 用户点击取消按钮');
-                Navigator.of(context).pop();
-              },
-              child: const Text('取消'),
-            ),
-          ],
-        ),
-      ),
-    ).then((_) {
-      // print('✅ [UI] 加载对话框已关闭');
-    });
+      message: message,
+      isDismissible: true,
+    );
   }
 
   /// 显示iOS分享菜单
@@ -468,8 +521,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 显示错误消息
   void _showErrorMessage(BuildContext context, String message) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -477,22 +528,219 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
             children: [
               const Icon(
                 CupertinoIcons.exclamationmark_triangle,
-                color: Colors.white, // 保持 const，错误消息通常使用白色图标
+                color: Colors.white,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Expanded(child: Text(message)),
             ],
           ),
-          backgroundColor: colorScheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
           duration: const Duration(seconds: 3),
           behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
       );
     }
   }
 
+
+  /// 处理加入报销集操作
+  void _handleAddToReimbursementSet(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text(
+          '加入报销集',
+          style: TextStyle(
+            fontSize: 16, 
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        message: Text(
+          '将 ${widget.invoice.sellerName ?? widget.invoice.invoiceNumber} 加入到报销集中',
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _createNewReimbursementSet(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  IconMapping.getCupertinoIcon('folder_badge_plus'),
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '创建新报销集',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _addToExistingReimbursementSet(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  IconMapping.getCupertinoIcon('folder_badge_plus'),
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '加入现有报销集',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            '取消',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 处理从报销集移出操作
+  void _handleRemoveFromReimbursementSet(BuildContext context) async {
+    final invoice = widget.invoice;
+    final reimbursementSetName = '报销集'; // TODO: 从实际数据获取报销集名称
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    final result = await UnifiedBottomSheet.showConfirmDialog(
+      context: context,
+      title: '移出报销集',
+      content: '确定要将 ${invoice.sellerName ?? invoice.invoiceNumber} 从 $reimbursementSetName 中移出吗？',
+      confirmText: '移出',
+      confirmColor: colorScheme.error,
+      icon: IconMapping.getCupertinoIcon('folder_badge_minus'),
+    );
+    
+    if (result == true && context.mounted) {
+      _executeRemoveFromReimbursementSet(context);
+    }
+  }
+
+  /// 创建新报销集并加入发票
+  void _createNewReimbursementSet(BuildContext context) {
+    // 使用智能生成的默认名称直接创建报销集
+    final now = DateTime.now();
+    final monthName = '${now.year}年${now.month.toString().padLeft(2, '0')}月';
+    final defaultName = '$monthName报销单_单张发票';
+    
+    _executeCreateReimbursementSet(context, defaultName, null);
+  }
+
+  /// 加入到现有报销集
+  void _addToExistingReimbursementSet(BuildContext context) {
+    _showErrorMessage(context, '此功能开发中，请选择创建新报销集');
+    // TODO: 实现加入现有报销集的逻辑
+    // 1. 获取所有可用的报销集（未提交状态）
+    // 2. 显示选择列表
+    // 3. 用户选择报销集
+    // 4. 将发票加入到选中的报销集
+  }
+
+
+  /// 执行创建报销集并加入发票
+  void _executeCreateReimbursementSet(
+    BuildContext context, 
+    String setName, 
+    String? description,
+  ) {
+    try {
+      // 通过事件总线发送创建报销集请求
+      _eventBus.emit(
+        CreateReimbursementSetRequestEvent(
+          setName: setName,
+          description: description,
+          invoiceIds: [widget.invoice.id],
+          timestamp: DateTime.now(),
+        ),
+      );
+      
+      // 不显示"正在..."消息，让用户通过状态变化看到结果
+      
+    } catch (e) {
+      _showErrorMessage(context, '创建报销集失败: ${e.toString()}');
+    }
+  }
+
+  /// 执行从报销集移出操作
+  void _executeRemoveFromReimbursementSet(BuildContext context) {
+    try {
+      // 通过事件总线发送移出发票请求
+      _eventBus.emit(
+        RemoveInvoicesFromSetRequestEvent(
+          invoiceIds: [widget.invoice.id],
+          timestamp: DateTime.now(),
+        ),
+      );
+      
+      // 不显示"正在..."消息，让用户通过状态变化看到结果
+      
+    } catch (e) {
+      _showErrorMessage(context, '移出发票失败: ${e.toString()}');
+    }
+  }
+
+
+
+  /// 显示成功消息
+  void _showSuccessMessage(BuildContext context, String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                CupertinoIcons.checkmark_circle_fill,
+                color: Theme.of(context).colorScheme.onSecondary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text(message)),
+            ],
+          ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
+    }
+  }
 }

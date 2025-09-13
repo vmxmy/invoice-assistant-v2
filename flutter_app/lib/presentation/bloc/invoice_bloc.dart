@@ -9,7 +9,7 @@ import '../../domain/usecases/update_invoice_status_usecase.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
-// import '../../domain/value_objects/invoice_status.dart'; // 未使用
+import '../../domain/value_objects/invoice_status.dart';
 import '../../core/config/app_config.dart';
 import '../../core/events/app_event_bus.dart';
 import '../widgets/optimistic_ui_handler.dart';
@@ -87,10 +87,75 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           // print('🔄 [InvoiceBloc] 收到报销集变更事件: ${event.runtimeType}');
         }
         
-        // 触发发票列表刷新
-        add(const RefreshInvoices());
+        // 处理报销集状态变更事件 - 核心状态一致性逻辑
+        if (event is ReimbursementSetStatusChangedEvent) {
+          _handleReimbursementSetStatusChanged(event);
+        } else {
+          // 其他报销集变更事件，正常刷新
+          add(const RefreshInvoices());
+        }
       },
     );
+  }
+  
+  /// 处理报销集状态变更事件 - 确保发票状态同步
+  void _handleReimbursementSetStatusChanged(ReimbursementSetStatusChangedEvent event) async {
+    if (AppConfig.enableLogging) {
+      print('📋 [InvoiceBloc] 报销集状态变更: ${event.setId} (${event.oldStatus} -> ${event.newStatus}), 影响发票: ${event.affectedInvoiceIds.length}');
+    }
+    
+    try {
+      // 1. 同步更新本地缓存中的发票状态
+      if (event.affectedInvoiceIds.isNotEmpty) {
+        for (int i = 0; i < _allInvoices.length; i++) {
+          final invoice = _allInvoices[i];
+          if (event.affectedInvoiceIds.contains(invoice.id)) {
+            // 更新发票状态以匹配报销集状态
+            final updatedInvoice = invoice.copyWith(
+              status: _mapReimbursementStatusToInvoiceStatus(event.newStatus),
+              updatedAt: event.timestamp,
+            );
+            _allInvoices[i] = updatedInvoice;
+          }
+        }
+      }
+      
+      // 2. 发送状态同步确认事件
+      _eventBus.emit(InvoiceStatusSyncedEvent(
+        invoiceIds: event.affectedInvoiceIds,
+        newStatus: event.newStatus,
+        oldStatus: event.oldStatus,
+        reimbursementSetId: event.setId,
+        timestamp: DateTime.now(),
+      ));
+      
+      // 3. 刷新UI状态
+      add(const RefreshInvoices());
+      
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 状态同步失败: $e');
+      }
+      // 发送一致性检查事件以触发后续处理
+      _eventBus.emit(StatusConsistencyCheckEvent(
+        reimbursementSetId: event.setId,
+        timestamp: DateTime.now(),
+      ));
+    }
+  }
+  
+  /// 将报销集状态映射为发票状态
+  InvoiceStatus _mapReimbursementStatusToInvoiceStatus(String reimbursementStatus) {
+    switch (reimbursementStatus) {
+      case 'unsubmitted':
+        return InvoiceStatus.unsubmitted;
+      case 'submitted':
+        return InvoiceStatus.submitted;
+      case 'reimbursed':
+        return InvoiceStatus.reimbursed;
+      default:
+        return InvoiceStatus.unsubmitted;
+    }
   }
   
   /// 设置应用事件监听

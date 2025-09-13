@@ -214,8 +214,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                 ),
                 InteractiveInvoiceStatusBadge(
                   invoice: invoice,
-                  onStatusChanged: (newStatus) =>
-                      _updateInvoiceStatus(invoice, newStatus),
+                  enableStatusChange: true,
                   size: BadgeSize.large,
                 ),
               ],
@@ -477,15 +476,6 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   }
 
 
-  /// 更新发票状态
-  void _updateInvoiceStatus(InvoiceEntity invoice, InvoiceStatus newStatus) {
-    context.read<InvoiceBloc>().add(
-          UpdateInvoiceStatus(
-            invoiceId: invoice.id,
-            newStatus: newStatus,
-          ),
-        );
-  }
 
   void _shareInvoice(InvoiceEntity invoice) {
     // 实现分享功能

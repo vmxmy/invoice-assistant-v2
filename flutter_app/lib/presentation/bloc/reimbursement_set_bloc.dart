@@ -16,6 +16,7 @@ class ReimbursementSetBloc
   // 事件监听订阅
   StreamSubscription<InvoiceChangedEvent>? _invoiceEventSubscription;
   StreamSubscription<AppEvent>? _appEventSubscription;
+  StreamSubscription<ReimbursementSetActionRequestEvent>? _uiActionSubscription;
 
   ReimbursementSetBloc({
     required ReimbursementSetRepository repository,
@@ -42,6 +43,8 @@ class ReimbursementSetBloc
     _setupInvoiceEventSubscription();
     // 监听应用生命周期事件
     _setupAppEventSubscription();
+    // 监听UI操作请求事件
+    _setupUIActionRequestSubscription();
   }
   
   /// 设置发票事件监听
@@ -87,12 +90,70 @@ class ReimbursementSetBloc
       },
     );
   }
+  
+  /// 设置UI操作请求事件监听
+  void _setupUIActionRequestSubscription() {
+    _uiActionSubscription = _eventBus.on<ReimbursementSetActionRequestEvent>().listen(
+      (event) {
+        if (AppConfig.enableLogging) {
+          // print('🎯 [ReimbursementSetBloc] 收到UI操作请求: ${event.runtimeType}');
+        }
+        
+        // 将UI请求事件转换为内部Bloc事件
+        switch (event) {
+          case CreateReimbursementSetRequestEvent request:
+            add(CreateReimbursementSet(
+              setName: request.setName,
+              description: request.description,
+              invoiceIds: request.invoiceIds,
+            ));
+            break;
+            
+          case DeleteReimbursementSetRequestEvent request:
+            add(DeleteReimbursementSet(request.setId));
+            break;
+            
+          case AddInvoicesToSetRequestEvent request:
+            add(AddInvoicesToReimbursementSet(
+              setId: request.setId,
+              invoiceIds: request.invoiceIds,
+            ));
+            break;
+            
+          case RemoveInvoicesFromSetRequestEvent request:
+            add(RemoveInvoicesFromReimbursementSet(request.invoiceIds));
+            break;
+            
+          case UpdateReimbursementSetRequestEvent request:
+            add(UpdateReimbursementSet(
+              setId: request.setId,
+              setName: request.setName,
+              description: request.description,
+            ));
+            break;
+            
+          case UpdateReimbursementSetStatusRequestEvent request:
+            add(UpdateReimbursementSetStatus(
+              setId: request.setId,
+              status: request.newStatus,
+            ));
+            break;
+        }
+      },
+      onError: (error) {
+        if (AppConfig.enableLogging) {
+          // print('❌ [ReimbursementSetBloc] UI操作请求处理错误: $error');
+        }
+      },
+    );
+  }
 
   /// 销毁时清理资源
   @override
   Future<void> close() {
     _invoiceEventSubscription?.cancel();
     _appEventSubscription?.cancel();
+    _uiActionSubscription?.cancel();
     return super.close();
   }
 
@@ -168,7 +229,7 @@ class ReimbursementSetBloc
       // 发送报销集创建事件
       _eventBus.emit(ReimbursementSetCreatedEvent(
         setId: createdSet.id,
-        affectedInvoiceIds: event.invoiceIds ?? [],
+        affectedInvoiceIds: event.invoiceIds,
       ));
     } catch (e) {
       if (AppConfig.enableLogging) {
@@ -222,16 +283,26 @@ class ReimbursementSetBloc
     }
   }
 
-  /// 更新报销集状态
+  /// 更新报销集状态 - 遵循状态一致性约束
   Future<void> _onUpdateReimbursementSetStatus(
     UpdateReimbursementSetStatus event,
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
       if (AppConfig.enableLogging) {
-        // print('📊 [ReimbursementSetBloc] 开始更新报销集状态: ${event.setId} -> ${event.status.value}');
+        print('📋 [ReimbursementSetBloc] 开始更新报销集状态: ${event.setId} -> ${event.status.value}');
       }
 
+      // 1. 获取报销集的当前状态和包含的发票列表
+      final currentSet = await _repository.getReimbursementSetById(event.setId);
+      final invoicesInSet = await _repository.getInvoicesInSet(event.setId);
+      final affectedInvoiceIds = invoicesInSet.map((invoice) => invoice.id).toList();
+
+      if (AppConfig.enableLogging) {
+        print('📋 [ReimbursementSetBloc] 报销集包含 ${affectedInvoiceIds.length} 张发票，将同步更新状态');
+      }
+
+      // 2. 更新报销集状态
       final updatedSet = await _repository.updateReimbursementSetStatus(
         event.setId,
         event.status,
@@ -239,7 +310,7 @@ class ReimbursementSetBloc
       );
 
       if (AppConfig.enableLogging) {
-        // print('📊 [ReimbursementSetBloc] 成功更新报销集状态: ${updatedSet.statusDisplayName}');
+        print('📋 [ReimbursementSetBloc] 成功更新报销集状态: ${updatedSet.statusDisplayName}');
       }
 
       emit(ReimbursementSetStatusUpdateSuccess(
@@ -247,18 +318,20 @@ class ReimbursementSetBloc
         message: '报销集状态已更新为 "${updatedSet.statusDisplayName}"',
       ));
 
-      // 发送报销集状态变更事件
+      // 3. 发送状态变更事件（包含受影响的发票ID） - 关键的状态一致性实现
       _eventBus.emit(ReimbursementSetStatusChangedEvent(
         setId: event.setId,
         newStatus: event.status.value,
-        affectedInvoiceIds: [], // TODO: 可以从数据库获取相关发票ID
+        oldStatus: currentSet.status.value,
+        affectedInvoiceIds: affectedInvoiceIds,
+        timestamp: DateTime.now(),
       ));
 
       // 状态更新成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
     } catch (e) {
       if (AppConfig.enableLogging) {
-        // print('❌ [ReimbursementSetBloc] 更新报销集状态失败: $e');
+        print('❌ [ReimbursementSetBloc] 更新报销集状态失败: $e');
       }
 
       emit(ReimbursementSetError(
@@ -368,7 +441,7 @@ class ReimbursementSetBloc
       }
 
       emit(ReimbursementSetOperationSuccess(
-        message: '成功移除 ${event.invoiceIds.length} 张发票',
+        message: '已移出发票',
         operationType: ReimbursementSetOperationType.removeInvoices,
       ));
 

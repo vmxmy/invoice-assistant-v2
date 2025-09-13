@@ -340,21 +340,10 @@ class AppFeedback {
     BuildContext context, {
     String message = '处理中...',
   }) {
-    showDialog(
+    UnifiedBottomSheet.showLoadingSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: AlertDialog(
-          content: Row(
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(width: 20),
-              Expanded(child: Text(message)),
-            ],
-          ),
-        ),
-      ),
+      message: message,
+      isDismissible: false,
     );
   }
 

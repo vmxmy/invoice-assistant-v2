@@ -28,6 +28,7 @@ import '../widgets/invoice_card_widget.dart';
 // import '../widgets/invoice_stats_widget.dart'; // 未使用
 import '../widgets/invoice_search_filter_bar.dart';
 import '../widgets/app_feedback.dart';
+import '../utils/invoice_delete_utils.dart';
 import '../widgets/skeleton_loader.dart';
 import '../widgets/enhanced_error_handler.dart';
 import '../widgets/create_reimbursement_set_dialog.dart';
@@ -201,7 +202,7 @@ class _AllInvoicesTab extends StatefulWidget {
 class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   late ScrollController _scrollController;
   bool _isSelectionMode = false;
-  Set<String> _selectedInvoices = <String>{};
+  final Set<String> _selectedInvoices = <String>{};
   String _searchQuery = '';
   FilterOptions _currentFilterOptions = const FilterOptions();
 
@@ -273,27 +274,21 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       }
     });
 
-    // 显示选择成功的提示
+    // 显示简洁的选择成功提示
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(
-              CupertinoIcons.checkmark_circle_fill,
-              color: Theme.of(context).colorScheme.onSecondary,
-              size: 20,
-            ),
+            const Icon(CupertinoIcons.checkmark_circle_fill, color: Colors.white, size: 20),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text('已选择$monthKey的${monthInvoices.length}张发票'),
-            ),
+            Expanded(child: Text('已选择$monthKey的${monthInvoices.length}张发票')),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -301,30 +296,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   /// 批量删除选中的发票
   void _deleteSelectedInvoices() {
-    showDialog(
+    InvoiceDeleteUtils.showBatchDeleteConfirmation(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('批量删除'),
-        content: Text('确定要删除选中的 ${_selectedInvoices.length} 张发票吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              for (final invoiceId in _selectedInvoices) {
-                context.read<InvoiceBloc>().add(DeleteInvoice(invoiceId));
-              }
-              _exitSelectionMode();
-            },
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+      invoiceIds: _selectedInvoices.toList(),
+      onDeleted: _exitSelectionMode,
     );
   }
 
@@ -1063,8 +1038,8 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
                           invoice: invoice,
                           onTap: () => _viewInvoiceDetail(invoice),
                           onDelete: () => _showDeleteConfirmation(invoice),
-                          onStatusChanged: (newStatus) =>
-                              _handleStatusChange(invoice, newStatus),
+                          // 移除状态修改回调 - 发票状态必须通过报销集来修改
+                          // onStatusChanged: (newStatus) => _handleStatusChange(invoice, newStatus),
                           showConsumptionDateOnly:
                               !kIsWeb && Platform.isIOS,
                           isSelectionMode: _isSelectionMode,
@@ -1183,38 +1158,12 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   /// 显示删除确认对话框
   void _showDeleteConfirmation(InvoiceEntity invoice) {
-    showDialog(
+    InvoiceDeleteUtils.showDeleteConfirmation(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除发票'),
-        content: Text(
-            '确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<InvoiceBloc>().add(DeleteInvoice(invoice.id));
-            },
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+      invoice: invoice,
     );
   }
 
-  /// 处理发票状态切换
-  void _handleStatusChange(InvoiceEntity invoice, InvoiceStatus newStatus) {
-    context.read<InvoiceBloc>().add(UpdateInvoiceStatus(
-          invoiceId: invoice.id,
-          newStatus: newStatus,
-        ));
-  }
 
   /// iOS平台：直接分享压缩包，不保存到本地
   Future<void> _shareZipFileDirectly(Uint8List zipData, int fileCount) async {
@@ -1400,9 +1349,19 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
           return OptimizedReimbursementSetCard(
             reimbursementSet: reimbursementSet,
             onTap: () => _showReimbursementSetDetail(reimbursementSet),
-            onDelete: () => _showDeleteConfirmation(reimbursementSet),
-            onStatusChange: (newStatus) =>
-                _handleStatusChange(reimbursementSet, newStatus),
+            onDelete: () {
+              if (mounted) {
+                context
+                    .read<ReimbursementSetBloc>()
+                    .add(DeleteReimbursementSet(reimbursementSet.id));
+              }
+            },
+            onStatusChange: (newStatus) {
+              context.read<ReimbursementSetBloc>().add(UpdateReimbursementSetStatus(
+                    setId: reimbursementSet.id,
+                    status: newStatus,
+                  ));
+            },
           );
         },
       ),
@@ -1414,43 +1373,7 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
     context.push('/reimbursement-set/${reimbursementSet.id}');
   }
 
-  /// 显示删除报销集确认对话框
-  void _showDeleteConfirmation(ReimbursementSetEntity reimbursementSet) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除报销集'),
-        content: Text(
-            '确定要删除报销集 "${reimbursementSet.setName}" 吗？\n\n包含的发票将重新变为未分配状态。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context
-                  .read<ReimbursementSetBloc>()
-                  .add(DeleteReimbursementSet(reimbursementSet.id));
-            },
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
 
-  /// 处理报销集状态变更
-  void _handleStatusChange(ReimbursementSetEntity reimbursementSet,
-      ReimbursementSetStatus newStatus) {
-    context.read<ReimbursementSetBloc>().add(UpdateReimbursementSetStatus(
-          setId: reimbursementSet.id,
-          status: newStatus,
-        ));
-  }
 }
 
 /// 月份标题的SliverPersistentHeader委托
@@ -1603,46 +1526,17 @@ class _FavoritesTab extends StatelessWidget {
         return InvoiceCardWidget(
           invoice: invoice,
           onTap: () => context.push('/invoice-detail/${invoice.id}'),
-          onDelete: () => _showDeleteConfirmation(context, invoice),
-          onStatusChanged: (newStatus) =>
-              _handleStatusChange(context, invoice, newStatus),
+          onDelete: () => InvoiceDeleteUtils.showDeleteConfirmation(
+            context: context,
+            invoice: invoice,
+          ),
+          // 移除状态修改回调 - 发票状态必须通过报销集来修改
+          // onStatusChanged: (newStatus) => _handleStatusChange(context, invoice, newStatus),
           showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
         );
       },
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, InvoiceEntity invoice) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除发票'),
-        content: Text(
-            '确定要删除 ${invoice.sellerName ?? invoice.invoiceNumber} 吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<InvoiceBloc>().add(DeleteInvoice(invoice.id));
-            },
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _handleStatusChange(
-      BuildContext context, InvoiceEntity invoice, InvoiceStatus newStatus) {
-    context.read<InvoiceBloc>().add(UpdateInvoiceStatus(
-          invoiceId: invoice.id,
-          newStatus: newStatus,
-        ));
-  }
 }

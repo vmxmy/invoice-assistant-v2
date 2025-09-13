@@ -20,8 +20,8 @@ class InvoiceCardHeader extends StatelessWidget {
   /// 副标题文本（通常是购买方名称或日期）
   final String? subtitle;
   
-  /// 状态变更回调
-  final ValueChanged<InvoiceStatus>? onStatusChanged;
+  /// 状态变更回调 - 已移除，发票状态必须通过报销集来修改
+  // final ValueChanged<InvoiceStatus>? onStatusChanged;
   
   /// 是否只显示消费日期
   final bool showConsumptionDateOnly;
@@ -43,7 +43,7 @@ class InvoiceCardHeader extends StatelessWidget {
     required this.invoice,
     required this.title,
     this.subtitle,
-    this.onStatusChanged,
+    // this.onStatusChanged, // 已移除
     this.showConsumptionDateOnly = false,
     this.isSelectionMode = false,
     this.isSelected = false,
@@ -146,10 +146,11 @@ class InvoiceCardHeader extends StatelessWidget {
       return trailing!;
     }
     
-    // 默认使用状态徽章
-    return InteractiveInvoiceStatusBadge(
+    // 使用只读状态徽章 - 发票状态不可独立修改
+    return InvoiceStatusBadge(
       invoice: invoice,
-      onStatusChanged: onStatusChanged,
+      // 移除状态修改回调，改为只读显示
+      // onStatusChanged: onStatusChanged,
       size: BadgeSize.medium,
       showConsumptionDateOnly: showConsumptionDateOnly,
     );

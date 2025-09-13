@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../bloc/invoice_state.dart';
+import 'unified_bottom_sheet.dart';
 
 /// 上传进度显示组件
 class UploadProgressWidget extends StatelessWidget {
@@ -380,35 +381,18 @@ class UploadProgressWidget extends StatelessWidget {
 
   /// 显示取消确认对话框
   void _showCancelConfirmDialog(BuildContext context) {
-    showDialog(
+    UnifiedBottomSheet.showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_outlined,
-                color: Theme.of(context).colorScheme.tertiary),
-            const SizedBox(width: 8),
-            const Text('取消上传'),
-          ],
-        ),
-        content: const Text('确定要取消当前的上传任务吗？\n\n已上传的文件将会保留，未完成的文件将停止处理。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('继续上传'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              onCancel?.call();
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('确认取消'),
-          ),
-        ],
-      ),
-    );
+      title: '取消上传',
+      content: '确定要取消当前的上传任务吗？\n\n已上传的文件将会保留，未完成的文件将停止处理。',
+      confirmText: '确认取消',
+      cancelText: '继续上传',
+      icon: Icons.warning_amber_outlined,
+      confirmColor: Theme.of(context).colorScheme.error,
+    ).then((confirmed) {
+      if (confirmed == true) {
+        onCancel?.call();
+      }
+    });
   }
 }

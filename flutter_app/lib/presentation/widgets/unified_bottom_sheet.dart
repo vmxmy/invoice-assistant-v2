@@ -91,6 +91,29 @@ class UnifiedBottomSheet {
       ),
     );
   }
+
+  /// 显示结果反馈Sheet
+  static Future<void> showResultSheet({
+    required BuildContext context,
+    required bool isSuccess,
+    required String title,
+    required String message,
+    IconData? icon,
+    Duration autoCloseDuration = const Duration(seconds: 2),
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ResultBottomSheet(
+        isSuccess: isSuccess,
+        title: title,
+        message: message,
+        icon: icon,
+        autoCloseDuration: autoCloseDuration,
+      ),
+    );
+  }
 }
 
 /// 确认对话框底部Sheet
@@ -536,4 +559,110 @@ class BottomSheetAction<T> {
     this.color,
     this.onPressed,
   });
+}
+
+/// 结果反馈底部Sheet
+class _ResultBottomSheet extends StatefulWidget {
+  final bool isSuccess;
+  final String title;
+  final String message;
+  final IconData? icon;
+  final Duration autoCloseDuration;
+
+  const _ResultBottomSheet({
+    required this.isSuccess,
+    required this.title,
+    required this.message,
+    this.icon,
+    required this.autoCloseDuration,
+  });
+
+  @override
+  State<_ResultBottomSheet> createState() => _ResultBottomSheetState();
+}
+
+class _ResultBottomSheetState extends State<_ResultBottomSheet> {
+  @override
+  void initState() {
+    super.initState();
+    // 自动关闭
+    Future.delayed(widget.autoCloseDuration, () {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor = widget.isSuccess ? colorScheme.secondary : colorScheme.error;
+    final iconColor = widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
+    final textColor = widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
+    
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 顶部指示条
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: textColor.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              // 图标
+              if (widget.icon != null)
+                Container(
+                  width: 64,
+                  height: 64,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: textColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    size: 32,
+                    color: iconColor,
+                  ),
+                ),
+              
+              // 标题
+              Text(
+                widget.title,
+                style: AppTypography.headlineSmall(context).copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // 消息
+              Text(
+                widget.message,
+                style: AppTypography.bodyMedium(context).copyWith(
+                  color: textColor.withValues(alpha: 0.9),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
