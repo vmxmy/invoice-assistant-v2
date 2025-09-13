@@ -361,3 +361,29 @@ jobs:
 - **性能提升**: 构建速度提升约15%
 - **包体积**: 减少约8MB依赖大小
 - don't run flutter build apk
+- 不要使用flutter analyze进行代码检查,使用专业工具dead_code_analyzer
+- 全局状态总线模块，位于：/Users/xumingyang/app/invoice-assistant-v2/flutter_app/lib/co
+  re/events/app_event_bus.dart
+
+  全局状态总线模块概览：
+
+  1. 核心组件：
+    - AppEventBus - 单例模式的事件总线
+    - AppEvent - 事件基类
+    - 各种具体事件类型
+  2. 主要事件类型：
+    - 报销集事件：ReimbursementSetCreatedEvent, ReimbursementSetDeletedEvent,
+  InvoicesAddedToSetEvent, InvoicesRemovedFromSetEvent
+    - 发票事件：InvoiceStatusChangedEvent, InvoiceDeletedEvent, InvoiceCreatedEvent
+    - 状态同步事件：ReimbursementSetStatusChangedEvent, InvoiceStatusSyncedEvent
+    - 应用生命周期事件：AppResumedEvent, TabChangedEvent, DataRefreshRequestedEvent
+  3. 使用位置：
+    - ReimbursementSetBloc - 发送报销集相关事件
+    - InvoiceBloc - 监听事件并刷新数据
+    - 依赖注入容器中注册
+    - 应用生命周期管理器中使用
+  4. 功能特点：
+    - 解耦不同Bloc之间的通信
+    - 支持一对多和多对多通信
+    - 类型安全的事件过滤
+    - 完整的文档和最佳实践指南
