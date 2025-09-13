@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import '../../data/datasources/invoice_remote_datasource.dart';
 import '../../data/repositories/invoice_repository_impl.dart';
 import '../../data/repositories/reimbursement_set_repository_impl.dart';
+import '../../data/services/permission_service.dart';
+import '../../data/services/permission_cache_service.dart';
 
 // 领域层
 import '../../domain/repositories/invoice_repository.dart';
@@ -18,6 +20,7 @@ import '../../domain/usecases/upload_invoice_usecase.dart';
 // 表现层
 import '../../presentation/bloc/invoice_bloc.dart';
 import '../../presentation/bloc/reimbursement_set_bloc.dart';
+import '../../presentation/bloc/permission_bloc.dart';
 
 // 核心服务
 import '../events/app_event_bus.dart';
@@ -40,9 +43,15 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(
+  sl.registerLazySingleton(
     () => ReimbursementSetBloc(
       repository: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(
+    () => PermissionBloc(
+      permissionService: sl(),
     ),
   );
 
@@ -68,6 +77,15 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<InvoiceRemoteDataSource>(
     () => InvoiceRemoteDataSourceImpl(),
+  );
+
+  // Services
+  sl.registerLazySingleton<PermissionCacheService>(
+    () => PermissionCacheService(),
+  );
+  
+  sl.registerLazySingleton<PermissionService>(
+    () => PermissionService(),
   );
 
   //! 外部依赖 (External Dependencies)

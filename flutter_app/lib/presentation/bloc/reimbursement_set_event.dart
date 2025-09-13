@@ -141,3 +141,8 @@ class LoadReimbursementSetStats extends ReimbursementSetEvent {
 class RefreshReimbursementSets extends ReimbursementSetEvent {
   const RefreshReimbursementSets();
 }
+
+/// 清除报销集数据事件（用于用户登出/切换）
+class ClearReimbursementSets extends ReimbursementSetEvent {
+  const ClearReimbursementSets();
+}

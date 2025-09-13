@@ -96,20 +96,21 @@ class UploadProgressWidget extends StatelessWidget {
                   ),
                   if (onCancel != null) ...[
                     const SizedBox(height: 8),
-                    SizedBox(
+                    Container(
                       width: 32,
                       height: 32,
-                      child: IconButton(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
                         onPressed: () => _showCancelConfirmDialog(context),
-                        icon: const Icon(CupertinoIcons.xmark, size: 18),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .error
-                              .withValues(alpha: 0.1),
-                          foregroundColor: Theme.of(context).colorScheme.error,
+                        child: Icon(
+                          CupertinoIcons.xmark,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 18,
                         ),
-                        tooltip: '取消上传',
                       ),
                     ),
                   ],

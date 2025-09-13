@@ -98,7 +98,7 @@ class ReimbursementStatusButton extends StatelessWidget {
   (String, Color, IconData) _getStatusInfo(ColorScheme colorScheme, ReimbursementSetStatus status) {
     switch (status) {
       case ReimbursementSetStatus.unsubmitted:
-        return ('草稿', colorScheme.secondary, CupertinoIcons.pencil);
+        return ('待报销', colorScheme.secondary, CupertinoIcons.pencil);
       case ReimbursementSetStatus.submitted:
         return ('已提交', colorScheme.tertiary, CupertinoIcons.paperplane);
       case ReimbursementSetStatus.reimbursed:

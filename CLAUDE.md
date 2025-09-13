@@ -387,3 +387,4 @@ jobs:
     - 支持一对多和多对多通信
     - 类型安全的事件过滤
     - 完整的文档和最佳实践指南
+- flutter 架构中的重要体系:Cupertino组件体系,FlexColorScheme主题管理,状态总线架构

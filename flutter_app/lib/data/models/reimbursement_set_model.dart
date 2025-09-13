@@ -45,13 +45,13 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
   factory ReimbursementSetModel.fromJson(Map<String, dynamic> json) =>
       _$ReimbursementSetModelFromJson(json);
 
-  /// 解析区域统计JSON为Map<String, int>
+  /// 解析区域统计JSON为Map&lt;String, int&gt;
   Map<String, int>? get regionStatistics {
     if (regionStatisticsJson == null) return null;
     return regionStatisticsJson!.map((key, value) => MapEntry(key, (value as num).toInt()));
   }
 
-  /// 解析省份统计JSON为Map<String, int>
+  /// 解析省份统计JSON为Map&lt;String, int&gt;
   Map<String, int>? get provinceStatistics {
     if (provinceStatisticsJson == null) return null;
     return provinceStatisticsJson!.map((key, value) => MapEntry(key, (value as num).toInt()));

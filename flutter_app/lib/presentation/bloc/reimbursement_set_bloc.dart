@@ -38,6 +38,7 @@ class ReimbursementSetBloc
     on<LoadUnassignedInvoices>(_onLoadUnassignedInvoices);
     on<LoadReimbursementSetStats>(_onLoadReimbursementSetStats);
     on<RefreshReimbursementSets>(_onRefreshReimbursementSets);
+    on<ClearReimbursementSets>(_onClearReimbursementSets);
     
     // 监听发票变更事件
     _setupInvoiceEventSubscription();
@@ -86,6 +87,12 @@ class ReimbursementSetBloc
           }
           // 这里可以根据需要决定是否刷新
           // add(const LoadReimbursementSets(refresh: true));
+        } else if (event is ReimbursementSetDetailPageReturnEvent) {
+          // 从报销集详情页返回时刷新列表
+          if (AppConfig.enableLogging) {
+            // print('📊 [ReimbursementSetBloc] 从详情页返回，刷新报销集列表');
+          }
+          add(const LoadReimbursementSets(refresh: true));
         }
       },
     );
@@ -604,6 +611,15 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     add(const LoadReimbursementSets(refresh: true));
+  }
+
+  /// 清除报销集数据（用于用户登出/切换）
+  Future<void> _onClearReimbursementSets(
+    ClearReimbursementSets event,
+    Emitter<ReimbursementSetState> emit,
+  ) async {
+    // 重置状态
+    emit(const ReimbursementSetInitial());
   }
 
   /// 获取用户友好的错误信息

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 /// Cupertino 风格的通知工具类
 /// 替代 Material 的 ScaffoldMessenger，提供一致的 iOS 风格提示体验

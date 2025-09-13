@@ -9,6 +9,7 @@ import '../../domain/value_objects/invoice_status.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
+import '../../domain/exceptions/invoice_exceptions.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/supabase_config.dart';
@@ -874,7 +875,26 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
             tag: 'Debug');
       }
 
-      if (response.statusCode != 200) {
+      // 处理不同的HTTP状态码
+      if (response.statusCode == 409) {
+        // 跨用户发票重复检测
+        final responseData = jsonDecode(response.body);
+        if (AppConfig.enableLogging) {
+          AppLogger.debug('🚨 [RemoteDataSource] 检测到跨用户发票重复', tag: 'Debug');
+          AppLogger.debug('🚨 [RemoteDataSource] 重复详情: ${responseData['duplicateDetails']}', tag: 'Debug');
+        }
+        
+        throw CrossUserDuplicateException(
+          message: responseData['message'] ?? '检测到跨用户发票重复',
+          invoiceNumber: responseData['invoice_number'] ?? '',
+          originalUserEmail: responseData['duplicateDetails']?['original_user_email'] ?? '',
+          originalUploadTime: responseData['duplicateDetails']?['original_upload_time'] ?? '',
+          originalInvoiceId: responseData['duplicateDetails']?['original_invoice_id'] ?? '',
+          similarityScore: responseData['duplicateDetails']?['similarity_score'] ?? 0.0,
+          warning: responseData['warning'] ?? '',
+          recommendations: List<String>.from(responseData['recommendations'] ?? []),
+        );
+      } else if (response.statusCode != 200) {
         final errorBody = response.body;
         if (AppConfig.enableLogging) {
           AppLogger.debug('❌ [RemoteDataSource] Edge Function调用失败: $errorBody',

@@ -1,14 +1,16 @@
 import '../../core/utils/logger.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/config/app_config.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
+// 移除旧的主题系统，使用 FlexColorScheme 统一主题管理
+// import '../../core/theme/app_colors.dart';
+// import '../../core/theme/app_typography.dart';
 import '../../core/utils/icon_mapping.dart';
 import '../../core/widgets/atoms/app_button_cupertino.dart';
 import '../../core/widgets/atoms/app_button.dart';
@@ -86,7 +88,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
     }
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background(context),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       navigationBar: _buildNavigationBar(context),
       child: SafeArea(
         child: BlocConsumer<InvoiceBloc, InvoiceState>(
@@ -99,11 +101,12 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
 
   /// 构建导航栏
   CupertinoNavigationBar _buildNavigationBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return CupertinoNavigationBar(
-      backgroundColor: AppColors.elevatedBackground(context),
+      backgroundColor: colorScheme.surface,
       border: Border(
         bottom: BorderSide(
-          color: AppColors.divider(context),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 0.5,
         ),
       ),
@@ -118,14 +121,16 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
           children: [
             Icon(
               IconMapping.getCupertinoIcon('arrow_back'),
-              color: AppColors.primary(context),
+              color: colorScheme.primary,
               size: 18,
             ),
             const SizedBox(width: 4),
             Text(
               '返回',
-              style: AppTypography.bodyMedium(context).copyWith(
-                color: AppColors.primary(context),
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontSize: 17,
+                letterSpacing: -0.41,
               ),
             ),
           ],
@@ -133,9 +138,11 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
       ),
       middle: Text(
         '上传发票',
-        style: AppTypography.titleMedium(context).copyWith(
-          color: AppColors.onSurface(context),
+        style: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 17,
           fontWeight: FontWeight.w600,
+          letterSpacing: -0.41,
         ),
       ),
       trailing: CupertinoButton(
@@ -143,7 +150,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
         onPressed: () => _showHelpActionSheet(context),
         child: Icon(
           IconMapping.getCupertinoIcon('info'),
-          color: AppColors.primary(context),
+          color: colorScheme.primary,
           size: 22,
         ),
       ),
@@ -210,7 +217,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
   Widget _buildUploadProgress(BuildContext context, InvoiceUploading state) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(context),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: UploadProgressWidget(
@@ -229,7 +236,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
   Widget _buildUploadResult(BuildContext context, InvoiceUploadCompleted state) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground(context),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: UploadResultWidget(
@@ -237,6 +244,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
         successCount: state.successCount,
         failureCount: state.failureCount,
         duplicateCount: state.duplicateCount,
+        hasCrossUserDuplicate: state.hasCrossUserDuplicate,
         onRetry: (filePath) {
           HapticFeedback.lightImpact();
           context.read<InvoiceBloc>().add(RetryUpload(filePath: filePath));
@@ -316,12 +324,12 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
         return Container(
           decoration: BoxDecoration(
             color: _isDragging
-                ? AppColors.primaryWithOpacity(context, 0.1)
-                : AppColors.cardBackground(context),
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.surfaceContainerLow,
             border: Border.all(
               color: _isDragging
-                  ? AppColors.primary(context)
-                  : AppColors.divider(context),
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outlineVariant,
               width: _isDragging ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(borderRadius),
@@ -361,13 +369,16 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
     final subtitleSpacing = isCompact ? 4.0 : 6.0;
     
     // 响应式文本样式
-    final titleStyle = isCompact 
-        ? AppTypography.titleSmall(context)
-        : AppTypography.titleMedium(context);
+    final titleStyle = TextStyle(
+      fontSize: isCompact ? 16 : 18,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.41,
+    );
     
-    final subtitleStyle = isCompact
-        ? AppTypography.bodySmall(context)
-        : AppTypography.bodyMedium(context);
+    final subtitleStyle = TextStyle(
+      fontSize: isCompact ? 14 : 15,
+      letterSpacing: -0.23,
+    );
     
     return Column(
       children: [
@@ -376,8 +387,8 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
           height: iconContainerSize,
           decoration: BoxDecoration(
             color: _isDragging
-                ? AppColors.primary(context).withValues(alpha: 0.1)
-                : AppColors.disabled(context),
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -386,8 +397,8 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                 : IconMapping.getCupertinoIcon('folder'),
             size: iconSize,
             color: _isDragging
-                ? AppColors.primary(context)
-                : AppColors.onSurfaceVariant(context),
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         
@@ -399,9 +410,8 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
               : '已选择 ${_selectedFiles.length} 个文件',
           style: titleStyle.copyWith(
             color: _isDragging
-                ? AppColors.primary(context)
-                : AppColors.onSurface(context),
-            fontWeight: FontWeight.w600,
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurface,
           ),
           textAlign: TextAlign.center,
           maxLines: isCompact ? 2 : 1,
@@ -415,7 +425,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
               ? (isCompact ? '点击选择文件' : '点击选择或拖拽文件到此处')
               : '点击重新选择文件',
           style: subtitleStyle.copyWith(
-            color: AppColors.onSurfaceVariant(context),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
           maxLines: isCompact ? 2 : 1,
@@ -460,10 +470,10 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
               return Container(
                 padding: EdgeInsets.all(itemPadding),
                 decoration: BoxDecoration(
-                  color: AppColors.cardBackground(context),
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(borderRadius),
                   border: Border.all(
-                    color: AppColors.divider(context),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     width: 0.5,
                   ),
                 ),
@@ -471,7 +481,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                   children: [
                     Icon(
                       IconMapping.getCupertinoIcon('picture_as_pdf'),
-                      color: AppColors.error(context),
+                      color: Theme.of(context).colorScheme.error,
                       size: iconSize,
                     ),
                     
@@ -483,11 +493,11 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                         children: [
                           Text(
                             fileName,
-                            style: (isCompact 
-                                ? AppTypography.bodySmall(context) 
-                                : AppTypography.bodyMedium(context)).copyWith(
-                              color: AppColors.onSurface(context),
+                            style: TextStyle(
+                              fontSize: isCompact ? 14 : 15,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.w500,
+                              letterSpacing: -0.23,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -497,10 +507,10 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                           
                           Text(
                             _formatFileSize(fileSize),
-                            style: (isCompact 
-                                ? AppTypography.labelSmall(context) 
-                                : AppTypography.bodySmall(context)).copyWith(
-                              color: AppColors.onSurfaceVariant(context),
+                            style: TextStyle(
+                              fontSize: isCompact ? 12 : 13,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              letterSpacing: -0.08,
                             ),
                           ),
                         ],
@@ -517,7 +527,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                       },
                       child: Icon(
                         IconMapping.getCupertinoIcon('clear'),
-                        color: AppColors.disabled(context),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: iconSize,
                       ),
                     ),
@@ -540,16 +550,18 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
     return Container(
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: AppColors.surfaceWithOpacity(context, 0.2),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Column(
         children: [
           Text(
             '支持的文件格式',
-            style: (isCompact ? AppTypography.labelSmall(context) : AppTypography.labelMedium(context)).copyWith(
-              color: AppColors.onSurface(context),
+            style: TextStyle(
+              fontSize: isCompact ? 12 : 13,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w600,
+              letterSpacing: -0.08,
             ),
           ),
           
@@ -559,8 +571,10 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
             isCompact 
                 ? 'PDF • 最多5个 • <10MB'
                 : 'PDF格式 • 最多5个文件 • 单文件不超过10MB',
-            style: AppTypography.bodySmall(context).copyWith(
-              color: AppColors.onSurfaceVariant(context),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              letterSpacing: -0.23,
             ),
             textAlign: TextAlign.center,
             maxLines: isCompact ? 2 : 1,
@@ -809,14 +823,19 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
       builder: (BuildContext context) => CupertinoActionSheet(
         title: Text(
           '上传帮助',
-          style: AppTypography.titleMedium(context).copyWith(
-            color: AppColors.onSurface(context),
+          style: TextStyle(
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.41,
           ),
         ),
         message: Text(
           '支持PDF格式发票文件，单文件不超过10MB',
-          style: AppTypography.bodyMedium(context).copyWith(
-            color: AppColors.onSurfaceVariant(context),
+          style: TextStyle(
+            fontSize: 15,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            letterSpacing: -0.23,
           ),
         ),
         actions: <CupertinoActionSheetAction>[
@@ -828,7 +847,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
             },
             child: Text(
               '查看详细说明',
-              style: TextStyle(color: AppColors.primary(context)),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
         ],
@@ -839,7 +858,7 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
           },
           child: Text(
             '取消',
-            style: TextStyle(color: AppColors.primary(context)),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
       ),
@@ -898,9 +917,11 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
       children: [
         Text(
           title,
-          style: AppTypography.labelMedium(context).copyWith(
+          style: TextStyle(
+            fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface(context),
+            color: Theme.of(context).colorScheme.onSurface,
+            letterSpacing: -0.08,
           ),
         ),
         const SizedBox(height: 8),
@@ -911,15 +932,19 @@ class _CupertinoInvoiceUploadPageState extends State<CupertinoInvoiceUploadPage>
                 children: [
                   Text(
                     '• ',
-                    style: AppTypography.bodySmall(context).copyWith(
-                      color: AppColors.onSurfaceVariant(context),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      letterSpacing: -0.23,
                     ),
                   ),
                   Expanded(
                     child: Text(
                       item,
-                      style: AppTypography.bodySmall(context).copyWith(
-                        color: AppColors.onSurfaceVariant(context),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: -0.23,
                       ),
                     ),
                   ),

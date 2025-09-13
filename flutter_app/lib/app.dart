@@ -12,8 +12,10 @@ import 'core/di/injection_container.dart' as di;
 import 'core/network/supabase_client.dart';
 import 'core/theme/theme_manager.dart';
 import 'presentation/bloc/invoice_bloc.dart';
-import 'presentation/bloc/invoice_event.dart';
+// import 'presentation/bloc/invoice_event.dart'; // 暂时未使用
 import 'presentation/bloc/reimbursement_set_bloc.dart';
+import 'presentation/bloc/permission_bloc.dart';
+import 'presentation/utils/permission_preloader.dart';
 import 'presentation/pages/main_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
@@ -31,17 +33,55 @@ class InvoiceAssistantApp extends StatefulWidget {
 
 class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
   late final ThemeManager _themeManager;
+  late final PermissionPreloader _permissionPreloader;
+  StreamSubscription<AuthState>? _authStateSubscription;
 
   @override
   void initState() {
     super.initState();
     _themeManager = ThemeManager();
+    _permissionPreloader = PermissionPreloader();
     _initializeTheme();
+    // 延迟设置认证状态监听器，确保 MultiBlocProvider 完全初始化
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupAuthStateListener();
+    });
   }
 
   /// 初始化主题管理器
   Future<void> _initializeTheme() async {
     await _themeManager.initialize();
+  }
+
+  /// 设置认证状态监听器
+  void _setupAuthStateListener() {
+    _authStateSubscription = SupabaseClientManager.authStateStream.listen((authState) {
+      // 获取所有BLoC并处理认证状态变更
+      if (mounted) {
+        try {
+          final permissionBloc = context.read<PermissionBloc>();
+          final invoiceBloc = context.read<InvoiceBloc>();
+          final reimbursementSetBloc = context.read<ReimbursementSetBloc>();
+          
+          _permissionPreloader.onAuthStateChanged(
+            permissionBloc: permissionBloc,
+            authState: authState,
+            invoiceBloc: invoiceBloc,
+            reimbursementSetBloc: reimbursementSetBloc,
+          );
+        } catch (e) {
+          if (AppConfig.enableLogging) {
+            AppLogger.error('认证状态监听器访问 BLoC 失败: $e', tag: 'App');
+          }
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -63,9 +103,9 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                   final bloc = di.sl<InvoiceBloc>();
                   AppLogger.debug('InvoiceBloc实例创建完成 [${bloc.hashCode}]',
                       tag: 'App');
-                  return bloc
-                    ..add(const LoadInvoices(refresh: true))
-                    ..add(const LoadInvoiceStats());
+                  // 不在这里立即加载数据，等到用户认证完成后再加载
+                  // 避免在 Supabase 初始化完成前请求数据
+                  return bloc;
                 },
               ),
               BlocProvider<ReimbursementSetBloc>(
@@ -75,6 +115,26 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                   AppLogger.debug(
                       'ReimbursementSetBloc实例创建完成 [${bloc.hashCode}]',
                       tag: 'App');
+                  return bloc;
+                },
+              ),
+              BlocProvider<PermissionBloc>(
+                create: (context) {
+                  AppLogger.debug('创建全局唯一PermissionBloc', tag: 'App');
+                  final bloc = di.sl<PermissionBloc>();
+                  AppLogger.debug(
+                      'PermissionBloc实例创建完成 [${bloc.hashCode}]',
+                      tag: 'App');
+                  
+                  // 如果用户已登录且邮箱已确认，使用预加载器智能加载权限
+                  final user = Supabase.instance.client.auth.currentUser;
+                  if (user != null && user.emailConfirmedAt != null) {
+                    // 使用预加载器进行智能权限预加载
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _permissionPreloader.preloadPermissions(permissionBloc: bloc);
+                    });
+                  }
+                  
                   return bloc;
                 },
               ),
@@ -215,7 +275,7 @@ final _router = GoRouter(
         if (!isAuthenticated) {
           AppLogger.debug('🔗 [Navigation] 重定向到登录页 (未认证)', tag: 'Navigation');
         } else if (!isEmailConfirmed) {
-          AppLogger.error('🚨 [Security] 重定向到登录页 (邮箱未确认): ${user?.email}', tag: 'Navigation');
+          AppLogger.error('🚨 [Security] 重定向到登录页 (邮箱未确认): ${user.email}', tag: 'Navigation');
         }
       }
       return '/login';

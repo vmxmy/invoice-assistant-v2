@@ -192,17 +192,19 @@ class InvoiceUploadCompleted extends InvoiceState {
   final int successCount;
   final int failureCount;
   final int duplicateCount;
+  final bool hasCrossUserDuplicate;
 
   const InvoiceUploadCompleted({
     required this.results,
     required this.successCount,
     required this.failureCount,
     required this.duplicateCount,
+    this.hasCrossUserDuplicate = false,
   });
 
   @override
   List<Object> get props =>
-      [results, successCount, failureCount, duplicateCount];
+      [results, successCount, failureCount, duplicateCount, hasCrossUserDuplicate];
 
   /// 是否有成功的上传
   bool get hasSuccess => successCount > 0;
@@ -281,6 +283,8 @@ class UploadResult {
   final InvoiceEntity? invoice;
   final DuplicateInvoiceInfo? duplicateInfo;
   final String? error;
+  final bool isCrossUserDuplicate;
+  final CrossUserDuplicateInfo? crossUserDuplicateInfo;
 
   const UploadResult({
     required this.filePath,
@@ -289,10 +293,46 @@ class UploadResult {
     this.invoice,
     this.duplicateInfo,
     this.error,
+    this.isCrossUserDuplicate = false,
+    this.crossUserDuplicateInfo,
   });
 
   bool get isDuplicate => duplicateInfo != null;
   bool get isError => !isSuccess && error != null;
+}
+
+/// 跨用户重复检测信息
+class CrossUserDuplicateInfo {
+  final String invoiceNumber;
+  final String originalUserEmail;
+  final String originalUploadTime;
+  final String originalInvoiceId;
+  final double similarityScore;
+  final String warning;
+  final List<String> recommendations;
+
+  const CrossUserDuplicateInfo({
+    required this.invoiceNumber,
+    required this.originalUserEmail,
+    required this.originalUploadTime,
+    required this.originalInvoiceId,
+    required this.similarityScore,
+    required this.warning,
+    required this.recommendations,
+  });
+
+  String get formattedUploadTime {
+    try {
+      final dateTime = DateTime.parse(originalUploadTime);
+      return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return originalUploadTime;
+    }
+  }
+
+  String get formattedSimilarityScore {
+    return '${(similarityScore * 100).toStringAsFixed(1)}%';
+  }
 }
 
 extension UploadStageExtension on UploadStage {

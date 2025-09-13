@@ -20,7 +20,7 @@ import '../../core/utils/invoice_file_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/injection_container.dart';
-// import '../../core/network/supabase_client.dart'; // 未使用
+import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../bloc/invoice_bloc.dart';
@@ -263,7 +263,20 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     _scrollController.addListener(_onScroll);
 
     // 检查当前状态，如果没有数据则加载
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // 但要确保在认证状态稳定后再加载
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 等待一小段时间确保 Supabase 认证状态稳定
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (!mounted) return;
+      
+      // 检查认证状态
+      final user = SupabaseClientManager.currentUser;
+      if (user == null || user.emailConfirmedAt == null) {
+        print('🔒 [AllInvoicesTabState] 用户未认证或邮箱未确认，跳过数据加载');
+        return;
+      }
+      
       final currentState = context.read<InvoiceBloc>().state;
       // print('🏗️ [AllInvoicesTabState] 检查当前状态: ${currentState.runtimeType}');
 
@@ -1264,8 +1277,20 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
   @override
   void initState() {
     super.initState();
-    // 加载报销集数据（应用生命周期现在通过事件总线处理）
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // 加载报销集数据，但要确保在认证状态稳定后再加载
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 等待一小段时间确保 Supabase 认证状态稳定
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (!mounted) return;
+      
+      // 检查认证状态
+      final user = SupabaseClientManager.currentUser;
+      if (user == null || user.emailConfirmedAt == null) {
+        print('🔒 [ReimbursementSetsTabState] 用户未认证或邮箱未确认，跳过数据加载');
+        return;
+      }
+      
       context
           .read<ReimbursementSetBloc>()
           .add(const LoadReimbursementSets(refresh: true));
@@ -1304,6 +1329,19 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
               ),
             ],
           );
+        }
+
+        // 修复：处理从详情页返回时的状态冲突
+        if (state is ReimbursementSetDetailLoaded) {
+          // 检测到详情状态，自动刷新为列表状态
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              context
+                  .read<ReimbursementSetBloc>()
+                  .add(const LoadReimbursementSets(refresh: true));
+            }
+          });
+          return const InvoiceListSkeleton(); // 显示加载状态
         }
 
         if (state is ReimbursementSetError) {

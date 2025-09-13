@@ -73,6 +73,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     on<CancelUpload>(_onCancelUpload);
     on<RetryUpload>(_onRetryUpload);
     on<ClearUploadResults>(_onClearUploadResults);
+    on<ClearInvoices>(_onClearInvoices);
     
     // 监听报销集变更事件
     _setupReimbursementEventSubscription();
@@ -95,8 +96,24 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           _handleReimbursementSetDeleted(event);
         } else if (event is ReimbursementSetCreatedEvent) {
           _handleReimbursementSetCreated(event);
+          // 刷新UI状态 - 立即显示更新
+          // ignore: invalid_use_of_visible_for_testing_member
+          emit(InvoiceLoaded(
+            invoices: List.from(_allInvoices),
+            currentPage: _currentPage,
+            totalCount: _totalCount,
+            hasMore: _hasMore,
+          ));
         } else if (event is InvoicesAddedToSetEvent) {
           _handleInvoicesAddedToSet(event);
+          // 刷新UI状态 - 立即显示更新
+          // ignore: invalid_use_of_visible_for_testing_member
+          emit(InvoiceLoaded(
+            invoices: List.from(_allInvoices),
+            currentPage: _currentPage,
+            totalCount: _totalCount,
+            hasMore: _hasMore,
+          ));
         } else {
           // 其他报销集变更事件，正常刷新
           add(const RefreshInvoices());
@@ -126,14 +143,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           }
         }
       }
-      
-      // 刷新UI状态 - 立即显示更新
-      emit(InvoiceLoaded(
-        invoices: List.from(_allInvoices),
-        currentPage: _currentPage,
-        totalCount: _totalCount,
-        hasMore: _hasMore,
-      ));
       
       if (AppConfig.enableLogging) {
         print('✅ [InvoiceBloc] 发票加入报销集后状态已同步');
@@ -169,14 +178,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           }
         }
       }
-      
-      // 刷新UI状态 - 立即显示更新
-      emit(InvoiceLoaded(
-        invoices: List.from(_allInvoices),
-        currentPage: _currentPage,
-        totalCount: _totalCount,
-        hasMore: _hasMore,
-      ));
       
       if (AppConfig.enableLogging) {
         print('✅ [InvoiceBloc] 报销集创建后发票状态已同步');
@@ -970,19 +971,49 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       }
 
       final fileName = event.filePath.split('/').last;
-      final uploadResult = UploadResult(
-        filePath: event.filePath,
-        fileName: fileName,
-        isSuccess: false,
-        error: error.toString(),
-      );
+      
+      // 特别处理跨用户重复检测异常
+      if (error is CrossUserDuplicateException) {
+        final uploadResult = UploadResult(
+          filePath: event.filePath,
+          fileName: fileName,
+          isSuccess: false,
+          isCrossUserDuplicate: true,
+          error: error.message,
+          crossUserDuplicateInfo: CrossUserDuplicateInfo(
+            invoiceNumber: error.invoiceNumber,
+            originalUserEmail: error.originalUserEmail,
+            originalUploadTime: error.originalUploadTime,
+            originalInvoiceId: error.originalInvoiceId,
+            similarityScore: error.similarityScore,
+            warning: error.warning,
+            recommendations: error.recommendations,
+          ),
+        );
 
-      emit(InvoiceUploadCompleted(
-        results: [uploadResult],
-        successCount: 0,
-        failureCount: 1,
-        duplicateCount: 0,
-      ));
+        emit(InvoiceUploadCompleted(
+          results: [uploadResult],
+          successCount: 0,
+          failureCount: 1,
+          duplicateCount: 0,
+          hasCrossUserDuplicate: true,
+        ));
+      } else {
+        // 普通错误处理
+        final uploadResult = UploadResult(
+          filePath: event.filePath,
+          fileName: fileName,
+          isSuccess: false,
+          error: error.toString(),
+        );
+
+        emit(InvoiceUploadCompleted(
+          results: [uploadResult],
+          successCount: 0,
+          failureCount: 1,
+          duplicateCount: 0,
+        ));
+      }
     }
   }
 
@@ -1217,6 +1248,25 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       // print('🧹 [InvoiceBloc] 清除上传结果');
     }
 
+    emit(InvoiceInitial());
+  }
+
+  /// 清除发票数据（用于用户登出/切换）
+  Future<void> _onClearInvoices(
+      ClearInvoices event, Emitter<InvoiceState> emit) async {
+    if (AppConfig.enableLogging) {
+      // print('🧹 [InvoiceBloc] 清除发票数据（用户切换）');
+    }
+
+    // 清除内部状态
+    _allInvoices.clear();
+    _currentPage = 1;
+    _totalCount = 0;
+    _hasMore = true;
+    _currentFilters = null;
+    _lastDataLoadTime = null;
+
+    // 重置状态
     emit(InvoiceInitial());
   }
 }

@@ -144,3 +144,8 @@ class RetryUpload extends InvoiceEvent {
 class ClearUploadResults extends InvoiceEvent {
   const ClearUploadResults();
 }
+
+/// 清除发票数据事件（用于用户登出/切换）
+class ClearInvoices extends InvoiceEvent {
+  const ClearInvoices();
+}

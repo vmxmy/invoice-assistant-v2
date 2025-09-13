@@ -17,6 +17,7 @@ import '../utils/reimbursement_set_operation_utils.dart';
 import '../widgets/detail_page_styles.dart';
 import '../widgets/reimbursement_status_button.dart';
 import '../widgets/unified_bottom_sheet.dart';
+import '../../core/events/app_event_bus.dart';
 
 /// 报销集详情页面
 class ReimbursementSetDetailPage extends StatefulWidget {
@@ -37,6 +38,7 @@ class _ReimbursementSetDetailPageState
   ReimbursementSetEntity? _reimbursementSet;
   List<InvoiceEntity> _invoices = [];
   bool _isLoading = true;
+  final AppEventBus _eventBus = AppEventBus.instance;
 
   @override
   void initState() {
@@ -48,6 +50,18 @@ class _ReimbursementSetDetailPageState
     context.read<ReimbursementSetBloc>().add(
           LoadReimbursementSetDetail(widget.reimbursementSetId),
         );
+  }
+
+  @override
+  void dispose() {
+    // 发送返回事件，通知报销集列表页面刷新
+    _eventBus.emit(ReimbursementSetDetailPageReturnEvent(
+      reimbursementSetId: widget.reimbursementSetId,
+      fromRoute: '/reimbursement-set/${widget.reimbursementSetId}',
+      toRoute: '/',
+      timestamp: DateTime.now(),
+    ));
+    super.dispose();
   }
 
   @override
@@ -69,12 +83,17 @@ class _ReimbursementSetDetailPageState
             context.pop();
             AppFeedback.success(context, state.message);
           } else if (state is ReimbursementSetStatusUpdateSuccess) {
-            // 状态更新成功，刷新数据
-            _loadReimbursementSetDetail();
+            // 状态更新成功，只有当前显示的报销集是更新的目标时才刷新详情
+            if (state.updatedSet.id == widget.reimbursementSetId) {
+              _loadReimbursementSetDetail();
+            }
             AppFeedback.success(context, '状态更新成功');
           } else if (state is ReimbursementSetOperationSuccess) {
             // 处理所有其他操作成功状态（添加发票、移出发票等）
-            _loadReimbursementSetDetail();
+            // 只有与当前详情页相关的操作才刷新详情数据
+            if (state.entityId == widget.reimbursementSetId) {
+              _loadReimbursementSetDetail();
+            }
             AppFeedback.success(context, state.message);
           } else if (state is ReimbursementSetCreateSuccess) {
             // 创建报销集成功（虽然在详情页不太可能发生）

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/component_theme_constants.dart';
 import '../bloc/invoice_bloc.dart';
 import 'invoice_management_page.dart';
@@ -311,10 +312,7 @@ class _MainPageState extends State<MainPage> {
                       try {
                         await SupabaseClientManager.signOut();
                         if (mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/login',
-                            (route) => false,
-                          );
+                          context.go('/login');
                         }
                       } catch (e) {
                         if (mounted) {

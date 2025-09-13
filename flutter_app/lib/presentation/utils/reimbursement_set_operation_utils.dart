@@ -584,7 +584,7 @@ class ReimbursementSetOperationUtils {
       case ReimbursementSetStatus.unsubmitted:
         return (
           '撤回报销集',
-          '确定要将报销集"$setName"撤回到草稿状态吗？\n\n'
+          '确定要将报销集"$setName"撤回到待报销状态吗？\n\n'
               '• 包含 $invoiceCount 张发票\n'
               '• 所有发票状态将变为未提交\n'
               '• 可以继续编辑和修改',
@@ -958,7 +958,7 @@ class ReimbursementSetOperationUtils {
   static String _getStatusDisplayText(ReimbursementSetStatus status) {
     switch (status) {
       case ReimbursementSetStatus.unsubmitted:
-        return '草稿';
+        return '待报销';
       case ReimbursementSetStatus.submitted:
         return '已提交';
       case ReimbursementSetStatus.reimbursed:

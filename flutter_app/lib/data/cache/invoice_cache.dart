@@ -1,19 +1,24 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../../core/utils/logger.dart';
 
-/// 发票缓存管理器 - 提供内存缓存功能
+/// 发票缓存管理器 - 提供用户隔离的内存缓存功能
 class InvoiceCache {
   static final InvoiceCache _instance = InvoiceCache._internal();
   factory InvoiceCache() => _instance;
   InvoiceCache._internal();
 
-  // 发票列表缓存
-  final Map<String, _CacheEntry<List<InvoiceEntity>>> _listCache = {};
+  // 当前用户ID，用于缓存隔离
+  String? _currentUserId;
 
-  // 发票详情缓存
-  final Map<String, _CacheEntry<InvoiceEntity>> _detailCache = {};
+  // 发票列表缓存 - 按用户ID分组
+  final Map<String, Map<String, _CacheEntry<List<InvoiceEntity>>>> _listCacheByUser = {};
 
-  // 统计数据缓存
-  _CacheEntry<int>? _countCache;
+  // 发票详情缓存 - 按用户ID分组  
+  final Map<String, Map<String, _CacheEntry<InvoiceEntity>>> _detailCacheByUser = {};
+
+  // 统计数据缓存 - 按用户ID分组
+  final Map<String, _CacheEntry<int>> _countCacheByUser = {};
 
   // 缓存配置
   static const Duration _defaultTtl = Duration(minutes: 5);
@@ -21,36 +26,119 @@ class InvoiceCache {
   static const int _maxListCacheSize = 10;
   static const int _maxDetailCacheSize = 50;
 
+  /// 确保当前用户上下文
+  void _ensureUserContext() {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    final newUserId = currentUser?.id;
+    
+    if (_currentUserId != newUserId) {
+      if (_currentUserId != null) {
+        AppLogger.info(
+          '🔄 [InvoiceCache] 用户切换检测: $_currentUserId -> $newUserId',
+          tag: 'Cache',
+        );
+      }
+      
+      _currentUserId = newUserId;
+      
+      // 为新用户初始化缓存空间
+      if (newUserId != null) {
+        _listCacheByUser.putIfAbsent(newUserId, () => {});
+        _detailCacheByUser.putIfAbsent(newUserId, () => {});
+      }
+    }
+  }
+
+  /// 获取当前用户的列表缓存
+  // ignore: unused_element
+  Map<String, _CacheEntry<List<InvoiceEntity>>> get _listCache {
+    _ensureUserContext();
+    if (_currentUserId == null) return {};
+    return _listCacheByUser[_currentUserId!] ?? {};
+  }
+
+  /// 获取当前用户的详情缓存
+  // ignore: unused_element
+  Map<String, _CacheEntry<InvoiceEntity>> get _detailCache {
+    _ensureUserContext();
+    if (_currentUserId == null) return {};
+    return _detailCacheByUser[_currentUserId!] ?? {};
+  }
+
+  /// 获取当前用户的统计缓存
+  _CacheEntry<int>? get _countCache {
+    _ensureUserContext();
+    if (_currentUserId == null) return null;
+    return _countCacheByUser[_currentUserId!];
+  }
+
+  /// 设置当前用户的统计缓存
+  set _countCache(_CacheEntry<int>? value) {
+    _ensureUserContext();
+    if (_currentUserId == null) return;
+    
+    if (value == null) {
+      _countCacheByUser.remove(_currentUserId!);
+    } else {
+      _countCacheByUser[_currentUserId!] = value;
+    }
+  }
+
   /// 缓存发票列表
   void cacheInvoiceList(
     String cacheKey,
     List<InvoiceEntity> invoices, {
     Duration? ttl,
   }) {
-    _cleanExpiredEntries(_listCache);
-
-    // 限制缓存大小
-    if (_listCache.length >= _maxListCacheSize) {
-      final oldestKey = _listCache.keys.first;
-      _listCache.remove(oldestKey);
+    _ensureUserContext();
+    if (_currentUserId == null) {
+      AppLogger.warning('🚨 [InvoiceCache] 用户未登录，跳过缓存', tag: 'Cache');
+      return;
     }
 
-    _listCache[cacheKey] = _CacheEntry(
+    final userListCache = _listCacheByUser[_currentUserId!]!;
+    _cleanExpiredEntries(userListCache);
+
+    // 限制缓存大小
+    if (userListCache.length >= _maxListCacheSize) {
+      final oldestKey = userListCache.keys.first;
+      userListCache.remove(oldestKey);
+    }
+
+    userListCache[cacheKey] = _CacheEntry(
       data: invoices,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
+    );
+    
+    AppLogger.debug(
+      '💾 [InvoiceCache] 缓存发票列表: $_currentUserId [$cacheKey] ${invoices.length}条',
+      tag: 'Cache',
     );
   }
 
   /// 获取缓存的发票列表
   List<InvoiceEntity>? getCachedInvoiceList(String cacheKey) {
-    final entry = _listCache[cacheKey];
+    _ensureUserContext();
+    if (_currentUserId == null) return null;
+
+    final userListCache = _listCacheByUser[_currentUserId!] ?? {};
+    final entry = userListCache[cacheKey];
+    
     if (entry != null && !entry.isExpired) {
+      AppLogger.debug(
+        '✅ [InvoiceCache] 命中发票列表缓存: $_currentUserId [$cacheKey]',
+        tag: 'Cache',
+      );
       return entry.data;
     }
 
     // 清理过期条目
     if (entry != null && entry.isExpired) {
-      _listCache.remove(cacheKey);
+      userListCache.remove(cacheKey);
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 清理过期列表缓存: $_currentUserId [$cacheKey]',
+        tag: 'Cache',
+      );
     }
 
     return null;
@@ -62,30 +150,55 @@ class InvoiceCache {
     InvoiceEntity invoice, {
     Duration? ttl,
   }) {
-    _cleanExpiredEntries(_detailCache);
-
-    // 限制缓存大小
-    if (_detailCache.length >= _maxDetailCacheSize) {
-      final oldestKey = _detailCache.keys.first;
-      _detailCache.remove(oldestKey);
+    _ensureUserContext();
+    if (_currentUserId == null) {
+      AppLogger.warning('🚨 [InvoiceCache] 用户未登录，跳过详情缓存', tag: 'Cache');
+      return;
     }
 
-    _detailCache[invoiceId] = _CacheEntry(
+    final userDetailCache = _detailCacheByUser[_currentUserId!]!;
+    _cleanExpiredEntries(userDetailCache);
+
+    // 限制缓存大小
+    if (userDetailCache.length >= _maxDetailCacheSize) {
+      final oldestKey = userDetailCache.keys.first;
+      userDetailCache.remove(oldestKey);
+    }
+
+    userDetailCache[invoiceId] = _CacheEntry(
       data: invoice,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
+    );
+    
+    AppLogger.debug(
+      '💾 [InvoiceCache] 缓存发票详情: $_currentUserId [$invoiceId]',
+      tag: 'Cache',
     );
   }
 
   /// 获取缓存的发票详情
   InvoiceEntity? getCachedInvoiceDetail(String invoiceId) {
-    final entry = _detailCache[invoiceId];
+    _ensureUserContext();
+    if (_currentUserId == null) return null;
+
+    final userDetailCache = _detailCacheByUser[_currentUserId!] ?? {};
+    final entry = userDetailCache[invoiceId];
+    
     if (entry != null && !entry.isExpired) {
+      AppLogger.debug(
+        '✅ [InvoiceCache] 命中发票详情缓存: $_currentUserId [$invoiceId]',
+        tag: 'Cache',
+      );
       return entry.data;
     }
 
     // 清理过期条目
     if (entry != null && entry.isExpired) {
-      _detailCache.remove(invoiceId);
+      userDetailCache.remove(invoiceId);
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 清理过期详情缓存: $_currentUserId [$invoiceId]',
+        tag: 'Cache',
+      );
     }
 
     return null;
@@ -93,21 +206,44 @@ class InvoiceCache {
 
   /// 缓存发票总数
   void cacheInvoicesCount(int count, {Duration? ttl}) {
+    _ensureUserContext();
+    if (_currentUserId == null) {
+      AppLogger.warning('🚨 [InvoiceCache] 用户未登录，跳过统计缓存', tag: 'Cache');
+      return;
+    }
+
     _countCache = _CacheEntry(
       data: count,
       expiration: DateTime.now().add(ttl ?? _countTtl),
+    );
+    
+    AppLogger.debug(
+      '💾 [InvoiceCache] 缓存发票总数: $_currentUserId [$count]',
+      tag: 'Cache',
     );
   }
 
   /// 获取缓存的发票总数
   int? getCachedInvoicesCount() {
-    if (_countCache != null && !_countCache!.isExpired) {
-      return _countCache!.data;
+    _ensureUserContext();
+    if (_currentUserId == null) return null;
+
+    final countEntry = _countCache;
+    if (countEntry != null && !countEntry.isExpired) {
+      AppLogger.debug(
+        '✅ [InvoiceCache] 命中发票总数缓存: $_currentUserId [${countEntry.data}]',
+        tag: 'Cache',
+      );
+      return countEntry.data;
     }
 
     // 清理过期条目
-    if (_countCache != null && _countCache!.isExpired) {
+    if (countEntry != null && countEntry.isExpired) {
       _countCache = null;
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 清理过期统计缓存: $_currentUserId',
+        tag: 'Cache',
+      );
     }
 
     return null;
@@ -139,24 +275,73 @@ class InvoiceCache {
     bool invalidateList = false,
     bool invalidateCount = false,
   }) {
+    _ensureUserContext();
+    if (_currentUserId == null) return;
+
     if (invoiceId != null) {
-      _detailCache.remove(invoiceId);
+      final userDetailCache = _detailCacheByUser[_currentUserId!] ?? {};
+      userDetailCache.remove(invoiceId);
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 无效化发票详情缓存: $_currentUserId [$invoiceId]',
+        tag: 'Cache',
+      );
     }
 
     if (invalidateList) {
-      _listCache.clear();
+      _listCacheByUser[_currentUserId!]?.clear();
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 无效化发票列表缓存: $_currentUserId',
+        tag: 'Cache',
+      );
     }
 
     if (invalidateCount) {
-      _countCache = null;
+      _countCacheByUser.remove(_currentUserId!);
+      AppLogger.debug(
+        '🗑️ [InvoiceCache] 无效化发票统计缓存: $_currentUserId',
+        tag: 'Cache',
+      );
     }
   }
 
-  /// 清理所有缓存
+  /// 清理当前用户的所有缓存
   void clearAllCache() {
-    _listCache.clear();
-    _detailCache.clear();
-    _countCache = null;
+    _ensureUserContext();
+    if (_currentUserId == null) return;
+
+    _listCacheByUser[_currentUserId!]?.clear();
+    _detailCacheByUser[_currentUserId!]?.clear();
+    _countCacheByUser.remove(_currentUserId!);
+    
+    AppLogger.info(
+      '🧹 [InvoiceCache] 清理当前用户所有缓存: $_currentUserId',
+      tag: 'Cache',
+    );
+  }
+
+  /// 彻底清理所有用户的缓存（用于调试或紧急情况）
+  void clearAllUsersCache() {
+    _listCacheByUser.clear();
+    _detailCacheByUser.clear();
+    _countCacheByUser.clear();
+    _currentUserId = null;
+    
+    AppLogger.warning(
+      '🧨 [InvoiceCache] 清理所有用户缓存（紧急清理）',
+      tag: 'Cache',
+    );
+  }
+
+  /// 清理指定用户的缓存（管理员功能）
+  void clearUserCache(String userId) {
+    _listCacheByUser.remove(userId);
+    _detailCacheByUser.remove(userId);
+    _countCacheByUser.remove(userId);
+    
+    AppLogger.info(
+      '🗑️ [InvoiceCache] 清理指定用户缓存: $userId',
+      tag: 'Cache',
+    );
   }
 
   /// 清理过期条目
@@ -176,13 +361,27 @@ class InvoiceCache {
 
   /// 获取缓存统计信息
   Map<String, dynamic> getCacheStats() {
+    _ensureUserContext();
+    
+    final userListCache = _listCacheByUser[_currentUserId] ?? {};
+    final userDetailCache = _detailCacheByUser[_currentUserId] ?? {};
+    final userCountCache = _countCacheByUser[_currentUserId];
+    
     return {
-      'listCacheSize': _listCache.length,
-      'detailCacheSize': _detailCache.length,
-      'hasCountCache': _countCache != null && !_countCache!.isExpired,
-      'expiredListEntries': _listCache.values.where((e) => e.isExpired).length,
-      'expiredDetailEntries':
-          _detailCache.values.where((e) => e.isExpired).length,
+      'currentUserId': _currentUserId,
+      'totalUsers': _listCacheByUser.keys.length,
+      'currentUserStats': {
+        'listCacheSize': userListCache.length,
+        'detailCacheSize': userDetailCache.length,
+        'hasCountCache': userCountCache != null && !userCountCache.isExpired,
+        'expiredListEntries': userListCache.values.where((e) => e.isExpired).length,
+        'expiredDetailEntries': userDetailCache.values.where((e) => e.isExpired).length,
+      },
+      'systemStats': {
+        'totalListCaches': _listCacheByUser.values.fold<int>(0, (sum, cache) => sum + cache.length),
+        'totalDetailCaches': _detailCacheByUser.values.fold<int>(0, (sum, cache) => sum + cache.length),
+        'totalCountCaches': _countCacheByUser.length,
+      },
     };
   }
 }

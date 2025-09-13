@@ -242,6 +242,31 @@ class DataRefreshRequestedEvent extends AppEvent {
   });
 }
 
+/// 页面导航事件
+class PageNavigationEvent extends AppEvent {
+  final String fromRoute;
+  final String toRoute;
+  final DateTime timestamp;
+  
+  const PageNavigationEvent({
+    required this.fromRoute,
+    required this.toRoute,
+    required this.timestamp,
+  });
+}
+
+/// 报销集详情页返回事件
+class ReimbursementSetDetailPageReturnEvent extends PageNavigationEvent {
+  final String reimbursementSetId;
+  
+  const ReimbursementSetDetailPageReturnEvent({
+    required this.reimbursementSetId,
+    required super.fromRoute,
+    required super.toRoute,
+    required super.timestamp,
+  });
+}
+
 /// UI操作请求事件基类
 abstract class UIActionRequestEvent extends AppEvent {
   const UIActionRequestEvent();

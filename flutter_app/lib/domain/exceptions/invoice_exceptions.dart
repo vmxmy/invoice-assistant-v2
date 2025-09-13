@@ -41,3 +41,34 @@ class InvoiceServerException extends InvoiceException {
       : super('服务器错误: $message',
             errorCode: 'SERVER_ERROR', originalError: originalError);
 }
+
+/// 跨用户发票重复异常
+class CrossUserDuplicateException extends InvoiceException {
+  final String invoiceNumber;
+  final String originalUserEmail;
+  final String originalUploadTime;
+  final String originalInvoiceId;
+  final double similarityScore;
+  final String warning;
+  final List<String> recommendations;
+
+  const CrossUserDuplicateException({
+    required String message,
+    required this.invoiceNumber,
+    required this.originalUserEmail,
+    required this.originalUploadTime,
+    required this.originalInvoiceId,
+    required this.similarityScore,
+    required this.warning,
+    required this.recommendations,
+  }) : super(message, errorCode: 'CROSS_USER_DUPLICATE');
+
+  @override
+  String toString() {
+    return '跨用户发票重复: $message\n'
+        '发票号: $invoiceNumber\n'
+        '原用户: $originalUserEmail\n'
+        '上传时间: $originalUploadTime\n'
+        '相似度: ${(similarityScore * 100).toStringAsFixed(1)}%';
+  }
+}
