@@ -37,6 +37,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   int _totalCount = 0;
   bool _hasMore = true;
   InvoiceFilters? _currentFilters; // 保存当前的筛选条件
+  DateTime? _lastDataLoadTime; // 最后一次数据加载时间
   
   // 事件监听订阅
   StreamSubscription<ReimbursementSetChangedEvent>? _reimbursementEventSubscription;
@@ -94,6 +95,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
           _handleReimbursementSetDeleted(event);
         } else if (event is ReimbursementSetCreatedEvent) {
           _handleReimbursementSetCreated(event);
+        } else if (event is InvoicesAddedToSetEvent) {
+          _handleInvoicesAddedToSet(event);
         } else {
           // 其他报销集变更事件，正常刷新
           add(const RefreshInvoices());
@@ -102,6 +105,49 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     );
   }
   
+  /// 处理发票加入报销集事件 - 更新受影响发票的状态
+  void _handleInvoicesAddedToSet(InvoicesAddedToSetEvent event) async {
+    if (AppConfig.enableLogging) {
+      print('📋 [InvoiceBloc] 发票加入报销集: ${event.setId}, 影响发票: ${event.invoiceIds.length}');
+    }
+    
+    try {
+      // 更新本地缓存中的发票状态 - 添加报销集ID
+      if (event.invoiceIds.isNotEmpty) {
+        for (int i = 0; i < _allInvoices.length; i++) {
+          final invoice = _allInvoices[i];
+          if (event.invoiceIds.contains(invoice.id)) {
+            // 发票加入报销集，更新reimbursementSetId
+            final updatedInvoice = invoice.copyWith(
+              reimbursementSetId: event.setId,
+              updatedAt: DateTime.now(),
+            );
+            _allInvoices[i] = updatedInvoice;
+          }
+        }
+      }
+      
+      // 刷新UI状态 - 立即显示更新
+      emit(InvoiceLoaded(
+        invoices: List.from(_allInvoices),
+        currentPage: _currentPage,
+        totalCount: _totalCount,
+        hasMore: _hasMore,
+      ));
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 发票加入报销集后状态已同步');
+      }
+      
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 处理发票加入报销集事件失败: $e');
+      }
+      // 发生错误时依然刷新，让用户看到最新状态
+      add(const RefreshInvoices());
+    }
+  }
+
   /// 处理报销集创建事件 - 更新受影响发票的状态
   void _handleReimbursementSetCreated(ReimbursementSetCreatedEvent event) async {
     if (AppConfig.enableLogging) {
@@ -240,17 +286,41 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     }
   }
   
+  /// 检查数据是否过期（超过5分钟）
+  bool _isDataStale() {
+    if (_lastDataLoadTime == null) return true;
+    final now = DateTime.now();
+    final difference = now.difference(_lastDataLoadTime!);
+    return difference.inMinutes > 5;
+  }
+
   /// 设置应用事件监听
   void _setupAppEventSubscription() {
     _appEventSubscription = _eventBus.stream.listen(
       (event) {
         if (event is TabChangedEvent) {
-          // 切换到发票Tab时刷新数据
+          // 切换到发票Tab时，只在没有数据或数据过期时才刷新
           if (event.newTabIndex == 0 && event.tabName == '发票') {
             if (AppConfig.enableLogging) {
-              // print('🔄 [InvoiceBloc] Tab切换到发票，刷新数据');
+              // print('🔄 [InvoiceBloc] Tab切换到发票');
             }
-            add(const LoadInvoices(refresh: true));
+            
+            // 检查是否需要刷新：没有数据或者数据过期（超过5分钟）
+            final currentState = state;
+            final needsRefresh = currentState is! InvoiceLoaded || 
+                _allInvoices.isEmpty || 
+                _isDataStale();
+                
+            if (needsRefresh) {
+              if (AppConfig.enableLogging) {
+                // print('🔄 [InvoiceBloc] 数据过期或为空，刷新数据');
+              }
+              add(const LoadInvoices(refresh: true));
+            } else {
+              if (AppConfig.enableLogging) {
+                // print('🔄 [InvoiceBloc] 数据仍然有效，无需刷新');
+              }
+            }
           }
         } else if (event is AppResumedEvent) {
           // 应用恢复时刷新发票数据
@@ -326,6 +396,9 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
       // 清除加载状态
       _loadingManager.clearLoading(loadingKey);
+
+      // 更新最后加载时间
+      _lastDataLoadTime = DateTime.now();
 
       // 发送成功状态
       emit(InvoiceLoaded(

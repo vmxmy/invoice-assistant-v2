@@ -372,6 +372,22 @@ class InvoiceSlideActions {
     );
   }
 
+  /// 创建加入已有报销集操作
+  static SlideAction addToExistingSet({
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return SlideAction(
+      icon: CupertinoIcons.folder_badge_plus,
+      label: '加入已有',
+      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
+      foregroundColor: foregroundColor ?? Colors.white,
+      onPressed: onPressed,
+      tooltip: '加入已有报销集',
+    );
+  }
+
   /// 创建查看报销集操作
   static SlideAction viewReimbursementSet({
     required VoidCallback onPressed,
@@ -399,9 +415,12 @@ class InvoiceStatusSlidableActionsFactory {
   static List<SlideAction> createForIndependentInvoice({
     required VoidCallback onDelete,
     required VoidCallback onAddToReimbursementSet,
+    VoidCallback? onAddToExistingSet, // 保留参数以保持向后兼容，但不使用
   }) {
     return [
+      // 统一的"加入"按钮 - 点击后显示创建新报销集或加入已有报销集的选择
       InvoiceSlideActions.addToReimbursementSet(onPressed: onAddToReimbursementSet),
+      // 删除选项
       InvoiceSlideActions.delete(onPressed: onDelete),
     ];
   }

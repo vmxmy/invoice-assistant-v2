@@ -18,6 +18,8 @@ import '../../core/widgets/molecules/reimbursement_set_badge.dart';
 import '../../core/theme/component_theme_constants.dart';
 import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
+import '../utils/invoice_to_set_operation_utils.dart';
+import '../utils/invoice_delete_utils.dart';
 
 /// 发票卡片组件 - 展示单个发票的信息
 class InvoiceCardWidget extends StatefulWidget {
@@ -229,6 +231,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
       return InvoiceStatusSlidableActionsFactory.createForIndependentInvoice(
         onDelete: _handleDelete,
         onAddToReimbursementSet: () => _handleAddToReimbursementSet(context),
+        onAddToExistingSet: () => _addToExistingReimbursementSet(context),
       );
     }
 
@@ -637,12 +640,11 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 加入到现有报销集
   void _addToExistingReimbursementSet(BuildContext context) {
-    _showErrorMessage(context, '此功能开发中，请选择创建新报销集');
-    // TODO: 实现加入现有报销集的逻辑
-    // 1. 获取所有可用的报销集（未提交状态）
-    // 2. 显示选择列表
-    // 3. 用户选择报销集
-    // 4. 将发票加入到选中的报销集
+    InvoiceToSetOperationUtils.showSelectExistingSetDialog(
+      context: context,
+      invoiceIds: [widget.invoice.id],
+      invoices: [widget.invoice],
+    );
   }
 
 
