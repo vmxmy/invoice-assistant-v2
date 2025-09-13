@@ -69,50 +69,16 @@ class _CreateReimbursementSetDialogState
 
   @override
   Widget build(BuildContext context) {
+    // 移除BlocListener，成功状态监听已移至InvoiceManagementPage
+    // 只保留错误状态的本地处理
     return BlocListener<ReimbursementSetBloc, ReimbursementSetState>(
       listener: (context, state) {
-        if (state is ReimbursementSetCreateSuccess) {
+        if (state is ReimbursementSetCreateSuccess || 
+            state is ReimbursementSetOperationSuccess) {
+          // 创建成功，关闭对话框并触发回调
+          // 成功消息由InvoiceManagementPage统一处理
           Navigator.of(context).pop();
           widget.onCreateSuccess();
-
-          // 显示简洁的成功反馈
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(state.message)),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          );
-        } else if (state is ReimbursementSetOperationSuccess) {
-          // 处理通过事件总线触发的操作成功
-          Navigator.of(context).pop();
-          widget.onCreateSuccess();
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(state.message)),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          );
         } else if (state is ReimbursementSetError) {
           setState(() {
             _isLoading = false;

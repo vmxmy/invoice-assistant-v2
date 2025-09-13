@@ -31,7 +31,7 @@ import '../widgets/app_feedback.dart';
 import '../utils/invoice_delete_utils.dart';
 import '../widgets/skeleton_loader.dart';
 import '../widgets/enhanced_error_handler.dart';
-import '../widgets/create_reimbursement_set_dialog.dart';
+import '../utils/reimbursement_set_operation_utils.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
@@ -102,28 +102,71 @@ class _InvoiceManagementPageContentState
   Widget build(BuildContext context) {
     // print('🏠 [InvoiceManagementPageContent] build 方法执行');
 
-    return BlocListener<InvoiceBloc, InvoiceState>(
-      listener: (context, state) {
-        // print('🔥 [页面级Listener:${bloc.hashCode}] 接收到状态: ${state.runtimeType}');
-        if (state is InvoiceDeleteSuccess) {
-          // print('🔥 [页面级Listener:${bloc.hashCode}] 删除成功，立即显示Snackbar: ${state.message}');
-          EnhancedErrorHandler.showSuccessSnackBar(context, state.message);
-        } else if (state is InvoiceError) {
-          // print('🔥 [页面级Listener:${bloc.hashCode}] 操作失败: ${state.message}');
-          EnhancedErrorHandler.showErrorSnackBar(
-            context,
-            state.message,
-            onRetry: () {
-              // 重试加载列表
-              context
-                  .read<InvoiceBloc>()
-                  .add(const LoadInvoices(refresh: true));
-            },
-          );
-        }
-      },
-      child: Scaffold(
-        body: NestedScrollView(
+    return MultiBlocListener(
+      listeners: [
+        // 发票操作监听器
+        BlocListener<InvoiceBloc, InvoiceState>(
+          listener: (context, state) {
+            // print('🔥 [页面级Listener:${bloc.hashCode}] 接收到状态: ${state.runtimeType}');
+            if (state is InvoiceDeleteSuccess) {
+              // print('🔥 [页面级Listener:${bloc.hashCode}] 删除成功，立即显示Snackbar: ${state.message}');
+              EnhancedErrorHandler.showSuccessSnackBar(context, state.message);
+            } else if (state is InvoiceError) {
+              // print('🔥 [页面级Listener:${bloc.hashCode}] 操作失败: ${state.message}');
+              EnhancedErrorHandler.showErrorSnackBar(
+                context,
+                state.message,
+                onRetry: () {
+                  // 重试加载列表
+                  context
+                      .read<InvoiceBloc>()
+                      .add(const LoadInvoices(refresh: true));
+                },
+              );
+            }
+          },
+        ),
+        
+        // 报销集操作监听器
+        BlocListener<ReimbursementSetBloc, ReimbursementSetState>(
+          listener: (context, state) {
+            if (state is ReimbursementSetCreateSuccess) {
+              // 使用 AppFeedback 显示创建成功消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '创建成功',
+                  message: state.message,
+                  type: FeedbackType.success,
+                ),
+              );
+            } else if (state is ReimbursementSetOperationSuccess) {
+              // 使用 AppFeedback 显示操作成功消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '操作成功',
+                  message: state.message,
+                  type: FeedbackType.success,
+                ),
+              );
+            } else if (state is ReimbursementSetError) {
+              // 使用 AppFeedback 显示错误消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '错误',
+                  message: state.message,
+                  type: FeedbackType.error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: CupertinoPageScaffold(
+        navigationBar: null, // 使用自定义的SliverAppBar
+        child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             _buildAppBar(context),
           ],
@@ -728,19 +771,28 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   void _createReimbursementSet() {
     if (_selectedInvoices.isEmpty) return;
 
-    // 创建报销集创建对话框
-    showDialog(
+    // 获取选中发票的完整实体信息
+    final currentState = context.read<InvoiceBloc>().state;
+    List<InvoiceEntity>? selectedInvoiceEntities;
+    
+    if (currentState is InvoiceLoaded) {
+      selectedInvoiceEntities = currentState.invoices
+          .where((invoice) => _selectedInvoices.contains(invoice.id))
+          .toList();
+    }
+
+    // 直接使用工具类显示创建对话框，避免重复弹窗
+    ReimbursementSetOperationUtils.showCreateDialog(
       context: context,
-      barrierDismissible: false, // 防止意外关闭
-      builder: (context) => CreateReimbursementSetDialog(
-        selectedInvoiceIds: _selectedInvoices.toList(),
-        onCreateSuccess: () {
-          // 创建成功后退出选择模式并刷新数据
-          _exitSelectionMode();
-          context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
-        },
-      ),
-    );
+      invoiceIds: _selectedInvoices.toList(),
+      invoices: selectedInvoiceEntities,
+    ).then((_) {
+      // 创建完成后退出选择模式并刷新数据
+      if (mounted) {
+        _exitSelectionMode();
+        context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+      }
+    });
   }
 
   /// 处理搜索变化

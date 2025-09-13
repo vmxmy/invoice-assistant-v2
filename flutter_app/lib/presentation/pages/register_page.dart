@@ -119,17 +119,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(CupertinoIcons.back, color: Colors.blue),
+    final colorScheme = Theme.of(context).colorScheme;
+    return CupertinoPageScaffold(
+      backgroundColor: colorScheme.surface,
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
+        border: null,
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
           onPressed: () => Navigator.of(context).pop(),
+          child: Icon(
+            CupertinoIcons.back,
+            color: colorScheme.primary,
+          ),
         ),
       ),
-      body: SafeArea(
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(

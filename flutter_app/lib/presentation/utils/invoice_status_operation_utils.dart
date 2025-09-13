@@ -37,7 +37,7 @@ class InvoiceStatusOperationUtils {
               onPressed: () {
                 Navigator.pop(context);
                 _updateInvoiceStatus(invoice.id, InvoiceStatus.reimbursed);
-                _showStatusChangeSuccess(context, '已报销');
+                // 移除立即显示成功消息 - 由页面级监听器统一处理
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +64,7 @@ class InvoiceStatusOperationUtils {
               onPressed: () {
                 Navigator.pop(context);
                 _updateInvoiceStatus(invoice.id, InvoiceStatus.unsubmitted);
-                _showStatusChangeSuccess(context, '未报销');
+                // 移除立即显示成功消息 - 由页面级监听器统一处理
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -109,25 +109,7 @@ class InvoiceStatusOperationUtils {
     );
   }
 
-  /// 显示状态修改成功提示
-  static void _showStatusChangeSuccess(BuildContext context, String statusText) {
-    if (!context.mounted) return;
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Expanded(child: Text('已标记为$statusText')),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
+  // 移除_showStatusChangeSuccess方法
+  // 状态修改成功消息已统一到InvoiceManagementPage的监听器中处理
+  // 避免重复显示成功消息
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
@@ -17,8 +16,6 @@ import '../../core/widgets/organisms/invoice_card/invoice_card_actions.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
 import '../../core/widgets/molecules/reimbursement_set_badge.dart';
 import '../../core/theme/component_theme_constants.dart';
-import '../bloc/reimbursement_set_bloc.dart';
-import '../bloc/reimbursement_set_state.dart';
 import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
 
@@ -134,37 +131,15 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     return statusBadge;
   }
 
-  /// 处理报销集状态变化
-  void _handleReimbursementSetStateChange(BuildContext context, ReimbursementSetState state) {
-    // 处理操作成功状态
-    if (state is ReimbursementSetOperationSuccess) {
-      _showSuccessMessage(context, state.message);
-      return;
-    }
-    
-    // 处理特定操作成功状态
-    if (state is ReimbursementSetCreateSuccess) {
-      _showSuccessMessage(context, '已加入报销集');
-      return;
-    }
-    
-    if (state is ReimbursementSetStatusUpdateSuccess) {
-      _showSuccessMessage(context, '状态已更新');
-      return;
-    }
-    
-    // 处理错误状态
-    if (state is ReimbursementSetError) {
-      _showErrorMessage(context, state.message);
-      return;
-    }
-  }
+  // 移除_handleReimbursementSetStateChange方法
+  // 报销集状态监听已统一到InvoiceManagementPage
+  // 避免重复的成功消息显示
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ReimbursementSetBloc, ReimbursementSetState>(
-      listener: _handleReimbursementSetStateChange,
-      child: Semantics(
+    // 移除BlocListener - 报销集状态监听已统一到InvoiceManagementPage
+    // 避免重复显示成功消息
+    return Semantics(
         label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
         hint: AccessibilityConstants.cardActionHint,
         child: InvoiceCardSlidable(
@@ -216,7 +191,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           ),
         ),
       ),
-    ),
     );
   }
 

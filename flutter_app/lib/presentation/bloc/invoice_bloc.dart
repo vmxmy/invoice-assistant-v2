@@ -90,6 +90,10 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         // 处理报销集状态变更事件 - 核心状态一致性逻辑
         if (event is ReimbursementSetStatusChangedEvent) {
           _handleReimbursementSetStatusChanged(event);
+        } else if (event is ReimbursementSetDeletedEvent) {
+          _handleReimbursementSetDeleted(event);
+        } else if (event is ReimbursementSetCreatedEvent) {
+          _handleReimbursementSetCreated(event);
         } else {
           // 其他报销集变更事件，正常刷新
           add(const RefreshInvoices());
@@ -98,6 +102,84 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     );
   }
   
+  /// 处理报销集创建事件 - 更新受影响发票的状态
+  void _handleReimbursementSetCreated(ReimbursementSetCreatedEvent event) async {
+    if (AppConfig.enableLogging) {
+      print('📋 [InvoiceBloc] 报销集创建: ${event.setId}, 影响发票: ${event.affectedInvoiceIds.length}');
+    }
+    
+    try {
+      // 更新本地缓存中的发票状态 - 添加报销集ID
+      if (event.affectedInvoiceIds.isNotEmpty) {
+        for (int i = 0; i < _allInvoices.length; i++) {
+          final invoice = _allInvoices[i];
+          if (event.affectedInvoiceIds.contains(invoice.id)) {
+            // 发票加入报销集，更新reimbursementSetId
+            final updatedInvoice = invoice.copyWith(
+              reimbursementSetId: event.setId,
+              updatedAt: DateTime.now(),
+            );
+            _allInvoices[i] = updatedInvoice;
+          }
+        }
+      }
+      
+      // 刷新UI状态 - 立即显示更新
+      emit(InvoiceLoaded(
+        invoices: List.from(_allInvoices),
+        currentPage: _currentPage,
+        totalCount: _totalCount,
+        hasMore: _hasMore,
+      ));
+      
+      if (AppConfig.enableLogging) {
+        print('✅ [InvoiceBloc] 报销集创建后发票状态已同步');
+      }
+      
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 处理报销集创建事件失败: $e');
+      }
+      // 发生错误时依然刷新，让用户看到最新状态
+      add(const RefreshInvoices());
+    }
+  }
+
+  /// 处理报销集删除事件 - 更新受影响发票的状态
+  void _handleReimbursementSetDeleted(ReimbursementSetDeletedEvent event) async {
+    if (AppConfig.enableLogging) {
+      print('🗑️ [InvoiceBloc] 报销集删除: ${event.setId}, 影响发票: ${event.affectedInvoiceIds.length}');
+    }
+    
+    try {
+      // 更新本地缓存中的发票状态 - 将状态改为未报销
+      if (event.affectedInvoiceIds.isNotEmpty) {
+        for (int i = 0; i < _allInvoices.length; i++) {
+          final invoice = _allInvoices[i];
+          if (event.affectedInvoiceIds.contains(invoice.id)) {
+            // 报销集删除后，发票状态改为未报销
+            final updatedInvoice = invoice.copyWith(
+              status: InvoiceStatus.unsubmitted,
+              reimbursementSetId: null,
+              updatedAt: DateTime.now(),
+            );
+            _allInvoices[i] = updatedInvoice;
+          }
+        }
+      }
+      
+      // 刷新UI状态
+      add(const RefreshInvoices());
+      
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        print('❌ [InvoiceBloc] 处理报销集删除事件失败: $e');
+      }
+      // 发生错误时依然刷新，让用户看到最新状态
+      add(const RefreshInvoices());
+    }
+  }
+
   /// 处理报销集状态变更事件 - 确保发票状态同步
   void _handleReimbursementSetStatusChanged(ReimbursementSetStatusChangedEvent event) async {
     if (AppConfig.enableLogging) {

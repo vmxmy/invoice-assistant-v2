@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
+import '../../domain/entities/invoice_entity.dart';
 // ReimbursementSetStatus 已在 reimbursement_set_entity.dart 中定义
 import '../../core/events/app_event_bus.dart';
 import '../widgets/unified_bottom_sheet.dart';
@@ -12,15 +13,38 @@ class ReimbursementSetOperationUtils {
   
   static final AppEventBus _eventBus = AppEventBus.instance;
 
+  /// 生成智能报销集名称
+  /// 规则：当前日期+发票数量+发票总金额
+  static String generateSmartName(List<InvoiceEntity> invoices) {
+    final now = DateTime.now();
+    final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    
+    final invoiceCount = invoices.length;
+    final totalAmount = invoices.fold<double>(0.0, (sum, invoice) => sum + invoice.displayAmount);
+    
+    // 格式化总金额，保留2位小数
+    final formattedAmount = totalAmount.toStringAsFixed(2);
+    
+    return '$dateStr · ${invoiceCount}张发票 · ¥$formattedAmount';
+  }
+
   /// 显示创建报销集对话框
   static Future<void> showCreateDialog({
     required BuildContext context,
     required List<String> invoiceIds,
+    List<InvoiceEntity>? invoices,
     String? defaultName,
     String? defaultDescription,
   }) async {
     final colorScheme = Theme.of(context).colorScheme;
-    final nameController = TextEditingController(text: defaultName);
+    
+    // 生成智能默认名称
+    String smartDefaultName = defaultName ?? '';
+    if (smartDefaultName.isEmpty && invoices != null && invoices.isNotEmpty) {
+      smartDefaultName = generateSmartName(invoices);
+    }
+    
+    final nameController = TextEditingController(text: smartDefaultName);
     final descriptionController = TextEditingController(text: defaultDescription);
 
     // 构建创建表单内容

@@ -34,8 +34,9 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
           tag: 'Debug');
     }
 
-    return Scaffold(
-      appBar: AppBar(
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
         title: const Text('上传发票'),
         centerTitle: true,
         leading: IconButton(
@@ -48,13 +49,21 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
             onPressed: () => _showHelpDialog(context),
           ),
         ],
-      ),
-      body: BlocConsumer<InvoiceBloc, InvoiceState>(
+        ),
+        SliverToBoxAdapter(
+          child: BlocConsumer<InvoiceBloc, InvoiceState>(
         listener: (context, state) {
           if (state is InvoiceUploadCompleted) {
             _handleUploadCompleted(context, state);
           } else if (state is InvoiceError) {
-            AppFeedback.error(context, '操作失败', message: state.message);
+            AppFeedback.show(
+              context,
+              FeedbackConfig(
+                title: '操作失败',
+                message: state.message,
+                type: FeedbackType.error,
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -97,7 +106,9 @@ class _InvoiceUploadPageState extends State<InvoiceUploadPage> {
             ),
           );
         },
-      ),
+        ),
+        ),
+      ],
     );
   }
 

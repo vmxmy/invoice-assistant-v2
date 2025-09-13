@@ -107,60 +107,67 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           width: _isSearchFocused ? 1.5 : 1,
         ),
       ),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          widget.onSearchChanged?.call(value);
-        },
-        onTap: () {
-          setState(() => _isSearchFocused = true);
-        },
-        onTapOutside: (_) {
-          setState(() => _isSearchFocused = false);
-        },
-        decoration: InputDecoration(
-          hintText: '搜索发票号、销售方、金额...',
-          hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: ComponentThemeConstants.fontSizeBody,
+      child: Row(
+        children: [
+          // 搜索图标
+          Padding(
+            padding: const EdgeInsets.only(left: ComponentThemeConstants.spacingM),
+            child: Icon(
+              CupertinoIcons.search,
+              color: _isSearchFocused
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+              size: ComponentThemeConstants.iconSizeS,
+            ),
           ),
-          prefixIcon: Icon(
-            CupertinoIcons.search,
-            color: _isSearchFocused
-                ? colorScheme.primary
-                : colorScheme.onSurfaceVariant,
-            size: ComponentThemeConstants.iconSizeS,
+          
+          // 搜索输入框
+          Expanded(
+            child: CupertinoTextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {});  // 触发重建以更新清除按钮显示
+                widget.onSearchChanged?.call(value);
+              },
+              onTap: () {
+                setState(() => _isSearchFocused = true);
+              },
+              onTapOutside: (_) {
+                setState(() => _isSearchFocused = false);
+              },
+              placeholder: '搜索发票号、销售方、金额...',
+              placeholderStyle: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: ComponentThemeConstants.fontSizeBody,
+              ),
+              style: TextStyle(
+                fontSize: ComponentThemeConstants.fontSizeBody,
+                color: colorScheme.onSurface,
+              ),
+              decoration: const BoxDecoration(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: ComponentThemeConstants.spacingM,
+                vertical: 0,
+              ),
+            ),
           ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    CupertinoIcons.clear_circled_solid,
-                    color: colorScheme.onSurfaceVariant,
-                    size: ComponentThemeConstants.iconSizeXS,
-                  ),
-                  onPressed: () {
-                    _searchController.clear();
-                    widget.onSearchChanged?.call('');
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: ComponentThemeConstants.buttonHeightSmall,
-                    minHeight: ComponentThemeConstants.buttonHeightSmall,
-                  ),
-                )
-              : null,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: ComponentThemeConstants.spacingM,
-            vertical: 0,
-          ),
-          isDense: true, // 紧凑模式，减少额外填充
-        ),
-        style: TextStyle(
-          fontSize: ComponentThemeConstants.fontSizeBody,
-          color: colorScheme.onSurface,
-        ),
-        textAlignVertical: TextAlignVertical.center, // 确保文本垂直居中
+          
+          // 清除按钮
+          if (_searchController.text.isNotEmpty)
+            CupertinoButton(
+              onPressed: () {
+                _searchController.clear();
+                setState(() {});
+                widget.onSearchChanged?.call('');
+              },
+              padding: const EdgeInsets.all(ComponentThemeConstants.spacingXS),
+              child: Icon(
+                CupertinoIcons.clear_circled_solid,
+                color: colorScheme.onSurfaceVariant,
+                size: ComponentThemeConstants.iconSizeXS,
+              ),
+            ),
+        ],
       ),
     );
   }

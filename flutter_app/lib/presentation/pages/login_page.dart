@@ -121,9 +121,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: SafeArea(
+    final colorScheme = Theme.of(context).colorScheme;
+    return CupertinoPageScaffold(
+      backgroundColor: colorScheme.surface,
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
@@ -165,29 +166,60 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 48),
 
                 // 表单区域
-                Card(
+                Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.2),
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        TextField(
+                        CupertinoTextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: '邮箱地址',
-                            prefixIcon: Icon(CupertinoIcons.mail),
-                            border: OutlineInputBorder(),
+                          placeholder: '邮箱地址',
+                          prefix: Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Icon(
+                              CupertinoIcons.mail,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
+                          style: TextStyle(color: colorScheme.onSurface),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: colorScheme.outline.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(16),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
+                        CupertinoTextField(
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: '密码',
-                            prefixIcon: Icon(CupertinoIcons.lock),
-                            border: OutlineInputBorder(),
+                          placeholder: '密码',
+                          prefix: Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Icon(
+                              CupertinoIcons.lock,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
+                          style: TextStyle(color: colorScheme.onSurface),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: colorScheme.outline.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(16),
                         ),
                         const SizedBox(height: 24),
 
@@ -198,39 +230,39 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.all(12),
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
+                              color: colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
+                              border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
                             ),
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(color: Colors.red.shade700),
+                              style: TextStyle(color: colorScheme.onErrorContainer),
                             ),
                           ),
 
                         // 登录按钮
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
+                          child: CupertinoButton(
                             onPressed: _isLoading ? null : _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                            ),
+                            color: colorScheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            borderRadius: BorderRadius.circular(12),
                             child: _isLoading
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                    child: CupertinoActivityIndicator(
+                                      color: colorScheme.onPrimary,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     '登录',
-                                    style: TextStyle(fontSize: 16),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: colorScheme.onPrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                           ),
                         ),
@@ -245,15 +277,16 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       '还没有账户？',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
-                    TextButton(
+                    CupertinoButton(
                       onPressed: () => context.push('/register'),
-                      child: const Text(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
                         '立即注册',
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: colorScheme.primary),
                       ),
                     ),
                   ],
