@@ -26,6 +26,17 @@ _$ReimbursementSetModelImpl _$$ReimbursementSetModelImplFromJson(
       approvalNotes: json['approval_notes'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      consumptionStartDate: json['consumption_start_date'] == null
+          ? null
+          : DateTime.parse(json['consumption_start_date'] as String),
+      consumptionEndDate: json['consumption_end_date'] == null
+          ? null
+          : DateTime.parse(json['consumption_end_date'] as String),
+      dateRangeText: json['date_range_text'] as String?,
+      dateRangeType: json['date_range_type'] as String?,
+      smartNameGenerated: json['smart_name_generated'] as bool? ?? false,
+      originalName: json['original_name'] as String?,
+      dateRangeMetadata: json['date_range_metadata'] as Map<String, dynamic>?,
       userEmail: json['user_email'] as String?,
       approverEmail: json['approver_email'] as String?,
       earliestInvoiceDate: json['earliest_invoice_date'] == null
@@ -36,6 +47,9 @@ _$ReimbursementSetModelImpl _$$ReimbursementSetModelImplFromJson(
           : DateTime.parse(json['latest_invoice_date'] as String),
       regionCount: (json['region_count'] as num?)?.toInt(),
       categoryCount: (json['category_count'] as num?)?.toInt(),
+      regionStatisticsJson: json['region_statistics'] as Map<String, dynamic>?,
+      provinceStatisticsJson:
+          json['province_statistics'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$$ReimbursementSetModelImplToJson(
@@ -54,12 +68,22 @@ Map<String, dynamic> _$$ReimbursementSetModelImplToJson(
       'approval_notes': instance.approvalNotes,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
+      'consumption_start_date':
+          instance.consumptionStartDate?.toIso8601String(),
+      'consumption_end_date': instance.consumptionEndDate?.toIso8601String(),
+      'date_range_text': instance.dateRangeText,
+      'date_range_type': instance.dateRangeType,
+      'smart_name_generated': instance.smartNameGenerated,
+      'original_name': instance.originalName,
+      'date_range_metadata': instance.dateRangeMetadata,
       'user_email': instance.userEmail,
       'approver_email': instance.approverEmail,
       'earliest_invoice_date': instance.earliestInvoiceDate?.toIso8601String(),
       'latest_invoice_date': instance.latestInvoiceDate?.toIso8601String(),
       'region_count': instance.regionCount,
       'category_count': instance.categoryCount,
+      'region_statistics': instance.regionStatisticsJson,
+      'province_statistics': instance.provinceStatisticsJson,
     };
 
 _$CreateReimbursementSetRequestImpl

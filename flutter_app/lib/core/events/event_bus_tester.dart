@@ -89,27 +89,27 @@ class EventBusTester {
     String details = '';
 
     switch (event.runtimeType) {
-      case TabChangedEvent:
+      case TabChangedEvent _:
         final e = event as TabChangedEvent;
         details = '${e.oldTabIndex} → ${e.newTabIndex} (${e.tabName})';
         break;
-      case InvoiceStatusChangedEvent:
+      case InvoiceStatusChangedEvent _:
         final e = event as InvoiceStatusChangedEvent;
         details = '${e.invoiceId.substring(0, 8)}... (${e.oldStatus} → ${e.newStatus})';
         break;
-      case InvoiceDeletedEvent:
+      case InvoiceDeletedEvent _:
         final e = event as InvoiceDeletedEvent;
         details = '${e.invoiceId.substring(0, 8)}... (inSet: ${e.wasInReimbursementSet})';
         break;
-      case ReimbursementSetCreatedEvent:
+      case ReimbursementSetCreatedEvent _:
         final e = event as ReimbursementSetCreatedEvent;
         details = '${e.setId.substring(0, 8)}... (${e.affectedInvoiceIds.length} invoices)';
         break;
-      case ReimbursementSetDeletedEvent:
+      case ReimbursementSetDeletedEvent _:
         final e = event as ReimbursementSetDeletedEvent;
         details = '${e.setId.substring(0, 8)}... (${e.affectedInvoiceIds.length} invoices)';
         break;
-      case AppResumedEvent:
+      case AppResumedEvent _:
         final e = event as AppResumedEvent;
         details = e.resumeTime.toString().substring(11, 19);
         break;

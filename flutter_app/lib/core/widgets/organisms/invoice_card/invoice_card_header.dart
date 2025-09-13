@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../domain/entities/invoice_entity.dart';
-import '../../../../domain/value_objects/invoice_status.dart';
 import '../../../theme/component_theme_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';

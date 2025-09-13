@@ -18,7 +18,7 @@ import 'presentation/pages/main_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/register_page.dart';
 import 'presentation/pages/invoice_detail_page.dart';
-import 'presentation/pages/invoice_upload_page.dart';
+import 'presentation/pages/cupertino_invoice_upload_page.dart';
 import 'presentation/pages/reimbursement_set_detail_page.dart';
 
 /// 发票助手应用根组件
@@ -185,29 +185,46 @@ final _router = GoRouter(
     final session = Supabase.instance.client.auth.currentSession;
     final user = Supabase.instance.client.auth.currentUser;
     final isAuthenticated = session != null && user != null;
+    
+    // 🚨 安全检查：验证邮箱是否已确认
+    final isEmailConfirmed = user?.emailConfirmedAt != null;
+    final isFullyAuthenticated = isAuthenticated && isEmailConfirmed;
+    
     final isLoginPage = state.uri.toString() == '/login';
+    final isRegisterPage = state.uri.toString() == '/register';
 
     if (AppConfig.enableLogging) {
-      AppLogger.debug('路由重定向检查 - 认证状态: $isAuthenticated, 当前页: ${state.uri}',
-          tag: 'Auth');
+      AppLogger.debug('🔗 [Navigation] 路由重定向检查', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 目标路由: ${state.uri}', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 认证状态: $isAuthenticated', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 邮箱确认状态: $isEmailConfirmed', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 完全认证状态: $isFullyAuthenticated', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 是登录页: $isLoginPage', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 是注册页: $isRegisterPage', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}', tag: 'Navigation');
       if (user != null) {
-        AppLogger.debug('当前用户: ${user.email}, 会话过期: ${session?.expiresAt}',
-            tag: 'Auth');
+        AppLogger.debug('🔗 [Navigation] 当前用户: ${user.email}', tag: 'Navigation');
+        AppLogger.debug('🔗 [Navigation] 邮箱确认时间: ${user.emailConfirmedAt}', tag: 'Navigation');
+        AppLogger.debug('🔗 [Navigation] 会话过期: ${session?.expiresAt}', tag: 'Navigation');
       }
     }
 
-    // 如果未登录且不在登录页，重定向到登录页
-    if (!isAuthenticated && !isLoginPage) {
+    // 🚨 安全检查：如果未完全认证(包括邮箱验证)且不在登录页或注册页，重定向到登录页
+    if (!isFullyAuthenticated && !isLoginPage && !isRegisterPage) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('重定向到登录页', tag: 'Auth');
+        if (!isAuthenticated) {
+          AppLogger.debug('🔗 [Navigation] 重定向到登录页 (未认证)', tag: 'Navigation');
+        } else if (!isEmailConfirmed) {
+          AppLogger.error('🚨 [Security] 重定向到登录页 (邮箱未确认): ${user?.email}', tag: 'Navigation');
+        }
       }
       return '/login';
     }
 
-    // 如果已登录且在登录页，重定向到主页
-    if (isAuthenticated && isLoginPage) {
+    // 如果已完全认证且在登录页或注册页，重定向到主页
+    if (isFullyAuthenticated && (isLoginPage || isRegisterPage)) {
       if (AppConfig.enableLogging) {
-        AppLogger.debug('重定向到主页', tag: 'Auth');
+        AppLogger.debug('🔗 [Navigation] 重定向到主页 (已完全认证)', tag: 'Navigation');
       }
       return '/';
     }
@@ -251,7 +268,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/upload',
       name: 'upload',
-      builder: (context, state) => const InvoiceUploadPage(),
+      builder: (context, state) => const CupertinoInvoiceUploadPage(),
     ),
     GoRoute(
       path: '/reimbursement-set/:id',

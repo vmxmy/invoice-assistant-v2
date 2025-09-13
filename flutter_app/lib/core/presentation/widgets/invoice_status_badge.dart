@@ -15,11 +15,11 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
   final VoidCallback? onTap;
 
   const InteractiveInvoiceStatusBadge({
-    Key? key,
+    super.key,
     required this.status,
     this.size = BadgeSize.medium,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

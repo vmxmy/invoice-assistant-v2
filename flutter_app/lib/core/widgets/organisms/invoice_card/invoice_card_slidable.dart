@@ -181,10 +181,6 @@ class CustomSlidableAction extends StatelessWidget {
     );
   }
 
-  /// 获取圆角配置（已废弃，保持一体感使用零圆角）
-  BorderRadius _getBorderRadius() {
-    return BorderRadius.zero;
-  }
 
   /// 构建默认内容
   Widget _buildDefaultContent() {
@@ -372,6 +368,22 @@ class InvoiceSlideActions {
     );
   }
 
+  /// 创建查看报销集详情操作
+  static SlideAction viewReimbursementSet({
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return SlideAction(
+      icon: IconMapping.getCupertinoIcon('folder_fill'),
+      label: '查看报销集',
+      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
+      foregroundColor: foregroundColor ?? Colors.white,
+      onPressed: onPressed,
+      tooltip: '查看关联的报销集详情',
+    );
+  }
+
   /// 创建加入已有报销集操作
   static SlideAction addToExistingSet({
     required VoidCallback onPressed,
@@ -388,21 +400,6 @@ class InvoiceSlideActions {
     );
   }
 
-  /// 创建查看报销集操作
-  static SlideAction viewReimbursementSet({
-    required VoidCallback onPressed,
-    Color? backgroundColor,
-    Color? foregroundColor,
-  }) {
-    return SlideAction(
-      icon: CupertinoIcons.folder_open,
-      label: '报销集',
-      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
-      foregroundColor: foregroundColor ?? Colors.white,
-      onPressed: onPressed,
-      tooltip: '查看所在报销集',
-    );
-  }
 }
 
 /// 发票状态相关的滑动操作工厂
@@ -428,10 +425,20 @@ class InvoiceStatusSlidableActionsFactory {
   /// 为未提交状态的报销集发票生成滑动操作
   static List<SlideAction> createForUnsubmittedInSet({
     required VoidCallback onRemoveFromSet,
+    VoidCallback? onViewReimbursementSet,
   }) {
-    return [
+    final actions = <SlideAction>[
       InvoiceSlideActions.remove(onPressed: onRemoveFromSet),
     ];
+    
+    // 如果提供了查看报销集的回调，添加查看报销集按钮
+    if (onViewReimbursementSet != null) {
+      actions.add(
+        InvoiceSlideActions.viewReimbursementSet(onPressed: onViewReimbursementSet),
+      );
+    }
+    
+    return actions;
   }
 
   /// 为已提交状态的报销集发票生成滑动操作

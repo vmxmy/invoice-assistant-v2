@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_typography.dart';
+import '../utils/cupertino_notification_utils.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:archive/archive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -318,21 +319,9 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     });
 
     // 显示简洁的选择成功提示
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(CupertinoIcons.checkmark_circle_fill, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Expanded(child: Text('已选择$monthKey的${monthInvoices.length}张发票')),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
+    CupertinoNotificationUtils.showSuccess(
+      context,
+      '已选择$monthKey的${monthInvoices.length}张发票',
     );
   }
 

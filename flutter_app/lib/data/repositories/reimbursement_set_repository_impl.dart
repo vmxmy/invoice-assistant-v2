@@ -19,7 +19,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   Future<List<ReimbursementSetEntity>> getReimbursementSets() async {
     try {
       final response = await _supabaseClient
-          .from('reimbursement_set_details')
+          .from('reimbursement_sets_enhanced')
           .select()
           .eq('user_id', _supabaseClient.auth.currentUser!.id)
           .order('created_at', ascending: false);
@@ -46,7 +46,7 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   Future<ReimbursementSetEntity> getReimbursementSetById(String id) async {
     try {
       final response = await _supabaseClient
-          .from('reimbursement_set_details')
+          .from('reimbursement_sets_enhanced')
           .select()
           .eq('id', id)
           .eq('user_id', _supabaseClient.auth.currentUser!.id)

@@ -43,7 +43,22 @@ mixin _$ReimbursementSetModel {
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError; // 扩展字段（来自视图查询）
+  DateTime get updatedAt => throw _privateConstructorUsedError; // 新增的日期范围字段
+  @JsonKey(name: 'consumption_start_date')
+  DateTime? get consumptionStartDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'consumption_end_date')
+  DateTime? get consumptionEndDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'date_range_text')
+  String? get dateRangeText => throw _privateConstructorUsedError;
+  @JsonKey(name: 'date_range_type')
+  String? get dateRangeType => throw _privateConstructorUsedError;
+  @JsonKey(name: 'smart_name_generated')
+  bool get smartNameGenerated => throw _privateConstructorUsedError;
+  @JsonKey(name: 'original_name')
+  String? get originalName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'date_range_metadata')
+  Map<String, dynamic>? get dateRangeMetadata =>
+      throw _privateConstructorUsedError; // 扩展字段（来自视图查询）
   @JsonKey(name: 'user_email')
   String? get userEmail => throw _privateConstructorUsedError;
   @JsonKey(name: 'approver_email')
@@ -55,7 +70,13 @@ mixin _$ReimbursementSetModel {
   @JsonKey(name: 'region_count')
   int? get regionCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'category_count')
-  int? get categoryCount => throw _privateConstructorUsedError;
+  int? get categoryCount => throw _privateConstructorUsedError; // 区域统计信息
+  @JsonKey(name: 'region_statistics')
+  Map<String, dynamic>? get regionStatisticsJson =>
+      throw _privateConstructorUsedError;
+  @JsonKey(name: 'province_statistics')
+  Map<String, dynamic>? get provinceStatisticsJson =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this ReimbursementSetModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -87,12 +108,24 @@ abstract class $ReimbursementSetModelCopyWith<$Res> {
       @JsonKey(name: 'approval_notes') String? approvalNotes,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'consumption_start_date') DateTime? consumptionStartDate,
+      @JsonKey(name: 'consumption_end_date') DateTime? consumptionEndDate,
+      @JsonKey(name: 'date_range_text') String? dateRangeText,
+      @JsonKey(name: 'date_range_type') String? dateRangeType,
+      @JsonKey(name: 'smart_name_generated') bool smartNameGenerated,
+      @JsonKey(name: 'original_name') String? originalName,
+      @JsonKey(name: 'date_range_metadata')
+      Map<String, dynamic>? dateRangeMetadata,
       @JsonKey(name: 'user_email') String? userEmail,
       @JsonKey(name: 'approver_email') String? approverEmail,
       @JsonKey(name: 'earliest_invoice_date') DateTime? earliestInvoiceDate,
       @JsonKey(name: 'latest_invoice_date') DateTime? latestInvoiceDate,
       @JsonKey(name: 'region_count') int? regionCount,
-      @JsonKey(name: 'category_count') int? categoryCount});
+      @JsonKey(name: 'category_count') int? categoryCount,
+      @JsonKey(name: 'region_statistics')
+      Map<String, dynamic>? regionStatisticsJson,
+      @JsonKey(name: 'province_statistics')
+      Map<String, dynamic>? provinceStatisticsJson});
 }
 
 /// @nodoc
@@ -124,12 +157,21 @@ class _$ReimbursementSetModelCopyWithImpl<$Res,
     Object? approvalNotes = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? consumptionStartDate = freezed,
+    Object? consumptionEndDate = freezed,
+    Object? dateRangeText = freezed,
+    Object? dateRangeType = freezed,
+    Object? smartNameGenerated = null,
+    Object? originalName = freezed,
+    Object? dateRangeMetadata = freezed,
     Object? userEmail = freezed,
     Object? approverEmail = freezed,
     Object? earliestInvoiceDate = freezed,
     Object? latestInvoiceDate = freezed,
     Object? regionCount = freezed,
     Object? categoryCount = freezed,
+    Object? regionStatisticsJson = freezed,
+    Object? provinceStatisticsJson = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -184,6 +226,34 @@ class _$ReimbursementSetModelCopyWithImpl<$Res,
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      consumptionStartDate: freezed == consumptionStartDate
+          ? _value.consumptionStartDate
+          : consumptionStartDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      consumptionEndDate: freezed == consumptionEndDate
+          ? _value.consumptionEndDate
+          : consumptionEndDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      dateRangeText: freezed == dateRangeText
+          ? _value.dateRangeText
+          : dateRangeText // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateRangeType: freezed == dateRangeType
+          ? _value.dateRangeType
+          : dateRangeType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      smartNameGenerated: null == smartNameGenerated
+          ? _value.smartNameGenerated
+          : smartNameGenerated // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalName: freezed == originalName
+          ? _value.originalName
+          : originalName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateRangeMetadata: freezed == dateRangeMetadata
+          ? _value.dateRangeMetadata
+          : dateRangeMetadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       userEmail: freezed == userEmail
           ? _value.userEmail
           : userEmail // ignore: cast_nullable_to_non_nullable
@@ -208,6 +278,14 @@ class _$ReimbursementSetModelCopyWithImpl<$Res,
           ? _value.categoryCount
           : categoryCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      regionStatisticsJson: freezed == regionStatisticsJson
+          ? _value.regionStatisticsJson
+          : regionStatisticsJson // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      provinceStatisticsJson: freezed == provinceStatisticsJson
+          ? _value.provinceStatisticsJson
+          : provinceStatisticsJson // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ) as $Val);
   }
 }
@@ -235,12 +313,24 @@ abstract class _$$ReimbursementSetModelImplCopyWith<$Res>
       @JsonKey(name: 'approval_notes') String? approvalNotes,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'consumption_start_date') DateTime? consumptionStartDate,
+      @JsonKey(name: 'consumption_end_date') DateTime? consumptionEndDate,
+      @JsonKey(name: 'date_range_text') String? dateRangeText,
+      @JsonKey(name: 'date_range_type') String? dateRangeType,
+      @JsonKey(name: 'smart_name_generated') bool smartNameGenerated,
+      @JsonKey(name: 'original_name') String? originalName,
+      @JsonKey(name: 'date_range_metadata')
+      Map<String, dynamic>? dateRangeMetadata,
       @JsonKey(name: 'user_email') String? userEmail,
       @JsonKey(name: 'approver_email') String? approverEmail,
       @JsonKey(name: 'earliest_invoice_date') DateTime? earliestInvoiceDate,
       @JsonKey(name: 'latest_invoice_date') DateTime? latestInvoiceDate,
       @JsonKey(name: 'region_count') int? regionCount,
-      @JsonKey(name: 'category_count') int? categoryCount});
+      @JsonKey(name: 'category_count') int? categoryCount,
+      @JsonKey(name: 'region_statistics')
+      Map<String, dynamic>? regionStatisticsJson,
+      @JsonKey(name: 'province_statistics')
+      Map<String, dynamic>? provinceStatisticsJson});
 }
 
 /// @nodoc
@@ -270,12 +360,21 @@ class __$$ReimbursementSetModelImplCopyWithImpl<$Res>
     Object? approvalNotes = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? consumptionStartDate = freezed,
+    Object? consumptionEndDate = freezed,
+    Object? dateRangeText = freezed,
+    Object? dateRangeType = freezed,
+    Object? smartNameGenerated = null,
+    Object? originalName = freezed,
+    Object? dateRangeMetadata = freezed,
     Object? userEmail = freezed,
     Object? approverEmail = freezed,
     Object? earliestInvoiceDate = freezed,
     Object? latestInvoiceDate = freezed,
     Object? regionCount = freezed,
     Object? categoryCount = freezed,
+    Object? regionStatisticsJson = freezed,
+    Object? provinceStatisticsJson = freezed,
   }) {
     return _then(_$ReimbursementSetModelImpl(
       id: null == id
@@ -330,6 +429,34 @@ class __$$ReimbursementSetModelImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      consumptionStartDate: freezed == consumptionStartDate
+          ? _value.consumptionStartDate
+          : consumptionStartDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      consumptionEndDate: freezed == consumptionEndDate
+          ? _value.consumptionEndDate
+          : consumptionEndDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      dateRangeText: freezed == dateRangeText
+          ? _value.dateRangeText
+          : dateRangeText // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateRangeType: freezed == dateRangeType
+          ? _value.dateRangeType
+          : dateRangeType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      smartNameGenerated: null == smartNameGenerated
+          ? _value.smartNameGenerated
+          : smartNameGenerated // ignore: cast_nullable_to_non_nullable
+              as bool,
+      originalName: freezed == originalName
+          ? _value.originalName
+          : originalName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateRangeMetadata: freezed == dateRangeMetadata
+          ? _value._dateRangeMetadata
+          : dateRangeMetadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       userEmail: freezed == userEmail
           ? _value.userEmail
           : userEmail // ignore: cast_nullable_to_non_nullable
@@ -354,6 +481,14 @@ class __$$ReimbursementSetModelImplCopyWithImpl<$Res>
           ? _value.categoryCount
           : categoryCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      regionStatisticsJson: freezed == regionStatisticsJson
+          ? _value._regionStatisticsJson
+          : regionStatisticsJson // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      provinceStatisticsJson: freezed == provinceStatisticsJson
+          ? _value._provinceStatisticsJson
+          : provinceStatisticsJson // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ));
   }
 }
@@ -375,13 +510,28 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
       @JsonKey(name: 'approval_notes') this.approvalNotes,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt,
+      @JsonKey(name: 'consumption_start_date') this.consumptionStartDate,
+      @JsonKey(name: 'consumption_end_date') this.consumptionEndDate,
+      @JsonKey(name: 'date_range_text') this.dateRangeText,
+      @JsonKey(name: 'date_range_type') this.dateRangeType,
+      @JsonKey(name: 'smart_name_generated') this.smartNameGenerated = false,
+      @JsonKey(name: 'original_name') this.originalName,
+      @JsonKey(name: 'date_range_metadata')
+      final Map<String, dynamic>? dateRangeMetadata,
       @JsonKey(name: 'user_email') this.userEmail,
       @JsonKey(name: 'approver_email') this.approverEmail,
       @JsonKey(name: 'earliest_invoice_date') this.earliestInvoiceDate,
       @JsonKey(name: 'latest_invoice_date') this.latestInvoiceDate,
       @JsonKey(name: 'region_count') this.regionCount,
-      @JsonKey(name: 'category_count') this.categoryCount})
-      : super._();
+      @JsonKey(name: 'category_count') this.categoryCount,
+      @JsonKey(name: 'region_statistics')
+      final Map<String, dynamic>? regionStatisticsJson,
+      @JsonKey(name: 'province_statistics')
+      final Map<String, dynamic>? provinceStatisticsJson})
+      : _dateRangeMetadata = dateRangeMetadata,
+        _regionStatisticsJson = regionStatisticsJson,
+        _provinceStatisticsJson = provinceStatisticsJson,
+        super._();
 
   factory _$ReimbursementSetModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ReimbursementSetModelImplFromJson(json);
@@ -422,6 +572,37 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
   @override
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
+// 新增的日期范围字段
+  @override
+  @JsonKey(name: 'consumption_start_date')
+  final DateTime? consumptionStartDate;
+  @override
+  @JsonKey(name: 'consumption_end_date')
+  final DateTime? consumptionEndDate;
+  @override
+  @JsonKey(name: 'date_range_text')
+  final String? dateRangeText;
+  @override
+  @JsonKey(name: 'date_range_type')
+  final String? dateRangeType;
+  @override
+  @JsonKey(name: 'smart_name_generated')
+  final bool smartNameGenerated;
+  @override
+  @JsonKey(name: 'original_name')
+  final String? originalName;
+  final Map<String, dynamic>? _dateRangeMetadata;
+  @override
+  @JsonKey(name: 'date_range_metadata')
+  Map<String, dynamic>? get dateRangeMetadata {
+    final value = _dateRangeMetadata;
+    if (value == null) return null;
+    if (_dateRangeMetadata is EqualUnmodifiableMapView)
+      return _dateRangeMetadata;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
 // 扩展字段（来自视图查询）
   @override
   @JsonKey(name: 'user_email')
@@ -441,10 +622,35 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
   @override
   @JsonKey(name: 'category_count')
   final int? categoryCount;
+// 区域统计信息
+  final Map<String, dynamic>? _regionStatisticsJson;
+// 区域统计信息
+  @override
+  @JsonKey(name: 'region_statistics')
+  Map<String, dynamic>? get regionStatisticsJson {
+    final value = _regionStatisticsJson;
+    if (value == null) return null;
+    if (_regionStatisticsJson is EqualUnmodifiableMapView)
+      return _regionStatisticsJson;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  final Map<String, dynamic>? _provinceStatisticsJson;
+  @override
+  @JsonKey(name: 'province_statistics')
+  Map<String, dynamic>? get provinceStatisticsJson {
+    final value = _provinceStatisticsJson;
+    if (value == null) return null;
+    if (_provinceStatisticsJson is EqualUnmodifiableMapView)
+      return _provinceStatisticsJson;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'ReimbursementSetModel(id: $id, userId: $userId, setName: $setName, description: $description, status: $status, submittedAt: $submittedAt, reimbursedAt: $reimbursedAt, totalAmount: $totalAmount, invoiceCount: $invoiceCount, approverId: $approverId, approvalNotes: $approvalNotes, createdAt: $createdAt, updatedAt: $updatedAt, userEmail: $userEmail, approverEmail: $approverEmail, earliestInvoiceDate: $earliestInvoiceDate, latestInvoiceDate: $latestInvoiceDate, regionCount: $regionCount, categoryCount: $categoryCount)';
+    return 'ReimbursementSetModel(id: $id, userId: $userId, setName: $setName, description: $description, status: $status, submittedAt: $submittedAt, reimbursedAt: $reimbursedAt, totalAmount: $totalAmount, invoiceCount: $invoiceCount, approverId: $approverId, approvalNotes: $approvalNotes, createdAt: $createdAt, updatedAt: $updatedAt, consumptionStartDate: $consumptionStartDate, consumptionEndDate: $consumptionEndDate, dateRangeText: $dateRangeText, dateRangeType: $dateRangeType, smartNameGenerated: $smartNameGenerated, originalName: $originalName, dateRangeMetadata: $dateRangeMetadata, userEmail: $userEmail, approverEmail: $approverEmail, earliestInvoiceDate: $earliestInvoiceDate, latestInvoiceDate: $latestInvoiceDate, regionCount: $regionCount, categoryCount: $categoryCount, regionStatisticsJson: $regionStatisticsJson, provinceStatisticsJson: $provinceStatisticsJson)';
   }
 
   @override
@@ -474,6 +680,20 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
+            (identical(other.consumptionStartDate, consumptionStartDate) ||
+                other.consumptionStartDate == consumptionStartDate) &&
+            (identical(other.consumptionEndDate, consumptionEndDate) ||
+                other.consumptionEndDate == consumptionEndDate) &&
+            (identical(other.dateRangeText, dateRangeText) ||
+                other.dateRangeText == dateRangeText) &&
+            (identical(other.dateRangeType, dateRangeType) ||
+                other.dateRangeType == dateRangeType) &&
+            (identical(other.smartNameGenerated, smartNameGenerated) ||
+                other.smartNameGenerated == smartNameGenerated) &&
+            (identical(other.originalName, originalName) ||
+                other.originalName == originalName) &&
+            const DeepCollectionEquality()
+                .equals(other._dateRangeMetadata, _dateRangeMetadata) &&
             (identical(other.userEmail, userEmail) ||
                 other.userEmail == userEmail) &&
             (identical(other.approverEmail, approverEmail) ||
@@ -485,7 +705,11 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
             (identical(other.regionCount, regionCount) ||
                 other.regionCount == regionCount) &&
             (identical(other.categoryCount, categoryCount) ||
-                other.categoryCount == categoryCount));
+                other.categoryCount == categoryCount) &&
+            const DeepCollectionEquality()
+                .equals(other._regionStatisticsJson, _regionStatisticsJson) &&
+            const DeepCollectionEquality().equals(
+                other._provinceStatisticsJson, _provinceStatisticsJson));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -505,12 +729,21 @@ class _$ReimbursementSetModelImpl extends _ReimbursementSetModel {
         approvalNotes,
         createdAt,
         updatedAt,
+        consumptionStartDate,
+        consumptionEndDate,
+        dateRangeText,
+        dateRangeType,
+        smartNameGenerated,
+        originalName,
+        const DeepCollectionEquality().hash(_dateRangeMetadata),
         userEmail,
         approverEmail,
         earliestInvoiceDate,
         latestInvoiceDate,
         regionCount,
-        categoryCount
+        categoryCount,
+        const DeepCollectionEquality().hash(_regionStatisticsJson),
+        const DeepCollectionEquality().hash(_provinceStatisticsJson)
       ]);
 
   /// Create a copy of ReimbursementSetModel
@@ -545,14 +778,27 @@ abstract class _ReimbursementSetModel extends ReimbursementSetModel {
       @JsonKey(name: 'approval_notes') final String? approvalNotes,
       @JsonKey(name: 'created_at') required final DateTime createdAt,
       @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+      @JsonKey(name: 'consumption_start_date')
+      final DateTime? consumptionStartDate,
+      @JsonKey(name: 'consumption_end_date') final DateTime? consumptionEndDate,
+      @JsonKey(name: 'date_range_text') final String? dateRangeText,
+      @JsonKey(name: 'date_range_type') final String? dateRangeType,
+      @JsonKey(name: 'smart_name_generated') final bool smartNameGenerated,
+      @JsonKey(name: 'original_name') final String? originalName,
+      @JsonKey(name: 'date_range_metadata')
+      final Map<String, dynamic>? dateRangeMetadata,
       @JsonKey(name: 'user_email') final String? userEmail,
       @JsonKey(name: 'approver_email') final String? approverEmail,
       @JsonKey(name: 'earliest_invoice_date')
       final DateTime? earliestInvoiceDate,
       @JsonKey(name: 'latest_invoice_date') final DateTime? latestInvoiceDate,
       @JsonKey(name: 'region_count') final int? regionCount,
-      @JsonKey(name: 'category_count')
-      final int? categoryCount}) = _$ReimbursementSetModelImpl;
+      @JsonKey(name: 'category_count') final int? categoryCount,
+      @JsonKey(name: 'region_statistics')
+      final Map<String, dynamic>? regionStatisticsJson,
+      @JsonKey(name: 'province_statistics')
+      final Map<String, dynamic>?
+          provinceStatisticsJson}) = _$ReimbursementSetModelImpl;
   const _ReimbursementSetModel._() : super._();
 
   factory _ReimbursementSetModel.fromJson(Map<String, dynamic> json) =
@@ -593,7 +839,28 @@ abstract class _ReimbursementSetModel extends ReimbursementSetModel {
   DateTime get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt; // 扩展字段（来自视图查询）
+  DateTime get updatedAt; // 新增的日期范围字段
+  @override
+  @JsonKey(name: 'consumption_start_date')
+  DateTime? get consumptionStartDate;
+  @override
+  @JsonKey(name: 'consumption_end_date')
+  DateTime? get consumptionEndDate;
+  @override
+  @JsonKey(name: 'date_range_text')
+  String? get dateRangeText;
+  @override
+  @JsonKey(name: 'date_range_type')
+  String? get dateRangeType;
+  @override
+  @JsonKey(name: 'smart_name_generated')
+  bool get smartNameGenerated;
+  @override
+  @JsonKey(name: 'original_name')
+  String? get originalName;
+  @override
+  @JsonKey(name: 'date_range_metadata')
+  Map<String, dynamic>? get dateRangeMetadata; // 扩展字段（来自视图查询）
   @override
   @JsonKey(name: 'user_email')
   String? get userEmail;
@@ -611,7 +878,13 @@ abstract class _ReimbursementSetModel extends ReimbursementSetModel {
   int? get regionCount;
   @override
   @JsonKey(name: 'category_count')
-  int? get categoryCount;
+  int? get categoryCount; // 区域统计信息
+  @override
+  @JsonKey(name: 'region_statistics')
+  Map<String, dynamic>? get regionStatisticsJson;
+  @override
+  @JsonKey(name: 'province_statistics')
+  Map<String, dynamic>? get provinceStatisticsJson;
 
   /// Create a copy of ReimbursementSetModel
   /// with the given fields replaced by the non-null parameter values.

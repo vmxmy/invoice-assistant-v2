@@ -7,6 +7,8 @@ import '../../core/animations/micro_interactions.dart';
 import 'uniform_card_styles.dart';
 import 'unified_bottom_sheet.dart';
 import 'reimbursement_status_button.dart';
+import 'region_badge_widget.dart';
+import 'invoice_status_badge.dart';
 
 /// 优化后的报销集卡片组件
 /// 基于UI专家审计建议的简化设计，完全使用FlexColorScheme主题
@@ -117,19 +119,21 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
                   reimbursementSet: reimbursementSet,
                   invoices: [], // 卡片模式不需要具体发票列表
                   isCompact: true,
+                  size: BadgeSize.medium,
                 ),
               ),
 
               const SizedBox(height: UniformCardStyles.spacing12),
 
-              // 金额显示行
-              UniformCardStyles.buildAmountRow(
-                context: context,
-                label: '总金额',
-                amount: '¥${reimbursementSet.totalAmount.toStringAsFixed(2)}',
-              ),
+              // 日期范围显示行（替换总金额）
+              _buildDateRangeRow(context),
 
               const SizedBox(height: UniformCardStyles.spacing12),
+
+              // 区域统计徽章
+              _buildRegionStatistics(context),
+
+              const SizedBox(height: UniformCardStyles.spacing8),
 
               // 底部信息行
               UniformCardStyles.buildBottomRow(
@@ -149,6 +153,63 @@ class OptimizedReimbursementSetCard extends StatelessWidget {
   List<Widget> _buildActionIcons(BuildContext context) {
     // 删除按钮已移至右划手势，这里返回空列表
     return <Widget>[];
+  }
+
+  /// 构建日期范围显示行
+  Widget _buildDateRangeRow(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final dateRangeText = reimbursementSet.dateRangeText ?? reimbursementSet.smartDateRangeText;
+    final totalAmount = reimbursementSet.totalAmount;
+
+    return Row(
+      children: [
+        // 日期范围图标和文本
+        Expanded(
+          child: Row(
+            children: [
+              Icon(
+                CupertinoIcons.calendar,
+                size: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  dateRangeText,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // 总金额（使用发票卡片相同样式）
+        Text(
+          '¥${totalAmount.toStringAsFixed(2)}',
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建区域统计徽章
+  Widget _buildRegionStatistics(BuildContext context) {
+    if (reimbursementSet.regionStatistics == null || 
+        reimbursementSet.regionStatistics!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return RegionStatisticsWidget(
+      regionStatistics: reimbursementSet.regionStatistics,
+      maxVisibleBadges: 3,
+      badgeSize: BadgeSize.small,
+    );
   }
 
 

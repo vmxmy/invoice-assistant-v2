@@ -70,22 +70,6 @@ class InvoiceStatusBadge extends StatelessWidget {
     );
   }
 
-  /// 获取状态颜色（基于紧急程度）
-  Color _getStatusColor(BuildContext context, bool isReimbursed) {
-    if (isReimbursed) {
-      return Theme.of(context).colorScheme.primary; // 已报销：绿色
-    }
-
-    // 未报销状态根据紧急程度确定颜色
-    switch (_getUrgencyLevel()) {
-      case UrgencyLevel.overdue:
-        return Theme.of(context).colorScheme.error; // 逾期：红色
-      case UrgencyLevel.urgent:
-        return Theme.of(context).colorScheme.tertiary; // 紧急：橙色
-      case UrgencyLevel.normal:
-        return Theme.of(context).colorScheme.secondary; // 普通：蓝色
-    }
-  }
 
   /// 获取发票的紧急程度
   UrgencyLevel _getUrgencyLevel() {
@@ -102,22 +86,6 @@ class InvoiceStatusBadge extends StatelessWidget {
     }
   }
 
-  /// 获取状态文本（旧方法，保留以防兼容性问题）
-  String _getStatusText(bool isReimbursed) {
-    if (isReimbursed) {
-      return '已报销';
-    }
-
-    // 根据紧急程度返回不同的文本
-    switch (_getUrgencyLevel()) {
-      case UrgencyLevel.overdue:
-        return '逾期';
-      case UrgencyLevel.urgent:
-        return '紧急';
-      case UrgencyLevel.normal:
-        return '未报销';
-    }
-  }
 
   /// 新的状态颜色获取方法 - 基于紧急程度和状态
   Color _getStatusColorNew(BuildContext context, InvoiceStatus status) {
@@ -157,21 +125,6 @@ class InvoiceStatusBadge extends StatelessWidget {
     }
   }
 
-  /// 获取状态图标
-  IconData _getStatusIcon(bool isReimbursed) {
-    if (isReimbursed) {
-      return CupertinoIcons.checkmark_circle_fill;
-    }
-
-    switch (_getUrgencyLevel()) {
-      case UrgencyLevel.overdue:
-        return CupertinoIcons.exclamationmark_triangle_fill;
-      case UrgencyLevel.urgent:
-        return CupertinoIcons.clock_fill;
-      case UrgencyLevel.normal:
-        return CupertinoIcons.time_solid;
-    }
-  }
 
   /// 根据大小获取内边距
   EdgeInsets _getPadding() {

@@ -358,10 +358,27 @@ class UploadResultWidget extends StatelessWidget {
   Widget _buildActionButtons(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Row(
+      child: Column(
         children: [
+          // 主要操作按钮 - 完成
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onClear,
+              icon: const Icon(CupertinoIcons.checkmark),
+              label: const Text('完成'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          
+          // 次要操作按钮 - 重试（如果有失败文件）
           if (failureCount > 0) ...[
-            Expanded(
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
                   // 重试失败的文件
@@ -375,24 +392,13 @@ class UploadResultWidget extends StatelessWidget {
                 label: Text('重试失败文件 ($failureCount)'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.tertiary,
-                  side:
-                      BorderSide(color: Theme.of(context).colorScheme.tertiary),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  textStyle: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
           ],
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: onClear,
-              icon: const Icon(CupertinoIcons.checkmark),
-              label: const Text('完成'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
         ],
       ),
     );

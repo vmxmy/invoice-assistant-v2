@@ -6,12 +6,13 @@ import 'package:provider/provider.dart';
 import '../../core/theme/component_theme_constants.dart';
 import '../bloc/invoice_bloc.dart';
 import 'invoice_management_page.dart';
-import 'invoice_upload_page.dart';
+import 'cupertino_invoice_upload_page.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../core/theme/theme_manager.dart';
 import '../widgets/theme_selector_widget.dart';
 import '../widgets/unified_bottom_sheet.dart';
+import '../utils/cupertino_notification_utils.dart';
 import '../../debug_query_test.dart';
 import 'status_consistency_test_page.dart';
 
@@ -88,7 +89,7 @@ class _MainPageState extends State<MainPage> {
                 const InvoiceManagementPage(),
 
                 // 上传发票页面
-                const InvoiceUploadPage(),
+                const CupertinoInvoiceUploadPage(),
 
                 // 数据分析页面
                 _buildAnalysisPage(),
@@ -317,11 +318,9 @@ class _MainPageState extends State<MainPage> {
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('退出登录失败: ${e.toString()}'),
-                              backgroundColor: theme.colorScheme.error,
-                            ),
+                          CupertinoNotificationUtils.showError(
+                            context,
+                            '退出登录失败: ${e.toString()}',
                           );
                         }
                       }

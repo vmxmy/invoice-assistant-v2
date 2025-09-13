@@ -531,16 +531,18 @@ class _ReimbursementSetDetailPageState
       confirmColor: Colors.orange,
       icon: CupertinoIcons.minus_circle,
     ).then((result) {
-      if (result == true) {
+      if (result == true && mounted) {
         context.read<ReimbursementSetBloc>().add(
               RemoveInvoicesFromReimbursementSet([invoiceId]),
             );
         
         // 显示成功反馈
-        AppFeedback.success(
-          context,
-          '发票已从报销集中移出',
-        );
+        if (mounted) {
+          AppFeedback.success(
+            context,
+            '发票已从报销集中移出',
+          );
+        }
         
         // 刷新发票列表
         setState(() {

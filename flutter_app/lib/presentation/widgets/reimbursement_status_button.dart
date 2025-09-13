@@ -4,6 +4,7 @@ import '../../domain/entities/reimbursement_set_entity.dart';
 // ReimbursementSetStatus 已在 reimbursement_set_entity.dart 中定义
 import '../../core/theme/app_theme_constants.dart';
 import '../utils/reimbursement_set_operation_utils.dart';
+import 'invoice_status_badge.dart';
 
 /// 统一的报销集状态按钮组件
 /// 可在卡片和详情页中复用，提供一致的状态转换体验
@@ -12,12 +13,14 @@ class ReimbursementStatusButton extends StatelessWidget {
   final ReimbursementSetEntity reimbursementSet;
   final List<dynamic> invoices; // 可以是发票数量或发票列表
   final bool isCompact; // 是否为紧凑模式（用于卡片）
+  final BadgeSize size; // 徽章大小
 
   const ReimbursementStatusButton({
     super.key,
     required this.reimbursementSet,
     required this.invoices,
     this.isCompact = false,
+    this.size = BadgeSize.medium,
   });
 
   @override
@@ -26,21 +29,21 @@ class ReimbursementStatusButton extends StatelessWidget {
     final status = reimbursementSet.status;
     
     // 根据状态和模式决定样式
-    return isCompact ? _buildCompactButton(context, colorScheme, status) 
+    return isCompact ? _buildBadgeStyle(context, colorScheme, status) 
                     : _buildFullButton(context, colorScheme, status);
   }
 
-  /// 构建紧凑模式按钮（用于卡片）
-  Widget _buildCompactButton(BuildContext context, ColorScheme colorScheme, ReimbursementSetStatus status) {
+  /// 构建徽章样式按钮（与发票状态徽章一致）
+  Widget _buildBadgeStyle(BuildContext context, ColorScheme colorScheme, ReimbursementSetStatus status) {
     final (statusText, statusColor, statusIcon) = _getStatusInfo(colorScheme, status);
     
     return GestureDetector(
       onTap: () => _handleStatusUpdate(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: _getPadding(),
         decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppThemeConstants.radiusSmall),
+          color: statusColor.withValues(alpha: 0.15), // 与发票徽章一致
+          borderRadius: BorderRadius.circular(_getBorderRadius()),
           border: Border.all(
             color: statusColor.withValues(alpha: 0.3),
             width: 1,
@@ -51,16 +54,17 @@ class ReimbursementStatusButton extends StatelessWidget {
           children: [
             Icon(
               statusIcon,
-              size: AppThemeConstants.iconSmall,
+              size: _getIconSize(),
               color: statusColor,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: _getSpacing()),
             Text(
               statusText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: statusColor,
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: TextStyle(
+                fontSize: _getFontSize(),
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
             ),
           ],
         ),
@@ -102,17 +106,13 @@ class ReimbursementStatusButton extends StatelessWidget {
     }
   }
 
-  /// 处理状态更新操作 - 使用工具类（职责分离）
+  /// 处理状态更新操作 - 显示状态选择底部弹出框
   void _handleStatusUpdate(BuildContext context) {
-    final nextStatus = _getNextStatus(reimbursementSet.status);
-    if (nextStatus == null) return;
-
-    // 使用工具类处理确认逻辑（职责分离）
-    ReimbursementSetOperationUtils.showStatusUpdateConfirmation(
+    // 显示状态选择底部弹出框，让用户选择任意状态
+    ReimbursementSetOperationUtils.showStatusSelectionBottomSheet(
       context: context,
       setId: reimbursementSet.id,
       currentStatus: reimbursementSet.status,
-      nextStatus: nextStatus,
       setName: reimbursementSet.setName,
       invoiceCount: _getInvoiceCount(),
     );
@@ -124,15 +124,66 @@ class ReimbursementStatusButton extends StatelessWidget {
     return reimbursementSet.invoiceCount;
   }
 
-  /// 获取下一个状态
-  ReimbursementSetStatus? _getNextStatus(ReimbursementSetStatus current) {
-    switch (current) {
-      case ReimbursementSetStatus.unsubmitted:
-        return ReimbursementSetStatus.submitted;
-      case ReimbursementSetStatus.submitted:
-        return ReimbursementSetStatus.reimbursed;
-      case ReimbursementSetStatus.reimbursed:
-        return ReimbursementSetStatus.submitted; // 允许从已报销撤回到已提交
+
+  // ==================== 尺寸方法（与发票状态徽章一致） ====================
+
+  /// 根据大小获取内边距
+  EdgeInsets _getPadding() {
+    switch (size) {
+      case BadgeSize.small:
+        return const EdgeInsets.symmetric(horizontal: 6, vertical: 2);
+      case BadgeSize.medium:
+        return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
+      case BadgeSize.large:
+        return const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
+    }
+  }
+
+  /// 根据大小获取圆角
+  double _getBorderRadius() {
+    switch (size) {
+      case BadgeSize.small:
+        return 10;
+      case BadgeSize.medium:
+        return 12;
+      case BadgeSize.large:
+        return 18;
+    }
+  }
+
+  /// 根据大小获取图标尺寸
+  double _getIconSize() {
+    switch (size) {
+      case BadgeSize.small:
+        return 12;
+      case BadgeSize.medium:
+        return 14;
+      case BadgeSize.large:
+        return 16;
+    }
+  }
+
+  /// 根据大小获取间距
+  double _getSpacing() {
+    switch (size) {
+      case BadgeSize.small:
+        return 4;
+      case BadgeSize.medium:
+        return 6;
+      case BadgeSize.large:
+        return 6;
+    }
+  }
+
+  /// 根据大小获取字体大小
+  double _getFontSize() {
+    switch (size) {
+      case BadgeSize.small:
+        return 11;
+      case BadgeSize.medium:
+        return 13;
+      case BadgeSize.large:
+        return 13;
     }
   }
 }

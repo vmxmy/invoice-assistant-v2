@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
@@ -19,7 +20,6 @@ import '../../core/theme/component_theme_constants.dart';
 import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
 import '../utils/invoice_to_set_operation_utils.dart';
-import '../utils/invoice_delete_utils.dart';
 
 /// 发票卡片组件 - 展示单个发票的信息
 class InvoiceCardWidget extends StatefulWidget {
@@ -240,6 +240,9 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
       case InvoiceStatus.unsubmitted:
         return InvoiceStatusSlidableActionsFactory.createForUnsubmittedInSet(
           onRemoveFromSet: () => _handleRemoveFromReimbursementSet(context),
+          onViewReimbursementSet: invoice.isInReimbursementSet 
+            ? () => _handleViewReimbursementSet(context)
+            : null,
         );
         
       case InvoiceStatus.submitted:
@@ -628,6 +631,26 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     }
   }
 
+  /// 处理查看关联报销集详情
+  void _handleViewReimbursementSet(BuildContext context) {
+    final invoice = widget.invoice;
+    
+    // 检查发票是否有关联的报销集ID
+    if (invoice.reimbursementSetId == null || !invoice.isInReimbursementSet) {
+      // 如果没有关联的报销集，显示提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('该发票未关联任何报销集'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    
+    // 跳转到报销集详情页面
+    context.push('/reimbursement-set/${invoice.reimbursementSetId}');
+  }
+
   /// 创建新报销集并加入发票
   void _createNewReimbursementSet(BuildContext context) {
     // 使用智能生成的默认名称直接创建报销集
@@ -692,31 +715,4 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
 
 
-  /// 显示成功消息
-  void _showSuccessMessage(BuildContext context, String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                CupertinoIcons.checkmark_circle_fill,
-                color: Theme.of(context).colorScheme.onSecondary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(child: Text(message)),
-            ],
-          ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
-    }
-  }
 }

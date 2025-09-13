@@ -282,7 +282,15 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                     CupertinoButton(
-                      onPressed: () => context.push('/register'),
+                      onPressed: () {
+                        if (AppConfig.enableLogging) {
+                          AppLogger.debug('🔗 [Navigation] 点击立即注册按钮', tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 当前路由: /login', tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 目标路由: /register', tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}', tag: 'Navigation');
+                        }
+                        context.push('/register');
+                      },
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         '立即注册',

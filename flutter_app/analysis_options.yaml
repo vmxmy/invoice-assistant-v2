@@ -26,6 +26,7 @@ analyzer:
     
     # Archive and backup directories
     - archived/**
+    - archived_*/**
     - backup/**
     - temp/**
     - tmp/**
