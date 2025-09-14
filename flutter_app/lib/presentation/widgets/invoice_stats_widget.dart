@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/repositories/invoice_repository.dart';
+import '../../core/config/app_constants.dart';
 // 移除旧主题系统，使用 FlexColorScheme 统一主题管理
 
 /// 发票统计组件 - 显示发票统计信息
@@ -223,12 +224,6 @@ class InvoiceStatsWidget extends StatelessWidget {
 
   /// 格式化货币金额
   String _formatCurrency(double amount) {
-    if (amount >= 10000) {
-      return '¥${(amount / 10000).toStringAsFixed(1)}万';
-    } else if (amount >= 1000) {
-      return '¥${(amount / 1000).toStringAsFixed(1)}k';
-    } else {
-      return '¥${amount.toStringAsFixed(0)}';
-    }
+    return AppConstants.getFormattedAmount(amount);
   }
 }

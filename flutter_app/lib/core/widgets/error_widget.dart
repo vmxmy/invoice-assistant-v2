@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/app_constants.dart';
 
 /// 通用错误展示组件
 class AppErrorWidget extends StatelessWidget {
@@ -22,7 +21,7 @@ class AppErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
+        padding: const EdgeInsets.all(16.0), // 标准间距
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -31,7 +30,7 @@ class AppErrorWidget extends StatelessWidget {
               size: 64,
               color: Colors.red.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: AppConstants.defaultPadding),
+            const SizedBox(height: 16.0),
             if (title != null) ...[
               Text(
                 title!,
@@ -54,7 +53,7 @@ class AppErrorWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: AppConstants.defaultPadding),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: onRetry,
                 child: Text(retryButtonText ?? '重试'),

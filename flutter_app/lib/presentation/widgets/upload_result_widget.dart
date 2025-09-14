@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../../core/constants/message_constants.dart';
 import '../bloc/invoice_state.dart';
 // 移除旧主题系统，使用 FlexColorScheme 统一主题管理
 
@@ -82,7 +83,7 @@ class UploadResultWidget extends StatelessWidget {
       // 只有重复文件，没有成功和失败
       summaryColor = colorScheme.tertiary;
       summaryIcon = CupertinoIcons.info_circle;
-      summaryTitle = '文件重复处理完成';
+      summaryTitle = '重复发票处理完成';
     } else {
       // 兜底情况（可能包含失败+重复的情况）
       summaryColor = colorScheme.tertiary;
@@ -311,17 +312,17 @@ class UploadResultWidget extends StatelessWidget {
     Color badgeColor;
 
     if (result.isSuccess && !result.isDuplicate && !result.isCrossUserDuplicate) {
-      badgeText = '上传成功';
+      badgeText = MessageConstants.getBadgeText('success');
       badgeColor = colorScheme.primary;
     } else if (result.isDuplicate) {
-      badgeText = '该发票已存在';
+      badgeText = MessageConstants.getBadgeText('duplicate');
       badgeColor = colorScheme.tertiary;
     } else if (result.isCrossUserDuplicate) {
-      badgeText = '检测到跨用户重复发票';
+      badgeText = MessageConstants.getBadgeText('cross_user_duplicate');
       badgeColor = colorScheme.tertiary;
     } else {
-      // 错误情况，显示友好错误信息
-      badgeText = _getFriendlyErrorMessage(result.error ?? '上传失败');
+      // 错误情况，使用统一的错误消息处理
+      badgeText = MessageConstants.getErrorMessage(result.error);
       badgeColor = colorScheme.error;
     }
 
@@ -716,50 +717,4 @@ class UploadResultWidget extends StatelessWidget {
   }
 
   /// 将技术错误信息转换为用户友好的错误信息
-  String _getFriendlyErrorMessage(String originalError) {
-    // 移除技术性前缀
-    String cleanError = originalError;
-    if (cleanError.contains('UploadInvoiceException:')) {
-      cleanError = cleanError.split('UploadInvoiceException:').last.trim();
-    }
-
-    // 常见错误模式匹配
-    if (cleanError.contains('网络连接') ||
-        cleanError.contains('connection') ||
-        cleanError.contains('timeout')) {
-      return '网络连接异常，请检查网络后重试';
-    } else if (cleanError.contains('文件大小') ||
-        cleanError.contains('file size') ||
-        cleanError.contains('too large')) {
-      return '文件大小超出限制，单个文件不能超过10MB';
-    } else if (cleanError.contains('格式') ||
-        cleanError.contains('format') ||
-        cleanError.contains('invalid')) {
-      return '文件格式不支持，请选择PDF格式的发票文件';
-    } else if (cleanError.contains('服务器错误') ||
-        cleanError.contains('server error') ||
-        cleanError.contains('internal error')) {
-      return '服务器暂时无法处理请求，请稍后重试';
-    } else if (cleanError.contains('权限') ||
-        cleanError.contains('permission') ||
-        cleanError.contains('unauthorized')) {
-      return '操作权限不足，请重新登录后重试';
-    } else if (cleanError.contains('数据操作失败') ||
-        cleanError.contains('database')) {
-      return '数据保存失败，请检查网络连接后重试';
-    } else if (cleanError.contains('重复') || cleanError.contains('duplicate')) {
-      return '该文件已存在，无需重复上传';
-    } else if (cleanError.contains('OCR') || cleanError.contains('识别')) {
-      return '发票信息识别失败，请确保文件清晰可读';
-    } else if (cleanError.contains('uploadInvoice')) {
-      return '上传服务暂时不可用，请稍后重试';
-    }
-
-    // 如果没有匹配到特定错误，返回简化的通用错误
-    if (cleanError.length > 50) {
-      return '上传失败，请检查文件格式和网络连接后重试';
-    }
-
-    return cleanError.isNotEmpty ? cleanError : '上传失败，请重试';
-  }
 }

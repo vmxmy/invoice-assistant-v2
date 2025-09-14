@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../../domain/entities/invoice_entity.dart';
 import '../utils/logger.dart';
+import '../config/app_constants.dart';
 
 /// 智能分页管理器
 /// 支持预加载、虚拟滚动和智能缓存
@@ -170,7 +171,7 @@ class SmartPaginationManager {
       totalItems: null,
       hasNextPage: items.length == pageSize,
       timestamp: DateTime.now(),
-      ttl: Duration(minutes: 5),
+      ttl: AppConstants.invoiceListCacheTtl,
     );
   }
 

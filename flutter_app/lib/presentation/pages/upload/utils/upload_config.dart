@@ -1,15 +1,11 @@
+import '../../../../core/config/app_constants.dart';
+
 /// 上传配置管理
 class UploadConfig {
-  /// 最大文件大小 (10MB)
-  static const int maxFileSize = 10 * 1024 * 1024;
-  
-  /// 最大文件数量
-  static const int maxFileCount = 5;
-  
-  /// 支持的文件扩展名
-  static const List<String> supportedExtensions = [
-    'pdf', 'jpg', 'jpeg', 'png', 'webp'
-  ];
+  // 使用统一配置常量
+  static int get maxFileSize => AppConstants.maxFileSize;
+  static int get maxFileCount => AppConstants.maxFileCount;
+  static List<String> get supportedExtensions => AppConstants.supportedFileExtensions;
   
   /// 支持的MIME类型
   static const List<String> supportedMimeTypes = [
@@ -20,11 +16,9 @@ class UploadConfig {
     'image/webp',
   ];
   
-  /// 防抖延迟时间
-  static const Duration debounceDelay = Duration(milliseconds: 100);
-  
-  /// 动画持续时间
-  static const Duration animationDuration = Duration(milliseconds: 300);
+  // 使用统一配置的时间常量
+  static Duration get debounceDelay => AppConstants.uiUpdateDelay;
+  static Duration get animationDuration => AppConstants.normalAnimationDuration;
   
   /// 紧凑模式断点
   static const double compactModeBreakpoint = 320;

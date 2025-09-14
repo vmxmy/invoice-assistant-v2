@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
+import '../../core/constants/message_constants.dart';
 
 /// 发票状态基类
 abstract class InvoiceState extends Equatable {
@@ -349,7 +350,7 @@ extension UploadStageExtension on UploadStage {
       case UploadStage.success:
         return '上传成功';
       case UploadStage.duplicate:
-        return '文件重复';
+        return MessageConstants.getBadgeText('duplicate');
       case UploadStage.error:
         return '上传失败';
     }

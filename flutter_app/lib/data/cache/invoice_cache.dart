@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../core/utils/logger.dart';
+import '../../core/config/app_constants.dart';
 
 /// 发票缓存管理器 - 提供用户隔离的内存缓存功能
 class InvoiceCache {
@@ -21,10 +22,10 @@ class InvoiceCache {
   final Map<String, _CacheEntry<int>> _countCacheByUser = {};
 
   // 缓存配置
-  static const Duration _defaultTtl = Duration(minutes: 5);
-  static const Duration _countTtl = Duration(minutes: 2);
-  static const int _maxListCacheSize = 10;
-  static const int _maxDetailCacheSize = 50;
+  static Duration get _defaultTtl => AppConstants.invoiceListCacheTtl;
+  static Duration get _countTtl => AppConstants.invoiceStatsCacheTtl;
+  static int get _maxListCacheSize => AppConstants.maxListCacheSize;
+  static int get _maxDetailCacheSize => AppConstants.maxDetailCacheSize;
 
   /// 确保当前用户上下文
   void _ensureUserContext() {

@@ -14,6 +14,7 @@ import '../../domain/exceptions/invoice_exceptions.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/supabase_config.dart';
+import '../../core/config/app_constants.dart';
 
 /// 发票远程数据源 - 负责与Supabase API交互
 abstract class InvoiceRemoteDataSource {
@@ -761,7 +762,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     // 🔥 简化互斥筛选逻辑：逾期、紧急、待报销只能选择一个
     if (filters.overdue == true) {
       // 逾期筛选：>90天未报销
-      final overdueDate = DateTime.now().subtract(const Duration(days: 90));
+      final overdueDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceOverdueDays));
       final overdueThreshold = overdueDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', overdueThreshold);
@@ -774,7 +775,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
     } else if (filters.urgent == true) {
       // 紧急筛选：>60天未报销
-      final urgentDate = DateTime.now().subtract(const Duration(days: 60));
+      final urgentDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceUrgentDays));
       final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', urgentThreshold);
@@ -1043,14 +1044,14 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       
       // 创建进度模拟，确保至少持续2秒钟
       int progressStep = 0;
-      const totalSteps = 20; // 20步完成，每步约150ms
+      final totalSteps = AppConstants.ocrProcessSteps; // 20步完成，每步约150ms
       
       // 异步发送实际请求
       final requestFuture = request.send();
       
       // 进度模拟循环
       while (progressStep < totalSteps) {
-        await Future.delayed(const Duration(milliseconds: 150));
+        await Future.delayed(AppConstants.ocrStepDelay);
         progressStep++;
         
         final progress = progressStep / totalSteps;

@@ -8,6 +8,8 @@ import '../../domain/usecases/delete_invoice_usecase.dart';
 import '../../domain/usecases/update_invoice_status_usecase.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../domain/entities/invoice_entity.dart';
+import '../../core/config/app_constants.dart';
+import '../../core/constants/message_constants.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../core/config/app_config.dart';
@@ -397,7 +399,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
 
       final result = await _getInvoicesUseCase(
         page: _currentPage + 1,
-        pageSize: 20, // 设置为20以测试无限滚动
+        pageSize: AppConstants.defaultPageSize, // 使用统一配置的页面大小
         filters: _currentFilters, // 使用保存的筛选条件
       );
 
@@ -950,7 +952,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
               progresses[i] = progresses[i].copyWith(
                 stage: UploadStage.duplicate,
                 progress: 1.0,
-                message: '文件重复',
+                message: MessageConstants.getBadgeText('duplicate'),
               );
               duplicateCount++;
             } else {

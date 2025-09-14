@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/app_constants.dart';
 
 /// 通用加载组件
 class LoadingWidget extends StatelessWidget {
@@ -30,7 +29,7 @@ class LoadingWidget extends StatelessWidget {
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: AppConstants.defaultPadding),
+            const SizedBox(height: 16.0), // 使用标准间距
             Text(
               message!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

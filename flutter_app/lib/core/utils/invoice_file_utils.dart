@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../network/supabase_client.dart';
 import '../config/app_config.dart';
+import '../config/app_constants.dart';
 import '../../domain/entities/invoice_entity.dart';
 
 /// 发票文件处理工具类
@@ -25,9 +26,9 @@ class InvoiceFileUtils {
   }
 
   /// 文件下载安全限制配置
-  static const int _maxFileSize = 50 * 1024 * 1024; // 50MB
-  static const Duration _downloadTimeout = Duration(seconds: 60); // 60秒超时
-  static const int _maxRetries = 3; // 最大重试次数
+  static int get _maxFileSize => AppConstants.maxDownloadFileSize; // 50MB
+  static Duration get _downloadTimeout => AppConstants.downloadTimeout; // 60秒超时
+  static int get _maxRetries => AppConstants.maxRetryAttempts; // 最大重试次数
   static const Duration _retryDelay = Duration(seconds: 2); // 重试间隔
 
   /// 获取发票的有效PDF字节数据

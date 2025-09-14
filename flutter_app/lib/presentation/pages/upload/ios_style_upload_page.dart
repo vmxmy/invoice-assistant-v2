@@ -156,7 +156,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
             padding: EdgeInsets.zero,
             onPressed: () {
               HapticFeedback.lightImpact();
-              context.pop();
+              _handleBackNavigation(context);
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -512,6 +512,25 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
       icon: CupertinoIcons.lightbulb_fill,
       autoCloseDuration: const Duration(seconds: 4),
     );
+  }
+
+  /// 处理返回导航
+  void _handleBackNavigation(BuildContext context) {
+    final router = GoRouter.of(context);
+    final canPop = router.canPop();
+    
+    if (canPop) {
+      // 如果可以弹出路由（独立页面模式），直接弹出
+      context.pop();
+    } else {
+      // 如果不能弹出路由（tab页面模式），切换到发票管理tab
+      final eventBus = sl<AppEventBus>();
+      eventBus.emit(TabChangedEvent(
+        newTabIndex: 0,
+        oldTabIndex: 1,
+        tabName: '发票管理',
+      ));
+    }
   }
 
 }

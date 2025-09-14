@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/user_permissions.dart';
 import '../../core/utils/logger.dart';
+import '../../core/config/app_constants.dart';
 
 /// 权限持久化缓存服务
 /// 提供权限数据的本地存储，支持离线访问和性能优化
@@ -11,7 +12,7 @@ class PermissionCacheService {
   static const String _userIdKey = 'cached_user_id';
   
   // 缓存过期时间：2小时
-  static const Duration _cacheExpiration = Duration(hours: 2);
+  static Duration get _cacheExpiration => AppConstants.permissionsCacheTtl;
 
   /// 缓存用户权限到本地存储
   Future<void> cachePermissions(UserPermissions permissions) async {

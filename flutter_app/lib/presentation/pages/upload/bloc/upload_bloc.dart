@@ -4,6 +4,8 @@ import 'dart:collection';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../domain/usecases/upload_invoice_usecase.dart';
 import '../../../../core/events/app_event_bus.dart';
+import '../../../../core/constants/message_constants.dart';
+import '../../../../core/config/app_constants.dart';
 import '../utils/upload_validator.dart';
 import '../utils/upload_config.dart';
 import 'upload_event.dart';
@@ -337,8 +339,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     final filesToUpload = retryIndices ?? List.generate(_selectedFiles.length, (i) => i);
     
     // 并发上传，限制并发数
-    const maxConcurrency = 3;
-    final semaphore = Semaphore(maxConcurrency);
+    final semaphore = Semaphore(AppConstants.maxConcurrentUploads);
     
     await Future.wait(
       filesToUpload.map((index) => _uploadSingleFile(index, semaphore)),
@@ -374,7 +375,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
             index, 
             false, // 重复发票视为失败
             invoiceId: result.duplicateInfo?.existingInvoiceId,
-            errorMessage: result.duplicateInfo?.message ?? '检测到重复发票',
+            errorMessage: MessageConstants.getDuplicateMessage(result.duplicateInfo?.message),
           ));
         } else if (result.isSuccess && result.invoice != null) {
           // 真正的上传成功
@@ -390,7 +391,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
             index, 
             false, 
             invoiceId: null,
-            errorMessage: result.error?.message ?? '上传失败',
+            errorMessage: MessageConstants.getErrorMessage(result.error?.message),
           ));
         }
       }
