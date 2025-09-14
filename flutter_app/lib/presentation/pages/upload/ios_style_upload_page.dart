@@ -520,23 +520,4 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
     );
   }
 
-  void _showSuccessToast(BuildContext context, String message) {
-    UnifiedBottomSheet.showResultSheet(
-      context: context,
-      isSuccess: true,
-      title: '成功',
-      message: message,
-      icon: CupertinoIcons.checkmark_circle_fill,
-    );
-  }
-
-  void _showWarningToast(BuildContext context, String message) {
-    UnifiedBottomSheet.showResultSheet(
-      context: context,
-      isSuccess: false,
-      title: '警告',
-      message: message,
-      icon: CupertinoIcons.exclamationmark_triangle_fill,
-    );
-  }
 }

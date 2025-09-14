@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../domain/repositories/invoice_repository.dart';
 // 移除旧主题系统，使用 FlexColorScheme 统一主题管理
-// import '../../core/theme/app_typography.dart';
 
 /// 发票统计组件 - 显示发票统计信息
 class InvoiceStatsWidget extends StatelessWidget {

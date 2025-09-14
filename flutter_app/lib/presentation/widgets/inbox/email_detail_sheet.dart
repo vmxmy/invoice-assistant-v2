@@ -41,7 +41,7 @@ class EmailDetailSheet extends StatelessWidget {
       isDismissible: true,
       clipBehavior: Clip.antiAlias,
       elevation: 0,
-      barrierColor: Colors.black.withValues(alpha: 0.5), // 优化遮罩颜色
+      barrierColor: Colors.black.withValues(alpha: ComponentThemeConstants.opacitySecondary), // 优化遮罩颜色
       transitionAnimationController: null, // 使用默认iOS动画
       builder: (context) => EmailDetailSheet(
         emailDetail: emailDetail,
@@ -57,7 +57,7 @@ class EmailDetailSheet extends StatelessWidget {
 
     return UnifiedBottomSheet(
       title: '邮件详情',
-      maxHeight: MediaQuery.of(context).size.height * 0.90, // 增加高度到90%
+      maxHeight: MediaQuery.of(context).size.height * 0.9, // 90%高度
       actions: _buildActions(context, colorScheme),
       child: SingleChildScrollView(
         padding: InboxThemeConstants.emailDetailPadding,
@@ -68,35 +68,35 @@ class EmailDetailSheet extends StatelessWidget {
             // 邮件基本信息 - 紧凑布局
             _buildEmailHeaderCompact(colorScheme),
             
-            const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
             
             // 处理状态和分类 - 紧凑布局
             _buildStatusSectionCompact(colorScheme),
             
-            const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
+            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
             
             // 邮件正文 - 主要内容区域
             if (emailDetail.bodyPreview.isNotEmpty)
               _buildEmailBody(colorScheme),
             
-            const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
+            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
             
             // 附件信息 - 减少间距
             if (emailDetail.hasAttachments) ...[
-              const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+              SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
               _buildAttachmentsSection(colorScheme),
             ],
             
             // 处理详情 - 减少间距
-            const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
             _buildProcessingDetails(colorScheme),
             
             // 技术详情（可折叠）- 减少间距
-            const SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
             _buildTechnicalDetails(colorScheme),
             
             // 底部间距
-            const SizedBox(height: 16),
+            SizedBox(height: ComponentThemeConstants.spacingL),
           ],
         ),
       ),
@@ -138,27 +138,28 @@ class EmailDetailSheet extends StatelessWidget {
         onTap();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(22),
+          color: color.withValues(alpha: ComponentThemeConstants.opacityOverlay * 1.5),
+          borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusLarge + 6),
           border: Border.all(
-            color: color.withValues(alpha: 0.2),
-            width: 0.5,
+            color: color.withValues(alpha: ComponentThemeConstants.opacityOverlay * 2.5),
+            width: ComponentThemeConstants.borderWidthThin,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 17, color: color),
-            const SizedBox(width: 7),
+            Icon(icon, size: ComponentThemeConstants.iconSizeS, color: color),
+            SizedBox(width: ComponentThemeConstants.spacingS - 1),
             Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: ComponentThemeConstants.fontSizeSubtitle,
                 fontWeight: FontWeight.w600,
                 color: color,
-                letterSpacing: -0.1,
+                // 优化字母间距
+              letterSpacing: -0.1,
               ),
             ),
           ],
@@ -185,8 +186,8 @@ class EmailDetailSheet extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  colorScheme.primary.withValues(alpha: 0.15),
-                  colorScheme.primary.withValues(alpha: 0.05),
+                  colorScheme.primary.withValues(alpha: ComponentThemeConstants.opacityOverlay * 1.875),
+                  colorScheme.primary.withValues(alpha: ComponentThemeConstants.opacityOverlay * 0.625),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -199,7 +200,7 @@ class EmailDetailSheet extends StatelessWidget {
               color: colorScheme.primary,
             ),
           ),
-          const SizedBox(width: ComponentThemeConstants.spacingS),
+          SizedBox(width: ComponentThemeConstants.spacingS),
           // 发件人和时间信息 - 紧凑布局
           Expanded(
             child: Column(
@@ -220,13 +221,13 @@ class EmailDetailSheet extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: ComponentThemeConstants.spacingS),
+                    SizedBox(width: ComponentThemeConstants.spacingS),
                     Icon(
                       CupertinoIcons.time,
                       size: ComponentThemeConstants.iconSizeXS,
                       color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary),
                     ),
-                    const SizedBox(width: ComponentThemeConstants.spacingXS),
+                    SizedBox(width: ComponentThemeConstants.spacingXS),
                     Text(
                       _formatDateTime(emailDetail.emailDate ?? emailDetail.createdAt),
                       style: TextStyle(
@@ -236,7 +237,7 @@ class EmailDetailSheet extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: ComponentThemeConstants.spacingXS),
+                SizedBox(height: ComponentThemeConstants.spacingXS),
                 // 邮件主题 - 紧凑显示
                 Text(
                   emailDetail.baseInfo.displaySubject,
@@ -273,7 +274,7 @@ class EmailDetailSheet extends StatelessWidget {
             status: _mapToStatusBadgeStatus(emailDetail.overallStatus),
             size: StatusBadgeSize.small, // 使用小尺寸
           ),
-          const SizedBox(width: ComponentThemeConstants.spacingS),
+          SizedBox(width: ComponentThemeConstants.spacingS),
           _buildCategoryChipCompact(colorScheme),
           const Spacer(),
           // 简化的统计信息
@@ -289,16 +290,16 @@ class EmailDetailSheet extends StatelessWidget {
     final config = _getCategoryConfig(emailDetail.emailCategory, colorScheme);
     
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: ComponentThemeConstants.spacingS,
         vertical: ComponentThemeConstants.spacingXS,
       ),
       decoration: BoxDecoration(
-        color: config.color.withValues(alpha: 0.1),
+        color: config.color.withValues(alpha: ComponentThemeConstants.opacityOverlay * 1.25),
         borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
         border: Border.all(
-          color: config.color.withValues(alpha: 0.2),
-          width: 0.5,
+          color: config.color.withValues(alpha: ComponentThemeConstants.opacityOverlay * 2.5),
+          width: ComponentThemeConstants.borderWidthThin,
         ),
       ),
       child: Row(
@@ -306,9 +307,9 @@ class EmailDetailSheet extends StatelessWidget {
         children: [
           Text(
             config.icon,
-            style: const TextStyle(fontSize: ComponentThemeConstants.fontSizeCaption),
+            style: TextStyle(fontSize: ComponentThemeConstants.fontSizeCaption),
           ),
-          const SizedBox(width: ComponentThemeConstants.spacingXS),
+          SizedBox(width: ComponentThemeConstants.spacingXS),
           Text(
             config.label,
             style: TextStyle(
@@ -358,10 +359,10 @@ class EmailDetailSheet extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusLarge),
         border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.08),
-          width: 0.5,
+          color: colorScheme.outline.withValues(alpha: ComponentThemeConstants.opacityOverlay),
+          width: ComponentThemeConstants.borderWidthThin,
         ),
       ),
       child: Column(
@@ -369,13 +370,13 @@ class EmailDetailSheet extends StatelessWidget {
         children: [
           // 头部标题
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            padding: EdgeInsets.fromLTRB(16, 14, 16, 10),
             child: Row(
               children: [
                 Text(
                   '邮件正文',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: ComponentThemeConstants.fontSizeBody,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
                   ),
@@ -383,10 +384,10 @@ class EmailDetailSheet extends StatelessWidget {
                 const Spacer(),
                 if (useHtmlRender)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: colorScheme.primary.withValues(alpha: ComponentThemeConstants.opacityOverlay * 1.25),
+                      borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
                     ),
                     child: Text(
                       'HTML',
@@ -403,8 +404,13 @@ class EmailDetailSheet extends StatelessWidget {
           
           // 可滚动的邮件内容区域
           Container(
-            height: 200, // 限制高度以启用滚动
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+            constraints: BoxConstraints(maxHeight: 200), // 使用约束而非固定高度
+            padding: EdgeInsets.fromLTRB(
+              ComponentThemeConstants.spacingL + 2,
+              0,
+              ComponentThemeConstants.spacingL + 2,
+              ComponentThemeConstants.spacingL + 2,
+            ),
             child: useHtmlRender ? _buildHtmlContent(displayContent, colorScheme) 
                                 : _buildTextContent(displayContent, colorScheme),
           ),
@@ -415,8 +421,7 @@ class EmailDetailSheet extends StatelessWidget {
 
   /// 构建HTML内容
   Widget _buildHtmlContent(String htmlContent, ColorScheme colorScheme) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
+    return _buildScrollableContentWithIndicator(
       child: Html(
         data: htmlContent,
         style: {
@@ -425,7 +430,7 @@ class EmailDetailSheet extends StatelessWidget {
             padding: HtmlPaddings.zero,
             fontSize: FontSize(15),
             lineHeight: const LineHeight(1.6),
-            color: colorScheme.onSurface.withValues(alpha: 0.85),
+            color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.25),
           ),
           'p': Style(
             margin: Margins.only(bottom: 12),
@@ -444,7 +449,7 @@ class EmailDetailSheet extends StatelessWidget {
             padding: HtmlPaddings.only(left: 12),
             border: Border(
               left: BorderSide(
-                color: colorScheme.outline.withValues(alpha: 0.3),
+                color: colorScheme.outline.withValues(alpha: ComponentThemeConstants.opacityTertiary - 0.08),
                 width: 3,
               ),
             ),
@@ -476,17 +481,214 @@ class EmailDetailSheet extends StatelessWidget {
 
   /// 构建纯文本内容
   Widget _buildTextContent(String textContent, ColorScheme colorScheme) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
+    return _buildScrollableContentWithIndicator(
       child: SelectableText(
         textContent,
         style: TextStyle(
-          fontSize: 15,
-          color: colorScheme.onSurface.withValues(alpha: 0.85),
-          height: 1.6,
-          letterSpacing: -0.1,
+          fontSize: ComponentThemeConstants.fontSizeSubtitle,
+          color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.25),
+          height: ComponentThemeConstants.lineHeightLoose,
+          // 优化字母间距
+              letterSpacing: -0.1,
         ),
       ),
+    );
+  }
+
+  /// 构建带滚动指示器的内容容器
+  Widget _buildScrollableContentWithIndicator({required Widget child}) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        final scrollController = ScrollController();
+        double scrollProgress = 0.0;
+        int totalLines = 0;
+        int visibleLines = 0;
+        bool showIndicator = false;
+        
+        // 监听滚动变化
+        void updateScrollInfo() {
+          if (scrollController.hasClients) {
+            final maxScrollExtent = scrollController.position.maxScrollExtent;
+            final currentScroll = scrollController.position.pixels;
+            final viewportHeight = scrollController.position.viewportDimension;
+            
+            // 只有当内容确实可以滚动时才显示指示器
+            final canScroll = maxScrollExtent > 10; // 至少10像素的滚动空间才显示
+            
+            if (canScroll) {
+              final newScrollProgress = currentScroll / maxScrollExtent;
+              final contentHeight = maxScrollExtent + viewportHeight;
+              final lineHeight = ComponentThemeConstants.fontSizeSubtitle * ComponentThemeConstants.lineHeightLoose;
+              
+              final newTotalLines = (contentHeight / lineHeight).ceil();
+              final newVisibleLines = (viewportHeight / lineHeight).ceil();
+              
+              // 减少不必要的重绘
+              if ((newScrollProgress - scrollProgress).abs() > 0.01 ||
+                  newTotalLines != totalLines || 
+                  newVisibleLines != visibleLines ||
+                  showIndicator != canScroll) {
+                setState(() {
+                  scrollProgress = newScrollProgress;
+                  totalLines = newTotalLines;
+                  visibleLines = newVisibleLines;
+                  showIndicator = canScroll;
+                });
+              }
+            } else if (showIndicator) {
+              setState(() {
+                showIndicator = false;
+              });
+            }
+          }
+        }
+        
+        scrollController.addListener(updateScrollInfo);
+        
+        // 内容加载后检查是否需要显示指示器
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          updateScrollInfo();
+        });
+        
+        return Stack(
+          children: [
+            // 主要的滚动内容
+            Scrollbar(
+              controller: scrollController,
+              thumbVisibility: true,
+              trackVisibility: true,
+              thickness: ComponentThemeConstants.spacingXS,
+              radius: Radius.circular(ComponentThemeConstants.radiusSmall),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(right: ComponentThemeConstants.spacingM), // 为滚动条预留空间
+                child: child,
+              ),
+            ),
+            
+            // 内容位置指示器 - 仅在内容可滚动时显示
+            if (showIndicator)
+              Positioned(
+                top: ComponentThemeConstants.spacingXS,
+                right: ComponentThemeConstants.spacingXS,
+                child: AnimatedOpacity(
+                  opacity: showIndicator ? 1.0 : 0.0,
+                  duration: ComponentThemeConstants.animationFast,
+                  child: _buildContentPositionIndicator(
+                    scrollProgress: scrollProgress,
+                    totalLines: totalLines,
+                    visibleLines: visibleLines,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 构建内容位置指示器
+  Widget _buildContentPositionIndicator({
+    required double scrollProgress,
+    required int totalLines,
+    required int visibleLines,
+  }) {
+    return Builder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        
+        return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ComponentThemeConstants.spacingS - 2,
+            vertical: ComponentThemeConstants.spacingXS / 2,
+          ),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(
+              alpha: ComponentThemeConstants.opacityOverlay * 11, // ~0.88
+            ),
+            borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+            border: Border.all(
+              color: colorScheme.outline.withValues(
+                alpha: ComponentThemeConstants.opacityOverlay * 2, // ~0.16
+              ),
+              width: ComponentThemeConstants.borderWidthThin,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 滚动进度条
+              Container(
+                width: ComponentThemeConstants.spacingL,
+                height: ComponentThemeConstants.spacingL * 3, // 48px
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall / 2),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(
+                      alpha: ComponentThemeConstants.opacityOverlay,
+                    ),
+                    width: ComponentThemeConstants.borderWidthThin,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    // 进度填充
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: (ComponentThemeConstants.spacingL * 3) * scrollProgress,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              colorScheme.primary,
+                              colorScheme.primary.withValues(alpha: ComponentThemeConstants.opacitySecondary),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall / 2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              SizedBox(height: ComponentThemeConstants.spacingXS / 2),
+              
+              // 内容统计信息
+              Text(
+                '${(scrollProgress * 100).round()}%',
+                style: TextStyle(
+                  fontSize: ComponentThemeConstants.fontSizeCaption - 2,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(
+                    alpha: ComponentThemeConstants.opacitySecondary + 0.2,
+                  ),
+                ),
+              ),
+              
+              SizedBox(height: ComponentThemeConstants.spacingXS / 4),
+              
+              // 行数信息
+              if (totalLines > visibleLines)
+                Text(
+                  '$visibleLines/$totalLines',
+                  style: TextStyle(
+                    fontSize: ComponentThemeConstants.fontSizeCaption - 3,
+                    color: colorScheme.onSurface.withValues(
+                      alpha: ComponentThemeConstants.opacitySecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -508,10 +710,10 @@ class EmailDetailSheet extends StatelessWidget {
   /// 构建附件区域
   Widget _buildAttachmentsSection(ColorScheme colorScheme) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(ComponentThemeConstants.spacingM),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusMedium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -520,14 +722,14 @@ class EmailDetailSheet extends StatelessWidget {
             children: [
               Icon(
                 CupertinoIcons.paperclip,
-                size: 14,
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                size: ComponentThemeConstants.iconSizeS,
+                color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 '附件信息',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: ComponentThemeConstants.fontSizeBody - 1,
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface,
                 ),
@@ -535,7 +737,7 @@ class EmailDetailSheet extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: ComponentThemeConstants.spacingM),
           
           if (emailDetail.totalAttachments != null) ...[
             _buildAttachmentStat('总附件数', '${emailDetail.totalAttachments}', colorScheme),
@@ -548,9 +750,9 @@ class EmailDetailSheet extends StatelessWidget {
           ],
           
           if (emailDetail.attachmentNames?.isNotEmpty == true) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: ComponentThemeConstants.spacingS),
             const Divider(),
-            const SizedBox(height: 8),
+            SizedBox(height: ComponentThemeConstants.spacingS),
             ...emailDetail.attachmentNames!.map((name) => _buildAttachmentItem(name, colorScheme)),
           ],
         ],
@@ -561,10 +763,10 @@ class EmailDetailSheet extends StatelessWidget {
   /// 构建处理详情
   Widget _buildProcessingDetails(ColorScheme colorScheme) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ComponentThemeConstants.spacingL),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusMedium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,45 +774,45 @@ class EmailDetailSheet extends StatelessWidget {
           Text(
             '处理详情',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: ComponentThemeConstants.fontSizeBody,
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,
             ),
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: ComponentThemeConstants.spacingM),
           
           if (emailDetail.matchedKeywords?.isNotEmpty == true) ...[
             _buildDetailItem('匹配关键词', emailDetail.matchedKeywords!.join(', '), colorScheme),
-            const SizedBox(height: 8),
+            SizedBox(height: ComponentThemeConstants.spacingS),
           ],
           
           if (emailDetail.extractionCompleteness != null)
             _buildDetailItem('提取完整性', emailDetail.extractionCompletenessDisplayName, colorScheme),
           
           if (emailDetail.linkQuality != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: ComponentThemeConstants.spacingS),
             _buildDetailItem('链接质量', emailDetail.linkQualityDisplayName, colorScheme),
           ],
           
           if (emailDetail.mappingMethod != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: ComponentThemeConstants.spacingS),
             _buildDetailItem('用户映射', emailDetail.mappingMethodDisplayName, colorScheme),
           ],
           
           if (emailDetail.recommendations?.isNotEmpty == true) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: ComponentThemeConstants.spacingM),
             Text(
               '处理建议',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: ComponentThemeConstants.fontSizeBody - 1,
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface.withValues(alpha: 0.8),
+                color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.2),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             ...emailDetail.recommendations!.map((rec) => Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: EdgeInsets.only(top: 4),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -619,8 +821,8 @@ class EmailDetailSheet extends StatelessWidget {
                     child: Text(
                       rec,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontSize: ComponentThemeConstants.fontSizeBody - 1,
+                        color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.1),
                       ),
                     ),
                   ),
@@ -644,7 +846,7 @@ class EmailDetailSheet extends StatelessWidget {
         title: Text(
           '技术详情',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: ComponentThemeConstants.fontSizeBody,
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
@@ -652,23 +854,23 @@ class EmailDetailSheet extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ComponentThemeConstants.spacingL),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusMedium),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildDetailItem('邮件ID', emailDetail.id, colorScheme),
-                const SizedBox(height: 8),
+                SizedBox(height: ComponentThemeConstants.spacingS),
                 _buildDetailItem('工作流ID', emailDetail.baseInfo.workflowExecutionId, colorScheme),
-                const SizedBox(height: 8),
+                SizedBox(height: ComponentThemeConstants.spacingS),
                 _buildDetailItem('触发事件ID', emailDetail.baseInfo.triggerEventId, colorScheme),
-                const SizedBox(height: 8),
+                SizedBox(height: ComponentThemeConstants.spacingS),
                 _buildDetailItem('执行路径', emailDetail.baseInfo.executionPath, colorScheme),
                 if (emailDetail.mappedUserId != null) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: ComponentThemeConstants.spacingS),
                   _buildDetailItem('映射用户ID', emailDetail.mappedUserId!, colorScheme),
                 ],
               ],
@@ -684,21 +886,21 @@ class EmailDetailSheet extends StatelessWidget {
   /// 构建附件统计项
   Widget _buildAttachmentStat(String label, String value, ColorScheme colorScheme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 13,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: ComponentThemeConstants.fontSizeBody - 1,
+              color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.1),
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: ComponentThemeConstants.fontSizeBody - 1,
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,
             ),
@@ -711,21 +913,21 @@ class EmailDetailSheet extends StatelessWidget {
   /// 构建附件项
   Widget _buildAttachmentItem(String name, ColorScheme colorScheme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(
             CupertinoIcons.doc,
-            size: 16,
-            color: colorScheme.onSurface.withValues(alpha: 0.6),
+            size: ComponentThemeConstants.iconSizeS,
+            color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: ComponentThemeConstants.spacingS),
           Expanded(
             child: Text(
               name,
               style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurface.withValues(alpha: 0.8),
+                fontSize: ComponentThemeConstants.fontSizeBody - 1,
+                color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary + 0.2),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -742,21 +944,21 @@ class EmailDetailSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 80,
+          width: ComponentThemeConstants.spacingS,
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 13,
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: ComponentThemeConstants.fontSizeBody - 1,
+              color: colorScheme.onSurface.withValues(alpha: ComponentThemeConstants.opacitySecondary),
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: ComponentThemeConstants.spacingS),
         Expanded(
           child: Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: ComponentThemeConstants.fontSizeBody - 1,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface,
             ),

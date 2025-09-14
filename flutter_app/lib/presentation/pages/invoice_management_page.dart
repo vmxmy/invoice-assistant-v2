@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 // 移除旧主题系统，使用 FlexColorScheme 统一主题管理
-// import '../../core/theme/app_typography.dart';
 import '../utils/cupertino_notification_utils.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -83,13 +82,9 @@ class _InvoiceManagementPageContentState
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        final tabNames = ['发票', '报销集', '统计'];
-        final tabName = _tabController.index < tabNames.length 
-            ? tabNames[_tabController.index] 
-            : '未知';
-            
-        // 通过生命周期管理器发送Tab切换事件
-        _lifecycleManager.onTabChanged(_tabController.index, tabName);
+        // 发票管理页面内部的子tab切换，不需要发送全局TabChangedEvent
+        // 因为这会与MainPage的主tab切换冲突
+        // _lifecycleManager.onTabChanged(_tabController.index, tabName);
       }
     });
   }

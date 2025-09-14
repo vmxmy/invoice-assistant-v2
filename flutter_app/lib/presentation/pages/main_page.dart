@@ -294,6 +294,17 @@ class _MainPageState extends State<MainPage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: Icon(CupertinoIcons.mail,
+                      color: theme.colorScheme.primary),
+                  title: const Text('邮件收件箱'),
+                  subtitle: const Text('查看邮件处理记录和统计信息'),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
+                  onTap: () {
+                    context.go('/inbox');
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(CupertinoIcons.paintbrush_fill),
                   title: const Text('主题设置'),
                   subtitle: Text(

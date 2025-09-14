@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../bloc/invoice_state.dart';
 // 移除旧主题系统，使用 FlexColorScheme 统一主题管理
-// import '../../core/theme/app_typography.dart';
 
 /// 上传结果显示组件
 class UploadResultWidget extends StatelessWidget {

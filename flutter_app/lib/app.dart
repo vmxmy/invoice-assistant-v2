@@ -22,6 +22,8 @@ import 'presentation/pages/register_page.dart';
 import 'presentation/pages/invoice_detail_page.dart';
 import 'presentation/pages/upload/ios_style_upload_page.dart';
 import 'presentation/pages/reimbursement_set_detail_page.dart';
+import 'presentation/pages/inbox/inbox_page.dart';
+import 'presentation/bloc/inbox/inbox_bloc.dart';
 
 /// 发票助手应用根组件
 class InvoiceAssistantApp extends StatefulWidget {
@@ -135,6 +137,16 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                     });
                   }
                   
+                  return bloc;
+                },
+              ),
+              BlocProvider<InboxBloc>(
+                create: (context) {
+                  AppLogger.debug('创建全局唯一InboxBloc', tag: 'App');
+                  final bloc = di.sl<InboxBloc>();
+                  AppLogger.debug(
+                      'InboxBloc实例创建完成 [${bloc.hashCode}]',
+                      tag: 'App');
                   return bloc;
                 },
               ),
@@ -338,6 +350,15 @@ final _router = GoRouter(
         // Note: ReimbursementSetDetailPage will access ReimbursementSetBloc from MainPage's BlocProvider
         // This route should only be accessible from within the main app flow
         return ReimbursementSetDetailPage(reimbursementSetId: setId);
+      },
+    ),
+    GoRoute(
+      path: '/inbox',
+      name: 'inbox',
+      builder: (context, state) {
+        // Note: InboxPage will access InboxBloc from MainPage's BlocProvider
+        // This route should only be accessible from within the main app flow
+        return const InboxPage();
       },
     ),
   ],

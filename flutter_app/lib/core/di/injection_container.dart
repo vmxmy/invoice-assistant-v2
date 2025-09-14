@@ -2,14 +2,18 @@ import 'package:get_it/get_it.dart';
 
 // 数据层
 import '../../data/datasources/invoice_remote_datasource.dart';
+import '../../data/datasources/inbox_datasource.dart';
+import '../../data/datasources/inbox_datasource_impl.dart';
 import '../../data/repositories/invoice_repository_impl.dart';
 import '../../data/repositories/reimbursement_set_repository_impl.dart';
+import '../../data/repositories/inbox_repository_impl.dart';
 import '../../data/services/permission_service.dart';
 import '../../data/services/permission_cache_service.dart';
 
 // 领域层
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/repositories/reimbursement_set_repository.dart';
+import '../../domain/repositories/inbox_repository.dart';
 import '../../domain/usecases/get_invoices_usecase.dart';
 import '../../domain/usecases/get_invoice_detail_usecase_production.dart';
 import '../../domain/usecases/get_invoice_stats_usecase.dart';
@@ -21,9 +25,11 @@ import '../../domain/usecases/upload_invoice_usecase.dart';
 import '../../presentation/bloc/invoice_bloc.dart';
 import '../../presentation/bloc/reimbursement_set_bloc.dart';
 import '../../presentation/bloc/permission_bloc.dart';
+import '../../presentation/bloc/inbox/inbox_bloc.dart';
 
 // 核心服务
 import '../events/app_event_bus.dart';
+import '../network/supabase_client.dart';
 
 /// 全局依赖注入容器
 final sl = GetIt.instance;
@@ -55,6 +61,13 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerLazySingleton(
+    () => InboxBloc(
+      repository: sl(),
+      eventBus: sl(),
+    ),
+  );
+
   //! 领域层 (Domain Layer)
   // Use cases
   sl.registerLazySingleton(() => GetInvoicesUseCase(sl()));
@@ -74,9 +87,17 @@ Future<void> init() async {
     () => ReimbursementSetRepositoryImpl(),
   );
 
+  sl.registerLazySingleton<InboxRepository>(
+    () => InboxRepositoryImpl(dataSource: sl()),
+  );
+
   // Data sources
   sl.registerLazySingleton<InvoiceRemoteDataSource>(
     () => InvoiceRemoteDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<InboxDataSource>(
+    () => InboxDataSourceImpl(supabaseClient: SupabaseClientManager.client),
   );
 
   // Services

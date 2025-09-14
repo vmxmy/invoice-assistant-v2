@@ -94,17 +94,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     super.dispose();
   }
 
-  /// 延迟复位滑动状态
-  /// 提供视觉反馈时间后自动关闭滑动面板
-  void _closeWithDelay({int delayMs = 200}) {
-    if (mounted) {
-      Future.delayed(Duration(milliseconds: delayMs), () {
-        if (mounted) {
-          _slidableController.close();
-        }
-      });
-    }
-  }
 
   /// 构建头部右侧内容（报销集徽章 + 状态徽章）
   Widget? _buildHeaderTrailing() {

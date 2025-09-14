@@ -1036,7 +1036,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 模拟分块上传进度
       // 由于HTTP包的限制，我们无法获取真实的上传进度
       // 这里使用更持久的进度模拟，确保用户能看到进度变化
-      print('🚀 [DataSource] Starting progress simulation for ${totalBytes} bytes');
+      print('🚀 [DataSource] Starting progress simulation for $totalBytes bytes');
       
       // 初始进度报告
       onProgress(0, totalBytes);
