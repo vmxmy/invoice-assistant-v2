@@ -132,7 +132,6 @@ class OptimisticUIHandler {
   /// 通知UI回滚
   void _notifyRollback(_OptimisticOperation operation) {
     // 这里应该通过事件总线或状态管理来通知UI回滚
-    // print('Rolling back operation for invoice ${operation.invoiceId}');
   }
 
   /// 检查发票是否有待处理的乐观操作

@@ -52,7 +52,6 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       universalHeight =
           universalHeight.clamp(widget.minHeight, widget.maxHeight);
 
-      // print('📄 [AdaptivePDF] 使用横向A4比例高度: $universalHeight');
 
       setState(() {
         _calculatedHeight = universalHeight;
@@ -66,10 +65,8 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       String? filePath;
       if (widget.filePath != null && widget.filePath!.isNotEmpty) {
         filePath = widget.filePath;
-        // print('📄 [AdaptivePDF] 使用 filePath: $filePath');
       } else {
         filePath = SupabaseClientManager.extractFilePathFromUrl(widget.pdfUrl);
-        // print('📄 [AdaptivePDF] 从 URL 解析 filePath: $filePath');
       }
 
       if (filePath == null || filePath.isEmpty) {
@@ -89,10 +86,7 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
         });
       }
 
-      // print('📄 [AdaptivePDF] 签名URL获取成功');
-      // print('📄 [AdaptivePDF] 准备创建SfPdfViewer widget');
     } catch (e) {
-      // print('📄 [AdaptivePDF] 签名URL获取失败: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -170,7 +164,6 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       );
     }
 
-    // print('📄 [AdaptivePDF] 构建PDF查看器 - 高度: $_calculatedHeight');
 
     return GestureDetector(
       onTap: () => _showFullScreenPdf(),
@@ -191,11 +184,8 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
             canShowPaginationDialog: false,
             onDocumentLoaded: (PdfDocumentLoadedDetails details) {
               // PDF加载完成处理
-              // print('📄 [AdaptivePDF] PDF加载完成 - 页数: ${details.document.pages.count}');
             },
             onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
-              // print('📄 [AdaptivePDF] SfPdfViewer PDF加载失败: ${details.error}');
-              // print('📄 [AdaptivePDF] 失败详情: ${details.description}');
               if (mounted) {
                 setState(() {
                   _hasError = true;

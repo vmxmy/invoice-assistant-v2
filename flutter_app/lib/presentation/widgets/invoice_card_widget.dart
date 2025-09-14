@@ -142,7 +142,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   Widget build(BuildContext context) {
     // 移除BlocListener - 报销集状态监听已统一到InvoiceManagementPage
     // 避免重复显示成功消息
-    print('🎯 [InvoiceCard] 构建滑动卡片组件');
     
     return Semantics(
       label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
@@ -398,22 +397,18 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 简化的加载对话框关闭方法
   void _closeLoadingDialog() {
-    // print('🔄 [UI] 尝试关闭加载对话框...');
 
     if (!mounted) {
-      // print('❌ [UI] Widget已卸载，无法关闭对话框');
       return;
     }
 
     try {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
-        // print('✅ [UI] 加载对话框关闭成功');
       } else {
-        // print('⚠️ [UI] 没有对话框可以关闭');
       }
     } catch (e) {
-      // print('❌ [UI] 关闭对话框失败: $e');
+      // Ignore operation failure
     }
   }
 
@@ -432,37 +427,28 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
       // 检查Widget是否仍然挂载
       if (!mounted) {
-        // print('❌ [分享] Widget已被销毁，取消分享操作');
         return;
       }
 
       _showLoadingDialog(context, '正在准备分享...');
       dialogShown = true;
 
-      // print('📥 [分享] 开始下载PDF文件...');
       final downloadedFile =
           await InvoiceFileUtils.downloadInvoicePdfToTempFile(widget.invoice);
-      // print('✅ [分享] PDF文件下载完成: ${downloadedFile.path}');
 
       // 确保关闭加载对话框
       if (dialogShown && mounted) {
-        // print('🔄 [分享] 准备关闭加载对话框...');
         _closeLoadingDialog();
         dialogShown = false;
-        // print('✅ [分享] 加载对话框关闭完成');
       }
 
       // 检查Widget是否仍然挂载
       if (!mounted) {
-        // print('❌ [分享] Widget在下载完成后被销毁，无法显示分享菜单');
         return;
       }
 
-      // print('📤 [分享] 准备显示分享菜单...');
       await _showShareSheet(downloadedFile);
-      // print('✅ [分享] 分享菜单已显示');
     } catch (e) {
-      // print('❌ [分享] 分享过程出现异常: $e');
 
       // 确保关闭加载对话框
       if (dialogShown && mounted) {
@@ -618,7 +604,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   /// 处理从报销集移出操作
   void _handleRemoveFromReimbursementSet(BuildContext context) async {
     final invoice = widget.invoice;
-    final reimbursementSetName = '报销集'; // TODO: 从实际数据获取报销集名称
+    final reimbursementSetName = '报销集';
     final colorScheme = Theme.of(context).colorScheme;
     
     final result = await UnifiedBottomSheet.showConfirmDialog(

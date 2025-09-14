@@ -60,8 +60,6 @@ class InboxDataSourceImpl implements InboxDataSource {
         'user_uuid': userId,
       });
 
-      print('📄 原始响应数据类型: ${response.runtimeType}');
-      print('📄 原始响应数据: $response');
 
       if (response == null) {
         throw ServerException(
@@ -99,7 +97,6 @@ class InboxDataSourceImpl implements InboxDataSource {
         );
       }
 
-      print('📄 处理后的邮件数据: $emailData');
       return EmailDetailModel.fromJson(emailData);
     } catch (e) {
       if (e is ServerException) rethrow;

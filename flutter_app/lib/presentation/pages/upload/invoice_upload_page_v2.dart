@@ -139,19 +139,14 @@ class _UploadPageContent extends StatelessWidget {
   
   Widget _buildMainContent(BuildContext context, UploadState state) {
     // 调试状态信息
-    print('🔄 [UploadPage] Current state: ${state.runtimeType} - $state');
     
     if (state is UploadInProgress) {
-      print('📊 [UploadPage] Showing upload progress with ${state.progresses.length} files');
       return _buildUploadProgress(context, state);
     } else if (state is UploadCompleted) {
-      print('✅ [UploadPage] Showing upload results');
       return _buildUploadResult(context, state);
     } else if (state is UploadError) {
-      print('❌ [UploadPage] Showing upload error: ${state.message}');
       return _buildErrorState(context, state);
     } else {
-      print('📁 [UploadPage] Showing file selection');
       // UploadInitial 或 FilesSelected
       return _buildFileSelection(context, state);
     }

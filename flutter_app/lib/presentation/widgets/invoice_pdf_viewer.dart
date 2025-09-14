@@ -41,11 +41,9 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
       // 优先使用 filePath，如果没有则从 fileUrl 解析
       if (widget.filePath != null && widget.filePath!.isNotEmpty) {
         filePath = widget.filePath;
-        // print('📄 [PDF] 使用 filePath: $filePath');
       } else {
         // 从完整URL提取文件路径（fallback方式）
         filePath = SupabaseClientManager.extractFilePathFromUrl(widget.pdfUrl);
-        // print('📄 [PDF] 从 URL 解析 filePath: $filePath');
       }
 
       if (filePath == null || filePath.isEmpty) {
@@ -67,9 +65,7 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
         });
       }
 
-      // print('📄 [PDF] 签名URL获取成功: $signedUrl');
     } catch (e) {
-      // print('📄 [PDF] 签名URL获取失败: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -110,12 +106,8 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
                           canShowScrollStatus: false,
                           canShowPaginationDialog: false,
                           onDocumentLoaded: (details) {
-                            // print('📄 [PDF] 文档加载成功: ${details.document.pages.count} 页');
                           },
                           onDocumentLoadFailed: (details) {
-                            // print('📄 [PDF] 文档加载失败: ${details.error}');
-                            // print('📄 [PDF] 完整签名URL: $_signedUrl');
-                            // print('📄 [PDF] 错误详情: ${details.description}');
                             if (mounted) {
                               setState(() {
                                 _hasError = true;
@@ -328,12 +320,10 @@ class _InvoicePdfViewerState extends State<InvoicePdfViewer> {
           mode: LaunchMode.externalApplication, // 在新标签页中打开
           webOnlyWindowName: '_blank',
         );
-        // print('📄 [PDF] 在新窗口打开PDF: $url');
       } else {
         throw Exception('无法打开URL');
       }
     } catch (e) {
-      // print('📄 [PDF] 打开新窗口失败: $e');
       // 显示错误信息
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

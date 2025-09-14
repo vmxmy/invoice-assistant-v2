@@ -63,7 +63,6 @@ class _InvoiceManagementPageState extends State<InvoiceManagementPage>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    // print('🏭 [InvoiceManagementPage] 使用来自MainPage的BlocProvider');
     return const _InvoiceManagementPageContent();
   }
 }
@@ -98,19 +97,15 @@ class _InvoiceManagementPageContentState
 
   @override
   Widget build(BuildContext context) {
-    // print('🏠 [InvoiceManagementPageContent] build 方法执行');
 
     return MultiBlocListener(
       listeners: [
         // 发票操作监听器
         BlocListener<InvoiceBloc, InvoiceState>(
           listener: (context, state) {
-            // print('🔥 [页面级Listener:${bloc.hashCode}] 接收到状态: ${state.runtimeType}');
             if (state is InvoiceDeleteSuccess) {
-              // print('🔥 [页面级Listener:${bloc.hashCode}] 删除成功，立即显示Snackbar: ${state.message}');
               EnhancedErrorHandler.showSuccessSnackBar(context, state.message);
             } else if (state is InvoiceError) {
-              // print('🔥 [页面级Listener:${bloc.hashCode}] 操作失败: ${state.message}');
               EnhancedErrorHandler.showErrorSnackBar(
                 context,
                 state.message,
@@ -175,7 +170,6 @@ class _InvoiceManagementPageContentState
                 value: context.read<InvoiceBloc>(),
                 child: Builder(
                   builder: (context) {
-                    // print('🏗️ [TabBarView] Builder构建AllInvoicesTab');
                     return _AllInvoicesTab(searchQuery: _searchQuery);
                   },
                 ),
@@ -184,7 +178,6 @@ class _InvoiceManagementPageContentState
                 value: context.read<InvoiceBloc>(),
                 child: Builder(
                   builder: (context) {
-                    // print('🏗️ [TabBarView] Builder构建ReimbursementSetsTab');
                     return _ReimbursementSetsTab();
                   },
                 ),
@@ -193,7 +186,6 @@ class _InvoiceManagementPageContentState
                 value: context.read<InvoiceBloc>(),
                 child: Builder(
                   builder: (context) {
-                    // print('🏗️ [TabBarView] Builder构建FavoritesTab');
                     return _FavoritesTab();
                   },
                 ),
@@ -247,14 +239,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
   String _searchQuery = '';
   FilterOptions _currentFilterOptions = const FilterOptions();
 
-  _AllInvoicesTabState() {
-    // print('🏗️ [AllInvoicesTabState] 构造函数执行');
-  }
 
   @override
   void initState() {
     super.initState();
-    // print('🏗️ [AllInvoicesTabState] initState执行');
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
 
@@ -269,18 +257,14 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       // 检查认证状态
       final user = SupabaseClientManager.currentUser;
       if (user == null || user.emailConfirmedAt == null) {
-        print('🔒 [AllInvoicesTabState] 用户未认证或邮箱未确认，跳过数据加载');
         return;
       }
       
       final currentState = context.read<InvoiceBloc>().state;
-      // print('🏗️ [AllInvoicesTabState] 检查当前状态: ${currentState.runtimeType}');
 
       if (currentState is! InvoiceLoaded || currentState.invoices.isEmpty) {
-        // print('🏗️ [AllInvoicesTabState] 触发加载发票事件');
         context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
       } else {
-        // print('🏗️ [AllInvoicesTabState] 已有数据，无需重新加载 - 发票数量: ${currentState.invoices.length}');
       }
     });
   }
@@ -371,19 +355,16 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       final invoiceRepository = sl<InvoiceRepository>();
       final selectedInvoicesData = <InvoiceEntity>[];
 
-      // print('📥 [下载] 开始获取 ${_selectedInvoices.length} 张发票的详细信息');
 
       for (final invoiceId in _selectedInvoices) {
         try {
           final invoice = await invoiceRepository.getInvoiceById(invoiceId);
           selectedInvoicesData.add(invoice);
-          // print('📥 [下载] 发票 ${invoice.invoiceNumber}: fileUrl=${invoice.fileUrl}, hasFile=${invoice.hasFile}');
         } catch (e) {
-          // print('❌ [下载] 获取发票详情失败: $invoiceId - $e');
+          // Ignore operation failure
         }
       }
 
-      // print('📥 [下载] 成功获取 ${selectedInvoicesData.length} 张发票详情');
 
       // 创建ZIP压缩包
       final archive = Archive();
@@ -410,7 +391,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
         final batchTasks = batch.map((invoice) async {
           try {
-            // print('📥 [下载] 正在下载: ${invoice.invoiceNumber}');
 
             // 使用优化后的下载方法（带重试机制）
             final fileBytes =
@@ -425,10 +405,9 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
             final file = ArchiveFile(fileName, fileBytes.length, fileBytes);
             archive.addFile(file);
             successCount++;
-            // print('✅ [下载] 成功下载: ${invoice.invoiceNumber} (${fileBytes.length} bytes)');
           } catch (e) {
+          // Ignore operation failure
             downloadFailCount++;
-            // print('❌ [下载] 下载发票文件失败: ${invoice.invoiceNumber} - $e');
           }
         });
 
@@ -441,7 +420,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         }
       }
 
-      // print('📊 [下载] 统计: 成功=$successCount, 无文件=$noFileCount, 下载失败=$downloadFailCount');
 
       if (archive.files.isEmpty) {
         if (mounted) {
@@ -493,7 +471,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
           await _openFileLocation(filePath, successCount);
         } else {
           // 用户取消保存或保存失败
-          // print('ℹ️ [下载] 用户取消了下载操作');
         }
       }
 
@@ -512,7 +489,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       if (Platform.isMacOS) {
         // macOS：在Finder中显示文件
         await Process.run('open', ['-R', filePath]);
-        // print('📁 [macOS] 已在Finder中显示文件: $filePath');
 
         // 显示macOS标准下载完成对话框
         if (mounted) {
@@ -620,12 +596,10 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       } else if (Platform.isWindows) {
         // Windows：在资源管理器中显示文件
         await Process.run('explorer', ['/select,', filePath]);
-        // print('📁 [Windows] 已在资源管理器中显示文件: $filePath');
       } else if (Platform.isLinux) {
         // Linux：尝试打开文件管理器
         final directory = Directory(filePath).parent.path;
         await Process.run('xdg-open', [directory]);
-        // print('📁 [Linux] 已打开文件夹: $directory');
       } else if (Platform.isAndroid || Platform.isIOS) {
         // 移动端：显示文件保存信息并提供分享选项
         if (mounted) {
@@ -655,7 +629,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         }
       }
     } catch (e) {
-      // print('❌ [文件打开] 无法打开文件位置: $e');
       // 如果打开失败，至少显示成功信息
       if (mounted) {
         AppFeedback.success(context, '文件已保存到本地，包含 $fileCount 张发票');
@@ -669,9 +642,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       await Share.shareXFiles(
         [XFile(filePath)],
       );
-      // print('📤 [分享] 移动端分享成功: $filePath');
     } catch (e) {
-      // print('❌ [分享] 移动端分享失败: $e');
       if (mounted) {
         AppFeedback.error(context, '分享失败');
       }
@@ -687,10 +658,8 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
       if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         // 桌面端：显示文件保存对话框
-        // print('💾 [保存] 显示文件保存对话框');
 
         try {
-          // print('💾 [保存] 显示文件保存对话框 (file_picker)');
 
           final fileSavePath = await FilePicker.platform.saveFile(
             dialogTitle: '保存发票文件',
@@ -699,33 +668,27 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
             allowedExtensions: ['zip'],
           );
 
-          // print('💾 [保存] FilePicker.saveFile 返回结果: $fileSavePath');
 
           if (fileSavePath == null) {
-            // print('💾 [保存] 用户取消了保存操作，回退到默认目录');
             // 回退到默认目录而不是返回null
             final directory = await getApplicationDocumentsDirectory();
             final file = File('${directory.path}/$defaultFileName');
             await file.writeAsBytes(zipData);
-            // print('✅ [保存] 回退保存到默认位置: ${file.path}');
             return file.path;
           }
 
-          // print('💾 [保存] 用户选择保存到: $fileSavePath');
 
           // 写入文件到用户选择的位置
           final file = File(fileSavePath);
           await file.writeAsBytes(zipData);
 
-          // print('✅ [保存] 文件已保存到: ${file.path}');
           return file.path;
         } catch (e) {
-          // print('❌ [保存] 文件保存对话框错误: $e');
+          // Ignore operation failure
           // 如果保存对话框失败，回退到默认目录
           final directory = await getApplicationDocumentsDirectory();
           final file = File('${directory.path}/$defaultFileName');
           await file.writeAsBytes(zipData);
-          // print('✅ [保存] 回退保存到默认位置: ${file.path}');
           return file.path;
         }
       } else if (Platform.isAndroid || Platform.isIOS) {
@@ -756,7 +719,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         final file = File('${directory.path}/$defaultFileName');
         await file.writeAsBytes(zipData);
 
-        // print('📁 [保存] 文件已保存到: ${file.path}');
         return file.path;
       }
 
@@ -803,10 +765,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   /// 处理筛选变化
   void _handleFilterChanged(FilterOptions filterOptions) {
-    // print('🔍 [ManagementPage] _handleFilterChanged 被调用: $filterOptions');
-    // print('🔍 [ManagementPage] 逾期筛选: ${filterOptions.showOverdue}');
-    // print('🔍 [ManagementPage] 紧急筛选: ${filterOptions.showUrgent}');
-    // print('🔍 [ManagementPage] 待报销筛选: ${filterOptions.showUnreimbursed}');
     setState(() {
       _currentFilterOptions = filterOptions;
     });
@@ -817,8 +775,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   /// 处理筛选清除（带刷新，绕过缓存）
   void _handleFilterClearWithRefresh(FilterOptions filterOptions) {
-    // print('🔍 [ManagementPage] _handleFilterClearWithRefresh 被调用: $filterOptions');
-    // print('🔍 [ManagementPage] 清除筛选，绕过缓存重新查询全部数据');
     setState(() {
       _currentFilterOptions = filterOptions;
     });
@@ -838,7 +794,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       forceRefresh: refresh, // 根据refresh参数决定是否强制刷新
     );
 
-    // print('🔍 [LoadInvoicesWithFilter] 构建的筛选条件${refresh ? '（刷新模式）' : ''}: overdue=${filters.overdue}, urgent=${filters.urgent}, status=${filters.status}, search=${filters.globalSearch}');
 
     context.read<InvoiceBloc>().add(LoadInvoices(
           page: 1,
@@ -937,7 +892,6 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
   void _onScroll() {
     if (AppConfig.enableLogging) {
-      // print('📜 [AllInvoicesTab-Scroll] 滚动事件 - 位置: ${_scrollController.offset.toStringAsFixed(1)}');
     }
 
     // 检查是否到达底部
@@ -945,23 +899,18 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
         _scrollController.position.maxScrollExtent - 200) {
       final currentState = context.read<InvoiceBloc>().state;
       if (AppConfig.enableLogging) {
-        // print('📜 [AllInvoicesTab-Scroll] 检测到底部，当前状态: ${currentState.runtimeType}');
       }
 
       if (currentState is InvoiceLoaded &&
           currentState.hasMore &&
           !currentState.isLoadingMore) {
         if (AppConfig.enableLogging) {
-          // print('📜 [AllInvoicesTab-Scroll] 🎯 触发加载更多发票');
-          // print('📜 [AllInvoicesTab-Scroll] 当前状态 - 已加载: ${currentState.invoices.length}, hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}');
         }
         context.read<InvoiceBloc>().add(const LoadMoreInvoices());
       } else {
         if (AppConfig.enableLogging) {
           if (currentState is InvoiceLoaded) {
-            // print('📜 [AllInvoicesTab-Scroll] ⚠️ 跳过加载更多 - hasMore: ${currentState.hasMore}, isLoadingMore: ${currentState.isLoadingMore}, 已加载: ${currentState.invoices.length}');
           } else {
-            // print('📜 [AllInvoicesTab-Scroll] ⚠️ 跳过加载更多 - 状态: ${currentState.runtimeType}');
           }
         }
       }
@@ -1230,28 +1179,24 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       final tempFile = File('${directory.path}/$fileName');
       await tempFile.writeAsBytes(zipData);
 
-      // print('📤 [iOS分享] 创建临时文件: ${tempFile.path}');
 
       // 直接调用iOS分享菜单
       await Share.shareXFiles(
         [XFile(tempFile.path)],
       );
 
-      // print('📤 [iOS分享] 已调用系统分享菜单');
 
       // 延迟删除临时文件，给分享菜单足够的时间
       Future.delayed(const Duration(seconds: 30), () {
         try {
           if (tempFile.existsSync()) {
             tempFile.deleteSync();
-            // print('🗑️ [iOS分享] 已清理临时文件: ${tempFile.path}');
           }
         } catch (e) {
-          // print('⚠️ [iOS分享] 清理临时文件失败: $e');
+          // Ignore operation failure
         }
       });
     } catch (e) {
-      // print('❌ [iOS分享] 分享失败: $e');
       if (mounted) {
         AppFeedback.error(context, '分享失败: $e');
       }
@@ -1283,7 +1228,6 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
       // 检查认证状态
       final user = SupabaseClientManager.currentUser;
       if (user == null || user.emailConfirmedAt == null) {
-        print('🔒 [ReimbursementSetsTabState] 用户未认证或邮箱未确认，跳过数据加载');
         return;
       }
       

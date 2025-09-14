@@ -159,7 +159,6 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
       flex: action.flex,
       // 标准方法：禁用默认的自动关闭，手动控制
       onPressed: () {
-        print('🔄 [SlidableAutoClose] 操作被触发: ${action.label}');
         
         // 立即执行原始操作
         action.onPressed();
@@ -167,15 +166,12 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
         // 标准方法：延迟关闭给用户视觉反馈时间
         Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted) {
-            print('🔄 [SlidableAutoClose] 延迟后执行关闭操作');
             
             try {
               // 直接使用内部控制器关闭
-              print('✅ [SlidableAutoClose] 使用内部控制器关闭');
               _internalController.close();
-              print('✅ [SlidableAutoClose] 内部控制器关闭完成');
             } catch (e) {
-              print('❌ [SlidableAutoClose] 内部控制器关闭失败: $e');
+              // Failed to close slidable
             }
           }
         });
@@ -224,11 +220,11 @@ class CustomSlidableAction extends StatelessWidget {
         ),
         child: Material(
           color: action.backgroundColor,
-          elevation: 0, // 去除阴影保持平整
-          borderRadius: BorderRadius.zero, // 去除圆角保持一体感
+          elevation: 2, // 添加阴影增强按钮独立性
+          borderRadius: _getButtonBorderRadius(isStart, isLast), // 智能圆角设置
           child: InkWell(
             onTap: action.onPressed,
-            borderRadius: BorderRadius.zero,
+            borderRadius: _getButtonBorderRadius(isStart, isLast),
             splashColor: action.foregroundColor.withValues(alpha: 0.1),
             highlightColor: action.foregroundColor.withValues(alpha: 0.05),
             child: contentBuilder?.call(context, action) ?? _buildDefaultContent(),
@@ -270,6 +266,32 @@ class CustomSlidableAction extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 根据按钮位置计算智能圆角
+  /// 与报销集卡片保持一致的圆角设计
+  BorderRadius _getButtonBorderRadius(bool isStart, bool isLast) {
+    const radius = Radius.circular(12);
+    
+    if (isStart && isLast) {
+      // 单个按钮 - 全圆角
+      return BorderRadius.all(radius);
+    } else if (isStart) {
+      // 第一个按钮 - 左侧圆角
+      return const BorderRadius.only(
+        topLeft: radius,
+        bottomLeft: radius,
+      );
+    } else if (isLast) {
+      // 最后一个按钮 - 右侧圆角
+      return const BorderRadius.only(
+        topRight: radius,
+        bottomRight: radius,
+      );
+    } else {
+      // 中间按钮 - 无圆角
+      return BorderRadius.zero;
+    }
   }
 }
 

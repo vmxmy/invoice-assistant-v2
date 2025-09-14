@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../core/config/app_config.dart';
 import 'app_feedback.dart';
 
 /// 增强型错误处理和用户反馈组件
@@ -203,9 +202,6 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
     super.initState();
     // 设置错误处理器
     FlutterError.onError = (FlutterErrorDetails details) {
-      if (AppConfig.enableLogging) {
-        // print('❌ [ErrorBoundary] Flutter错误: ${details.exception}');
-      }
 
       widget.onError?.call(details);
 

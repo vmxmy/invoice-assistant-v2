@@ -17,8 +17,6 @@ import '../../core/theme/theme_manager.dart';
 import '../widgets/theme_selector_widget.dart';
 import '../widgets/unified_bottom_sheet.dart';
 import '../utils/cupertino_notification_utils.dart';
-import '../../debug_query_test.dart';
-import 'status_consistency_test_page.dart';
 
 /// 导航项数据类
 class NavigationItem {
@@ -54,7 +52,6 @@ class _MainPageState extends State<MainPage> {
     // 监听tab切换事件
     _tabChangeSubscription = di.sl<AppEventBus>().on<TabChangedEvent>().listen((event) {
       if (mounted && event.newTabIndex != _currentIndex) {
-        print('🔥 收到tab切换事件，从 ${event.oldTabIndex} 切换到 ${event.newTabIndex}');
         setState(() {
           _currentIndex = event.newTabIndex;
         });
@@ -259,38 +256,6 @@ class _MainPageState extends State<MainPage> {
                   title: const Text('应用信息'),
                   subtitle: Text('版本 ${AppConfig.version}'),
                   trailing: const Icon(CupertinoIcons.chevron_right),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(CupertinoIcons.exclamationmark_triangle,
-                      color: theme.colorScheme.tertiary),
-                  title: const Text('调试信息'),
-                  subtitle: const Text('查看用户ID和数据库连接状态'),
-                  trailing: const Icon(CupertinoIcons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DebugQueryTestPage(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(CupertinoIcons.checkmark_shield,
-                      color: theme.colorScheme.primary),
-                  title: const Text('状态一致性测试'),
-                  subtitle: const Text('测试发票与报销集状态约束'),
-                  trailing: const Icon(CupertinoIcons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StatusConsistencyTestPage(),
-                      ),
-                    );
-                  },
                 ),
                 const Divider(height: 1),
                 ListTile(

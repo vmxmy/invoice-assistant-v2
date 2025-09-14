@@ -186,7 +186,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showOverdue;
-            // print('🔍 [FilterBar] 逾期发票按钮切换: $newState');
 
             final newFilter = newState
                 ? FilterOptions.single(overdue: true)
@@ -195,7 +194,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
@@ -211,7 +209,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showUrgent;
-            // print('🔍 [FilterBar] 紧急处理按钮切换: $newState');
 
             final newFilter = newState
                 ? FilterOptions.single(urgent: true)
@@ -220,7 +217,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
@@ -235,7 +231,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
           onTap: () {
             // 简单的toggle切换逻辑
             final newState = !_currentFilter.showUnreimbursed;
-            // print('🔍 [FilterBar] 待报销按钮切换: $newState');
 
             final newFilter = newState
                 ? FilterOptions.single(unreimbursed: true)
@@ -244,7 +239,6 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
             // 如果是关闭状态（清除筛选），需要绕过缓存
             if (!newState) {
-              // print('🔍 [FilterBar] 切换到关闭状态，绕过缓存重新查询');
               widget.onFilterClearWithRefresh?.call(newFilter);
             }
           },
@@ -344,11 +338,9 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
   /// 更新筛选条件
   void _updateFilter(FilterOptions newFilter) {
-    // print('🔍 [FilterBar] _updateFilter 被调用: $newFilter');
     setState(() {
       _currentFilter = newFilter;
     });
-    // print('🔍 [FilterBar] 调用回调函数 onFilterChanged');
     widget.onFilterChanged?.call(newFilter);
   }
 }

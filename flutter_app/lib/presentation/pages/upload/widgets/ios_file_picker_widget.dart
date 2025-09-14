@@ -509,7 +509,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
         }
       }
     } catch (e) {
-      print('文件选择失败: $e');
+      // Ignore file operation failure
     }
   }
 
@@ -528,7 +528,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
         widget.onFilesSelected(updatedFiles);
       }
     } catch (e) {
-      print('相机拍照失败: $e');
+      // Ignore file operation failure
     }
   }
 

@@ -143,7 +143,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
       );
     }).toList();
     
-    print('🚀 [UploadBloc] Starting upload with ${_selectedFiles.length} files');
     emit(UploadInProgress(
       files: List.from(_selectedFiles),
       progresses: progresses,
@@ -152,11 +151,9 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
       failedCount: 0,
     ));
     
-    print('📊 [UploadBloc] Emitted UploadInProgress state');
     
     // 并发上传文件
     await _uploadFiles();
-    print('🏁 [UploadBloc] Upload files completed');
   }
   
   /// 取消上传
@@ -267,11 +264,9 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
   Future<void> _onFileUploadCompleted(FileUploadCompleted event, Emitter<UploadState> emit) async {
     if (_disposed) return;
     
-    print('📤 [UploadBloc] File upload completed: index ${event.fileIndex}, success: ${event.success}');
     
     final currentState = state;
     if (currentState is! UploadInProgress) {
-      print('⚠️ [UploadBloc] Current state is not UploadInProgress: ${currentState.runtimeType}');
       return;
     }
     
@@ -307,7 +302,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     
     // 检查是否全部完成
     if (completedCount + failedCount == currentState.totalCount) {
-      print('🎯 [UploadBloc] All uploads completed: $completedCount completed, $failedCount failed');
       
       // 转换为结果
       final results = updatedProgresses.map((p) {
@@ -321,7 +315,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
         );
       }).toList();
       
-      print('✅ [UploadBloc] Emitting UploadCompleted state');
       emit(UploadCompleted(
         files: currentState.files,
         results: results,
@@ -329,7 +322,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
       
       // 上传完成，结果已经通过状态传递
     } else {
-      print('⏳ [UploadBloc] Upload still in progress: $completedCount/${currentState.totalCount} completed');
       emit(UploadInProgress(
         files: currentState.files,
         progresses: updatedProgresses,
@@ -378,7 +370,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
         // 根据结果类型处理不同情况
         if (result.isDuplicate) {
           // 重复发票 - 视为特殊的失败情况，但提供重复信息
-          print('⚠️ [UploadBloc] Duplicate file detected: ${result.duplicateInfo?.message}');
           add(FileUploadCompleted(
             index, 
             false, // 重复发票视为失败
@@ -387,7 +378,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
           ));
         } else if (result.isSuccess && result.invoice != null) {
           // 真正的上传成功
-          print('✅ [UploadBloc] File uploaded successfully: ${result.invoice!.id}');
           add(FileUploadCompleted(
             index, 
             true, 
@@ -396,7 +386,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
           ));
         } else {
           // 上传失败
-          print('❌ [UploadBloc] File upload failed: ${result.error?.message}');
           add(FileUploadCompleted(
             index, 
             false, 

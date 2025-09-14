@@ -75,8 +75,6 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                     });
 
                     // 调试输出错误信息
-                    // print('🖼️ [图片加载失败] URL: ${widget.imageUrl}');
-                    // print('🖼️ [错误详情] $error');
 
                     return Center(
                       child: Container(

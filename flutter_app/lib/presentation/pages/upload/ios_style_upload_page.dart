@@ -315,17 +315,14 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
         } : null,
         onClose: state.isCompleted ? () {
           if (_isNavigating) {
-            print('🔥 已经在导航中，忽略重复点击');
             return;
           }
           
           _isNavigating = true;
-          print('🔥 完成按钮被点击，准备跳转到主页');
           HapticFeedback.lightImpact();
           
           // 检查当前路由
-          final currentRoute = GoRouterState.of(context).uri.toString();
-          print('🔥 当前路由: $currentRoute');
+          // GoRouterState.of(context).uri.toString();
           
           // 延迟一下再导航，确保状态稳定
           Future.delayed(const Duration(milliseconds: 100), () {
@@ -333,7 +330,6 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
             
             // 由于上传页面在MainPage的PageView内部，需要通过事件总线通知切换tab
             try {
-              print('🔥 发送切换到发票管理tab的事件');
               // 使用事件总线通知MainPage切换到发票管理页面
               final eventBus = sl<AppEventBus>();
               eventBus.emit(TabChangedEvent(
@@ -341,10 +337,8 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
                 oldTabIndex: 1, 
                 tabName: '发票管理',
               )); 
-              print('🔥 事件发送成功');
               _isNavigating = false; // 重置状态
             } catch (e) {
-              print('🔥 事件总线失败: $e');
               _isNavigating = false; // 重置状态
             }
           });

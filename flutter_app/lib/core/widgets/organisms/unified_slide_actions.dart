@@ -1,0 +1,279 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import '../atoms/unified_slide_button.dart';
+
+/// 统一滑动操作面板
+/// 
+/// 基于UnifiedSlideButton构建的完整滑动操作解决方案，
+/// 提供自动关闭、位置智能识别等高级功能
+class UnifiedSlideActions extends StatefulWidget {
+  /// 子组件（被滑动的内容）
+  final Widget child;
+  
+  /// 左滑操作列表（从右向左滑动时显示）
+  final List<UnifiedSlideButton> startActions;
+  
+  /// 右滑操作列表（从左向右滑动时显示）
+  final List<UnifiedSlideButton> endActions;
+  
+  /// 是否启用滑动
+  final bool enabled;
+  
+  /// 滑动范围比例
+  final double extentRatio;
+  
+  /// 滑动动画类型
+  final Widget motion;
+  
+  /// 是否在滚动时自动关闭
+  final bool closeOnScroll;
+  
+  /// 分组标签（同组内互斥）
+  final Object? groupTag;
+  
+  /// 自动关闭延迟时间（毫秒）
+  final int autoCloseDuration;
+  
+  /// 是否启用自动关闭
+  final bool enableAutoClose;
+  
+  /// 滑动控制器
+  final GlobalKey<State<Slidable>>? slidableKey;
+
+  const UnifiedSlideActions({
+    super.key,
+    required this.child,
+    this.startActions = const [],
+    this.endActions = const [],
+    this.enabled = true,
+    this.extentRatio = 0.3,
+    this.motion = const BehindMotion(),
+    this.closeOnScroll = true,
+    this.groupTag,
+    this.autoCloseDuration = 200,
+    this.enableAutoClose = true,
+    this.slidableKey,
+  });
+
+  @override
+  State<UnifiedSlideActions> createState() => _UnifiedSlideActionsState();
+}
+
+class _UnifiedSlideActionsState extends State<UnifiedSlideActions> 
+    with TickerProviderStateMixin {
+  late final SlidableController _controller;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = SlidableController(this);
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 如果没有操作或被禁用，直接返回子组件
+    if (!widget.enabled || 
+        (widget.startActions.isEmpty && widget.endActions.isEmpty)) {
+      return widget.child;
+    }
+
+    return Slidable(
+      key: widget.slidableKey,
+      controller: _controller,
+      enabled: widget.enabled,
+      closeOnScroll: widget.closeOnScroll,
+      groupTag: widget.groupTag,
+      
+      // 左滑操作面板
+      startActionPane: widget.startActions.isNotEmpty
+          ? ActionPane(
+              motion: widget.motion,
+              extentRatio: widget.extentRatio,
+              dragDismissible: false,
+              children: _buildActionButtons(widget.startActions, isStart: true),
+            )
+          : null,
+      
+      // 右滑操作面板
+      endActionPane: widget.endActions.isNotEmpty
+          ? ActionPane(
+              motion: widget.motion,
+              extentRatio: widget.extentRatio,
+              dragDismissible: false,
+              children: _buildActionButtons(widget.endActions, isStart: false),
+            )
+          : null,
+      
+      child: widget.child,
+    );
+  }
+
+  /// 构建操作按钮列表
+  List<Widget> _buildActionButtons(List<UnifiedSlideButton> actions, {required bool isStart}) {
+    return actions.asMap().entries.map((entry) {
+      final index = entry.key;
+      final button = entry.value;
+      
+      // 智能位置识别
+      final isFirstButton = index == 0;
+      final isLastButton = index == actions.length - 1;
+      
+      // 为按钮添加自动关闭功能
+      final wrappedButton = _wrapWithAutoClose(
+        button.copyWith(
+          isStart: isStart ? isFirstButton : isLastButton,
+          isEnd: isStart ? isLastButton : isFirstButton,
+        ),
+      );
+      
+      return wrappedButton;
+    }).toList();
+  }
+
+  /// 为按钮包装自动关闭功能
+  UnifiedSlideButton _wrapWithAutoClose(UnifiedSlideButton button) {
+    if (!widget.enableAutoClose) {
+      return button;
+    }
+
+    return button.copyWith(
+      onPressed: () {
+        // 执行原始操作
+        button.onPressed();
+        
+        // 延迟自动关闭
+        if (mounted && widget.autoCloseDuration > 0) {
+          Future.delayed(Duration(milliseconds: widget.autoCloseDuration), () {
+            if (mounted) {
+              try {
+                _controller.close();
+              } catch (e) {
+                // Ignore close operation failure
+              }
+            }
+          });
+        }
+      },
+    );
+  }
+}
+
+/// UnifiedSlideButton扩展方法
+/// 提供便捷的复制和修改方法
+extension UnifiedSlideButtonExtension on UnifiedSlideButton {
+  /// 创建按钮的副本并修改指定属性
+  UnifiedSlideButton copyWith({
+    IconData? icon,
+    String? label,
+    SlideButtonType? type,
+    VoidCallback? onPressed,
+    String? semanticHint,
+    bool? isStart,
+    bool? isEnd,
+    bool? enableHapticFeedback,
+    Color? customBackgroundColor,
+    Color? customForegroundColor,
+    double? flex,
+    bool? isDisabled,
+  }) {
+    return UnifiedSlideButton(
+      icon: icon ?? this.icon,
+      label: label ?? this.label,
+      type: type ?? this.type,
+      onPressed: onPressed ?? this.onPressed,
+      semanticHint: semanticHint ?? this.semanticHint,
+      isStart: isStart ?? this.isStart,
+      isEnd: isEnd ?? this.isEnd,
+      enableHapticFeedback: enableHapticFeedback ?? this.enableHapticFeedback,
+      customBackgroundColor: customBackgroundColor ?? this.customBackgroundColor,
+      customForegroundColor: customForegroundColor ?? this.customForegroundColor,
+      flex: flex ?? this.flex,
+      isDisabled: isDisabled ?? this.isDisabled,
+    );
+  }
+}
+
+/// 滑动操作构建器
+/// 
+/// 用于流式构建复杂的滑动操作组合
+class SlideActionsBuilder {
+  final List<UnifiedSlideButton> _actions = [];
+
+  /// 添加操作按钮
+  SlideActionsBuilder add(UnifiedSlideButton button) {
+    _actions.add(button);
+    return this;
+  }
+
+  /// 添加导出按钮
+  SlideActionsBuilder addExport({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.export(onPressed: onPressed));
+  }
+
+  /// 添加分享按钮
+  SlideActionsBuilder addShare({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.share(onPressed: onPressed));
+  }
+
+  /// 添加删除按钮
+  SlideActionsBuilder addDelete({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.delete(onPressed: onPressed));
+  }
+
+  /// 添加查看按钮
+  SlideActionsBuilder addView({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.view(onPressed: onPressed));
+  }
+
+  /// 添加编辑按钮
+  SlideActionsBuilder addEdit({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.edit(onPressed: onPressed));
+  }
+
+  /// 添加移出按钮
+  SlideActionsBuilder addRemove({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.remove(onPressed: onPressed));
+  }
+
+  /// 添加加入按钮
+  SlideActionsBuilder addAdd({
+    required VoidCallback onPressed,
+    String label = '加入',
+  }) {
+    return add(UnifiedSlideButtonPresets.add(
+      onPressed: onPressed,
+      label: label,
+    ));
+  }
+
+  /// 添加归档按钮
+  SlideActionsBuilder addArchive({required VoidCallback onPressed}) {
+    return add(UnifiedSlideButtonPresets.archive(onPressed: onPressed));
+  }
+
+  /// 构建操作列表
+  List<UnifiedSlideButton> build() {
+    return List.unmodifiable(_actions);
+  }
+
+  /// 清空操作列表
+  SlideActionsBuilder clear() {
+    _actions.clear();
+    return this;
+  }
+
+  /// 获取当前操作数量
+  int get length => _actions.length;
+
+  /// 是否为空
+  bool get isEmpty => _actions.isEmpty;
+
+  /// 是否不为空
+  bool get isNotEmpty => _actions.isNotEmpty;
+}
