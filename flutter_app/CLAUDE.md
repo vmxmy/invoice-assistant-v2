@@ -357,4 +357,213 @@ eventBus.on<MyEvent>().listen((event) {
 });
 ```
 
+---
+
+## ⚙️ 硬编码常量管理系统
+
+### 核心原则
+**分离关注点**: UI常量使用主题系统，业务常量集中配置管理
+
+### 配置文件架构
+
+#### 1. **应用配置常量** - `/lib/core/config/app_constants.dart`
+集中管理应用级通用配置：
+
+```dart
+class AppConstants {
+  AppConstants._(); // 私有构造函数
+  
+  /// ====== 文件上传相关 ======
+  static const int maxFileSize = 10 * 1024 * 1024; // 10MB
+  static const int maxFileCount = 5;
+  static const List<String> supportedFileExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+  static const int maxConcurrentUploads = 3;
+  
+  /// ====== 网络请求相关 ======
+  static const Duration defaultRequestTimeout = Duration(seconds: 30);
+  static const Duration uploadTimeout = Duration(minutes: 2);
+  static const int maxRetryAttempts = 3;
+  
+  /// ====== 缓存相关 ======
+  static const Duration invoiceListCacheTtl = Duration(minutes: 5);
+  static const Duration invoiceStatsCacheTtl = Duration(minutes: 2);
+  static const Duration permissionsCacheTtl = Duration(hours: 2);
+  
+  /// ====== 分页相关 ======
+  static const int defaultPageSize = 20;
+  static const int maxPageSize = 100;
+  
+  /// ====== 动画相关 ======
+  static const Duration normalAnimationDuration = Duration(milliseconds: 300);
+  static const Duration fastAnimationDuration = Duration(milliseconds: 200);
+  
+  /// ====== 业务逻辑相关 ======
+  static const int invoiceOverdueDays = 90;
+  static const int invoiceUrgentDays = 60;
+  static const double amountWanThreshold = 10000;
+  
+  /// ====== 辅助方法 ======
+  static String getFormattedAmount(double amount) {
+    if (amount >= amountWanThreshold) {
+      return '¥${(amount / amountWanThreshold).toStringAsFixed(2)}万';
+    }
+    return '¥${amount.toStringAsFixed(2)}';
+  }
+}
+```
+
+#### 2. **业务配置常量** - `/lib/core/config/business_constants.dart`
+业务规则和限制的配置：
+
+```dart
+/// 发票状态常量
+class InvoiceStatus {
+  static const String pending = 'pending';
+  static const String approved = 'approved';
+  static const String rejected = 'rejected';
+}
+
+/// 发票金额限制
+class InvoiceAmountLimits {
+  static const double minAmount = 0.01;
+  static const double maxAmount = 99999999.99;
+  static const double largeAmountThreshold = 10000.0;
+}
+
+/// 文件类型限制
+class FileTypeConstraints {
+  static const String pdf = 'pdf';
+  static const int pdfMaxSize = 10 * 1024 * 1024; // 10MB
+  static const List<String> supportedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+}
+```
+
+#### 3. **消息映射配置** - `/lib/core/constants/message_constants.dart`
+统一管理UI文本和消息：
+
+```dart
+class MessageConstants {
+  /// 获取清理后的重复发票消息
+  static String getDuplicateMessage(String? originalMessage) {
+    if (originalMessage == null) return '重复发票';
+    
+    final cleaned = originalMessage
+        .replaceAll(RegExp(r'节省资源[，。、,]*\s*'), '')
+        .replaceAll(RegExp(r'该文件已存在[，。、,]*\s*'), '')
+        .trim();
+    
+    return cleaned.isEmpty ? '重复发票' : cleaned;
+  }
+  
+  /// 统一错误消息处理
+  static String getErrorMessage(String? originalMessage) {
+    return originalMessage ?? '操作失败，请重试';
+  }
+}
+```
+
+### 使用规范
+
+#### ✅ **正确的常量使用方式**
+
+**1. 业务逻辑常量**
+```dart
+// ✅ 使用统一配置
+import '../../core/config/app_constants.dart';
+
+// 文件大小检查
+if (fileSize > AppConstants.maxFileSize) {
+  throw Exception('文件过大');
+}
+
+// 分页请求
+final result = await getInvoices(pageSize: AppConstants.defaultPageSize);
+
+// 缓存配置
+Timer.periodic(AppConstants.invoiceListCacheTtl, callback);
+
+// 格式化金额
+final formattedAmount = AppConstants.getFormattedAmount(amount);
+```
+
+**2. UI间距和样式**
+```dart
+// ✅ 直接使用主题系统，不创建额外常量
+Text('标题', style: Theme.of(context).textTheme.titleLarge)
+padding: const EdgeInsets.all(16.0) // Material Design标准间距
+color: Theme.of(context).colorScheme.primary
+```
+
+**3. 消息处理**
+```dart
+// ✅ 使用统一消息配置
+import '../../core/constants/message_constants.dart';
+
+final cleanMessage = MessageConstants.getDuplicateMessage(originalMessage);
+final errorMessage = MessageConstants.getErrorMessage(errorInfo);
+```
+
+#### ❌ **禁止的做法**
+
+**1. 硬编码数值**
+```dart
+// ❌ 不要在组件中硬编码
+const maxFiles = 5;
+Duration(minutes: 5)
+if (amount >= 10000)
+pageSize: 20
+```
+
+**2. 创建不必要的UI常量**
+```dart
+// ❌ 不要创建UI映射常量
+class UIConstants {
+  static const double spacingL = 16.0;
+  static const double fontSize14 = 14.0;
+}
+```
+
+**3. 分散的配置定义**
+```dart
+// ❌ 不要在各个文件中重复定义
+static const Duration cacheTime = Duration(minutes: 5); // 重复定义
+```
+
+### 迁移指南
+
+#### 当发现硬编码时的处理步骤：
+
+1. **识别类型**：确定是业务逻辑常量还是UI样式
+2. **选择配置文件**：业务逻辑 → `app_constants.dart`，UI → 主题系统
+3. **添加常量**：在相应配置文件中添加语义化命名的常量
+4. **替换使用**：将硬编码替换为配置常量的引用
+5. **验证**：运行 `flutter analyze` 确保无错误
+
+#### 示例迁移：
+```dart
+// 迁移前
+Duration(minutes: 5) // 硬编码
+
+// 迁移后
+AppConstants.invoiceListCacheTtl // 语义化配置
+```
+
+### 配置常量命名规范
+
+- **功能前缀**：按功能模块分组 (`invoice*`, `upload*`, `cache*`)
+- **语义化命名**：描述用途而非数值 (`maxFileSize` vs `tenMB`)
+- **单位后缀**：时间用 `Duration` 后缀，大小用 `Size` 后缀
+- **阈值命名**：使用 `Threshold` 后缀表示临界值
+
+### 维护指南
+
+- **统一修改**：需要调整配置时，只需修改配置文件一处
+- **向后兼容**：添加新常量时保持现有API不变
+- **文档更新**：新增重要配置时更新此文档
+- **定期审查**：定期检查是否有新的硬编码需要迁移
+
+这套硬编码管理系统确保了代码的可维护性和一致性，是大型Flutter应用的最佳实践。
+
+---
+
 这套架构体系为Flutter应用提供了一个现代化、可维护、可扩展的基础框架，特别适合中大型应用的开发和维护。
