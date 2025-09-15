@@ -135,7 +135,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   UnifiedSlideButton(
                     icon: CupertinoIcons.heart,
                     label: '收藏',
-                    backgroundColor: Colors.pink,
+                    backgroundColor: CupertinoColors.destructiveRed.resolveFrom(context),
                     foregroundColor: Colors.white,
                     onTap: () => _showMessage(context, '收藏功能被触发'),
                     semanticLabel: '收藏',
@@ -193,7 +193,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.3),
+          color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
@@ -208,7 +208,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
           const Icon(
             CupertinoIcons.doc_text,
             size: 24,
-            color: Colors.grey,
+            color: CupertinoColors.systemGrey.resolveFrom(context),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -223,7 +223,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
           const Icon(
             CupertinoIcons.chevron_right,
             size: 16,
-            color: Colors.grey,
+            color: CupertinoColors.systemGrey.resolveFrom(context),
           ),
         ],
       ),
@@ -282,7 +282,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.blue,
+              color: CupertinoColors.activeBlue.resolveFrom(context),
             ),
           ),
           const SizedBox(height: 4),
@@ -352,7 +352,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
 /// UnifiedSlideButton(
 ///   icon: CupertinoIcons.star,
 ///   label: '标记',
-///   backgroundColor: Colors.orange,
+///   backgroundColor: CupertinoColors.activeOrange.resolveFrom(context),
 ///   foregroundColor: Colors.white,
 ///   onTap: () => markFunction(),
 ///   position: SlideButtonPosition.single,

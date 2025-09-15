@@ -214,7 +214,7 @@ class PermissionUtils {
           ),
           if (onRetry != null) ...[
             const SizedBox(height: 16),
-            ElevatedButton(
+            CupertinoButton.filled(
               onPressed: onRetry,
               child: const Text('重试'),
             ),

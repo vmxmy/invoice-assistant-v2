@@ -195,16 +195,15 @@ class DetailPageStyles {
 
   /// 构建加载页面
   static Widget buildLoadingPage(BuildContext context, String title) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title, style: pageTitle(context)),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(title, style: pageTitle(context)),
       ),
-      body: const Center(
+      child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
+            CupertinoActivityIndicator(),
             SizedBox(height: 16),
             Text('加载中...'),
           ],
@@ -220,12 +219,11 @@ class DetailPageStyles {
     String message,
     VoidCallback onRetry,
   ) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title, style: pageTitle(context)),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(title, style: pageTitle(context)),
       ),
-      body: Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
