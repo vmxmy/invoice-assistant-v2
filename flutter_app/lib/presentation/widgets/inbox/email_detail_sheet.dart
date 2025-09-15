@@ -90,15 +90,7 @@ class EmailDetailSheet extends StatelessWidget {
             _buildAttachmentsSection(context, brightness, isDark),
           ],
 
-          // 处理详情 - 减少间距
-          SizedBox(
-              height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-          _buildProcessingDetails(context, brightness, isDark),
 
-          // 技术详情（可折叠）- 减少间距
-          SizedBox(
-              height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-          _buildTechnicalDetails(context, brightness, isDark),
 
           // 底部间距
           SizedBox(height: 16.0),
@@ -431,9 +423,11 @@ class EmailDetailSheet extends StatelessWidget {
             ),
           ),
 
-          // 可滚动的邮件内容区域
+          // 可滚动的邮件内容区域 - 使用语义化高度
           Container(
-            constraints: BoxConstraints(maxHeight: 200), // 使用约束而非固定高度
+            constraints: BoxConstraints(
+              maxHeight: InboxThemeConstants.getEmailBodyHeight(context),
+            ),
             padding: EdgeInsets.fromLTRB(
               16.0 + 2,
               0,
@@ -826,152 +820,7 @@ class EmailDetailSheet extends StatelessWidget {
     );
   }
 
-  /// 构建处理详情
-  Widget _buildProcessingDetails(
-      BuildContext context, Brightness brightness, bool isDark) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: isDark
-            ? CupertinoColors.systemGrey6.darkColor
-            : CupertinoColors.systemGrey6.color,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '处理详情',
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w600,
-              color: CupertinoColors.label.resolveFrom(context),
-            ),
-          ),
-          SizedBox(height: 12.0),
-          if (emailDetail.matchedKeywords?.isNotEmpty == true) ...[
-            _buildDetailItem('匹配关键词', emailDetail.matchedKeywords!.join(', '),
-                context, brightness, isDark),
-            SizedBox(height: 8.0),
-          ],
-          if (emailDetail.extractionCompleteness != null)
-            _buildDetailItem(
-                '提取完整性',
-                emailDetail.extractionCompletenessDisplayName,
-                context,
-                brightness,
-                isDark),
-          if (emailDetail.linkQuality != null) ...[
-            SizedBox(height: 8.0),
-            _buildDetailItem('链接质量', emailDetail.linkQualityDisplayName,
-                context, brightness, isDark),
-          ],
-          if (emailDetail.mappingMethod != null) ...[
-            SizedBox(height: 8.0),
-            _buildDetailItem('用户映射', emailDetail.mappingMethodDisplayName,
-                context, brightness, isDark),
-          ],
-          if (emailDetail.recommendations?.isNotEmpty == true) ...[
-            SizedBox(height: 12.0),
-            Text(
-              '处理建议',
-              style: TextStyle(
-                fontSize: 14.0 - 1,
-                fontWeight: FontWeight.w600,
-                color: CupertinoColors.label
-                    .resolveFrom(context)
-                    .withValues(alpha: 0.6 + 0.2),
-              ),
-            ),
-            SizedBox(height: 6),
-            ...emailDetail.recommendations!.map((rec) => Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('• ',
-                          style: TextStyle(
-                              color: CupertinoColors.systemBlue
-                                  .resolveFrom(context))),
-                      Expanded(
-                        child: Text(
-                          rec,
-                          style: TextStyle(
-                            fontSize: 14.0 - 1,
-                            color: CupertinoColors.label
-                                .resolveFrom(context)
-                                .withValues(alpha: 0.6 + 0.1),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
-        ],
-      ),
-    );
-  }
 
-  /// 构建技术详情
-  Widget _buildTechnicalDetails(
-      BuildContext context, Brightness brightness, bool isDark) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: () {
-        // 可以实现展开/收起功能
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: isDark
-              ? CupertinoColors.systemGrey5.darkColor
-              : CupertinoColors.systemGrey5.color,
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '技术详情',
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w600,
-                color: CupertinoColors.label.resolveFrom(context),
-              ),
-            ),
-            SizedBox(height: 12.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDetailItem(
-                    '邮件ID', emailDetail.id, context, brightness, isDark),
-                SizedBox(height: 8.0),
-                _buildDetailItem(
-                    '工作流ID',
-                    emailDetail.baseInfo.workflowExecutionId,
-                    context,
-                    brightness,
-                    isDark),
-                SizedBox(height: 8.0),
-                _buildDetailItem('触发事件ID', emailDetail.baseInfo.triggerEventId,
-                    context, brightness, isDark),
-                SizedBox(height: 8.0),
-                _buildDetailItem('执行路径', emailDetail.baseInfo.executionPath,
-                    context, brightness, isDark),
-                if (emailDetail.mappedUserId != null) ...[
-                  SizedBox(height: 8.0),
-                  _buildDetailItem('映射用户ID', emailDetail.mappedUserId!, context,
-                      brightness, isDark),
-                ],
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   /// 构建附件统计项
   Widget _buildAttachmentStat(String label, String value, BuildContext context,

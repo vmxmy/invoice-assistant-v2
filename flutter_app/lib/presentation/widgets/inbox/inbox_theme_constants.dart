@@ -141,6 +141,27 @@ class InboxThemeConstants {
   /// 状态切换动画
   static const Duration statusChangeAnimation = Duration(milliseconds: 200);
 
+  // ==================== 邮件正文显示常量 ====================
+  
+  /// 邮件正文容器的理想高度比例（相对于可用屏幕高度）
+  static const double emailBodyHeightRatio = 0.35; // 35%屏幕高度
+  
+  /// 邮件正文容器的最小高度（基于文本行数）
+  static const double emailBodyMinHeight = 120.0; // 约8行文本
+  
+  /// 邮件正文容器的最大高度比例（避免占用过多空间）
+  static const double emailBodyMaxHeightRatio = 0.5; // 最多50%屏幕高度
+  
+  /// 获取邮件正文的理想高度
+  static double getEmailBodyHeight(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final idealHeight = screenHeight * emailBodyHeightRatio;
+    final maxHeight = screenHeight * emailBodyMaxHeightRatio;
+    
+    // 确保在最小值和最大值之间
+    return idealHeight.clamp(emailBodyMinHeight, maxHeight);
+  }
+
   // ==================== 实用方法 ====================
 
   /// 根据邮件分类获取主题色
