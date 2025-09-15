@@ -1,7 +1,7 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../core/utils/logger.dart';
 import '../../core/config/app_constants.dart';
+import '../../core/network/supabase_client.dart';
 
 /// 发票缓存管理器 - 提供用户隔离的内存缓存功能
 class InvoiceCache {
@@ -29,7 +29,7 @@ class InvoiceCache {
 
   /// 确保当前用户上下文
   void _ensureUserContext() {
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final currentUser = SupabaseClientManager.currentUser;
     final newUserId = currentUser?.id;
     
     if (_currentUserId != newUserId) {

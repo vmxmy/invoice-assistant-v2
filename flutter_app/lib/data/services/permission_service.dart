@@ -1,18 +1,17 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_permissions.dart';
 import '../../core/utils/logger.dart';
+import '../../core/network/supabase_client.dart';
 import 'permission_cache_service.dart';
 
 /// 权限服务
 /// 负责与后端API交互，获取和管理用户权限信息
 class PermissionService {
-  final SupabaseClient _supabase = Supabase.instance.client;
   final PermissionCacheService _cacheService = PermissionCacheService();
 
   /// 从JWT token解析权限（优先策略）
   UserPermissions? _parsePermissionsFromJWT() {
     try {
-      final user = _supabase.auth.currentUser;
+      final user = SupabaseClientManager.currentUser;
       if (user == null || user.emailConfirmedAt == null) {
         return null;
       }
@@ -48,7 +47,7 @@ class PermissionService {
     try {
       AppLogger.debug('🔐 [RPC] 从服务器获取权限信息', tag: 'Permission');
       
-      final response = await _supabase.rpc('rpc_get_current_user_permissions');
+      final response = await SupabaseClientManager.client.rpc('rpc_get_current_user_permissions');
       
       if (response == null) {
         AppLogger.error('🔐 [RPC] 权限服务返回空数据', tag: 'Permission');
@@ -76,7 +75,7 @@ class PermissionService {
       AppLogger.debug('🔐 [Permission] 获取当前用户权限信息', tag: 'Permission');
       
       // 检查用户是否已登录和邮箱是否已确认
-      final user = _supabase.auth.currentUser;
+      final user = SupabaseClientManager.currentUser;
       if (user == null) {
         AppLogger.warning('🔐 [Permission] 用户未登录', tag: 'Permission');
         return null;
@@ -242,7 +241,7 @@ class PermissionService {
   /// 刷新权限（强制重新从服务器获取）
   Future<UserPermissions?> refreshPermissions() async {
     try {
-      final user = _supabase.auth.currentUser;
+      final user = SupabaseClientManager.currentUser;
       if (user == null || user.emailConfirmedAt == null) {
         return null;
       }

@@ -1,27 +1,29 @@
 import '../../core/utils/logger.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/app_config.dart';
+import '../../core/network/supabase_client.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/repositories/reimbursement_set_repository.dart';
-// import '../../domain/exceptions/invoice_exceptions.dart'; // 未使用
 import '../models/reimbursement_set_model.dart';
 import '../models/invoice_model.dart';
 
 class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
-  final SupabaseClient _supabaseClient;
-
-  ReimbursementSetRepositoryImpl({
-    SupabaseClient? supabaseClient,
-  }) : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  // 使用统一的 SupabaseClientManager 而不是直接注入客户端
+  ReimbursementSetRepositoryImpl();
 
   @override
   Future<List<ReimbursementSetEntity>> getReimbursementSets() async {
     try {
-      final response = await _supabaseClient
+      // 验证认证状态
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      final response = await SupabaseClientManager
           .from('reimbursement_sets_enhanced')
           .select()
-          .eq('user_id', _supabaseClient.auth.currentUser!.id)
+          .eq('user_id', currentUser.id)
           .order('created_at', ascending: false);
 
       if (AppConfig.enableLogging) {
@@ -45,11 +47,16 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<ReimbursementSetEntity> getReimbursementSetById(String id) async {
     try {
-      final response = await _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      final response = await SupabaseClientManager
           .from('reimbursement_sets_enhanced')
           .select()
           .eq('id', id)
-          .eq('user_id', _supabaseClient.auth.currentUser!.id)
+          .eq('user_id', currentUser.id)
           .single();
 
       if (AppConfig.enableLogging) {
@@ -81,8 +88,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       }
 
       // 开始数据库事务
-      final response = await _supabaseClient
-          .rpc('create_reimbursement_set_with_invoices', params: {
+      final response = await SupabaseClientManager
+          .client.rpc('create_reimbursement_set_with_invoices', params: {
         'p_set_name': setName,
         'p_description': description,
         'p_invoice_ids': invoiceIds,
@@ -112,15 +119,20 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
     String? description,
   }) async {
     try {
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
       final updateData = <String, dynamic>{};
       if (setName != null) updateData['set_name'] = setName;
       if (description != null) updateData['description'] = description;
 
-      await _supabaseClient
+      await SupabaseClientManager
           .from('reimbursement_sets')
           .update(updateData)
           .eq('id', id)
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug('📊 [ReimbursementSetRepository] 更新报销集成功: $id',
@@ -144,6 +156,11 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
     String? approvalNotes,
   }) async {
     try {
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
       final updateData = <String, dynamic>{
         'status': status.value,
       };
@@ -178,11 +195,11 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
         updateData['approval_notes'] = approvalNotes;
       }
 
-      await _supabaseClient
+      await SupabaseClientManager
           .from('reimbursement_sets')
           .update(updateData)
           .eq('id', id)
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       // 同步更新关联发票的状态
       await _updateAssociatedInvoicesStatus(id, status);
@@ -206,18 +223,23 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<void> deleteReimbursementSet(String id) async {
     try {
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
       // 先将关联的发票从报销集中移除
-      await _supabaseClient.from('invoices').update({
+      await SupabaseClientManager.from('invoices').update({
         'reimbursement_set_id': null,
         'assigned_to_set_at': null,
       }).eq('reimbursement_set_id', id);
 
       // 然后删除报销集
-      await _supabaseClient
+      await SupabaseClientManager
           .from('reimbursement_sets')
           .delete()
           .eq('id', id)
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug('📊 [ReimbursementSetRepository] 删除报销集成功: $id',
@@ -235,20 +257,25 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<void> addInvoicesToSet(String setId, List<String> invoiceIds) async {
     try {
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
       // 检查发票是否可以分配
       final canAssign = await canAssignInvoicesToSet(invoiceIds);
       if (!canAssign) {
         throw Exception('部分发票已被分配到其他报销集');
       }
 
-      await _supabaseClient
+      await SupabaseClientManager
           .from('invoices')
           .update({
             'reimbursement_set_id': setId,
             'assigned_to_set_at': DateTime.now().toIso8601String(),
           })
           .filter('id', 'in', '(${invoiceIds.join(',')})')
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -267,14 +294,19 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<void> removeInvoicesFromSet(List<String> invoiceIds) async {
     try {
-      await _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      await SupabaseClientManager
           .from('invoices')
           .update({
             'reimbursement_set_id': null,
             'assigned_to_set_at': null,
           })
           .filter('id', 'in', '(${invoiceIds.join(',')})')
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -293,11 +325,16 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<List<InvoiceEntity>> getInvoicesInSet(String setId) async {
     try {
-      final response = await _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      final response = await SupabaseClientManager
           .from('invoices')
           .select()
           .eq('reimbursement_set_id', setId)
-          .eq('user_id', _supabaseClient.auth.currentUser!.id)
+          .eq('user_id', currentUser.id)
           .order('consumption_date', ascending: false);
 
       if (AppConfig.enableLogging) {
@@ -324,13 +361,17 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
     int? offset,
   }) async {
     try {
-      final baseQuery = _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      var baseQuery = SupabaseClientManager
           .from('unassigned_invoices')
           .select()
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
-      PostgrestTransformBuilder<PostgrestList> query = baseQuery;
-
+      dynamic query = baseQuery;
       if (limit != null) {
         query = query.limit(limit);
       }
@@ -361,11 +402,16 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<bool> canAssignInvoicesToSet(List<String> invoiceIds) async {
     try {
-      final response = await _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      final response = await SupabaseClientManager
           .from('invoices')
           .select('id, reimbursement_set_id')
           .filter('id', 'in', '(${invoiceIds.join(',')})')
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
       // 检查是否所有发票都未分配
       final canAssign =
@@ -390,15 +436,20 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
   @override
   Future<ReimbursementSetStats> getReimbursementSetStats() async {
     try {
-      final setsResponse = await _supabaseClient
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
+      final setsResponse = await SupabaseClientManager
           .from('reimbursement_sets')
           .select('status, total_amount, invoice_count')
-          .eq('user_id', _supabaseClient.auth.currentUser!.id);
+          .eq('user_id', currentUser.id);
 
-      final unassignedResponse = await _supabaseClient
+      final unassignedResponse = await SupabaseClientManager
           .from('invoices')
           .select('id')
-          .eq('user_id', _supabaseClient.auth.currentUser!.id)
+          .eq('user_id', currentUser.id)
           .filter('reimbursement_set_id', 'is', 'null');
 
       int totalSets = setsResponse.length;
@@ -457,6 +508,11 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
     ReimbursementSetStatus reimbursementSetStatus,
   ) async {
     try {
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw Exception('用户未登录');
+      }
+
       // 将报销集状态映射为发票状态
       String invoiceStatus;
       switch (reimbursementSetStatus) {
@@ -472,11 +528,11 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       }
 
       // 批量更新关联发票的状态
-      await _supabaseClient.from('invoices').update({
+      await SupabaseClientManager.from('invoices').update({
         'status': invoiceStatus,
       })
       .eq('reimbursement_set_id', setId)
-      .eq('user_id', _supabaseClient.auth.currentUser!.id);
+      .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -492,7 +548,6 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
         );
       }
       // 不抛出异常，避免影响主要的状态更新操作，但需要记录错误
-      // TODO: 考虑是否应该抛出异常或者至少返回错误状态
     }
   }
 }

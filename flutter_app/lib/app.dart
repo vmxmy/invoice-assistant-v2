@@ -128,7 +128,7 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                       tag: 'App');
                   
                   // 如果用户已登录且邮箱已确认，使用预加载器智能加载权限
-                  final user = Supabase.instance.client.auth.currentUser;
+                  final user = SupabaseClientManager.currentUser;
                   if (user != null && user.emailConfirmedAt != null) {
                     // 使用预加载器进行智能权限预加载
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -210,8 +210,8 @@ class SessionValidationResult {
 /// 🔐 安全增强：全面的会话安全验证
 SessionValidationResult _validateSessionSecurity() {
   try {
-    final session = Supabase.instance.client.auth.currentSession;
-    final user = Supabase.instance.client.auth.currentUser;
+    final session = SupabaseClientManager.client.auth.currentSession;
+    final user = SupabaseClientManager.currentUser;
     
     // 基础验证：会话和用户存在性
     if (session == null || user == null) {

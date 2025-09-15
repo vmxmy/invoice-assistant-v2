@@ -5,6 +5,7 @@ import '../bloc/invoice_event.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../../data/services/permission_cache_service.dart';
+import '../../core/network/supabase_client.dart';
 import '../../core/utils/logger.dart';
 
 /// 权限预加载器和缓存管理器
@@ -33,7 +34,7 @@ class PermissionPreloader {
     try {
       _isPreloading = true;
       
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = SupabaseClientManager.currentUser;
       if (user == null || user.emailConfirmedAt == null) {
         AppLogger.debug('🔐 [PermissionPreloader] 用户未认证，跳过权限预加载', tag: 'Permission');
         return;
@@ -137,7 +138,7 @@ class PermissionPreloader {
     InvoiceBloc? invoiceBloc,
     ReimbursementSetBloc? reimbursementSetBloc,
   }) async {
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final currentUser = SupabaseClientManager.currentUser;
     final currentUserId = currentUser?.id;
     
     if (currentUserId == null || currentUser?.emailConfirmedAt == null) {

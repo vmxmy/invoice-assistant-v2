@@ -2,8 +2,8 @@
 /// 与Supabase交互获取邮件数据
 library;
 
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/error/exceptions.dart';
+import '../../core/network/supabase_client.dart';
 import '../models/email_record_model.dart';
 import '../models/email_detail_model.dart';
 import '../models/inbox_stats_model.dart';
@@ -11,9 +11,6 @@ import '../../domain/entities/email_filters.dart';
 import 'inbox_datasource.dart';
 
 class InboxDataSourceImpl implements InboxDataSource {
-  final SupabaseClient supabaseClient;
-
-  InboxDataSourceImpl({required this.supabaseClient});
 
   @override
   Future<List<EmailRecordModel>> getUserEmails({
@@ -23,8 +20,17 @@ class InboxDataSourceImpl implements InboxDataSource {
     EmailFilters? filters,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // 调用数据库RPC函数，对应Web项目的 get_user_emails
-      final response = await supabaseClient.rpc('get_user_emails', params: {
+      final response = await SupabaseClientManager.client.rpc('get_user_emails', params: {
         'user_uuid': userId,
         'limit_count': pageSize,
         'offset_count': (page - 1) * pageSize,
@@ -54,8 +60,17 @@ class InboxDataSourceImpl implements InboxDataSource {
     required String userId,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // 调用数据库RPC函数，对应Web项目的 get_email_detail
-      final response = await supabaseClient.rpc('get_email_detail', params: {
+      final response = await SupabaseClientManager.client.rpc('get_email_detail', params: {
         'email_id': emailId,
         'user_uuid': userId,
       });
@@ -112,8 +127,17 @@ class InboxDataSourceImpl implements InboxDataSource {
     required String userId,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // 调用数据库RPC函数，对应Web项目的 get_user_inbox_stats
-      final response = await supabaseClient.rpc('get_user_inbox_stats', params: {
+      final response = await SupabaseClientManager.client.rpc('get_user_inbox_stats', params: {
         'user_uuid': userId,
       });
 
@@ -169,9 +193,18 @@ class InboxDataSourceImpl implements InboxDataSource {
     required String userId,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // TODO: 实现标记已读功能
       // 这里可能需要更新邮件的已读状态或调用相应的RPC函数
-      await supabaseClient.rpc('mark_email_as_read', params: {
+      await SupabaseClientManager.client.rpc('mark_email_as_read', params: {
         'email_id': emailId,
         'user_uuid': userId,
       });
@@ -189,9 +222,18 @@ class InboxDataSourceImpl implements InboxDataSource {
     required String userId,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // TODO: 实现删除邮件功能
       // 这里可能需要软删除或调用相应的RPC函数
-      await supabaseClient.rpc('delete_user_email', params: {
+      await SupabaseClientManager.client.rpc('delete_user_email', params: {
         'email_id': emailId,
         'user_uuid': userId,
       });
@@ -210,8 +252,17 @@ class InboxDataSourceImpl implements InboxDataSource {
     required String action,
   }) async {
     try {
+      // 确保用户已认证
+      final currentUser = SupabaseClientManager.currentUser;
+      if (currentUser == null) {
+        throw ServerException(
+          message: '用户未登录',
+          statusCode: 401,
+        );
+      }
+
       // TODO: 实现批量操作功能
-      await supabaseClient.rpc('batch_email_operation', params: {
+      await SupabaseClientManager.client.rpc('batch_email_operation', params: {
         'email_ids': emailIds,
         'user_uuid': userId,
         'action': action,

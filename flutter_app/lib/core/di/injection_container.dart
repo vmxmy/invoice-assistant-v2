@@ -29,7 +29,6 @@ import '../../presentation/bloc/inbox/inbox_bloc.dart';
 
 // 核心服务
 import '../events/app_event_bus.dart';
-import '../network/supabase_client.dart';
 
 /// 全局依赖注入容器
 final sl = GetIt.instance;
@@ -97,7 +96,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<InboxDataSource>(
-    () => InboxDataSourceImpl(supabaseClient: SupabaseClientManager.client),
+    () => InboxDataSourceImpl(),
   );
 
   // Services

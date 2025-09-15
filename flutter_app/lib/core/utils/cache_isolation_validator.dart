@@ -1,7 +1,7 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/cache/invoice_cache.dart';
 import '../../data/services/permission_cache_service.dart';
 import '../../presentation/utils/permission_preloader.dart';
+import '../network/supabase_client.dart';
 import 'logger.dart';
 
 /// 缓存隔离验证器
@@ -23,7 +23,7 @@ class CacheIsolationValidator {
     
     try {
       // 1. 验证当前用户上下文
-      final currentUser = Supabase.instance.client.auth.currentUser;
+      final currentUser = SupabaseClientManager.currentUser;
       results['currentUser'] = {
         'isAuthenticated': currentUser != null,
         'userId': currentUser?.id,
@@ -64,7 +64,7 @@ class CacheIsolationValidator {
   /// 验证发票缓存隔离
   Future<Map<String, dynamic>> _validateInvoiceCacheIsolation() async {
     final stats = _invoiceCache.getCacheStats();
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final currentUser = SupabaseClientManager.currentUser;
     
     return {
       'userContextMatches': stats['currentUserId'] == currentUser?.id,
@@ -81,7 +81,7 @@ class CacheIsolationValidator {
 
   /// 验证权限缓存隔离
   Future<Map<String, dynamic>> _validatePermissionCacheIsolation() async {
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final currentUser = SupabaseClientManager.currentUser;
     if (currentUser == null) {
       return {
         'userNotAuthenticated': true,
