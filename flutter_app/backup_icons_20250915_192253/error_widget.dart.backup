@@ -1,0 +1,88 @@
+/// 错误显示组件
+/// 用于显示各种错误状态
+library;
+
+// Material导入已移除，使用纯Cupertino架构
+import 'package:flutter/cupertino.dart';
+
+class ErrorWidget extends StatelessWidget {
+  final String message;
+  final VoidCallback? onRetry;
+  final IconData? icon;
+  final String? retryText;
+
+  const ErrorWidget({
+    super.key,
+    required this.message,
+    this.onRetry,
+    this.icon,
+    this.retryText = '重试',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: colorScheme.error.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(32),
+            ),
+            child: Icon(
+              icon ?? CupertinoIcons.exclamationmark_triangle,
+              size: 32,
+              color: colorScheme.error,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Text(
+            '出错了',
+            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+              fontSize: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              height: 1.4,
+            ),
+          ),
+
+          if (onRetry != null) ...[
+            const SizedBox(height: 20),
+            CupertinoButton(
+              onPressed: onRetry,
+              color: colorScheme.primary,
+              borderRadius: BorderRadius.circular(25),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Text(
+                retryText!,
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

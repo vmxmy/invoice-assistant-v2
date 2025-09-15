@@ -268,9 +268,9 @@ class PermissionValidator {
   static bool isValidInput(String input) {
     // 检查SQL注入模式
     final sqlInjectionPatterns = [
-      RegExp(r"('|(\\')|(;)|(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)", caseSensitive: false),
-      RegExp(r"(\b(OR|AND)\b\s*\d+\s*=\s*\d+)", caseSensitive: false),
-      RegExp(r"(-{2}|/\*|\*/)", caseSensitive: false),
+      RegExp(r"('|(\\')|(;)|(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b))", caseSensitive: false),
+      RegExp(r'(\b(OR|AND)\b\s*\d+\s*=\s*\d+)', caseSensitive: false),
+      RegExp(r'(-{2}|/\*|\*/)', caseSensitive: false),
     ];
 
     for (final pattern in sqlInjectionPatterns) {
@@ -284,9 +284,9 @@ class PermissionValidator {
 
     // 检查XSS模式
     final xssPatterns = [
-      RegExp(r"<script[^>]*>.*?</script>", caseSensitive: false),
-      RegExp(r"javascript:", caseSensitive: false),
-      RegExp(r"on\w+\s*=", caseSensitive: false),
+      RegExp(r'<script[^>]*>.*?</script>', caseSensitive: false),
+      RegExp(r'javascript:', caseSensitive: false),
+      RegExp(r'on\w+\s*=', caseSensitive: false),
     ];
 
     for (final pattern in xssPatterns) {

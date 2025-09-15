@@ -229,20 +229,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     }
   }
   
-  /// 将报销集状态映射为发票状态
-  /// TODO: 未来功能 - 报销集状态同步时使用
-  InvoiceStatus _mapReimbursementStatusToInvoiceStatus(String reimbursementStatus) {
-    switch (reimbursementStatus) {
-      case 'unsubmitted':
-        return InvoiceStatus.unsubmitted;
-      case 'submitted':
-        return InvoiceStatus.submitted;
-      case 'reimbursed':
-        return InvoiceStatus.reimbursed;
-      default:
-        return InvoiceStatus.unsubmitted;
-    }
-  }
   
   /// 检查数据是否过期（超过5分钟）
   bool _isDataStale() {

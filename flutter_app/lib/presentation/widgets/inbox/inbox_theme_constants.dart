@@ -31,7 +31,7 @@ class InboxThemeConstants {
   // ==================== 收件箱组件尺寸常量 ====================
   
   /// 邮件列表项内边距
-  static const EdgeInsets emailListItemPadding = const EdgeInsets.all(16.0);
+  static const EdgeInsets emailListItemPadding = EdgeInsets.all(16.0);
   
   /// 邮件列表项紧凑内边距
   static const EdgeInsets emailListItemPaddingCompact = EdgeInsets.all(12.0);
@@ -133,13 +133,13 @@ class InboxThemeConstants {
   // ==================== 收件箱动画时长 ====================
   
   /// 邮件列表项展开/折叠动画
-  static const Duration emailExpandAnimation = const Duration(milliseconds: 300);
+  static const Duration emailExpandAnimation = Duration(milliseconds: 300);
   
   /// 过滤器展开/折叠动画
-  static const Duration filterExpandAnimation = const Duration(milliseconds: 300);
+  static const Duration filterExpandAnimation = Duration(milliseconds: 300);
   
   /// 状态切换动画
-  static const Duration statusChangeAnimation = const Duration(milliseconds: 200);
+  static const Duration statusChangeAnimation = Duration(milliseconds: 200);
 
   // ==================== 实用方法 ====================
   

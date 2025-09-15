@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+// Material导入已移除，使用纯Cupertino架构
 import 'package:flutter_slidable/flutter_slidable.dart';
-import '../atoms/unified_slide_button.dart';
+import '../molecules/unified_slide_button.dart';
 
 /// 统一滑动操作面板
 /// 

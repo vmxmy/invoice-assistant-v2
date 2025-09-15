@@ -91,10 +91,10 @@ class UnifiedBottomSheet {
       enableDrag: enableDrag,
       builder: (context) => _CustomSheetWithActions(
         title: title,
-        child: child,
         actions: actions,
         maxHeight: maxHeight,
         enableDrag: enableDrag,
+        child: child,
       ),
     );
   }

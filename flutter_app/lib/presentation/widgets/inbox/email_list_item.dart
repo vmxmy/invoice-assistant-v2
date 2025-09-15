@@ -27,6 +27,8 @@ class EmailListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -44,49 +46,47 @@ class EmailListItem extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           HapticFeedback.lightImpact();
-            onTap();
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 头部：发件人和日期
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _buildSenderInfo(colorScheme),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildDateInfo(colorScheme),
-                  ],
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // 邮件主题
-                _buildSubjectInfo(colorScheme),
-                
-                const SizedBox(height: 12),
-                
-                // 底部：状态标签和附件信息
-                Row(
-                  children: [
-                    _buildCategoryBadge(colorScheme),
+          onTap();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 头部：发件人和日期
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildSenderInfo(colorScheme),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildDateInfo(colorScheme),
+                ],
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // 邮件主题
+              _buildSubjectInfo(colorScheme),
+              
+              const SizedBox(height: 12),
+              
+              // 底部：状态标签和附件信息
+              Row(
+                children: [
+                  _buildCategoryBadge(colorScheme),
+                  const SizedBox(width: 8),
+                  _buildStatusBadge(colorScheme),
+                  const Spacer(),
+                  if (email.hasAttachments) ...[
+                    _buildAttachmentInfo(colorScheme),
                     const SizedBox(width: 8),
-                    _buildStatusBadge(colorScheme),
-                    const Spacer(),
-                    if (email.hasAttachments) ...[
-                      _buildAttachmentInfo(colorScheme),
-                      const SizedBox(width: 8),
-                    ],
-                    _buildActionButtons(colorScheme),
                   ],
-                ),
-              ],
-            ),
+                  _buildActionButtons(colorScheme),
+                ],
+              ),
+            ],
           ),
         ),
       ),

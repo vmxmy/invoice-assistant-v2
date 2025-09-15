@@ -1,0 +1,1815 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+// Material导入已移除，使用纯Cupertino架构
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+// 使用 Cupertino主题系统进行统一主题管理
+import '../utils/cupertino_notification_utils.dart';
+import 'package:sliver_tools/sliver_tools.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:archive/archive.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+// import 'package:http/http.dart' as http; // 未使用
+import 'package:share_plus/share_plus.dart';
+// import 'package:open_file/open_file.dart'; // 未使用
+import 'package:file_picker/file_picker.dart';
+import '../../domain/value_objects/invoice_status.dart';
+import '../../domain/repositories/invoice_repository.dart';
+import '../../core/utils/invoice_file_utils.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/di/injection_container.dart';
+import '../../core/network/supabase_client.dart';
+import '../../core/config/app_config.dart';
+import '../../domain/entities/invoice_entity.dart';
+import '../bloc/invoice_bloc.dart';
+import '../bloc/invoice_event.dart';
+import '../bloc/invoice_state.dart';
+import '../widgets/invoice_card_widget.dart';
+// import '../widgets/invoice_stats_widget.dart'; // 未使用
+import '../widgets/invoice_search_filter_bar.dart';
+import '../widgets/invoice_stats_inline.dart';
+import '../widgets/app_feedback.dart';
+import '../utils/invoice_delete_utils.dart';
+import '../widgets/skeleton_loader.dart';
+import '../widgets/enhanced_error_handler.dart';
+import '../utils/reimbursement_set_operation_utils.dart';
+import '../../domain/entities/reimbursement_set_entity.dart';
+import '../bloc/reimbursement_set_bloc.dart';
+import '../bloc/reimbursement_set_event.dart';
+import '../bloc/reimbursement_set_state.dart';
+import '../widgets/optimized_reimbursement_set_card.dart';
+import '../widgets/reimbursement_set_stats_inline.dart';
+import '../widgets/reimbursement_set_search_filter_bar.dart';
+import '../../core/events/app_lifecycle_manager.dart';
+
+/// 发票管理页面 - 使用新的分层架构
+class InvoiceManagementPage extends StatefulWidget {
+  const InvoiceManagementPage({super.key});
+
+  @override
+  State<InvoiceManagementPage> createState() => _InvoiceManagementPageState();
+}
+
+/// 内部页面组件，由BlocProvider包装
+class _InvoiceManagementPageContent extends StatefulWidget {
+  const _InvoiceManagementPageContent();
+
+  @override
+  State<_InvoiceManagementPageContent> createState() =>
+      _InvoiceManagementPageContentState();
+}
+
+class _InvoiceManagementPageState extends State<InvoiceManagementPage>
+    with SingleTickerProviderStateMixin {
+  @override
+  Widget build(BuildContext context) {
+    return const _InvoiceManagementPageContent();
+  }
+}
+
+class _InvoiceManagementPageContentState
+    extends State<_InvoiceManagementPageContent>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late AppLifecycleManager _lifecycleManager;
+  final String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycleManager = AppLifecycleManager();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        // 发票管理页面内部的子tab切换，不需要发送全局TabChangedEvent
+        // 因为这会与MainPage的主tab切换冲突
+        // _lifecycleManager.onTabChanged(_tabController.index, tabName);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _lifecycleManager.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return MultiBlocListener(
+      listeners: [
+        // 发票操作监听器
+        BlocListener<InvoiceBloc, InvoiceState>(
+          listener: (context, state) {
+            if (state is InvoiceDeleteSuccess) {
+              EnhancedErrorHandler.showSuccessSnackBar(context, state.message);
+            } else if (state is InvoiceError) {
+              EnhancedErrorHandler.showErrorSnackBar(
+                context,
+                state.message,
+                onRetry: () {
+                  // 重试加载列表
+                  context
+                      .read<InvoiceBloc>()
+                      .add(const LoadInvoices(refresh: true));
+                },
+              );
+            }
+          },
+        ),
+        
+        // 报销集操作监听器
+        BlocListener<ReimbursementSetBloc, ReimbursementSetState>(
+          listener: (context, state) {
+            if (state is ReimbursementSetCreateSuccess) {
+              // 使用 AppFeedback 显示创建成功消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '创建成功',
+                  message: state.message,
+                  type: FeedbackType.success,
+                ),
+              );
+            } else if (state is ReimbursementSetOperationSuccess) {
+              // 使用 AppFeedback 显示操作成功消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '操作成功',
+                  message: state.message,
+                  type: FeedbackType.success,
+                ),
+              );
+            } else if (state is ReimbursementSetError) {
+              // 使用 AppFeedback 显示错误消息（Cupertino风格）
+              AppFeedback.show(
+                context,
+                FeedbackConfig(
+                  title: '错误',
+                  message: state.message,
+                  type: FeedbackType.error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: CupertinoPageScaffold(
+        navigationBar: null, // 使用自定义的Sliver导航栏
+        child: Column(
+          children: [
+            // 固定的分段控制器
+            _buildSegmentedControl(),
+            // 可滚动的内容区域
+            Expanded(
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  _buildAppBar(context),
+                ],
+                body: TabBarView(
+                  controller: _tabController,
+            children: [
+              BlocProvider.value(
+                value: context.read<InvoiceBloc>(),
+                child: Builder(
+                  builder: (context) {
+                    return _AllInvoicesTab(searchQuery: _searchQuery);
+                  },
+                ),
+              ),
+              BlocProvider.value(
+                value: context.read<InvoiceBloc>(),
+                child: Builder(
+                  builder: (context) {
+                    return _ReimbursementSetsTab();
+                  },
+                ),
+              ),
+              BlocProvider.value(
+                value: context.read<InvoiceBloc>(),
+                child: Builder(
+                  builder: (context) {
+                    return _FavoritesTab();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      ], // Column children
+    ), // Column
+  ), // CupertinoPageScaffold
+    );
+  }
+
+  /// 构建Cupertino导航栏
+  Widget _buildAppBar(BuildContext context) {
+    return CupertinoSliverNavigationBar(
+      backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
+      largeTitle: const Text('发票管理'),
+      border: const Border(
+        bottom: BorderSide(
+          color: CupertinoColors.separator,
+          width: 0.5,
+        ),
+      ),
+    );
+  }
+
+  /// 构建Cupertino分段控制器
+  Widget _buildSegmentedControl() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: CupertinoSlidingSegmentedControl<int>(
+        groupValue: _tabController.index,
+        onValueChanged: (value) {
+          if (value != null) {
+            _tabController.animateTo(value);
+          }
+        },
+        children: const {
+          0: Text('全部发票'),
+          1: Text('报销集'),
+          2: Text('收藏'),
+        },
+      ),
+    );
+  }
+}
+
+/// 全部发票标签页 - 独立组件，确保正确的上下文访问
+class _AllInvoicesTab extends StatefulWidget {
+  final String searchQuery;
+
+  const _AllInvoicesTab({required this.searchQuery});
+
+  @override
+  State<_AllInvoicesTab> createState() => _AllInvoicesTabState();
+}
+
+class _AllInvoicesTabState extends State<_AllInvoicesTab> {
+  late ScrollController _scrollController;
+  bool _isSelectionMode = false;
+  final Set<String> _selectedInvoices = <String>{};
+  String _searchQuery = '';
+  FilterOptions _currentFilterOptions = const FilterOptions();
+
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+
+    // 检查当前状态，如果没有数据则加载
+    // 但要确保在认证状态稳定后再加载
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 等待一小段时间确保 Supabase 认证状态稳定
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (!mounted) return;
+      
+      // 检查认证状态
+      final user = SupabaseClientManager.currentUser;
+      if (user == null || user.emailConfirmedAt == null) {
+        return;
+      }
+      
+      final currentState = context.read<InvoiceBloc>().state;
+
+      if (currentState is! InvoiceLoaded || currentState.invoices.isEmpty) {
+        // 初始化加载使用清除筛选事件，确保加载全部数据
+        context.read<InvoiceBloc>().add(const ClearFiltersAndReload());
+      } else {
+      }
+    });
+  }
+
+  /// 进入选择模式
+  void _enterSelectionMode(String invoiceId) {
+    setState(() {
+      _isSelectionMode = true;
+      _selectedInvoices.add(invoiceId);
+    });
+  }
+
+  /// 退出选择模式
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedInvoices.clear();
+    });
+  }
+
+  /// 切换发票选择状态
+  void _toggleInvoiceSelection(String invoiceId) {
+    setState(() {
+      if (_selectedInvoices.contains(invoiceId)) {
+        _selectedInvoices.remove(invoiceId);
+        if (_selectedInvoices.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedInvoices.add(invoiceId);
+      }
+    });
+  }
+
+  /// 选择指定月份的所有发票
+  void _selectMonthInvoices(String monthKey, List<InvoiceEntity> monthInvoices) {
+    // 触感反馈
+    HapticFeedback.mediumImpact();
+    
+    setState(() {
+      _isSelectionMode = true;
+      // 将该月份的所有发票添加到选择列表中
+      for (final invoice in monthInvoices) {
+        _selectedInvoices.add(invoice.id);
+      }
+    });
+
+    // 显示简洁的选择成功提示
+    CupertinoNotificationUtils.showSuccess(
+      context,
+      '已选择$monthKey的${monthInvoices.length}张发票',
+    );
+  }
+
+
+  /// 批量删除选中的发票
+  void _deleteSelectedInvoices() {
+    InvoiceDeleteUtils.showBatchDeleteConfirmation(
+      context: context,
+      invoiceIds: _selectedInvoices.toList(),
+      onDeleted: _exitSelectionMode,
+    );
+  }
+
+  /// 批量下载选中的发票PDF文件
+  Future<void> _downloadSelectedInvoices() async {
+    if (_selectedInvoices.isEmpty) return;
+
+    try {
+      // 显示下载进度对话框
+      showCupertinoDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('正在下载'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CupertinoActivityIndicator(),
+              const SizedBox(height: 16),
+              Text('正在下载并打包 ${_selectedInvoices.length} 张发票...'),
+            ],
+          ),
+        ),
+      );
+
+      // 获取选中的发票详细信息
+      final invoiceRepository = sl<InvoiceRepository>();
+      final selectedInvoicesData = <InvoiceEntity>[];
+
+
+      for (final invoiceId in _selectedInvoices) {
+        try {
+          final invoice = await invoiceRepository.getInvoiceById(invoiceId);
+          selectedInvoicesData.add(invoice);
+        } catch (e) {
+          // Ignore operation failure
+        }
+      }
+
+
+      // 创建ZIP压缩包
+      final archive = Archive();
+      int successCount = 0;
+      int noFileCount = 0;
+      int downloadFailCount = 0;
+
+      // 过滤出有文件的发票
+      final invoicesWithFiles =
+          selectedInvoicesData.where((invoice) => invoice.hasFile).toList();
+      final invoicesWithoutFiles =
+          selectedInvoicesData.where((invoice) => !invoice.hasFile).toList();
+
+      noFileCount = invoicesWithoutFiles.length;
+
+      // 并发下载，限制同时下载数量为3个
+      const maxConcurrentDownloads = 3;
+
+      for (int i = 0;
+          i < invoicesWithFiles.length;
+          i += maxConcurrentDownloads) {
+        final batch =
+            invoicesWithFiles.skip(i).take(maxConcurrentDownloads).toList();
+
+        final batchTasks = batch.map((invoice) async {
+          try {
+
+            // 使用优化后的下载方法（带重试机制）
+            final fileBytes =
+                await InvoiceFileUtils.getInvoicePdfBytes(invoice);
+
+            // 生成文件名
+            final fileName =
+                '${invoice.invoiceNumber}_${invoice.sellerName ?? '未知销售方'}.pdf'
+                    .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_'); // 移除文件名中的非法字符
+
+            // 添加到压缩包
+            final file = ArchiveFile(fileName, fileBytes.length, fileBytes);
+            archive.addFile(file);
+            successCount++;
+          } catch (e) {
+          // Ignore operation failure
+            downloadFailCount++;
+          }
+        });
+
+        // 等待当前批次完成后再进行下一批
+        await Future.wait(batchTasks);
+
+        // 批次间短暂停顿，避免服务器压力
+        if (i + maxConcurrentDownloads < invoicesWithFiles.length) {
+          await Future.delayed(Duration(milliseconds: 500));
+        }
+      }
+
+
+      if (archive.files.isEmpty) {
+        if (mounted) {
+          Navigator.pop(context); // 关闭进度对话框
+          String errorMessage = '没有可下载的PDF文件';
+          if (noFileCount > 0) {
+            errorMessage += '\n$noFileCount张发票缺少文件链接';
+          }
+          if (downloadFailCount > 0) {
+            errorMessage += '\n$downloadFailCount张发票下载失败';
+          }
+          AppFeedback.error(context, errorMessage);
+        }
+        return;
+      }
+
+      // 压缩文件
+      final zipData = ZipEncoder().encode(archive);
+      if (zipData == null) {
+        if (mounted) {
+          Navigator.pop(context);
+          AppFeedback.error(context, '文件压缩失败');
+        }
+        return;
+      }
+
+      if (mounted) {
+        Navigator.pop(context); // 关闭进度对话框
+      }
+
+      if (Platform.isIOS) {
+        // iOS平台：直接分享压缩包，不保存到本地
+        await _shareZipFileDirectly(Uint8List.fromList(zipData), successCount);
+        if (mounted) {
+          AppFeedback.success(context, '已打包 $successCount 张发票');
+        }
+      } else {
+        // 其他平台：保存到用户选择的位置
+        final filePath =
+            await _saveZipFile(Uint8List.fromList(zipData), successCount);
+
+        if (filePath != null) {
+          // 显示成功消息
+          if (mounted) {
+            AppFeedback.success(context, '成功下载并打包 $successCount 张发票');
+          }
+
+          // 打开文件所在位置
+          await _openFileLocation(filePath, successCount);
+        } else {
+          // 用户取消保存或保存失败
+        }
+      }
+
+      _exitSelectionMode();
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // 关闭进度对话框
+        AppFeedback.error(context, '下载失败: ${e.toString()}');
+      }
+    }
+  }
+
+  /// 打开文件所在位置并提供操作选项
+  Future<void> _openFileLocation(String filePath, int fileCount) async {
+    try {
+      if (Platform.isMacOS) {
+        // macOS：在Finder中显示文件
+        await Process.run('open', ['-R', filePath]);
+
+        // 显示macOS标准下载完成对话框
+        if (mounted) {
+          final fileName = filePath.split('/').last;
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Container(
+                width: 420,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 文件图标
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.folder,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 标题
+                    Text(
+                      '已下载',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 文件名
+                    Text(
+                      fileName,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+
+                    // 文件信息
+                    Text(
+                      '$fileCount 张发票',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 按钮组
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // 在Finder中显示
+                        CupertinoButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // 文件已经在Finder中显示了，这里不需要再次打开
+                          },
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(CupertinoIcons.folder_open, size: 16),
+                              SizedBox(width: 4),
+                              Text('在Finder中显示'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+
+                        // 完成按钮
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: Text('完成'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      } else if (Platform.isWindows) {
+        // Windows：在资源管理器中显示文件
+        await Process.run('explorer', ['/select,', filePath]);
+      } else if (Platform.isLinux) {
+        // Linux：尝试打开文件管理器
+        final directory = Directory(filePath).parent.path;
+        await Process.run('xdg-open', [directory]);
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 移动端：显示文件保存信息并提供分享选项
+        if (mounted) {
+          showCupertinoDialog(
+            context: context,
+            builder: (context) => CupertinoAlertDialog(
+              title: const Text('文件已保存'),
+              content: Text('文件已成功保存！\n包含 $fileCount 张发票\n\n是否要分享此文件？'),
+              actions: [
+                CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('稍后'),
+                ),
+                CupertinoDialogAction(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _shareOnMobile(filePath, fileCount);
+                  },
+                  isDefaultAction: true,
+                  child: const Text('分享'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // 如果打开失败，至少显示成功信息
+      if (mounted) {
+        AppFeedback.success(context, '文件已保存到本地，包含 $fileCount 张发票');
+      }
+    }
+  }
+
+  /// 移动端分享
+  Future<void> _shareOnMobile(String filePath, int fileCount) async {
+    try {
+      await Share.shareXFiles(
+        [XFile(filePath)],
+      );
+    } catch (e) {
+      if (mounted) {
+        AppFeedback.error(context, '分享失败');
+      }
+    }
+  }
+
+  /// 保存ZIP文件到用户选择的位置并返回文件路径
+  Future<String?> _saveZipFile(Uint8List zipData, int fileCount) async {
+    try {
+      // 生成默认文件名
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final defaultFileName = 'invoices_${fileCount}files_$timestamp.zip';
+
+      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        // 桌面端：显示文件保存对话框
+
+        try {
+
+          final fileSavePath = await FilePicker.platform.saveFile(
+            dialogTitle: '保存发票文件',
+            fileName: defaultFileName,
+            type: FileType.custom,
+            allowedExtensions: ['zip'],
+          );
+
+
+          if (fileSavePath == null) {
+            // 回退到默认目录而不是返回null
+            final directory = await getApplicationDocumentsDirectory();
+            final file = File('${directory.path}/$defaultFileName');
+            await file.writeAsBytes(zipData);
+            return file.path;
+          }
+
+
+          // 写入文件到用户选择的位置
+          final file = File(fileSavePath);
+          await file.writeAsBytes(zipData);
+
+          return file.path;
+        } catch (e) {
+          // Ignore operation failure
+          // 如果保存对话框失败，回退到默认目录
+          final directory = await getApplicationDocumentsDirectory();
+          final file = File('${directory.path}/$defaultFileName');
+          await file.writeAsBytes(zipData);
+          return file.path;
+        }
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        // 移动端：请求存储权限并使用默认目录
+        final permission =
+            Platform.isAndroid ? Permission.storage : Permission.photos;
+
+        final status = await permission.request();
+        if (!status.isGranted) {
+          throw '存储权限被拒绝';
+        }
+
+        late Directory directory;
+        if (Platform.isAndroid) {
+          final externalDir = await getExternalStorageDirectory();
+          if (externalDir == null) {
+            throw '无法获取Android存储目录';
+          }
+          // 创建下载文件夹
+          directory = Directory('${externalDir.path}/invoices');
+          if (!await directory.exists()) {
+            await directory.create(recursive: true);
+          }
+        } else {
+          directory = await getApplicationDocumentsDirectory();
+        }
+
+        final file = File('${directory.path}/$defaultFileName');
+        await file.writeAsBytes(zipData);
+
+        return file.path;
+      }
+
+      throw '不支持的平台';
+    } catch (e) {
+      throw '保存文件失败: $e';
+    }
+  }
+
+  /// 创建报销集
+  void _createReimbursementSet() {
+    if (_selectedInvoices.isEmpty) return;
+
+    // 获取选中发票的完整实体信息
+    final currentState = context.read<InvoiceBloc>().state;
+    List<InvoiceEntity>? selectedInvoiceEntities;
+    
+    if (currentState is InvoiceLoaded) {
+      selectedInvoiceEntities = currentState.invoices
+          .where((invoice) => _selectedInvoices.contains(invoice.id))
+          .toList();
+    }
+
+    // 直接使用工具类显示创建对话框，避免重复弹窗
+    ReimbursementSetOperationUtils.showCreateDialog(
+      context: context,
+      invoiceIds: _selectedInvoices.toList(),
+      invoices: selectedInvoiceEntities,
+    ).then((_) {
+      // 创建完成后退出选择模式并刷新数据
+      if (mounted) {
+        _exitSelectionMode();
+        context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+      }
+    });
+  }
+
+  /// 处理搜索变化
+  void _handleSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  /// 处理筛选变化
+  void _handleFilterChanged(FilterOptions filterOptions) {
+    setState(() {
+      _currentFilterOptions = filterOptions;
+    });
+
+    // 根据筛选条件触发相应的数据加载
+    _loadInvoicesWithFilter(filterOptions);
+  }
+
+  /// 处理筛选清除（完整重置并重新加载）
+  void _handleFilterClearWithRefresh(FilterOptions filterOptions) {
+    setState(() {
+      _currentFilterOptions = filterOptions;
+    });
+
+    // 使用专门的清除筛选事件，确保状态完整重置
+    context.read<InvoiceBloc>().add(const ClearFiltersAndReload());
+  }
+
+  /// 根据筛选条件加载发票（公共函数）
+  void _loadInvoicesWithFilter(FilterOptions filterOptions,
+      {bool refresh = false}) {
+    final filters = InvoiceFilters(
+      globalSearch: _searchQuery.isNotEmpty ? _searchQuery : null,
+      overdue: filterOptions.showOverdue,
+      urgent: filterOptions.showUrgent,
+      uncollected: filterOptions.showUncollected,
+      status: _getStatusFromFilter(filterOptions),
+      forceRefresh: refresh, // 根据refresh参数决定是否强制刷新
+    );
+
+
+    context.read<InvoiceBloc>().add(LoadInvoices(
+          page: 1,
+          refresh: refresh, // 根据参数决定是否刷新
+          filters: filters,
+        ));
+  }
+
+  /// 根据筛选选项获取状态列表
+  List<InvoiceStatus>? _getStatusFromFilter(FilterOptions filterOptions) {
+    if (filterOptions.showUnreimbursed) {
+      return [InvoiceStatus.unsubmitted, InvoiceStatus.submitted];
+    }
+    return null; // 返回null表示不筛选状态
+  }
+
+  /// 应用搜索和筛选
+  List<InvoiceEntity> _applySearchAndFilter(List<InvoiceEntity> invoices) {
+    var filteredInvoices = invoices;
+
+    // 应用搜索过滤
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      filteredInvoices = filteredInvoices.where((invoice) {
+        // 搜索发票号
+        if (invoice.invoiceNumber.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索销售方
+        if (invoice.sellerName?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        // 搜索金额（支持部分匹配）
+        final amountStr = invoice.amount.toString();
+        if (amountStr.contains(query)) {
+          return true;
+        }
+
+        // 搜索总金额
+        final totalAmountStr = invoice.totalAmount?.toString() ?? '';
+        if (totalAmountStr.contains(query)) {
+          return true;
+        }
+
+        // 搜索买方名称
+        if (invoice.buyerName?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        return false;
+      }).toList();
+    }
+
+    return filteredInvoices;
+  }
+
+  /// 按月份分组发票数据（基于消费时间）
+  Map<String, List<InvoiceEntity>> _groupInvoicesByMonth(
+      List<InvoiceEntity> invoices) {
+    final Map<String, List<InvoiceEntity>> groupedInvoices = {};
+
+    for (final invoice in invoices) {
+      // 使用消费时间进行分组，如果消费时间为空则使用开票时间作为fallback
+      final dateForGrouping = invoice.consumptionDate ?? invoice.invoiceDate;
+      final monthKey =
+          '${dateForGrouping.year}年${dateForGrouping.month.toString().padLeft(2, '0')}月';
+      groupedInvoices.putIfAbsent(monthKey, () => []).add(invoice);
+    }
+
+    // 按月份降序排序（最新的月份在前）
+    final sortedKeys = groupedInvoices.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    final sortedMap = <String, List<InvoiceEntity>>{};
+    for (final key in sortedKeys) {
+      // 每个月内按消费时间降序排序（如果消费时间为空则使用开票时间）
+      final monthInvoices = groupedInvoices[key]!
+        ..sort((a, b) {
+          final dateA = a.consumptionDate ?? a.invoiceDate;
+          final dateB = b.consumptionDate ?? b.invoiceDate;
+          return dateB.compareTo(dateA);
+        });
+      sortedMap[key] = monthInvoices;
+    }
+
+    return sortedMap;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (AppConfig.enableLogging) {
+    }
+
+    // 检查是否到达底部
+    if (_scrollController.offset >=
+        _scrollController.position.maxScrollExtent - 200) {
+      final currentState = context.read<InvoiceBloc>().state;
+      if (AppConfig.enableLogging) {
+      }
+
+      // 检查是否可以加载更多
+      bool hasMore = false;
+      bool isLoadingMore = false;
+      
+      if (currentState is InvoiceLoaded) {
+        hasMore = currentState.hasMore;
+        isLoadingMore = currentState.isLoadingMore;
+      } else if (currentState is InvoiceCompleteState) {
+        hasMore = currentState.hasMore;
+        isLoadingMore = currentState.isLoadingMore;
+      }
+      
+      if (hasMore && !isLoadingMore) {
+        if (AppConfig.enableLogging) {
+        }
+        context.read<InvoiceBloc>().add(const LoadMoreInvoices());
+      } else {
+        if (AppConfig.enableLogging) {
+          if (currentState is InvoiceLoaded || currentState is InvoiceCompleteState) {
+          } else {
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+        }
+      },
+      buildWhen: (previous, current) =>
+          current is InvoiceLoading ||
+          current is InvoiceError ||
+          current is InvoiceLoaded ||
+          current is InvoiceCompleteState,
+      builder: (context, state) {
+        if (state is InvoiceLoading) {
+          return Column(
+            children: [
+              // 加载状态的统计信息
+              const InvoiceStatsInline(
+                invoices: [],
+                isLoading: true,
+              ),
+              
+              // 加载骨架屏
+              const Expanded(
+                child: InvoiceListSkeleton(),
+              ),
+            ],
+          );
+        }
+
+        if (state is InvoiceError) {
+          return _buildErrorWidget(state.message, () {
+            // 错误重试时也使用当前筛选条件
+            if (_currentFilterOptions.hasActiveFilters) {
+              _loadInvoicesWithFilter(_currentFilterOptions);
+            } else {
+              // 无筛选条件时使用专门的清除筛选事件，确保状态完整重置
+              context
+                  .read<InvoiceBloc>()
+                  .add(const ClearFiltersAndReload());
+            }
+          });
+        }
+
+        if (state is InvoiceLoaded || state is InvoiceCompleteState) {
+          // 获取发票列表数据
+          List<InvoiceEntity> invoices;
+          InvoiceStats? stats;
+          bool isLoadingMore = false;
+          
+          if (state is InvoiceCompleteState) {
+            invoices = state.invoices;
+            stats = state.stats;
+            isLoadingMore = state.isLoadingMore;
+          } else if (state is InvoiceLoaded) {
+            invoices = state.invoices;
+            stats = null;
+            isLoadingMore = state.isLoadingMore;
+          } else {
+            invoices = [];
+            stats = null;
+            isLoadingMore = false;
+          }
+          
+          // 应用搜索和筛选
+          final filteredInvoices = _applySearchAndFilter(invoices);
+
+          return Column(
+            children: [
+              // iOS标准的发票统计信息一行显示（使用服务器统计数据）
+              InvoiceStatsInline(
+                invoices: invoices,
+                serverStats: stats,
+              ),
+              
+              // 搜索筛选组件
+              InvoiceSearchFilterBar(
+                initialSearchQuery: _searchQuery,
+                onSearchChanged: _handleSearchChanged,
+                onFilterChanged: _handleFilterChanged,
+                onFilterClearWithRefresh: _handleFilterClearWithRefresh,
+                showQuickFilters: true,
+                showSearchBox: true,
+              ),
+
+              // 多选操作栏
+              if (_isSelectionMode) _buildSelectionToolbar(filteredInvoices),
+
+              // 发票列表
+              Expanded(
+                child: _buildInvoiceList(filteredInvoices, isLoadingMore),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          children: [
+            // 空状态的统计信息
+            const InvoiceStatsInline(
+              invoices: [],
+            ),
+            
+            // 空状态提示
+            const Expanded(
+              child: Center(
+                child: Text('暂无发票数据'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 构建按月份分组的发票列表
+  Widget _buildInvoiceList(List<InvoiceEntity> invoices, bool isLoadingMore) {
+    if (invoices.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(CupertinoIcons.tray,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text('暂无发票',
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
+      );
+    }
+
+    final groupedInvoices = _groupInvoicesByMonth(invoices);
+    final monthKeys = groupedInvoices.keys.toList();
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<InvoiceBloc>().add(const RefreshInvoices());
+      },
+      child: SlidableAutoCloseBehavior(
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+          // 为每个月份创建一个MultiSliver section
+          ...monthKeys.map(
+            (monthKey) => MultiSliver(
+              pushPinnedChildren: true, // 防止多个header堆叠
+              children: [
+                // 月份标题 (粘性header)
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _MonthHeaderDelegate(
+                    monthKey: monthKey,
+                    invoiceCount: groupedInvoices[monthKey]!.length,
+                    onLongPress: () => _selectMonthInvoices(
+                      monthKey, 
+                      groupedInvoices[monthKey]!
+                    ),
+                  ),
+                ),
+                // 该月份的发票列表
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final invoice = groupedInvoices[monthKey]![index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
+                        child: InvoiceCardWidget(
+                          invoice: invoice,
+                          onTap: () => _viewInvoiceDetail(invoice),
+                          onDelete: () => _showDeleteConfirmation(invoice),
+                          // 移除状态修改回调 - 发票状态必须通过报销集来修改
+                          // onStatusChanged: (newStatus) => _handleStatusChange(invoice, newStatus),
+                          showConsumptionDateOnly:
+                              !kIsWeb && Platform.isIOS,
+                          isSelectionMode: _isSelectionMode,
+                          isSelected:
+                              _selectedInvoices.contains(invoice.id),
+                          onLongPress: () =>
+                              _enterSelectionMode(invoice.id),
+                          onSelectionToggle: () =>
+                              _toggleInvoiceSelection(invoice.id),
+                        ),
+                      );
+                    },
+                    childCount: groupedInvoices[monthKey]!.length,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 加载更多指示器
+          if (isLoadingMore)
+            SliverToBoxAdapter(
+              child: LoadMoreIndicator(
+                isLoadingMore: true,
+                message: '正在加载更多发票...',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建多选工具栏
+  Widget _buildSelectionToolbar(List<InvoiceEntity> allInvoices) {
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          // 关闭选择模式
+          IconButton(
+            onPressed: _exitSelectionMode,
+            icon: const Icon(CupertinoIcons.xmark),
+            tooltip: '取消选择',
+          ),
+
+          // 选择计数
+          Expanded(
+            child: Text(
+              '已选择 ${_selectedInvoices.length} 项',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+
+          // 创建报销集
+          if (_selectedInvoices.isNotEmpty)
+            IconButton(
+              onPressed: _createReimbursementSet,
+              icon: const Icon(CupertinoIcons.folder_badge_plus),
+              tooltip: '创建报销集',
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+
+          // 批量下载
+          if (_selectedInvoices.isNotEmpty)
+            IconButton(
+              onPressed: _downloadSelectedInvoices,
+              icon: const Icon(CupertinoIcons.cloud_download),
+              tooltip: '下载选中项',
+              color: Theme.of(context).colorScheme.primary,
+            ),
+
+          // 批量删除
+          if (_selectedInvoices.isNotEmpty)
+            IconButton(
+              onPressed: _deleteSelectedInvoices,
+              icon: const Icon(CupertinoIcons.delete),
+              tooltip: '删除选中项',
+              color: Theme.of(context).colorScheme.error,
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建错误组件
+  Widget _buildErrorWidget(String message, VoidCallback onRetry) {
+    final friendlyMessage =
+        EnhancedErrorHandler.getFriendlyErrorMessage(message);
+
+    return EmptyStatePlaceholder(
+      title: '加载失败',
+      subtitle: friendlyMessage,
+      icon: CupertinoIcons.exclamationmark_triangle,
+      onAction: onRetry,
+      actionText: '重试',
+    );
+  }
+
+  /// 查看发票详情
+  void _viewInvoiceDetail(InvoiceEntity invoice) {
+    context.push('/invoice-detail/${invoice.id}');
+  }
+
+  /// 显示删除确认对话框
+  void _showDeleteConfirmation(InvoiceEntity invoice) {
+    InvoiceDeleteUtils.showDeleteConfirmation(
+      context: context,
+      invoice: invoice,
+    );
+  }
+
+
+  /// iOS平台：直接分享压缩包，不保存到本地
+  Future<void> _shareZipFileDirectly(Uint8List zipData, int fileCount) async {
+    try {
+      // 生成临时文件名
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'invoices_${fileCount}files_$timestamp.zip';
+
+      // 保存到临时目录
+      final directory = await getTemporaryDirectory();
+      final tempFile = File('${directory.path}/$fileName');
+      await tempFile.writeAsBytes(zipData);
+
+
+      // 直接调用iOS分享菜单
+      await Share.shareXFiles(
+        [XFile(tempFile.path)],
+      );
+
+
+      // 延迟删除临时文件，给分享菜单足够的时间
+      Future.delayed(const Duration(seconds: 30), () {
+        try {
+          if (tempFile.existsSync()) {
+            tempFile.deleteSync();
+          }
+        } catch (e) {
+          // Ignore operation failure
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        AppFeedback.error(context, '分享失败: $e');
+      }
+    }
+  }
+}
+
+/// 本月发票标签页
+class _ReimbursementSetsTab extends StatefulWidget {
+  @override
+  State<_ReimbursementSetsTab> createState() => _ReimbursementSetsTabState();
+}
+
+class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  // 搜索和筛选状态
+  String _searchQuery = '';
+  ReimbursementSetFilterOptions _currentFilterOptions = ReimbursementSetFilterOptions();
+
+  @override
+  void initState() {
+    super.initState();
+    // 加载报销集数据，但要确保在认证状态稳定后再加载
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 等待一小段时间确保 Supabase 认证状态稳定
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (!mounted) return;
+      
+      // 检查认证状态
+      final user = SupabaseClientManager.currentUser;
+      if (user == null || user.emailConfirmedAt == null) {
+        return;
+      }
+      
+      context
+          .read<ReimbursementSetBloc>()
+          .add(const LoadReimbursementSets(refresh: true));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // 支持 AutomaticKeepAliveClientMixin
+    return BlocConsumer<ReimbursementSetBloc, ReimbursementSetState>(
+      listener: (context, state) {
+        if (state is ReimbursementSetDeleteSuccess) {
+          AppFeedback.success(context, '删除成功', message: state.message);
+        } else if (state is ReimbursementSetStatusUpdateSuccess) {
+          // 移除 SnackBar 提示，因为 bottomsheet 已经处理了用户反馈
+        } else if (state is ReimbursementSetError) {
+          AppFeedback.error(context, '操作失败', message: state.message);
+        }
+      },
+      builder: (context, state) {
+        if (state is ReimbursementSetLoading &&
+            state is! ReimbursementSetLoaded) {
+          return Column(
+            children: [
+              // 加载状态的统计信息
+              const ReimbursementSetStatsInline(
+                reimbursementSets: [],
+                isLoading: true,
+              ),
+              
+              // 加载骨架屏
+              const Expanded(
+                child: InvoiceListSkeleton(),
+              ),
+            ],
+          );
+        }
+
+        if (state is ReimbursementSetLoaded) {
+          final filteredReimbursementSets = _applySearchAndFilter(state.reimbursementSets);
+          
+          return Column(
+            children: [
+              // iOS标准的报销集统计信息一行显示
+              ReimbursementSetStatsInline(
+                reimbursementSets: state.reimbursementSets,
+              ),
+              
+              // 搜索和筛选工具栏
+              ReimbursementSetSearchFilterBar(
+                onSearchChanged: (query) {
+                  setState(() {
+                    _searchQuery = query;
+                  });
+                },
+                onFilterChanged: (filterOptions) {
+                  setState(() {
+                    _currentFilterOptions = filterOptions;
+                  });
+                },
+                onFilterClearWithRefresh: (filterOptions) {
+                  setState(() {
+                    _currentFilterOptions = filterOptions;
+                  });
+                  // 清除筛选时重新加载数据
+                  context
+                      .read<ReimbursementSetBloc>()
+                      .add(const LoadReimbursementSets(refresh: true));
+                },
+                initialSearchQuery: _searchQuery,
+              ),
+
+              // 报销集列表
+              Expanded(
+                child: _buildReimbursementSetsList(
+                    filteredReimbursementSets, state.isRefreshing),
+              ),
+            ],
+          );
+        }
+
+        // 修复：处理从详情页返回时的状态冲突
+        if (state is ReimbursementSetDetailLoaded) {
+          // 检测到详情状态，自动刷新为列表状态
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              context
+                  .read<ReimbursementSetBloc>()
+                  .add(const LoadReimbursementSets(refresh: true));
+            }
+          });
+          return const InvoiceListSkeleton(); // 显示加载状态
+        }
+
+        if (state is ReimbursementSetError) {
+          return Column(
+            children: [
+              // 错误状态也显示统计信息
+              const ReimbursementSetStatsInline(
+                reimbursementSets: [],
+              ),
+              
+              // 错误状态显示
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline,
+                          size: 64, color: Theme.of(context).colorScheme.error),
+                      const SizedBox(height: 16),
+                      Text('加载失败', style: Theme.of(context).textTheme.headlineSmall),
+                      const SizedBox(height: 8),
+                      Text(state.message, textAlign: TextAlign.center),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context
+                              .read<ReimbursementSetBloc>()
+                              .add(const LoadReimbursementSets(refresh: true));
+                        },
+                        child: Text('重试'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          children: [
+            // 空状态也显示统计信息
+            const ReimbursementSetStatsInline(
+              reimbursementSets: [],
+            ),
+            
+            // 空状态提示
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.folder_copy_outlined,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    const SizedBox(height: 16),
+                    Text('暂无报销集',
+                        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    const SizedBox(height: 8),
+                    Text('创建您的第一个报销集吧',
+                        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 构建报销集列表
+  Widget _buildReimbursementSetsList(
+      List<ReimbursementSetEntity> reimbursementSets, bool isRefreshing) {
+    if (reimbursementSets.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.folder_copy_outlined,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text('暂无报销集',
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            Text('在"全部发票"页面多选发票来创建报销集',
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context
+            .read<ReimbursementSetBloc>()
+            .add(const LoadReimbursementSets(refresh: true));
+      },
+      child: SlidableAutoCloseBehavior(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: reimbursementSets.length,
+          itemBuilder: (context, index) {
+          final reimbursementSet = reimbursementSets[index];
+          return OptimizedReimbursementSetCard(
+            reimbursementSet: reimbursementSet,
+            onTap: () => _showReimbursementSetDetail(reimbursementSet),
+            onDelete: () {
+              if (mounted) {
+                context
+                    .read<ReimbursementSetBloc>()
+                    .add(DeleteReimbursementSet(reimbursementSet.id));
+              }
+            },
+            onStatusChange: (newStatus) {
+              context.read<ReimbursementSetBloc>().add(UpdateReimbursementSetStatus(
+                    setId: reimbursementSet.id,
+                    status: newStatus,
+                  ));
+            },
+            groupTag: 'reimbursement-set-cards', // 所有报销集卡片使用相同的 groupTag
+          );
+        },
+        ),
+      ),
+    );
+  }
+
+  /// 应用搜索和筛选
+  List<ReimbursementSetEntity> _applySearchAndFilter(List<ReimbursementSetEntity> reimbursementSets) {
+    var filteredSets = reimbursementSets;
+
+    // 应用搜索过滤
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      filteredSets = filteredSets.where((set) {
+        // 搜索报销集名称
+        if (set.setName.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索智能生成的名称
+        if (set.displayName.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索日期范围文本
+        if (set.smartDateRangeText.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索金额（支持部分匹配）
+        final amountStr = set.totalAmount.toString();
+        if (amountStr.contains(query)) {
+          return true;
+        }
+
+        // 搜索主要地区
+        if (set.primaryRegion?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        // 搜索主要省份
+        if (set.primaryProvince?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        // 搜索发票数量
+        if (set.invoiceCount.toString().contains(query)) {
+          return true;
+        }
+
+        return false;
+      }).toList();
+    }
+
+    // 应用筛选条件
+    if (_currentFilterOptions.hasActiveFilters) {
+      filteredSets = filteredSets.where((set) {
+        // 状态筛选
+        if (_currentFilterOptions.showUnsubmitted && !set.isDraft) {
+          return false;
+        }
+        if (_currentFilterOptions.showSubmitted && !set.isSubmitted) {
+          return false;
+        }
+        if (_currentFilterOptions.showReimbursed && !set.isReimbursed) {
+          return false;
+        }
+
+        // 本月筛选
+        if (_currentFilterOptions.showThisMonth) {
+          final now = DateTime.now();
+          final thisMonth = DateTime(now.year, now.month);
+          final nextMonth = DateTime(now.year, now.month + 1);
+          if (set.createdAt.isBefore(thisMonth) || set.createdAt.isAfter(nextMonth)) {
+            return false;
+          }
+        }
+
+        // 大额报销筛选（大于10000元）
+        if (_currentFilterOptions.showLargeAmount && set.totalAmount <= 10000) {
+          return false;
+        }
+
+        // 跨期筛选
+        if (_currentFilterOptions.showCrossPeriod) {
+          if (set.dateRangeType == null || !set.dateRangeType!.isCrossPeriod) {
+            return false;
+          }
+        }
+
+        return true;
+      }).toList();
+    }
+
+    return filteredSets;
+  }
+
+  /// 显示报销集详情
+  void _showReimbursementSetDetail(ReimbursementSetEntity reimbursementSet) {
+    context.push('/reimbursement-set/${reimbursementSet.id}');
+  }
+
+
+}
+
+/// 月份标题的SliverPersistentHeader委托
+class _MonthHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final String monthKey;
+  final int invoiceCount;
+  final VoidCallback? onLongPress;
+
+  _MonthHeaderDelegate({
+    required this.monthKey,
+    required this.invoiceCount,
+    this.onLongPress,
+  });
+
+  @override
+  double get minExtent => 48.0;
+
+  @override
+  double get maxExtent => 48.0;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onLongPress: onLongPress,
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface.withValues(alpha: 0.95), // 半透明背景
+            border: Border(
+              bottom: BorderSide(
+                color: theme.dividerColor.withValues(alpha: 0.3),
+                width: 0.5,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withValues(alpha: 0.08),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month,
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    monthKey,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$invoiceCount张',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_MonthHeaderDelegate oldDelegate) {
+    return oldDelegate.monthKey != monthKey ||
+        oldDelegate.invoiceCount != invoiceCount;
+  }
+}
+
+/// 收藏标签页
+class _FavoritesTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<InvoiceBloc, InvoiceState>(
+      listener: (context, state) {
+        if (state is InvoiceDeleteSuccess) {
+          AppFeedback.success(context, state.message);
+        }
+      },
+      buildWhen: (previous, current) =>
+          current is InvoiceLoading ||
+          current is InvoiceError ||
+          current is InvoiceLoaded ||
+          current is InvoiceCompleteState,
+      builder: (context, state) {
+        if (state is InvoiceLoaded) {
+          // 筛选已验证的发票作为收藏
+          final favoriteInvoices = state.invoices.where((invoice) {
+            return invoice.isVerified; // 使用已验证字段替代状态判断
+          }).toList();
+
+          return _buildFavoritesList(context, favoriteInvoices);
+        }
+
+        return const Center(child: Text('暂无收藏的发票'));
+      },
+    );
+  }
+
+  Widget _buildFavoritesList(
+      BuildContext context, List<InvoiceEntity> invoices) {
+    if (invoices.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.favorite_border,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text('暂无收藏的发票',
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: invoices.length,
+      itemBuilder: (context, index) {
+        final invoice = invoices[index];
+        return InvoiceCardWidget(
+          invoice: invoice,
+          onTap: () => context.push('/invoice-detail/${invoice.id}'),
+          onDelete: () => InvoiceDeleteUtils.showDeleteConfirmation(
+            context: context,
+            invoice: invoice,
+          ),
+          // 移除状态修改回调 - 发票状态必须通过报销集来修改
+          // onStatusChanged: (newStatus) => _handleStatusChange(context, invoice, newStatus),
+          showConsumptionDateOnly: !kIsWeb && Platform.isIOS,
+        );
+      },
+    );
+  }
+
+
+}
