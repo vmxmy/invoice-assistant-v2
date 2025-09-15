@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 import '../widgets/permission_guard.dart';
 
 /// 权限工具类
@@ -8,15 +9,15 @@ class PermissionUtils {
   static Color getPermissionLevelColor(String level) {
     switch (level) {
       case 'user':
-        return Colors.grey;
+        return CupertinoSemanticColors.systemGray;
       case 'moderator':
-        return Colors.green;
+        return CupertinoSemanticColors.success;
       case 'admin':
-        return Colors.red;
+        return CupertinoSemanticColors.warning;
       case 'super_admin':
-        return Colors.red.shade800;
+        return CupertinoSemanticColors.error;
       default:
-        return Colors.grey;
+        return CupertinoSemanticColors.systemGray;
     }
   }
 
@@ -66,13 +67,13 @@ class PermissionUtils {
           Icon(
             getPermissionLevelIcon(level),
             size: size,
-            color: Colors.white,
+            color: CupertinoSemanticColors.systemBackground,
           ),
           const SizedBox(width: 4),
           Text(
             getPermissionLevelDisplayName(level),
             style: TextStyle(
-              color: Colors.white,
+              color: CupertinoSemanticColors.systemBackground,
               fontSize: size - 2,
               fontWeight: FontWeight.w500,
             ),
@@ -86,15 +87,15 @@ class PermissionUtils {
   static Color getRoleColor(String role) {
     switch (role) {
       case 'super_admin':
-        return Colors.red.shade800;
+        return CupertinoSemanticColors.error;
       case 'admin':
-        return Colors.red;
+        return CupertinoSemanticColors.warning;
       case 'moderator':
-        return Colors.green;
+        return CupertinoSemanticColors.success;
       case 'user':
-        return Colors.grey;
+        return CupertinoSemanticColors.systemGray;
       default:
-        return Colors.blue;
+        return CupertinoSemanticColors.info;
     }
   }
 
@@ -149,8 +150,8 @@ class PermissionUtils {
         vertical: isSmall ? 2 : 4,
       ),
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.2),
-        border: Border.all(color: Colors.blue),
+        color: CupertinoSemanticColors.info.withValues(alpha: 0.2),
+        border: Border.all(color: CupertinoSemanticColors.info),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -159,13 +160,13 @@ class PermissionUtils {
           Icon(
             getPermissionIcon(permission),
             size: isSmall ? 12 : 16,
-            color: Colors.blue,
+            color: CupertinoSemanticColors.info,
           ),
           const SizedBox(width: 4),
           Text(
             permission,
             style: TextStyle(
-              color: Colors.blue,
+              color: CupertinoSemanticColors.info,
               fontSize: isSmall ? 10 : 12,
               fontWeight: FontWeight.w500,
             ),
@@ -200,14 +201,14 @@ class PermissionUtils {
           Icon(
             icon ?? Icons.lock,
             size: 64,
-            color: Colors.grey,
+            color: CupertinoSemanticColors.systemGray,
           ),
           const SizedBox(height: 16),
           Text(
             message ?? '您没有权限访问此内容',
             style: const TextStyle(
               fontSize: 16,
-              color: Colors.grey,
+              color: CupertinoSemanticColors.systemGray,
             ),
             textAlign: TextAlign.center,
           ),
@@ -236,7 +237,7 @@ class PermissionUtils {
               message,
               style: const TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: CupertinoSemanticColors.systemGray,
               ),
             ),
           ],

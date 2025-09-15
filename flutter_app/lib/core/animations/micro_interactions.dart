@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/cupertino_semantic_colors.dart';
 
 /// 微交互动画组件
 class MicroInteractions {
@@ -379,7 +380,7 @@ class RippleEffect extends StatefulWidget {
   const RippleEffect({
     super.key,
     required this.child,
-    this.rippleColor = Colors.grey,
+    this.rippleColor = CupertinoSemanticColors.systemGray,
     this.duration = const Duration(milliseconds: 300),
     this.onTap,
   });

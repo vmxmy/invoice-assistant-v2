@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart' as flutter_slidable;
 import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../../theme/design_constants.dart';
+import '../../../theme/cupertino_semantic_colors.dart';
+import '../../../config/app_constants.dart';
 import '../../../utils/icon_mapping.dart';
 import '../../atoms/app_icon.dart';
 import '../../atoms/app_text.dart';
@@ -164,7 +165,7 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
         action.onPressed();
         
         // 标准方法：延迟关闭给用户视觉反馈时间
-        Future.delayed(const Duration(milliseconds: 200), () {
+        Future.delayed(AppConstants.fastAnimationDuration, () {
           if (mounted) {
             
             try {
@@ -213,7 +214,7 @@ class CustomSlidableAction extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             left: isStart ? BorderSide.none : BorderSide(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: CupertinoSemanticColors.separator.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -239,8 +240,8 @@ class CustomSlidableAction extends StatelessWidget {
   Widget _buildDefaultContent() {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: DesignConstants.spacingM,
-        vertical: DesignConstants.spacingS,
+        horizontal: 12.0,
+        vertical: 8.0,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -252,7 +253,7 @@ class CustomSlidableAction extends StatelessWidget {
             color: action.foregroundColor,
             semanticLabel: action.label,
           ),
-          SizedBox(height: DesignConstants.spacingXS),
+          SizedBox(height: 4.0),
           Flexible(
             child: AppText(
               text: action.label,
@@ -310,8 +311,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.share,
       label: '分享',
-      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.share,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '分享发票',
     );
@@ -326,8 +327,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.delete,
       label: '删除',
-      backgroundColor: backgroundColor ?? const Color(0xFFF44336),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.delete,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '删除发票',
       isDestructive: true,
@@ -343,8 +344,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.pencil,
       label: '编辑',
-      backgroundColor: backgroundColor ?? const Color(0xFF4CAF50),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.edit,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '编辑发票',
     );
@@ -359,8 +360,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.eye,
       label: '查看',
-      backgroundColor: backgroundColor ?? const Color(0xFF9C27B0),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.primary,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '查看发票详情',
     );
@@ -376,8 +377,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: isFavorited ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
       label: isFavorited ? '取消收藏' : '收藏',
-      backgroundColor: backgroundColor ?? const Color(0xFFE91E63),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.favorite,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: isFavorited ? '取消收藏' : '添加到收藏',
     );
@@ -392,8 +393,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.archivebox,
       label: '归档',
-      backgroundColor: backgroundColor ?? const Color(0xFF607D8B),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.archive,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '归档发票',
     );
@@ -408,8 +409,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.printer,
       label: '打印',
-      backgroundColor: backgroundColor ?? const Color(0xFF795548),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.systemGray,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '打印发票',
     );
@@ -424,8 +425,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: IconMapping.getCupertinoIcon('folder_badge_minus'),
       label: '移出',
-      backgroundColor: backgroundColor ?? const Color(0xFFFF9800),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.warning,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '从报销集中移出',
     );
@@ -440,8 +441,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: IconMapping.getCupertinoIcon('folder_badge_plus'),
       label: '加入',
-      backgroundColor: backgroundColor ?? const Color(0xFF4CAF50),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.success,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '加入报销集',
     );
@@ -456,8 +457,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: IconMapping.getCupertinoIcon('folder_fill'),
       label: '查看报销集',
-      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.info,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '查看关联的报销集详情',
     );
@@ -472,8 +473,8 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.folder_badge_plus,
       label: '加入已有',
-      backgroundColor: backgroundColor ?? const Color(0xFF2196F3),
-      foregroundColor: foregroundColor ?? Colors.white,
+      backgroundColor: backgroundColor ?? CupertinoSemanticColors.reimbursementSet,
+      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '加入已有报销集',
     );

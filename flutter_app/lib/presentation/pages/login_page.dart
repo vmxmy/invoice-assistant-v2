@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 
 /// 简单的登录页面
 class LoginPage extends StatefulWidget {
@@ -142,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Icon(
                   CupertinoIcons.doc_text,
                   size: 80,
-                  color: Colors.blue,
+                  color: CupertinoSemanticColors.primary,
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -151,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: CupertinoSemanticColors.primary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -160,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: CupertinoSemanticColors.secondaryLabel,
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -308,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: CupertinoSemanticColors.secondaryLabel,
                   ),
                 ),
               ],

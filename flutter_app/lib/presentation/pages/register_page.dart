@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 
 /// 用户注册页面
 class RegisterPage extends StatefulWidget {
@@ -153,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const Icon(
                   CupertinoIcons.person_add,
                   size: 80,
-                  color: Colors.blue,
+                  color: CupertinoSemanticColors.primary,
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -162,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: CupertinoSemanticColors.primary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -171,7 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: CupertinoSemanticColors.secondaryLabel,
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -287,21 +288,21 @@ class _RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: Colors.green.shade50,
+                                color: CupertinoSemanticColors.success.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                                 border:
-                                    Border.all(color: Colors.green.shade200),
+                                    Border.all(color: CupertinoSemanticColors.success.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
                                   Icon(CupertinoIcons.checkmark_circle_fill,
-                                      color: Colors.green.shade700),
+                                      color: CupertinoSemanticColors.success),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       _successMessage!,
                                       style: TextStyle(
-                                          color: Colors.green.shade700),
+                                          color: CupertinoSemanticColors.success),
                                     ),
                                   ),
                                 ],
@@ -315,20 +316,20 @@ class _RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: Colors.red.shade50,
+                                color: CupertinoSemanticColors.error.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.red.shade200),
+                                border: Border.all(color: CupertinoSemanticColors.error.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
                                   Icon(CupertinoIcons.exclamationmark_triangle,
-                                      color: Colors.red.shade700),
+                                      color: CupertinoSemanticColors.error),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       _errorMessage!,
                                       style:
-                                          TextStyle(color: Colors.red.shade700),
+                                          TextStyle(color: CupertinoSemanticColors.error),
                                     ),
                                   ),
                                 ],
@@ -342,8 +343,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
+                                backgroundColor: CupertinoSemanticColors.primary,
+                                foregroundColor: CupertinoSemanticColors.systemBackground,
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -353,7 +354,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                Colors.white),
+                                                CupertinoSemanticColors.systemBackground),
                                       ),
                                     )
                                   : const Text(
@@ -376,13 +377,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     const Text(
                       '已有账户？',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: CupertinoSemanticColors.secondaryLabel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text(
                         '立即登录',
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: CupertinoSemanticColors.primary),
                       ),
                     ),
                   ],

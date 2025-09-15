@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../domain/entities/invoice_entity.dart';
 import '../../../utils/icon_mapping.dart';
-import '../../../theme/design_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 
@@ -48,7 +47,7 @@ class InvoiceCardBody extends StatelessWidget {
         
         // 可选的额外信息
         if (_hasAdditionalInfo()) ...[
-          SizedBox(height: DesignConstants.spacingS),
+          SizedBox(height: 8.0),
           _buildAdditionalInfo(context),
         ],
       ],
@@ -78,7 +77,7 @@ class InvoiceCardBody extends StatelessWidget {
           child: _buildDateAndCategoryInfo(context),
         ),
         
-        SizedBox(width: DesignConstants.spacingM),
+        SizedBox(width: 12.0),
         
         // 右侧：金额
         _buildAmountDisplay(context),
@@ -103,7 +102,7 @@ class InvoiceCardBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildDateAndCategoryInfo(context),
-        SizedBox(height: DesignConstants.spacingS),
+        SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -130,7 +129,7 @@ class InvoiceCardBody extends StatelessWidget {
         if (showDateInfo && dateText.isNotEmpty) ...[
           _buildDateInfo(context, dateText),
           if (showCategoryIcon && categoryText.isNotEmpty)
-            SizedBox(width: DesignConstants.spacingS),
+            SizedBox(width: 8.0),
         ],
         
         // 类型图标
@@ -151,7 +150,7 @@ class InvoiceCardBody extends StatelessWidget {
           color: Theme.of(context).colorScheme.onSurfaceVariant,
           semanticLabel: '消费日期',
         ),
-        SizedBox(width: DesignConstants.spacingXS),
+        SizedBox(width: 4.0),
         AppText(
           text: dateText,
           variant: TextVariant.bodySmall,
@@ -197,8 +196,8 @@ class InvoiceCardBody extends StatelessWidget {
     }
     
     return Wrap(
-      spacing: DesignConstants.spacingM,
-      runSpacing: DesignConstants.spacingXS,
+      spacing: 12.0,
+      runSpacing: 4.0,
       children: items,
     );
   }

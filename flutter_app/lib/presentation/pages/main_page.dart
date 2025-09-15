@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import '../../core/theme/design_constants.dart';
+import '../../core/config/app_constants.dart';
 import '../../core/events/app_event_bus.dart';
 import '../../core/di/injection_container.dart' as di;
 import '../bloc/invoice_bloc.dart';
@@ -57,7 +57,7 @@ class _MainPageState extends State<MainPage> {
         });
         _pageController.animateToPage(
           event.newTabIndex,
-          duration: const Duration(milliseconds: 300),
+          duration: AppConstants.normalAnimationDuration,
           curve: Curves.easeInOut,
         );
       }
@@ -77,7 +77,7 @@ class _MainPageState extends State<MainPage> {
     });
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 300),
+      duration: AppConstants.normalAnimationDuration,
       curve: Curves.easeInOut,
     );
   }
@@ -146,28 +146,28 @@ class _MainPageState extends State<MainPage> {
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.doc_text_fill,
-                size: DesignConstants.iconSizeL,
+                size: 24,
               ),
               label: '发票管理',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.cloud_upload_fill,
-                size: DesignConstants.iconSizeL,
+                size: 24,
               ),
               label: '上传发票',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.chart_bar_fill,
-                size: DesignConstants.iconSizeL,
+                size: 24,
               ),
               label: '数据分析',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.settings_solid,
-                size: DesignConstants.iconSizeL,
+                size: 24,
               ),
               label: '设置',
             ),

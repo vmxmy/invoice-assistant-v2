@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import '../../theme/design_constants.dart';
+import '../../theme/cupertino_semantic_colors.dart';
 import '../../constants/accessibility_constants.dart';
 import '../molecules/slide_button_content.dart';
 
@@ -108,7 +108,7 @@ class UnifiedSlideButton extends StatelessWidget {
           // 添加分隔边框（除了起始位置）
           border: Border(
             left: isStart ? BorderSide.none : BorderSide(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: CupertinoSemanticColors.separator.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -132,8 +132,8 @@ class UnifiedSlideButton extends StatelessWidget {
                   minHeight: 48, // 最小触摸区域
                 ),
                 padding: EdgeInsets.symmetric(
-                  horizontal: DesignConstants.spacingM,
-                  vertical: DesignConstants.spacingS,
+                  horizontal: 12.0,
+                  vertical: 8.0,
                 ),
                 child: SlideButtonContent(
                   icon: icon,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 图标尺寸枚举
 enum IconSize {
@@ -102,15 +101,15 @@ class AppIcon extends StatelessWidget {
   double _getIconSize() {
     switch (size) {
       case IconSize.extraSmall:
-        return DesignConstants.iconSizeXS;
+        return 12.0;
       case IconSize.small:
-        return DesignConstants.iconSizeS;
+        return 16.0;
       case IconSize.medium:
-        return DesignConstants.iconSizeM;
+        return 20.0;
       case IconSize.large:
-        return DesignConstants.iconSizeL;
+        return 24.0;
       case IconSize.extraLarge:
-        return DesignConstants.iconSizeXL;
+        return 32.0;
     }
   }
 }
@@ -171,7 +170,7 @@ class AppIconWithBackground extends StatelessWidget {
             ? BoxShape.circle 
             : BoxShape.rectangle,
         borderRadius: backgroundShape == BackgroundShape.roundedSquare
-            ? BorderRadius.circular(DesignConstants.radiusSmall)
+            ? BorderRadius.circular(8.0)
             : null,
       ),
       child: Center(
@@ -191,7 +190,7 @@ class AppIconWithBackground extends StatelessWidget {
           onTap: onTap,
           borderRadius: backgroundShape == BackgroundShape.circle
               ? BorderRadius.circular(effectiveBackgroundSize / 2)
-              : BorderRadius.circular(DesignConstants.radiusSmall),
+              : BorderRadius.circular(8.0),
           child: container,
         ),
       );

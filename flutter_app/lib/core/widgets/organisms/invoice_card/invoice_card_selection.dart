@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../../theme/design_constants.dart';
 
 /// 选择框样式枚举
 enum SelectionStyle {
@@ -52,7 +51,7 @@ class InvoiceCardSelection extends StatefulWidget {
     this.selectedColor,
     this.unselectedColor,
     this.size = 24.0,
-    this.animationDuration = DesignConstants.animationFast,
+    this.animationDuration = const Duration(milliseconds: 200),
     this.enableAnimation = true,
     this.semanticLabel,
     this.enableTapEffect = true,
@@ -276,7 +275,7 @@ class _InvoiceCardSelectionState extends State<InvoiceCardSelection>
         ),
         onTap: () => _handleTap(),
         child: Padding(
-          padding: const EdgeInsets.all(DesignConstants.spacingXS),
+          padding: const EdgeInsets.all(4.0),
           child: child,
         ),
       ),
@@ -440,7 +439,7 @@ class BatchActionBar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     
     return AnimatedContainer(
-      duration: DesignConstants.animationNormal,
+      duration: const Duration(milliseconds: 300),
       height: controller.isSelectionMode ? 60.0 : 0.0,
       decoration: BoxDecoration(
         color: backgroundColor ?? colorScheme.surface,

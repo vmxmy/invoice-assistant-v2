@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 
 /// 发票图片查看器组件
 class InvoiceImageViewer extends StatefulWidget {
@@ -85,13 +86,13 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                             const Icon(
                               Icons.broken_image,
                               size: 48,
-                              color: Colors.grey,
+                              color: CupertinoSemanticColors.secondaryLabel,
                             ),
                             const SizedBox(height: 8),
                             const Text(
                               '图片加载失败',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: CupertinoSemanticColors.secondaryLabel,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -100,7 +101,7 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                             const Text(
                               '图片加载失败',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: CupertinoSemanticColors.secondaryLabel,
                                 fontSize: 12,
                               ),
                               textAlign: TextAlign.center,
@@ -115,7 +116,7 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                               icon: const Icon(Icons.refresh, size: 16),
                               label: const Text('重试'),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.grey,
+                                foregroundColor: CupertinoSemanticColors.secondaryLabel,
                                 side: BorderSide(
                                     color:
                                         Theme.of(context).colorScheme.outline),
@@ -155,13 +156,13 @@ class _InvoiceImageViewerState extends State<InvoiceImageViewer> {
                           Icon(
                             Icons.zoom_in,
                             size: 16,
-                            color: Colors.white,
+                            color: CupertinoSemanticColors.systemBackground,
                           ),
                           SizedBox(width: 4),
                           Text(
                             '点击查看',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: CupertinoSemanticColors.systemBackground,
                               fontSize: 12,
                             ),
                           ),
@@ -282,13 +283,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                               Icon(
                                 Icons.broken_image,
                                 size: 64,
-                                color: Colors.white,
+                                color: CupertinoSemanticColors.systemBackground,
                               ),
                               SizedBox(height: 16),
                               Text(
                                 '图片加载失败',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: CupertinoSemanticColors.systemBackground,
                                   fontSize: 16,
                                 ),
                               ),
@@ -334,7 +335,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       IconButton(
                         icon: Icon(
                           Icons.close,
-                          color: Colors.white,
+                          color: CupertinoSemanticColors.systemBackground,
                           size: 28,
                         ),
                         onPressed: () => Navigator.of(context).pop(),
@@ -343,7 +344,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       IconButton(
                         icon: Icon(
                           Icons.share,
-                          color: Colors.white,
+                          color: CupertinoSemanticColors.systemBackground,
                           size: 24,
                         ),
                         onPressed: _shareImage,
@@ -351,7 +352,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                       IconButton(
                         icon: Icon(
                           Icons.download,
-                          color: Colors.white,
+                          color: CupertinoSemanticColors.systemBackground,
                           size: 24,
                         ),
                         onPressed: _downloadImage,
@@ -392,7 +393,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer>
                   child: const Text(
                     '双指缩放查看 • 双击重置 • 点击空白区域关闭',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: CupertinoSemanticColors.systemBackground,
                       fontSize: 14,
                     ),
                     textAlign: TextAlign.center,

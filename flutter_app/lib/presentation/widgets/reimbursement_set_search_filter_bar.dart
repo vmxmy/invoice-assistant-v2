@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../core/theme/design_constants.dart';
 
 /// 报销集搜索和筛选工具栏
 /// 包含搜索框、快捷筛选按钮和状态管理
@@ -59,10 +58,10 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        DesignConstants.spacingL,
-        DesignConstants.spacingS,
-        DesignConstants.spacingL,
-        DesignConstants.spacingM,
+        16.0,
+        8.0,
+        16.0,
+        12.0,
       ),
       decoration: BoxDecoration(
         color: CupertinoColors.systemGroupedBackground.resolveFrom(context),
@@ -81,7 +80,7 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
 
           // 间距
           if (widget.showSearchBox && widget.showQuickFilters)
-            const SizedBox(height: DesignConstants.spacingM),
+            const SizedBox(height: 12.0),
 
           // 快捷筛选按钮区域
           if (widget.showQuickFilters) _buildQuickFilters(Theme.of(context), Theme.of(context).colorScheme),
@@ -94,10 +93,10 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
   Widget _buildSearchBox(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      height: DesignConstants.buttonHeightMedium,
+      height: 44.0,
       decoration: BoxDecoration(
         color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
-        borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+        borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
           color: _isSearchFocused
               ? CupertinoColors.activeBlue.resolveFrom(context)
@@ -109,13 +108,13 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
         children: [
           // 搜索图标
           Padding(
-            padding: const EdgeInsets.only(left: DesignConstants.spacingM),
+            padding: const EdgeInsets.only(left: 12.0),
             child: Icon(
               CupertinoIcons.search,
               color: _isSearchFocused
                   ? colorScheme.primary
                   : colorScheme.onSurfaceVariant,
-              size: DesignConstants.iconSizeS,
+              size: 16.0,
             ),
           ),
           
@@ -136,15 +135,15 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
               placeholder: '搜索报销集名称、金额、地区...',
               placeholderStyle: TextStyle(
                 color: colorScheme.onSurfaceVariant,
-                fontSize: DesignConstants.fontSizeBody,
+                fontSize: 14.0,
               ),
               style: TextStyle(
-                fontSize: DesignConstants.fontSizeBody,
+                fontSize: 14.0,
                 color: colorScheme.onSurface,
               ),
               decoration: const BoxDecoration(),
               padding: const EdgeInsets.symmetric(
-                horizontal: DesignConstants.spacingM,
+                horizontal: 12.0,
                 vertical: 0,
               ),
             ),
@@ -158,11 +157,11 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
                 setState(() {});
                 widget.onSearchChanged?.call('');
               },
-              padding: const EdgeInsets.all(DesignConstants.spacingXS),
+              padding: const EdgeInsets.all(4.0),
               child: Icon(
                 CupertinoIcons.clear_circled_solid,
                 color: colorScheme.onSurfaceVariant,
-                size: DesignConstants.iconSizeXS,
+                size: 12.0,
               ),
             ),
         ],
@@ -173,8 +172,8 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
   /// 构建快捷筛选按钮
   Widget _buildQuickFilters(ThemeData theme, ColorScheme colorScheme) {
     return Wrap(
-      spacing: DesignConstants.spacingS,
-      runSpacing: DesignConstants.spacingS,
+      spacing: 8.0,
+      runSpacing: 8.0,
       children: [
         // 待报销
         _buildFilterChip(
@@ -307,22 +306,22 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: DesignConstants.animationFast,
-        height: DesignConstants.buttonHeightSmall,
+        duration: const Duration(milliseconds: 200),
+        height: 32.0,
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingM,
-          vertical: DesignConstants.spacingXS,
+          horizontal: 12.0,
+          vertical: 4.0,
         ),
         decoration: BoxDecoration(
           color:
               isSelected ? color.withValues(alpha: 0.15) : colorScheme.surface,
-          borderRadius: BorderRadius.circular(DesignConstants.radiusLarge),
+          borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
             color: isSelected ? color : colorScheme.outlineVariant,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
-              ? DesignConstants.shadowColored(color)
+              ? []
               : null,
         ),
         child: Row(
@@ -334,7 +333,7 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
               children: [
                 Icon(
                   icon,
-                  size: DesignConstants.iconSizeXS,
+                  size: 12.0,
                   color: isSelected ? color : colorScheme.onSurfaceVariant,
                 ),
                 // 徽章
@@ -343,8 +342,8 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
                     right: -3,
                     top: -3,
                     child: Container(
-                      width: DesignConstants.spacingS + 2,
-                      height: DesignConstants.spacingS + 2,
+                      width: 8.0 + 2,
+                      height: 8.0 + 2,
                       decoration: BoxDecoration(
                         color: color,
                         shape: BoxShape.circle,
@@ -354,7 +353,7 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
                           badge,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: DesignConstants.fontSizeCaption - 2,
+                            fontSize: 12.0 - 2,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -364,13 +363,13 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
               ],
             ),
 
-            const SizedBox(width: DesignConstants.spacingXS),
+            const SizedBox(width: 4.0),
 
             // 标签
             Text(
               label,
               style: TextStyle(
-                fontSize: DesignConstants.fontSizeCaption,
+                fontSize: 12.0,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected ? color : colorScheme.onSurfaceVariant,
               ),

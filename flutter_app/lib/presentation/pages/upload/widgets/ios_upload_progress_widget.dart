@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../bloc/upload_state.dart';
+import '../../../../core/theme/cupertino_semantic_colors.dart';
 
 /// iOS风格的上传进度组件
 /// 
@@ -291,9 +292,9 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     final hasFailures = widget.completedResults.any((r) => !r.success);
     if (hasFailures) {
       final hasSuccesses = widget.completedResults.any((r) => r.success);
-      return hasSuccesses ? Colors.orange : colorScheme.error;
+      return hasSuccesses ? CupertinoSemanticColors.warning : CupertinoSemanticColors.error;
     }
-    return Colors.green;
+    return CupertinoSemanticColors.success;
   }
 
   String _getOverviewText() {
@@ -434,7 +435,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     if (completedResult != null) {
       // 文件已完成（成功或失败）
       if (completedResult.success) {
-        iconColor = Colors.green;
+        iconColor = CupertinoSemanticColors.success;
         statusIcon = CupertinoIcons.checkmark_circle_fill;
         statusText = '上传成功';
       } else {
@@ -444,7 +445,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
       }
     } else {
       // 文件还未完成 - 显示进度或等待状态
-      iconColor = isImage ? Colors.green : colorScheme.primary;
+      iconColor = isImage ? CupertinoSemanticColors.success : colorScheme.primary;
       statusIcon = isImage ? CupertinoIcons.photo : CupertinoIcons.doc_text;
       
       if (widget.progresses != null && index < widget.progresses!.length) {
@@ -526,7 +527,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                   child: CircularProgressIndicator(
                     value: widget.progresses![index].progress,
                     strokeWidth: 2,
-                    color: Colors.green,
+                    color: CupertinoSemanticColors.success,
                     backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),
@@ -602,7 +603,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                 width: double.infinity,
                 child: CupertinoButton(
                   onPressed: widget.onRetryFailed,
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: CupertinoSemanticColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Row(
@@ -611,7 +612,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                       const Icon(
                         CupertinoIcons.refresh,
                         size: 18,
-                        color: Colors.orange,
+                        color: CupertinoSemanticColors.warning,
                       ),
                       const SizedBox(width: 8),
                       const Text(
@@ -619,7 +620,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.orange,
+                          color: CupertinoSemanticColors.warning,
                         ),
                       ),
                     ],

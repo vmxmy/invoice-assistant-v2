@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 统一的应用卡片组件
 /// 
@@ -76,16 +75,16 @@ class AppCard extends StatelessWidget {
       hint: semanticHint,
       button: hasInteraction,
       child: Container(
-        margin: margin ?? DesignConstants.cardMargin,
+        margin: margin ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Material(
           color: backgroundColor ?? _getBackgroundColor(colorScheme),
           elevation: elevation ?? _getElevation(),
           shadowColor: _getShadowColor(colorScheme),
-          borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+          borderRadius: BorderRadius.circular(12.0),
           child: Container(
             decoration: BoxDecoration(
               border: border ?? _getBorder(colorScheme),
-              borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+              borderRadius: BorderRadius.circular(12.0),
             ),
             child: hasInteraction && enableRipple
                 ? _buildInteractiveCard(context)
@@ -101,7 +100,7 @@ class AppCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
-      borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+      borderRadius: BorderRadius.circular(12.0),
       child: _buildCardContent(),
     );
   }
@@ -125,8 +124,8 @@ class AppCard extends StatelessWidget {
   /// 构建卡片内容
   Widget _buildCardContent() {
     return AnimatedContainer(
-      duration: DesignConstants.animationFast,
-      padding: padding ?? DesignConstants.cardPadding,
+      duration: const Duration(milliseconds: 200),
+      padding: padding ?? const EdgeInsets.all(16.0),
       child: child,
     );
   }
@@ -160,14 +159,14 @@ class AppCard extends StatelessWidget {
     if (isSelected) {
       return Border.all(
         color: colorScheme.primary.withValues(alpha: 0.3),
-        width: DesignConstants.borderWidthNormal,
+        width: 1.0,
       );
     }
     
     // 非选中状态下的轻微边框，增强卡片边界
     return Border.all(
       color: colorScheme.outline.withValues(alpha: 0.12),
-      width: DesignConstants.borderWidthThin,
+      width: 1.0,
     );
   }
 }
@@ -190,7 +189,7 @@ class AppCardCompact extends AppCard {
     super.semanticHint,
     super.enableRipple,
   }) : super(
-    padding: DesignConstants.cardPaddingCompact,
+    padding: const EdgeInsets.all(12.0),
   );
 }
 
@@ -212,7 +211,7 @@ class AppCardLoose extends AppCard {
     super.semanticHint,
     super.enableRipple,
   }) : super(
-    padding: DesignConstants.cardPaddingLoose,
+    padding: const EdgeInsets.all(20.0),
   );
 }
 
@@ -262,9 +261,9 @@ class AppCardWithDivider extends StatelessWidget {
         ),
         if (showDivider)
           Container(
-            height: DesignConstants.borderWidthThin,
+            height: 1.0,
             margin: EdgeInsets.symmetric(
-              horizontal: (margin ?? DesignConstants.cardMargin).horizontal / 2,
+              horizontal: (margin ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0)).horizontal / 2,
             ),
             color: colorScheme.outline.withValues(alpha: 0.12),
           ),

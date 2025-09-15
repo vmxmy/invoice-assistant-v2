@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../../../domain/entities/email_record.dart';
+import '../../../core/theme/cupertino_semantic_colors.dart';
 import '../../widgets/common/status_badge.dart';
 
 class EmailListItem extends StatelessWidget {
@@ -319,25 +320,25 @@ class EmailListItem extends StatelessWidget {
         return (
           label: '验证',
           icon: '🔐',
-          color: const Color(0xFF2196F3),
+          color: CupertinoSemanticColors.info,
         );
       case 'invoice':
         return (
           label: '发票',
           icon: '📄',
-          color: const Color(0xFF4CAF50),
+          color: CupertinoSemanticColors.invoice,
         );
       case 'other':
         return (
           label: '其他',
           icon: '📧',
-          color: const Color(0xFF9E9E9E),
+          color: CupertinoSemanticColors.systemGray,
         );
       default:
         return (
           label: '未知',
           icon: '❓',
-          color: const Color(0xFF757575),
+          color: CupertinoSemanticColors.systemGray2,
         );
     }
   }

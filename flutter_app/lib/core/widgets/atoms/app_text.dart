@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 文本变体枚举
 enum TextVariant {
@@ -294,7 +293,7 @@ class AppTextWithIcon extends StatelessWidget {
     required this.icon,
     this.iconPosition = IconPosition.leading,
     this.variant = TextVariant.bodyMedium,
-    this.spacing = DesignConstants.spacingS,
+    this.spacing = 8.0,
     this.textColor,
     this.iconColor,
     this.iconSize,
@@ -337,23 +336,23 @@ class AppTextWithIcon extends StatelessWidget {
       case TextVariant.displayLarge:
       case TextVariant.displayMedium:
       case TextVariant.displaySmall:
-        return DesignConstants.iconSizeXL;
+        return 32.0;
       case TextVariant.headlineLarge:
       case TextVariant.headlineMedium:
       case TextVariant.headlineSmall:
-        return DesignConstants.iconSizeL;
+        return 24.0;
       case TextVariant.titleLarge:
       case TextVariant.titleMedium:
       case TextVariant.titleSmall:
-        return DesignConstants.iconSizeM;
+        return 20.0;
       case TextVariant.bodyLarge:
       case TextVariant.bodyMedium:
       case TextVariant.labelLarge:
-        return DesignConstants.iconSizeS;
+        return 16.0;
       case TextVariant.bodySmall:
       case TextVariant.labelMedium:
       case TextVariant.labelSmall:
-        return DesignConstants.iconSizeXS;
+        return 12.0;
     }
   }
 }

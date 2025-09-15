@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/reimbursement_set_entity.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../core/theme/app_theme_constants.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
@@ -66,8 +67,8 @@ class _ReimbursementSetDetailPageState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<ReimbursementSetBloc, ReimbursementSetState>(
+    return CupertinoPageScaffold(
+      child: BlocConsumer<ReimbursementSetBloc, ReimbursementSetState>(
         listener: (context, state) {
           if (state is ReimbursementSetDetailLoaded) {
             setState(() {
@@ -109,9 +110,7 @@ class _ReimbursementSetDetailPageState
             return _buildErrorView();
           }
 
-          return RefreshIndicator(
-            onRefresh: () async => _loadReimbursementSetDetail(),
-            child: CustomScrollView(
+          return CustomScrollView(
               slivers: [
                 // 极简AppBar
                 _buildSimpleAppBar(),
@@ -124,8 +123,7 @@ class _ReimbursementSetDetailPageState
                 // 发票列表
                 _buildInvoiceList(),
               ],
-            ),
-          );
+            );
         },
       ),
     );
@@ -135,109 +133,21 @@ class _ReimbursementSetDetailPageState
   Widget _buildSimpleAppBar() {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return SliverAppBar(
-      pinned: true,
-      floating: false,
-      expandedHeight: 0,
-      toolbarHeight: kToolbarHeight,
-      backgroundColor: colorScheme.surface,
-      foregroundColor: colorScheme.onSurface,
-      title: Text(
+    return CupertinoSliverNavigationBar(
+      backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
+      largeTitle: null,
+      middle: Text(
         _reimbursementSet?.setName ?? '报销集详情',
         style: DetailPageStyles.pageTitle(context),
       ),
-      actions: [
-        if (_reimbursementSet != null)
-          PopupMenuButton<String>(
-            icon: Icon(
-              CupertinoIcons.ellipsis,
-              color: colorScheme.onSurface,
-            ),
-            onSelected: _handleMenuAction,
-            color: colorScheme.surfaceContainer,
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.pencil,
-                      size: AppThemeConstants.iconMedium,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: AppThemeConstants.spacing8),
-                    Text(
-                      '编辑',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onSurface,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              if (_reimbursementSet!.isDraft)
-                PopupMenuItem(
-                  value: 'submit',
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.paperplane,
-                        size: AppThemeConstants.iconMedium,
-                        color: colorScheme.tertiary,
-                      ),
-                      const SizedBox(width: AppThemeConstants.spacing8),
-                      Text(
-                        '提交',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: colorScheme.onSurface,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_reimbursementSet!.isSubmitted)
-                PopupMenuItem(
-                  value: 'reimburse',
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.checkmark_circle,
-                        size: AppThemeConstants.iconMedium,
-                        color: colorScheme.secondary,
-                      ),
-                      const SizedBox(width: AppThemeConstants.spacing8),
-                      Text(
-                        '已报销',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: colorScheme.onSurface,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.delete,
-                      size: AppThemeConstants.iconMedium,
-                      color: colorScheme.error,
-                    ),
-                    const SizedBox(width: AppThemeConstants.spacing8),
-                    Text(
-                      '删除',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colorScheme.error,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-      ],
+      trailing: _reimbursementSet != null ? CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: _showActionSheet,
+        child: const Icon(
+          CupertinoIcons.ellipsis,
+          color: CupertinoColors.activeBlue,
+        ),
+      ) : null,
     );
   }
 
@@ -258,8 +168,18 @@ class _ReimbursementSetDetailPageState
 
   /// 第一层：核心信息卡片
   Widget _buildCoreInfoCard(ReimbursementSetEntity set) {
-    return Card(
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -458,27 +378,25 @@ class _ReimbursementSetDetailPageState
                   ),
             ),
             const SizedBox(height: AppThemeConstants.spacing20),
-            ElevatedButton.icon(
+            CupertinoButton.filled(
               onPressed: () {
                 setState(() => _isLoading = true);
                 _loadReimbursementSetDetail();
               },
-              icon: Icon(
-                CupertinoIcons.refresh,
-                size: AppThemeConstants.iconSmall,
-              ),
-              label: const Text('重试'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppThemeConstants.spacing24,
-                  vertical: AppThemeConstants.spacing12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppThemeConstants.radiusMedium),
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    CupertinoIcons.refresh,
+                    size: 18,
+                    color: CupertinoColors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    '重试',
+                    style: TextStyle(color: CupertinoColors.white),
+                  ),
+                ],
               ),
             ),
           ],
@@ -487,21 +405,73 @@ class _ReimbursementSetDetailPageState
     );
   }
 
-  void _handleMenuAction(String action) {
-    switch (action) {
-      case 'edit':
-        _showEditDialog();
-        break;
-      case 'submit':
-        _updateStatus(ReimbursementSetStatus.submitted);
-        break;
-      case 'reimburse':
-        _updateStatus(ReimbursementSetStatus.reimbursed);
-        break;
-      case 'delete':
-        _showDeleteConfirmation();
-        break;
-    }
+  void _showActionSheet() {
+    showCupertinoModalPopup<String>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _showEditDialog();
+            },
+            child: const Row(
+              children: [
+                Icon(CupertinoIcons.pencil, color: CupertinoColors.activeBlue),
+                SizedBox(width: 12),
+                Text('编辑'),
+              ],
+            ),
+          ),
+          if (_reimbursementSet!.isDraft)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.pop(context);
+                _updateStatus(ReimbursementSetStatus.submitted);
+              },
+              child: const Row(
+                children: [
+                  Icon(CupertinoIcons.paperplane, color: CupertinoColors.activeOrange),
+                  SizedBox(width: 12),
+                  Text('提交'),
+                ],
+              ),
+            ),
+          if (_reimbursementSet!.isSubmitted)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.pop(context);
+                _updateStatus(ReimbursementSetStatus.reimbursed);
+              },
+              child: const Row(
+                children: [
+                  Icon(CupertinoIcons.checkmark_circle, color: CupertinoColors.activeGreen),
+                  SizedBox(width: 12),
+                  Text('已报销'),
+                ],
+              ),
+            ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _showDeleteConfirmation();
+            },
+            isDestructiveAction: true,
+            child: const Row(
+              children: [
+                Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed),
+                SizedBox(width: 12),
+                Text('删除'),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消'),
+        ),
+      ),
+    );
   }
 
   void _showEditDialog() {
@@ -547,7 +517,7 @@ class _ReimbursementSetDetailPageState
           '• 可以重新加入其他报销集',
       confirmText: '确认移出',
       cancelText: '取消',
-      confirmColor: Colors.orange,
+      confirmColor: CupertinoSemanticColors.warning,
       icon: CupertinoIcons.minus_circle,
     ).then((result) {
       if (result == true && mounted) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../domain/entities/invoice_entity.dart';
-import '../../../theme/design_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 import '../../../../presentation/widgets/invoice_status_badge.dart';
@@ -57,7 +56,7 @@ class InvoiceCardHeader extends StatelessWidget {
         // 选择框（多选模式下显示）
         if (isSelectionMode) ...[
           _buildSelectionCheckbox(context),
-          SizedBox(width: DesignConstants.spacingM),
+          SizedBox(width: 12.0),
         ],
         
         // 主内容区域
@@ -75,7 +74,7 @@ class InvoiceCardHeader extends StatelessWidget {
     return GestureDetector(
       onTap: onSelectionToggle,
       child: AnimatedContainer(
-        duration: DesignConstants.animationFast,
+        duration: const Duration(milliseconds: 200),
         width: 24,
         height: 24,
         decoration: BoxDecoration(
@@ -119,7 +118,7 @@ class InvoiceCardHeader extends StatelessWidget {
               
               // 副标题（如果存在）
               if (subtitle != null && subtitle!.isNotEmpty) ...[
-                SizedBox(height: DesignConstants.spacingXS),
+                SizedBox(height: 4.0),
                 AppText(
                   text: subtitle!,
                   variant: TextVariant.bodySmall,
@@ -131,7 +130,7 @@ class InvoiceCardHeader extends StatelessWidget {
           ),
         ),
         
-        SizedBox(width: DesignConstants.spacingM),
+        SizedBox(width: 12.0),
         
         // 右侧内容（状态徽章或自定义组件）
         _buildTrailing(context),
@@ -208,7 +207,7 @@ class InvoiceCardHeaderSimple extends StatelessWidget {
                 maxLines: 1,
               ),
               if (subtitle != null && subtitle!.isNotEmpty) ...[
-                SizedBox(height: DesignConstants.spacingXS),
+                SizedBox(height: 4.0),
                 AppText(
                   text: subtitle!,
                   variant: subtitleVariant,
@@ -220,7 +219,7 @@ class InvoiceCardHeaderSimple extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          SizedBox(width: DesignConstants.spacingM),
+          SizedBox(width: 12.0),
           trailing!,
         ],
       ],
@@ -269,7 +268,7 @@ class InvoiceCardHeaderWithIcon extends StatelessWidget {
           size: iconSize,
           color: iconColor,
         ),
-        SizedBox(width: DesignConstants.spacingM),
+        SizedBox(width: 12.0),
         Expanded(
           child: InvoiceCardHeaderSimple(
             title: title,
@@ -277,7 +276,7 @@ class InvoiceCardHeaderWithIcon extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          SizedBox(width: DesignConstants.spacingM),
+          SizedBox(width: 12.0),
           trailing!,
         ],
       ],

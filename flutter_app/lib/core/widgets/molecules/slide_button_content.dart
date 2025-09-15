@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 滑动按钮内容组件
 /// 
@@ -60,7 +59,7 @@ class SlideButtonContent extends StatelessWidget {
         ),
         
         // 间距
-        SizedBox(height: DesignConstants.spacingXS),
+        SizedBox(height: 4.0),
         
         // 标签文字
         Flexible(

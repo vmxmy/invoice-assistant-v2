@@ -5,7 +5,6 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../domain/entities/inbox_stats.dart';
-import '../../../core/theme/design_constants.dart';
 import 'inbox_theme_constants.dart';
 
 class InboxStatsWidget extends StatelessWidget {
@@ -27,10 +26,10 @@ class InboxStatsWidget extends StatelessWidget {
       padding: InboxThemeConstants.statsWidgetPadding,
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+        borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
           color: colorScheme.outline.withValues(alpha: 0.12),
-          width: DesignConstants.borderWidthThin,
+          width: 1.0,
         ),
       ),
       child: Column(
@@ -38,7 +37,7 @@ class InboxStatsWidget extends StatelessWidget {
           // 主要统计行
           _buildMainStatsRow(colorScheme),
           
-          SizedBox(height: DesignConstants.spacingS - 2),
+          SizedBox(height: 8.0 - 2),
           
           // 分类统计行
           _buildCategoryStatsRow(context, colorScheme),
@@ -46,7 +45,7 @@ class InboxStatsWidget extends StatelessWidget {
           // 处理状态行（如果有数据）
           if (_hasProcessingData())
             ...[
-              SizedBox(height: DesignConstants.spacingS - 2),
+              SizedBox(height: 8.0 - 2),
               _buildProcessingStatsRow(context, colorScheme),
             ],
         ],
@@ -64,7 +63,7 @@ class InboxStatsWidget extends StatelessWidget {
           size: InboxThemeConstants.statsIconSize,
           color: colorScheme.primary,
         ),
-        SizedBox(width: DesignConstants.spacingS - 2),
+        SizedBox(width: 8.0 - 2),
         Text(
           '${stats.totalEmails}',
           style: TextStyle(
@@ -73,11 +72,11 @@ class InboxStatsWidget extends StatelessWidget {
             color: colorScheme.onSurface,
           ),
         ),
-        SizedBox(width: DesignConstants.spacingXS),
+        SizedBox(width: 4.0),
         Text(
           '封邮件',
           style: TextStyle(
-            fontSize: DesignConstants.fontSizeBody,
+            fontSize: 14.0,
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
@@ -91,7 +90,7 @@ class InboxStatsWidget extends StatelessWidget {
             InboxThemeConstants.getUnreadHighlightColor(colorScheme),
             CupertinoIcons.circle_fill,
           ),
-          SizedBox(width: DesignConstants.spacingS),
+          SizedBox(width: 8.0),
         ],
         
         // 今日邮件徽章（如果有今日邮件）
@@ -105,10 +104,10 @@ class InboxStatsWidget extends StatelessWidget {
         
         // 加载指示器
         if (isLoading) ...[
-          SizedBox(width: DesignConstants.spacingS),
+          SizedBox(width: 8.0),
           SizedBox(
-            width: DesignConstants.iconSizeS,
-            height: DesignConstants.iconSizeS,
+            width: 16.0,
+            height: 16.0,
             child: CircularProgressIndicator(
               strokeWidth: 1.5,
               color: colorScheme.primary,
@@ -132,7 +131,7 @@ class InboxStatsWidget extends StatelessWidget {
             InboxThemeConstants.getCategoryColor('verification', context),
             colorScheme,
           ),
-          SizedBox(width: DesignConstants.spacingL),
+          SizedBox(width: 16.0),
         ],
         
         // 发票邮件
@@ -144,7 +143,7 @@ class InboxStatsWidget extends StatelessWidget {
             InboxThemeConstants.getCategoryColor('invoice', context),
             colorScheme,
           ),
-          SizedBox(width: DesignConstants.spacingL),
+          SizedBox(width: 16.0),
         ],
         
         // 有附件邮件
@@ -165,7 +164,7 @@ class InboxStatsWidget extends StatelessWidget {
           Text(
             '本周 ${stats.recentEmailsWeek} 封',
             style: TextStyle(
-              fontSize: DesignConstants.fontSizeCaption,
+              fontSize: 12.0,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
@@ -185,11 +184,11 @@ class InboxStatsWidget extends StatelessWidget {
         Text(
           '处理状态',
           style: TextStyle(
-            fontSize: DesignConstants.fontSizeCaption,
+            fontSize: 12.0,
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
-        SizedBox(width: DesignConstants.spacingM),
+        SizedBox(width: 12.0),
         
         // 成功徽章
         if (stats.successfulProcessing > 0) ...[
@@ -197,7 +196,7 @@ class InboxStatsWidget extends StatelessWidget {
             '成功 ${stats.successfulProcessing}',
             InboxThemeConstants.getCategoryColor('invoice', context),
           ),
-          SizedBox(width: DesignConstants.spacingS - 2),
+          SizedBox(width: 8.0 - 2),
         ],
         
         // 失败徽章
@@ -215,7 +214,7 @@ class InboxStatsWidget extends StatelessWidget {
           Text(
             '${(successRate * 100).round()}% 成功',
             style: TextStyle(
-              fontSize: DesignConstants.fontSizeCaption,
+              fontSize: 12.0,
               fontWeight: FontWeight.w500,
               color: _getSuccessRateColor(successRate, colorScheme),
             ),
@@ -228,13 +227,13 @@ class InboxStatsWidget extends StatelessWidget {
   /// 构建统计徽章
   Widget _buildStatBadge(String text, Color color, IconData icon) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: DesignConstants.spacingS - 2, vertical: DesignConstants.spacingXS - 1),
+      padding: EdgeInsets.symmetric(horizontal: 8.0 - 2, vertical: 4.0 - 1),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+        borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
           color: color.withValues(alpha: 0.3),
-          width: DesignConstants.borderWidthThin,
+          width: 1.0,
         ),
       ),
       child: Row(
@@ -242,14 +241,14 @@ class InboxStatsWidget extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: DesignConstants.iconSizeXS,
+            size: 12.0,
             color: color,
           ),
-          SizedBox(width: DesignConstants.spacingXS),
+          SizedBox(width: 4.0),
           Text(
             text,
             style: TextStyle(
-              fontSize: DesignConstants.fontSizeCaption,
+              fontSize: 12.0,
               fontWeight: FontWeight.w500,
               color: color,
             ),
@@ -272,23 +271,23 @@ class InboxStatsWidget extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: DesignConstants.iconSizeS,
+          size: 16.0,
           color: color,
         ),
-        SizedBox(width: DesignConstants.spacingXS),
+        SizedBox(width: 4.0),
         Text(
           '$value',
           style: TextStyle(
-            fontSize: DesignConstants.fontSizeCaption,
+            fontSize: 12.0,
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
         ),
-        SizedBox(width: DesignConstants.spacingXS / 2),
+        SizedBox(width: 4.0 / 2),
         Text(
           label,
           style: TextStyle(
-            fontSize: DesignConstants.fontSizeCaption,
+            fontSize: 12.0,
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
@@ -299,7 +298,7 @@ class InboxStatsWidget extends StatelessWidget {
   /// 构建迷你统计徽章
   Widget _buildMiniStatBadge(String text, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: DesignConstants.spacingS - 2, vertical: DesignConstants.spacingXS / 2),
+      padding: EdgeInsets.symmetric(horizontal: 8.0 - 2, vertical: 4.0 / 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
@@ -307,7 +306,7 @@ class InboxStatsWidget extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: DesignConstants.fontSizeCaption - 2,
+          fontSize: 12.0 - 2,
           fontWeight: FontWeight.w500,
           color: color,
         ),

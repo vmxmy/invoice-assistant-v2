@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import '../../../core/theme/cupertino_semantic_colors.dart';
 
 /// 状态标签状态枚举
 enum StatusBadgeStatus {
@@ -83,27 +84,27 @@ class StatusBadge extends StatelessWidget {
     switch (status) {
       case StatusBadgeStatus.success:
         return _StatusConfig(
-          backgroundColor: const Color(0xFF4CAF50).withValues(alpha: 0.1),
-          borderColor: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-          textColor: const Color(0xFF4CAF50),
+          backgroundColor: CupertinoSemanticColors.success.withValues(alpha: 0.1),
+          borderColor: CupertinoSemanticColors.success.withValues(alpha: 0.3),
+          textColor: CupertinoSemanticColors.success,
         );
       case StatusBadgeStatus.warning:
         return _StatusConfig(
-          backgroundColor: const Color(0xFFFF9800).withValues(alpha: 0.1),
-          borderColor: const Color(0xFFFF9800).withValues(alpha: 0.3),
-          textColor: const Color(0xFFFF9800),
+          backgroundColor: CupertinoSemanticColors.warning.withValues(alpha: 0.1),
+          borderColor: CupertinoSemanticColors.warning.withValues(alpha: 0.3),
+          textColor: CupertinoSemanticColors.warning,
         );
       case StatusBadgeStatus.error:
         return _StatusConfig(
-          backgroundColor: colorScheme.error.withValues(alpha: 0.1),
-          borderColor: colorScheme.error.withValues(alpha: 0.3),
-          textColor: colorScheme.error,
+          backgroundColor: CupertinoSemanticColors.error.withValues(alpha: 0.1),
+          borderColor: CupertinoSemanticColors.error.withValues(alpha: 0.3),
+          textColor: CupertinoSemanticColors.error,
         );
       case StatusBadgeStatus.info:
         return _StatusConfig(
-          backgroundColor: const Color(0xFF2196F3).withValues(alpha: 0.1),
-          borderColor: const Color(0xFF2196F3).withValues(alpha: 0.3),
-          textColor: const Color(0xFF2196F3),
+          backgroundColor: CupertinoSemanticColors.info.withValues(alpha: 0.1),
+          borderColor: CupertinoSemanticColors.info.withValues(alpha: 0.3),
+          textColor: CupertinoSemanticColors.info,
         );
       case StatusBadgeStatus.neutral:
         return _StatusConfig(

@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../domain/repositories/invoice_repository.dart';
-import '../../core/theme/design_constants.dart';
 
 /// iOS风格的发票统计信息一行显示
 /// 遵循iOS Human Interface Guidelines的标准显示方式
@@ -27,8 +26,8 @@ class InvoiceStatsInline extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: DesignConstants.spacingL,
-        vertical: DesignConstants.spacingM,
+        horizontal: 16.0,
+        vertical: 12.0,
       ),
       child: isLoading 
           ? _buildLoadingText(isDark)
@@ -41,7 +40,7 @@ class InvoiceStatsInline extends StatelessWidget {
     return Text(
       '加载中...',
       style: TextStyle(
-        fontSize: DesignConstants.fontSizeCaption,
+        fontSize: 12.0,
         color: isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
         fontWeight: FontWeight.w400,
       ),
@@ -60,7 +59,7 @@ class InvoiceStatsInline extends StatelessWidget {
     return RichText(
       text: TextSpan(
         style: TextStyle(
-          fontSize: DesignConstants.fontSizeCaption,
+          fontSize: 12.0,
           fontWeight: FontWeight.w400,
           height: 1.2,
         ),

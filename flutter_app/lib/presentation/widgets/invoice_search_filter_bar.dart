@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../core/theme/design_constants.dart';
 
 /// 发票搜索和筛选工具栏
 /// 包含搜索框、快捷筛选按钮和状态管理
@@ -62,10 +61,10 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        DesignConstants.spacingL,
-        DesignConstants.spacingS,
-        DesignConstants.spacingL,
-        DesignConstants.spacingM,
+        16,
+        8,
+        16,
+        12,
       ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -84,7 +83,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
 
           // 间距
           if (widget.showSearchBox && widget.showQuickFilters)
-            const SizedBox(height: DesignConstants.spacingM),
+            const SizedBox(height: 12),
 
           // 快捷筛选按钮区域
           if (widget.showQuickFilters) _buildQuickFilters(theme, colorScheme),
@@ -96,10 +95,10 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   /// 构建搜索框
   Widget _buildSearchBox(ThemeData theme, ColorScheme colorScheme) {
     return Container(
-      height: DesignConstants.buttonHeightMedium,
+      height: 44,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: _isSearchFocused
               ? colorScheme.primary
@@ -111,13 +110,13 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
         children: [
           // 搜索图标
           Padding(
-            padding: const EdgeInsets.only(left: DesignConstants.spacingM),
+            padding: const EdgeInsets.only(left: 12),
             child: Icon(
               CupertinoIcons.search,
               color: _isSearchFocused
                   ? colorScheme.primary
                   : colorScheme.onSurfaceVariant,
-              size: DesignConstants.iconSizeS,
+              size: 16,
             ),
           ),
           
@@ -138,15 +137,15 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               placeholder: '搜索发票号、销售方、金额...',
               placeholderStyle: TextStyle(
                 color: colorScheme.onSurfaceVariant,
-                fontSize: DesignConstants.fontSizeBody,
+                fontSize: 14,
               ),
               style: TextStyle(
-                fontSize: DesignConstants.fontSizeBody,
+                fontSize: 14,
                 color: colorScheme.onSurface,
               ),
               decoration: const BoxDecoration(),
               padding: const EdgeInsets.symmetric(
-                horizontal: DesignConstants.spacingM,
+                horizontal: 12,
                 vertical: 0,
               ),
             ),
@@ -160,11 +159,11 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                 setState(() {});
                 widget.onSearchChanged?.call('');
               },
-              padding: const EdgeInsets.all(DesignConstants.spacingXS),
+              padding: const EdgeInsets.all(4),
               child: Icon(
                 CupertinoIcons.clear_circled_solid,
                 color: colorScheme.onSurfaceVariant,
-                size: DesignConstants.iconSizeXS,
+                size: 12,
               ),
             ),
         ],
@@ -175,8 +174,8 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
   /// 构建快捷筛选按钮
   Widget _buildQuickFilters(ThemeData theme, ColorScheme colorScheme) {
     return Wrap(
-      spacing: DesignConstants.spacingS,
-      runSpacing: DesignConstants.spacingS,
+      spacing: 8,
+      runSpacing: 8,
       children: [
         // 逾期发票
         _buildFilterChip(
@@ -286,22 +285,28 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: DesignConstants.animationFast,
-        height: DesignConstants.buttonHeightSmall,
+        duration: const Duration(milliseconds: 200),
+        height: 32,
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingM,
-          vertical: DesignConstants.spacingXS,
+          horizontal: 12,
+          vertical: 4,
         ),
         decoration: BoxDecoration(
           color:
               isSelected ? color.withValues(alpha: 0.15) : colorScheme.surface,
-          borderRadius: BorderRadius.circular(DesignConstants.radiusLarge),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? color : colorScheme.outlineVariant,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
-              ? DesignConstants.shadowColored(color)
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Row(
@@ -313,7 +318,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               children: [
                 Icon(
                   icon,
-                  size: DesignConstants.iconSizeXS,
+                  size: 12,
                   color: isSelected ? color : colorScheme.onSurfaceVariant,
                 ),
                 // 徽章
@@ -322,8 +327,8 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                     right: -3,
                     top: -3,
                     child: Container(
-                      width: DesignConstants.spacingS + 2,
-                      height: DesignConstants.spacingS + 2,
+                      width: 10,
+                      height: 10,
                       decoration: BoxDecoration(
                         color: color,
                         shape: BoxShape.circle,
@@ -333,7 +338,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                           badge,
                           style: TextStyle(
                             color: isDark ? CupertinoColors.white : CupertinoColors.black,
-                            fontSize: DesignConstants.fontSizeCaption - 2,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -343,13 +348,13 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               ],
             ),
 
-            const SizedBox(width: DesignConstants.spacingXS),
+            const SizedBox(width: 4),
 
             // 标签
             Text(
               label,
               style: TextStyle(
-                fontSize: DesignConstants.fontSizeCaption,
+                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected ? color : colorScheme.onSurfaceVariant,
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../../core/theme/cupertino_semantic_colors.dart';
 
 /// iOS风格的文件选择组件
 /// 
@@ -382,14 +383,14 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             height: 40,
             decoration: BoxDecoration(
               color: isImage 
-                ? Colors.green.withValues(alpha: 0.1)
+                ? CupertinoSemanticColors.success.withValues(alpha: 0.1)
                 : colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               isImage ? CupertinoIcons.photo : CupertinoIcons.doc_text,
               size: 20,
-              color: isImage ? Colors.green : colorScheme.primary,
+              color: isImage ? CupertinoSemanticColors.success : colorScheme.primary,
             ),
           ),
           

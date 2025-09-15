@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../../theme/design_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 import '../../atoms/app_button.dart';
@@ -58,7 +57,7 @@ class InvoiceCardActions extends StatelessWidget {
     this.displayMode = ActionDisplayMode.iconsOnly,
     this.showTime = true,
     this.timeStyle,
-    this.actionSpacing = DesignConstants.spacingS,
+    this.actionSpacing = 8.0,
     this.maxVisibleActions = 3,
   });
 
@@ -153,13 +152,13 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildIconAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(8.0),
       child: Padding(
-        padding: const EdgeInsets.all(DesignConstants.spacingXS),
+        padding: const EdgeInsets.all(4.0),
         child: action.isLoading
             ? SizedBox(
-                width: DesignConstants.iconSizeS,
-                height: DesignConstants.iconSizeS,
+                width: 16.0,
+                height: 16.0,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation(color),
@@ -179,11 +178,11 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildLabelAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(8.0),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingS,
-          vertical: DesignConstants.spacingXS,
+          horizontal: 8.0,
+          vertical: 4.0,
         ),
         child: AppText(
           text: action.label,
@@ -198,19 +197,19 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildIconWithLabelAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(8.0),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingS,
-          vertical: DesignConstants.spacingXS,
+          horizontal: 8.0,
+          vertical: 4.0,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             action.isLoading
                 ? SizedBox(
-                    width: DesignConstants.iconSizeXS,
-                    height: DesignConstants.iconSizeXS,
+                    width: 12.0,
+                    height: 12.0,
                     child: CircularProgressIndicator(
                       strokeWidth: 1.5,
                       valueColor: AlwaysStoppedAnimation(color),
@@ -221,7 +220,7 @@ class InvoiceCardActions extends StatelessWidget {
                     size: IconSize.extraSmall,
                     color: color,
                   ),
-            SizedBox(width: DesignConstants.spacingXS),
+            SizedBox(width: 4.0),
             AppText(
               text: action.label,
               variant: TextVariant.bodySmall,
@@ -249,9 +248,9 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildMoreActionsButton(BuildContext context) {
     return InkWell(
       onTap: () => _showMoreActionsMenu(context),
-      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(8.0),
       child: Padding(
-        padding: const EdgeInsets.all(DesignConstants.spacingXS),
+        padding: const EdgeInsets.all(4.0),
         child: AppIcon(
           icon: CupertinoIcons.ellipsis,
           size: IconSize.small,
@@ -270,7 +269,7 @@ class InvoiceCardActions extends StatelessWidget {
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(DesignConstants.radiusLarge),
+          top: Radius.circular(16.0),
         ),
       ),
       builder: (context) => _MoreActionsBottomSheet(actions: hiddenActions),
@@ -288,7 +287,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: DesignConstants.spacingL,
+        vertical: 16.0,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -299,7 +298,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
             variant: TextVariant.titleMedium,
           ),
           
-          SizedBox(height: DesignConstants.spacingL),
+          SizedBox(height: 16.0),
           
           // 操作项列表
           ...actions.map((action) => _buildBottomSheetAction(context, action)),
@@ -322,8 +321,8 @@ class _MoreActionsBottomSheet extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingL,
-          vertical: DesignConstants.spacingM,
+          horizontal: 16.0,
+          vertical: 12.0,
         ),
         child: Row(
           children: [
@@ -332,7 +331,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
               size: IconSize.medium,
               color: effectiveColor,
             ),
-            SizedBox(width: DesignConstants.spacingL),
+            SizedBox(width: 16.0),
             AppText(
               text: action.label,
               variant: TextVariant.bodyLarge,

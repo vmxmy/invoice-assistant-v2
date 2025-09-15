@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 按钮变体枚举
 enum ButtonVariant {
@@ -94,11 +93,11 @@ class AppButton extends StatelessWidget {
   double _getButtonHeight() {
     switch (size) {
       case ButtonSize.small:
-        return DesignConstants.buttonHeightSmall;
+        return 32.0;
       case ButtonSize.medium:
-        return DesignConstants.buttonHeightMedium;
+        return 44.0;
       case ButtonSize.large:
-        return DesignConstants.buttonHeightLarge;
+        return 50.0;
     }
   }
 
@@ -113,11 +112,11 @@ class AppButton extends StatelessWidget {
       shadowColor: _getShadowColor(colorScheme),
       side: _getBorderSide(colorScheme, isEnabled),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       padding: EdgeInsets.symmetric(
         horizontal: _getHorizontalPadding(),
-        vertical: DesignConstants.spacingS,
+        vertical: 8.0,
       ),
       minimumSize: Size.zero,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -128,11 +127,11 @@ class AppButton extends StatelessWidget {
   double _getHorizontalPadding() {
     switch (size) {
       case ButtonSize.small:
-        return DesignConstants.spacingM;
+        return 12.0;
       case ButtonSize.medium:
-        return DesignConstants.spacingL;
+        return 16.0;
       case ButtonSize.large:
-        return DesignConstants.spacingXL;
+        return 24.0;
     }
   }
 
@@ -235,7 +234,7 @@ class AppButton extends StatelessWidget {
           icon,
           size: _getIconSize(),
         ),
-        SizedBox(width: DesignConstants.spacingS),
+        SizedBox(width: 8.0),
         Flexible(
           child: Text(
             text,
@@ -263,7 +262,7 @@ class AppButton extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: DesignConstants.spacingS),
+        SizedBox(width: 8.0),
         Text(
           '加载中...',
           style: _getTextStyle(),

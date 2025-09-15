@@ -1,7 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'design_constants.dart';
+
+/// 设备类型枚举
+enum DeviceType {
+  small,
+  medium,
+  large,
+  tablet,
+}
 
 /// iOS-first 主题适配器
 /// 为现有组件提供从 Material 到 Cupertino 的无缝过渡
@@ -55,7 +62,7 @@ class IOSThemeAdapter {
     return TextTheme(
       // iOS Large Title - 34pt Bold
       headlineLarge: TextStyle(
-        fontSize: DesignConstants.fontSizeLargeTitle,
+        fontSize: 34.0,
         fontWeight: FontWeight.bold,
         color: textColor,
         letterSpacing: 0.41,
@@ -63,7 +70,7 @@ class IOSThemeAdapter {
       
       // iOS Title 1 - 22pt Regular
       headlineMedium: TextStyle(
-        fontSize: DesignConstants.fontSizeHeadline,
+        fontSize: 22.0,
         fontWeight: FontWeight.w600,
         color: textColor,
         letterSpacing: 0.35,
@@ -71,7 +78,7 @@ class IOSThemeAdapter {
       
       // iOS Title 2 - 17pt Semibold
       titleLarge: TextStyle(
-        fontSize: DesignConstants.fontSizeTitle,
+        fontSize: 17.0,
         fontWeight: FontWeight.w600,
         color: textColor,
         letterSpacing: -0.41,
@@ -79,7 +86,7 @@ class IOSThemeAdapter {
       
       // iOS Title 3 - 16pt Regular
       titleMedium: TextStyle(
-        fontSize: DesignConstants.fontSizeSubtitle,
+        fontSize: 16.0,
         fontWeight: FontWeight.w400,
         color: textColor,
         letterSpacing: -0.31,
@@ -87,7 +94,7 @@ class IOSThemeAdapter {
       
       // iOS Body - 14pt Regular
       bodyLarge: TextStyle(
-        fontSize: DesignConstants.fontSizeBody,
+        fontSize: 14.0,
         fontWeight: FontWeight.w400,
         color: textColor,
         letterSpacing: -0.15,
@@ -95,7 +102,7 @@ class IOSThemeAdapter {
       
       // iOS Caption 1 - 12pt Regular
       bodyMedium: TextStyle(
-        fontSize: DesignConstants.fontSizeCaption,
+        fontSize: 12.0,
         fontWeight: FontWeight.w400,
         color: secondaryTextColor,
         letterSpacing: 0.0,
@@ -111,21 +118,21 @@ class IOSThemeAdapter {
       
       // Labels
       labelLarge: TextStyle(
-        fontSize: DesignConstants.fontSizeTitle,
+        fontSize: 17.0,
         fontWeight: FontWeight.w600,
         color: textColor,
         letterSpacing: -0.41,
       ),
       
       labelMedium: TextStyle(
-        fontSize: DesignConstants.fontSizeBody,
+        fontSize: 14.0,
         fontWeight: FontWeight.w500,
         color: textColor,
         letterSpacing: -0.15,
       ),
       
       labelSmall: TextStyle(
-        fontSize: DesignConstants.fontSizeCaption,
+        fontSize: 12.0,
         fontWeight: FontWeight.w500,
         color: secondaryTextColor,
         letterSpacing: 0.0,
@@ -158,11 +165,11 @@ class IOSThemeAdapter {
         color: colorScheme.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
+          borderRadius: BorderRadius.circular(12.0),
         ),
-        margin: EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingL,
-          vertical: DesignConstants.spacingS,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
         ),
       ),
       
@@ -172,9 +179,9 @@ class IOSThemeAdapter {
           foregroundColor: colorScheme.onPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          minimumSize: Size.fromHeight(DesignConstants.buttonHeightMedium),
+          minimumSize: const Size.fromHeight(44.0),
         ),
       ),
       
@@ -183,9 +190,9 @@ class IOSThemeAdapter {
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          minimumSize: Size.fromHeight(DesignConstants.buttonHeightMedium),
+          minimumSize: const Size.fromHeight(44.0),
         ),
       ),
       
@@ -193,27 +200,27 @@ class IOSThemeAdapter {
         style: TextButton.styleFrom(
           foregroundColor: colorScheme.primary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+            borderRadius: BorderRadius.circular(8.0),
           ),
         ),
       ),
       
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+          borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+          borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(color: colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+          borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         filled: true,
         fillColor: colorScheme.surface,
-        contentPadding: EdgeInsets.all(DesignConstants.spacingL),
+        contentPadding: const EdgeInsets.all(16.0),
       ),
       
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -243,20 +250,20 @@ class IOSThemeAdapter {
       ),
       
       listTileTheme: ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: DesignConstants.spacingL,
-          vertical: DesignConstants.spacingS,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
         ),
-        minVerticalPadding: DesignConstants.spacingS,
+        minVerticalPadding: 8.0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+          borderRadius: BorderRadius.circular(8.0),
         ),
       ),
       
       dialogTheme: DialogThemeData(
         backgroundColor: colorScheme.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusLarge),
+          borderRadius: BorderRadius.circular(16.0),
         ),
         titleTextStyle: textTheme.titleLarge,
         contentTextStyle: textTheme.bodyLarge,
@@ -266,7 +273,7 @@ class IOSThemeAdapter {
         backgroundColor: colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(DesignConstants.radiusXLarge),
+            top: Radius.circular(24.0),
           ),
         ),
       ),
@@ -275,7 +282,7 @@ class IOSThemeAdapter {
         backgroundColor: colorScheme.surface,
         contentTextStyle: textTheme.bodyMedium,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
+          borderRadius: BorderRadius.circular(8.0),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -285,7 +292,10 @@ class IOSThemeAdapter {
   /// 获取适配的设备信息
   static DeviceType getDeviceType(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return DesignConstants.getDeviceType(size.width);
+    if (size.width < 375) return DeviceType.small;
+    if (size.width < 390) return DeviceType.medium;
+    if (size.width < 430) return DeviceType.large;
+    return DeviceType.tablet;
   }
   
   /// 获取适配的安全区域
@@ -293,7 +303,7 @@ class IOSThemeAdapter {
     final padding = MediaQuery.of(context).padding;
     return EdgeInsets.only(
       top: padding.top,
-      bottom: padding.bottom + DesignConstants.bottomSafeAreaExtra,
+      bottom: padding.bottom + 34.0,
       left: padding.left,
       right: padding.right,
     );
@@ -303,7 +313,7 @@ class IOSThemeAdapter {
   static Curve get iosAnimationCurve => Curves.easeInOut;
   
   /// 获取适配的动画时长
-  static Duration get iosAnimationDuration => DesignConstants.animationNormal;
+  static Duration get iosAnimationDuration => const Duration(milliseconds: 300);
   
   /// 判断是否为深色模式
   static bool isDarkMode(BuildContext context) {

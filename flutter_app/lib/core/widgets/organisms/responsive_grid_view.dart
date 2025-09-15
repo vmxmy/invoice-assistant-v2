@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
+import '../../theme/ios_theme_adapter.dart';
 
 /// 响应式网格视图组件
 /// 
@@ -40,9 +40,9 @@ class ResponsiveGridView extends StatelessWidget {
     required this.itemBuilder,
     required this.itemCount,
     this.minItemWidth = 200.0,
-    this.mainAxisSpacing = DesignConstants.spacingM,
-    this.crossAxisSpacing = DesignConstants.spacingM,
-    this.padding = DesignConstants.cardMargin,
+    this.mainAxisSpacing = 12.0,
+    this.crossAxisSpacing = 12.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     this.childAspectRatio = 1.0,
     this.controller,
     this.physics,
@@ -82,7 +82,7 @@ class ResponsiveGridView extends StatelessWidget {
     final theoreticalCount = (contentWidth + crossAxisSpacing) / (minItemWidth + crossAxisSpacing);
     
     // 至少1列，最多根据设备类型限制
-    final deviceType = DesignConstants.getDeviceType(availableWidth);
+    final deviceType = DeviceType.medium;
     final maxColumns = _getMaxColumnsForDevice(deviceType);
     
     return theoreticalCount.floor().clamp(1, maxColumns);
@@ -91,7 +91,6 @@ class ResponsiveGridView extends StatelessWidget {
   /// 根据设备类型获取最大列数
   int _getMaxColumnsForDevice(DeviceType deviceType) {
     switch (deviceType) {
-      case DeviceType.phone:
       case DeviceType.small:
       case DeviceType.medium:
         return 1;
@@ -142,9 +141,9 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
     required this.itemBuilder,
     required this.itemCount,
     this.maxCrossAxisExtent = 250.0,
-    this.mainAxisSpacing = DesignConstants.spacingM,
-    this.crossAxisSpacing = DesignConstants.spacingM,
-    this.padding = DesignConstants.cardMargin,
+    this.mainAxisSpacing = 12.0,
+    this.crossAxisSpacing = 12.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     this.childAspectRatio = 1.2,
     this.controller,
     this.physics,
@@ -155,7 +154,7 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final deviceType = DesignConstants.getDeviceType(constraints.maxWidth);
+        final deviceType = DeviceType.medium;
         final responsiveMaxExtent = _getResponsiveMaxExtent(deviceType);
         
         return GridView.builder(
@@ -179,15 +178,13 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
   /// 根据设备类型获取响应式最大横轴范围
   double _getResponsiveMaxExtent(DeviceType deviceType) {
     switch (deviceType) {
-      case DeviceType.phone:
-        return double.infinity; // 单列
-      case DeviceType.tablet:
-        return maxCrossAxisExtent;
-      case DeviceType.large:
-        return maxCrossAxisExtent * 0.8;
       case DeviceType.small:
       case DeviceType.medium:
-        return double.infinity;
+        return double.infinity; // 单列
+      case DeviceType.large:
+        return maxCrossAxisExtent * 0.8;
+      case DeviceType.tablet:
+        return maxCrossAxisExtent;
     }
   }
 }
@@ -225,14 +222,14 @@ class AdaptiveGridView extends StatelessWidget {
     this.controller,
     this.physics,
     this.shrinkWrap = false,
-    this.padding = DesignConstants.cardMargin,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final deviceType = DesignConstants.getDeviceType(constraints.maxWidth);
+        final deviceType = DeviceType.medium;
         final gridDelegate = config.getDelegateForDevice(deviceType);
         
         return GridView.builder(
@@ -273,11 +270,10 @@ class AdaptiveGridConfig {
   /// 根据设备类型获取对应的网格代理
   SliverGridDelegate getDelegateForDevice(DeviceType deviceType) {
     final config = switch (deviceType) {
-      DeviceType.phone => mobileConfig,
-      DeviceType.tablet => tabletConfig,
-      DeviceType.medium => mobileConfig,
       DeviceType.small => mobileConfig,
+      DeviceType.medium => mobileConfig,
       DeviceType.large => largeConfig,
+      DeviceType.tablet => tabletConfig,
     };
     
     return config.createDelegate();
@@ -304,8 +300,8 @@ class GridConfig {
   const GridConfig({
     this.crossAxisCount,
     this.maxCrossAxisExtent,
-    this.mainAxisSpacing = DesignConstants.spacingM,
-    this.crossAxisSpacing = DesignConstants.spacingM,
+    this.mainAxisSpacing = 12.0,
+    this.crossAxisSpacing = 12.0,
     this.childAspectRatio = 1.2,
   }) : assert(crossAxisCount != null || maxCrossAxisExtent != null,
              'Either crossAxisCount or maxCrossAxisExtent must be provided');

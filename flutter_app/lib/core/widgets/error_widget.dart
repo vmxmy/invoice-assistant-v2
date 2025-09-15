@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/cupertino_semantic_colors.dart';
 
 /// 通用错误展示组件
 class AppErrorWidget extends StatelessWidget {
@@ -28,14 +29,14 @@ class AppErrorWidget extends StatelessWidget {
             Icon(
               icon ?? Icons.error_outline,
               size: 64,
-              color: Colors.red.withValues(alpha: 0.5),
+              color: CupertinoSemanticColors.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16.0),
             if (title != null) ...[
               Text(
                 title!,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.red.withValues(alpha: 0.7),
+                      color: CupertinoSemanticColors.error.withValues(alpha: 0.7),
                       fontWeight: FontWeight.bold,
                     ),
                 textAlign: TextAlign.center,

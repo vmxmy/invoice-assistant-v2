@@ -6,6 +6,7 @@ import '../../domain/entities/invoice_entity.dart';
 import '../bloc/invoice_bloc.dart';
 import '../bloc/invoice_event.dart';
 import '../bloc/invoice_state.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 // import '../widgets/invoice_pdf_viewer.dart'; // 未使用
 import '../widgets/adaptive_pdf_container.dart';
 import '../widgets/app_feedback.dart';
@@ -70,18 +71,17 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   }
 
   Widget _buildLoadingPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('发票详情'),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('发票详情'),
       ),
-      body: const Center(
+      child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
+            CupertinoActivityIndicator(radius: 16),
             SizedBox(height: 16),
-            Text('加载中...', style: TextStyle(color: Colors.grey)),
+            Text('加载中...', style: TextStyle(color: CupertinoSemanticColors.secondaryLabel)),
           ],
         ),
       ),
@@ -89,26 +89,25 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
   }
 
   Widget _buildErrorPage(String message) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('发票详情'),
-        centerTitle: true,
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('发票详情'),
       ),
-      body: Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               CupertinoIcons.exclamationmark_triangle,
               size: 64,
-              color: Colors.red.withValues(alpha: 0.5),
+              color: CupertinoSemanticColors.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               '加载失败',
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.red.withValues(alpha: 0.7),
+                color: CupertinoSemanticColors.error.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -116,12 +115,12 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               message,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.withValues(alpha: 0.8),
+                color: CupertinoSemanticColors.secondaryLabel.withValues(alpha: 0.8),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
+            CupertinoButton.filled(
               onPressed: () {
                 context
                     .read<InvoiceBloc>()
@@ -139,11 +138,11 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      body: CustomScrollView(
+    return CupertinoPageScaffold(
+      child: CustomScrollView(
         slivers: [
           // 可折叠的应用栏 - 显示发票图片或状态
-          _buildSliverAppBar(invoice, colorScheme),
+          _buildSliverNavigationBar(invoice),
 
           // 主要内容区域
           SliverToBoxAdapter(
@@ -183,11 +182,10 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     );
   }
 
-  Widget _buildSliverAppBar(InvoiceEntity invoice, ColorScheme colorScheme) {
-    return SliverAppBar(
-      floating: false,
-      pinned: true,
-      title: Text(
+  Widget _buildSliverNavigationBar(InvoiceEntity invoice) {
+    return CupertinoSliverNavigationBar(
+      backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
+      largeTitle: Text(
         invoice.sellerName ?? invoice.invoiceNumber,
         style: const TextStyle(fontSize: 16),
       ),
@@ -196,8 +194,18 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
 
   /// 第一层：核心信息卡片
   Widget _buildCoreInfoCard(InvoiceEntity invoice, ColorScheme colorScheme) {
-    return Card(
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -341,7 +349,7 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                 '验证状态',
                 invoice.isVerified ? '已验证' : '未验证',
                 invoice.isVerified ? Icons.verified : Icons.pending_outlined,
-                textColor: invoice.isVerified ? Colors.green : Colors.orange,
+                textColor: invoice.isVerified ? CupertinoSemanticColors.success : CupertinoSemanticColors.warning,
               ),
 
               if (invoice.verifiedAt != null)

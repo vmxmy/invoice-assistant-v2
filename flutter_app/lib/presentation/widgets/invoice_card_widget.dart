@@ -10,13 +10,13 @@ import '../../core/utils/invoice_file_utils.dart';
 import '../../core/utils/icon_mapping.dart';
 import '../../core/constants/accessibility_constants.dart';
 import '../../core/events/app_event_bus.dart';
+import '../../core/theme/cupertino_semantic_colors.dart';
 import '../../core/widgets/atoms/app_card.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_header.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_body.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_actions.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
 import '../../core/widgets/molecules/reimbursement_set_badge.dart';
-import '../../core/theme/design_constants.dart';
 import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
 import '../utils/invoice_to_set_operation_utils.dart';
@@ -157,10 +157,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
           onLongPress: widget.onLongPress,
           margin: EdgeInsets.only(
-            left: DesignConstants.spacingL,
-            right: DesignConstants.spacingL,
-            top: DesignConstants.spacingS,
-            bottom: DesignConstants.spacingS,
+            left: 16.0,
+            right: 16.0,
+            top: 8.0,
+            bottom: 8.0,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,7 +498,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
             children: [
               const Icon(
                 CupertinoIcons.exclamationmark_triangle,
-                color: Colors.white,
+                color: CupertinoSemanticColors.systemBackground,
                 size: 20,
               ),
               const SizedBox(width: 8),

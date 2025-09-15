@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'unified_bottom_sheet.dart';
+import '../../core/config/app_constants.dart';
 
 /// 应用反馈类型
 enum FeedbackType {
@@ -379,7 +380,7 @@ class _CupertinoFeedbackBannerState extends State<_CupertinoFeedbackBanner>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: AppConstants.normalAnimationDuration,
       vsync: this,
     );
     

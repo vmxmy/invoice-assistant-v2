@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_constants.dart';
 
 /// 分割线类型枚举
 enum DividerType {
@@ -56,7 +55,7 @@ class AppDivider extends StatelessWidget {
     this.type = DividerType.horizontal,
     this.style = DividerStyle.solid,
     this.color,
-    this.thickness = DesignConstants.borderWidthThin,
+    this.thickness = 1.0,
     this.indent = 0.0,
     this.endIndent = 0.0,
     this.height,
@@ -164,11 +163,11 @@ class AppDividerWithLabel extends StatelessWidget {
     required this.label,
     this.labelStyle,
     this.color,
-    this.thickness = DesignConstants.borderWidthThin,
-    this.spacing = DesignConstants.spacingM,
+    this.thickness = 1.0,
+    this.spacing = 12.0,
     this.labelBackgroundColor,
     this.labelPadding = const EdgeInsets.symmetric(
-      horizontal: DesignConstants.spacingM,
+      horizontal: 12.0,
     ),
   });
 
@@ -198,7 +197,7 @@ class AppDividerWithLabel extends StatelessWidget {
               ? BoxDecoration(
                   color: labelBackgroundColor,
                   borderRadius: BorderRadius.circular(
-                    DesignConstants.radiusSmall,
+                    8.0,
                   ),
                 )
               : null,
@@ -252,10 +251,10 @@ class AppDividerWithIcon extends StatelessWidget {
     super.key,
     required this.icon,
     this.iconColor,
-    this.iconSize = DesignConstants.iconSizeS,
+    this.iconSize = 16.0,
     this.color,
-    this.thickness = DesignConstants.borderWidthThin,
-    this.spacing = DesignConstants.spacingM,
+    this.thickness = 1.0,
+    this.spacing = 12.0,
     this.iconBackgroundColor,
     this.iconBackgroundSize,
   });
@@ -273,7 +272,7 @@ class AppDividerWithIcon extends StatelessWidget {
     );
     
     if (iconBackgroundColor != null) {
-      final backgroundSize = iconBackgroundSize ?? (iconSize + DesignConstants.spacingM);
+      final backgroundSize = iconBackgroundSize ?? (iconSize + 12.0);
       iconWidget = Container(
         width: backgroundSize,
         height: backgroundSize,
