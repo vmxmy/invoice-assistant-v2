@@ -17,7 +17,6 @@ class InvoiceDeleteUtils {
     String? customMessage,
     VoidCallback? onDeleted,
   }) async {
-    final colorScheme = Theme.of(context).colorScheme;
     final invoiceName = invoice.sellerName?.isNotEmpty == true 
         ? invoice.sellerName! 
         : invoice.invoiceNumber.isNotEmpty 
@@ -29,7 +28,7 @@ class InvoiceDeleteUtils {
       title: '删除发票',
       content: customMessage ?? '确定要删除 $invoiceName 吗？此操作无法撤销。',
       confirmText: '删除',
-      confirmColor: colorScheme.error,
+      confirmColor: CupertinoColors.destructiveRed,
       icon: CupertinoIcons.delete,
     );
 
@@ -48,7 +47,6 @@ class InvoiceDeleteUtils {
   }) async {
     if (invoiceIds.isEmpty) return;
 
-    final colorScheme = Theme.of(context).colorScheme;
     final count = invoiceIds.length;
 
     final result = await UnifiedBottomSheet.showConfirmDialog(
@@ -56,7 +54,7 @@ class InvoiceDeleteUtils {
       title: '批量删除',
       content: customMessage ?? '确定要删除选中的 $count 张发票吗？此操作无法撤销。',
       confirmText: '删除全部',
-      confirmColor: colorScheme.error,
+      confirmColor: CupertinoColors.destructiveRed,
       icon: CupertinoIcons.delete,
     );
 
@@ -74,8 +72,6 @@ class InvoiceDeleteUtils {
     String? setName,
     VoidCallback? onDeleted,
   }) async {
-    final colorScheme = Theme.of(context).colorScheme;
-
     final result = await UnifiedBottomSheet.showConfirmDialog(
       context: context,
       title: '删除发票',
@@ -85,7 +81,7 @@ class InvoiceDeleteUtils {
           '• 相关文件也将被清理\n'
           '• 会自动从${setName ?? '报销集'}中移除',
       confirmText: '确认删除',
-      confirmColor: colorScheme.error,
+      confirmColor: CupertinoColors.destructiveRed,
       icon: CupertinoIcons.delete,
     );
 

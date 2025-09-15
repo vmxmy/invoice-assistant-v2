@@ -27,9 +27,9 @@ class InvoiceStatusOperationUtils {
         ),
         message: Text(
           invoice.sellerName ?? invoice.invoiceNumber,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+              color: CupertinoColors.secondaryLabel),
         ),
         actions: [
           if (!isCurrentlyReimbursed)
@@ -42,16 +42,16 @@ class InvoiceStatusOperationUtils {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     CupertinoIcons.checkmark_circle_fill,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: CupertinoColors.activeGreen,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     '标记为已报销',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: CupertinoColors.activeGreen,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
@@ -69,16 +69,16 @@ class InvoiceStatusOperationUtils {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     CupertinoIcons.time_solid,
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: CupertinoColors.systemOrange,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     '标记为待报销',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.tertiary,
+                      color: CupertinoColors.systemOrange,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
