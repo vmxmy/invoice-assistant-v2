@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/cupertino_semantic_colors.dart';
 
 /// iOS风格的文件选择组件
-/// 
+///
 /// 设计特点：
 /// - 使用iOS系统标准的卡片设计
 /// - 清晰的视觉层次和间距
@@ -34,7 +33,6 @@ class IOSFilePickerWidget extends StatefulWidget {
 
 class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
     with TickerProviderStateMixin {
-  
   late AnimationController _bounceController;
   late Animation<double> _bounceAnimation;
 
@@ -68,26 +66,26 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
         SliverToBoxAdapter(
           child: _buildHeader(),
         ),
-        
+
         // 文件选择区域
         SliverToBoxAdapter(
           child: _buildFilePickerSection(),
         ),
-        
+
         // 已选文件列表
         if (widget.selectedFiles.isNotEmpty)
           SliverToBoxAdapter(
             child: _buildSelectedFilesList(),
           ),
-        
+
         // 错误信息
         if (widget.validationError != null)
           SliverToBoxAdapter(
             child: _buildErrorMessage(),
           ),
-        
+
         // 注意：选择文件后会自动开始上传，无需手动点击上传按钮
-        
+
         // 底部间距
         const SliverToBoxAdapter(
           child: SizedBox(height: 32),
@@ -97,8 +95,8 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildHeader() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+    final theme = CupertinoTheme.of(context);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
       child: Column(
@@ -106,20 +104,18 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
         children: [
           Text(
             '选择发票文件',
-            style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle.copyWith(
+            style: theme.textTheme.navLargeTitleTextStyle.copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
+              color: CupertinoColors.label.resolveFrom(context),
             ),
           ),
-          
           const SizedBox(height: 8),
-          
           Text(
             '支持 PDF、JPG、PNG 格式，单个文件不超过 10MB',
             style: TextStyle(
               fontSize: 16,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              color: CupertinoColors.secondaryLabel.resolveFrom(context),
               height: 1.4,
             ),
           ),
@@ -129,17 +125,16 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildFilePickerSection() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: colorScheme.surface,
+          color: CupertinoColors.systemBackground.resolveFrom(context),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.1),
+              color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
               offset: const Offset(0, 1),
               blurRadius: 8,
               spreadRadius: 0,
@@ -150,14 +145,14 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
           children: [
             // 拖拽区域
             _buildDragArea(),
-            
+
             // 分隔线
             Container(
               height: 0.5,
-              color: colorScheme.outlineVariant,
+              color: CupertinoColors.separator.resolveFrom(context),
               margin: const EdgeInsets.symmetric(horizontal: 16),
             ),
-            
+
             // 选择按钮区域
             _buildPickerButtons(),
           ],
@@ -167,8 +162,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildDragArea() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: _pickFiles,
       onTapDown: (_) => _bounceController.forward(),
@@ -189,36 +183,36 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.1),
+                      color: CupertinoColors.activeBlue.resolveFrom(context).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       CupertinoIcons.cloud_upload,
                       size: 32,
-                      color: colorScheme.primary,
+                      color: CupertinoColors.activeBlue.resolveFrom(context),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 主要文本
                   Text(
                     '轻触选择文件',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
+                      color: CupertinoColors.label.resolveFrom(context),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // 副标题文本
                   Text(
                     '或拖拽文件到此处',
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
                     ),
                   ),
                 ],
@@ -231,8 +225,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildPickerButtons() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -242,7 +235,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             width: double.infinity,
             child: CupertinoButton(
               onPressed: _pickFiles,
-              color: colorScheme.primary,
+              color: CupertinoColors.activeBlue.resolveFrom(context),
               borderRadius: BorderRadius.circular(8),
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: const Row(
@@ -267,15 +260,15 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 拍照按钮
           SizedBox(
             width: double.infinity,
             child: CupertinoButton(
               onPressed: _pickFromCamera,
-              color: colorScheme.surfaceContainerHighest,
+              color: CupertinoColors.tertiarySystemBackground.resolveFrom(context),
               borderRadius: BorderRadius.circular(8),
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
@@ -285,7 +278,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
                   Icon(
                     CupertinoIcons.camera,
                     size: 18,
-                    color: colorScheme.onSurface,
+                    color: CupertinoColors.label.resolveFrom(context),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -293,7 +286,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
+                      color: CupertinoColors.label.resolveFrom(context),
                     ),
                   ),
                 ],
@@ -306,8 +299,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildSelectedFilesList() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: Column(
@@ -318,30 +310,26 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
+              color: CupertinoColors.label.resolveFrom(context),
             ),
           ),
-          
           const SizedBox(height: 4),
-          
           if (widget.validationError == null)
             Text(
               '文件将自动开始上传',
               style: TextStyle(
                 fontSize: 14,
-                color: colorScheme.primary,
+                color: CupertinoColors.activeBlue.resolveFrom(context),
               ),
             ),
-          
           const SizedBox(height: 16),
-          
           Container(
             decoration: BoxDecoration(
-              color: colorScheme.surface,
+              color: CupertinoColors.systemBackground.resolveFrom(context),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.shadow.withValues(alpha: 0.1),
+                  color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
                   offset: const Offset(0, 1),
                   blurRadius: 8,
                   spreadRadius: 0,
@@ -368,7 +356,6 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildFileItem(File file, int index) {
-    final colorScheme = Theme.of(context).colorScheme;
     final fileName = file.path.split('/').last;
     final fileSize = _formatFileSize(file);
     final isImage = _isImageFile(fileName);
@@ -382,20 +369,22 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isImage 
-                ? CupertinoSemanticColors.success.withValues(alpha: 0.1)
-                : colorScheme.primary.withValues(alpha: 0.1),
+              color: isImage
+                  ? CupertinoSemanticColors.success.withValues(alpha: 0.1)
+                  : CupertinoColors.activeBlue.resolveFrom(context).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               isImage ? CupertinoIcons.photo : CupertinoIcons.doc_text,
               size: 20,
-              color: isImage ? CupertinoSemanticColors.success : colorScheme.primary,
+              color: isImage
+                  ? CupertinoSemanticColors.success
+                  : CupertinoColors.activeBlue.resolveFrom(context),
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // 文件信息
           Expanded(
             child: Column(
@@ -406,25 +395,23 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
+                    color: CupertinoColors.label.resolveFrom(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
                 const SizedBox(height: 2),
-                
                 Text(
                   fileSize,
                   style: TextStyle(
                     fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // 删除按钮
           CupertinoButton(
             padding: EdgeInsets.zero,
@@ -436,13 +423,13 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: colorScheme.error.withValues(alpha: 0.1),
+                color: CupertinoColors.systemRed.resolveFrom(context).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 CupertinoIcons.xmark,
                 size: 16,
-                color: colorScheme.error,
+                color: CupertinoColors.systemRed.resolveFrom(context),
               ),
             ),
           ),
@@ -452,14 +439,13 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   }
 
   Widget _buildErrorMessage() {
-    final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: colorScheme.error.withValues(alpha: 0.1),
+          color: CupertinoColors.systemRed.resolveFrom(context).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -467,17 +453,15 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             Icon(
               CupertinoIcons.exclamationmark_triangle_fill,
               size: 20,
-              color: colorScheme.error,
+              color: CupertinoColors.systemRed.resolveFrom(context),
             ),
-            
             const SizedBox(width: 12),
-            
             Expanded(
               child: Text(
                 widget.validationError!,
                 style: TextStyle(
                   fontSize: 14,
-                  color: colorScheme.error,
+                  color: CupertinoColors.systemRed.resolveFrom(context),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -488,11 +472,10 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
     );
   }
 
-
   Future<void> _pickFiles() async {
     try {
       HapticFeedback.selectionClick();
-      
+
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
@@ -504,7 +487,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
             .where((path) => path != null)
             .map((path) => File(path!))
             .toList();
-        
+
         if (files.isNotEmpty) {
           widget.onFilesSelected(files);
         }
@@ -517,7 +500,7 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   Future<void> _pickFromCamera() async {
     try {
       HapticFeedback.selectionClick();
-      
+
       final result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
