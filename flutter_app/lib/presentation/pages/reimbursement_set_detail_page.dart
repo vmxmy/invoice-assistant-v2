@@ -131,8 +131,6 @@ class _ReimbursementSetDetailPageState
 
   /// 构建极简AppBar
   Widget _buildSimpleAppBar() {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return CupertinoSliverNavigationBar(
       backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
       largeTitle: null,

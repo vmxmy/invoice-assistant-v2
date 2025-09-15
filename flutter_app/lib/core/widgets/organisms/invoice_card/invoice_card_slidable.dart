@@ -219,15 +219,20 @@ class CustomSlidableAction extends StatelessWidget {
             ),
           ),
         ),
-        child: Material(
-          color: action.backgroundColor,
-          elevation: 2, // 添加阴影增强按钮独立性
-          borderRadius: _getButtonBorderRadius(isStart, isLast), // 智能圆角设置
-          child: InkWell(
-            onTap: action.onPressed,
+        child: Container(
+          decoration: BoxDecoration(
+            color: action.backgroundColor,
             borderRadius: _getButtonBorderRadius(isStart, isLast),
-            splashColor: action.foregroundColor.withValues(alpha: 0.1),
-            highlightColor: action.foregroundColor.withValues(alpha: 0.05),
+            boxShadow: [
+              BoxShadow(
+                color: CupertinoColors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: GestureDetector(
+            onTap: action.onPressed,
             child: contentBuilder?.call(context, action) ?? _buildDefaultContent(),
           ),
         ),

@@ -73,6 +73,32 @@ class UnifiedBottomSheet {
     );
   }
 
+  /// 显示带操作按钮的自定义内容Sheet
+  static Future<T?> showCustomSheetWithActions<T>({
+    required BuildContext context,
+    required String title,
+    required Widget child,
+    List<Widget>? actions,
+    double? maxHeight,
+    bool isDismissible = true,
+    bool enableDrag = true,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+      builder: (context) => _CustomSheetWithActions(
+        title: title,
+        child: child,
+        actions: actions,
+        maxHeight: maxHeight,
+        enableDrag: enableDrag,
+      ),
+    );
+  }
+
   /// 显示加载Sheet
   static Future<void> showLoadingSheet({
     required BuildContext context,
@@ -662,6 +688,110 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 支持操作按钮的自定义底部Sheet实现
+class _CustomSheetWithActions extends StatelessWidget {
+  final String title;
+  final Widget child;
+  final List<Widget>? actions;
+  final double? maxHeight;
+  final bool enableDrag;
+
+  const _CustomSheetWithActions({
+    required this.title,
+    required this.child,
+    this.actions,
+    this.maxHeight,
+    this.enableDrag = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final effectiveMaxHeight = maxHeight ?? screenHeight * 0.9;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: effectiveMaxHeight,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽指示器
+          if (enableDrag) _buildDragIndicator(colorScheme),
+
+          // 头部
+          _buildHeader(context, colorScheme),
+
+          // 内容区域
+          Flexible(
+            child: child,
+          ),
+
+          // 操作按钮区域
+          if (actions != null && actions!.isNotEmpty)
+            _buildActionsSection(context, colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDragIndicator(ColorScheme colorScheme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      width: 36,
+      height: 4,
+      decoration: BoxDecoration(
+        color: colorScheme.onSurface.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionsSection(BuildContext context, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: actions!,
       ),
     );
   }

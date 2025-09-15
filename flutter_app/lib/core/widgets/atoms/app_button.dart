@@ -119,7 +119,6 @@ class AppButton extends StatelessWidget {
         vertical: 8.0,
       ),
       minimumSize: Size.zero,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 

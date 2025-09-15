@@ -184,15 +184,9 @@ class AppIconWithBackground extends StatelessWidget {
     );
     
     if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: backgroundShape == BackgroundShape.circle
-              ? BorderRadius.circular(effectiveBackgroundSize / 2)
-              : BorderRadius.circular(8.0),
-          child: container,
-        ),
+      return GestureDetector(
+        onTap: onTap,
+        child: container,
       );
     }
     

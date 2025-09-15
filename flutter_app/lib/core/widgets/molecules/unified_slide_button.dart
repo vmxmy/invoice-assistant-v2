@@ -155,19 +155,26 @@ class UnifiedSlideButton extends StatelessWidget {
       child: Container(
         height: double.infinity, // 🔑 填满整个滑动区域高度，确保与卡片等高
         margin: const EdgeInsets.only(bottom: 12), // 统一底部边距
-        child: Material(
-          color: backgroundColor,
-          elevation: enableElevation ? 2 : 0,
-          borderRadius: _getBorderRadius(),
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: _getBorderRadius(),
+            boxShadow: enableElevation ? [
+              BoxShadow(
+                color: CupertinoColors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ] : null,
+          ),
           child: Semantics(
             label: semanticLabel ?? label,
             hint: semanticHint,
             button: true,
-            child: InkWell(
-              onTap: onTap,
+            child: CupertinoButton(
+              onPressed: onTap,
+              padding: EdgeInsets.zero,
               borderRadius: _getBorderRadius(),
-              splashColor: foregroundColor.withValues(alpha: 0.12),
-              highlightColor: foregroundColor.withValues(alpha: 0.08),
               child: Container(
                 padding: const EdgeInsets.all(16), // 统一内边距
                 child: Column(

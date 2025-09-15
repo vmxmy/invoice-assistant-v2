@@ -76,20 +76,16 @@ class AppCard extends StatelessWidget {
       button: hasInteraction,
       child: Container(
         margin: margin ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Material(
-          color: backgroundColor ?? _getBackgroundColor(colorScheme),
-          elevation: elevation ?? _getElevation(),
-          shadowColor: _getShadowColor(colorScheme),
-          borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: border ?? _getBorder(colorScheme),
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: hasInteraction && enableRipple
-                ? _buildInteractiveCard(context)
-                : _buildStaticCard(),
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor ?? _getBackgroundColor(colorScheme),
+            border: border ?? _getBorder(colorScheme),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: _buildBoxShadow(colorScheme),
           ),
+          child: hasInteraction && enableRipple
+              ? _buildInteractiveCard(context)
+              : _buildStaticCard(),
         ),
       ),
     );
@@ -97,10 +93,9 @@ class AppCard extends StatelessWidget {
 
   /// 构建可交互的卡片
   Widget _buildInteractiveCard(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      borderRadius: BorderRadius.circular(12.0),
       child: _buildCardContent(),
     );
   }
@@ -168,6 +163,21 @@ class AppCard extends StatelessWidget {
       color: colorScheme.outline.withValues(alpha: 0.12),
       width: 1.0,
     );
+  }
+  
+  /// 构建阴影效果
+  List<BoxShadow> _buildBoxShadow(ColorScheme colorScheme) {
+    final elevationValue = elevation ?? _getElevation();
+    if (elevationValue <= 0) return [];
+    
+    return [
+      BoxShadow(
+        color: _getShadowColor(colorScheme),
+        offset: Offset(0, elevationValue),
+        blurRadius: elevationValue * 2,
+        spreadRadius: 0,
+      ),
+    ];
   }
 }
 

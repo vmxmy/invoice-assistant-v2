@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-/// Material Icons 到 CupertinoIcons 的映射表
+/// 图标映射表 - 统一图标风格的映射工具
 /// 用于统一应用图标风格
 class IconMapping {
   static const Map<String, IconData> _iconMap = {

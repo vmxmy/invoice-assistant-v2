@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/entities/email_detail.dart';
-import '../common/unified_bottom_sheet.dart';
+import '../unified_bottom_sheet.dart';
 import '../common/status_badge.dart';
 import 'inbox_theme_constants.dart';
 
@@ -30,75 +30,73 @@ class EmailDetailSheet extends StatelessWidget {
     VoidCallback? onMarkAsRead,
     VoidCallback? onDelete,
   }) {
-    return showModalBottomSheet(
+    final sheet = EmailDetailSheet(
+      emailDetail: emailDetail,
+      onMarkAsRead: onMarkAsRead,
+      onDelete: onDelete,
+    );
+    
+    final brightness = CupertinoTheme.of(context).brightness ?? Brightness.light;
+    final isDark = brightness == Brightness.dark;
+    
+    return UnifiedBottomSheet.showCustomSheetWithActions(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      enableDrag: true,
-      showDragHandle: false, // 使用自定义拖拽指示器
-      isDismissible: true,
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      barrierColor: CupertinoColors.black.withValues(alpha: 0.6), // 优化遮罩颜色
-      transitionAnimationController: null, // 使用默认iOS动画
-      builder: (context) => EmailDetailSheet(
-        emailDetail: emailDetail,
-        onMarkAsRead: onMarkAsRead,
-        onDelete: onDelete,
-      ),
+      title: '邮件详情',
+      maxHeight: MediaQuery.of(context).size.height * 0.9,
+      child: sheet._buildContent(context),
+      actions: sheet._buildActions(context, brightness, isDark),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // 直接返回内容，不再包装UnifiedBottomSheet
+    return _buildContent(context);
+  }
+
+  Widget _buildContent(BuildContext context) {
     final brightness = CupertinoTheme.of(context).brightness ?? Brightness.light;
     final isDark = brightness == Brightness.dark;
-
-    return UnifiedBottomSheet(
-      title: '邮件详情',
-      maxHeight: MediaQuery.of(context).size.height * 0.9, // 90%高度
-      actions: _buildActions(context, brightness, isDark),
-      child: SingleChildScrollView(
-        padding: InboxThemeConstants.emailDetailPadding,
-        physics: const BouncingScrollPhysics(), // iOS风格滚动
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 邮件基本信息 - 紧凑布局
-            _buildEmailHeaderCompact(context, brightness, isDark),
-            
+    
+    return SingleChildScrollView(
+      padding: InboxThemeConstants.emailDetailPadding,
+      physics: const BouncingScrollPhysics(), // iOS风格滚动
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 邮件基本信息 - 紧凑布局
+          _buildEmailHeaderCompact(context, brightness, isDark),
+          
+          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+          
+          // 处理状态和分类 - 紧凑布局
+          _buildStatusSectionCompact(context, brightness, isDark),
+          
+          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
+          
+          // 邮件正文 - 主要内容区域
+          if (emailDetail.bodyPreview.isNotEmpty)
+            _buildEmailBody(context, brightness, isDark),
+          
+          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
+          
+          // 附件信息 - 减少间距
+          if (emailDetail.hasAttachments) ...[
             SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-            
-            // 处理状态和分类 - 紧凑布局
-            _buildStatusSectionCompact(context, brightness, isDark),
-            
-            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
-            
-            // 邮件正文 - 主要内容区域
-            if (emailDetail.bodyPreview.isNotEmpty)
-              _buildEmailBody(context, brightness, isDark),
-            
-            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
-            
-            // 附件信息 - 减少间距
-            if (emailDetail.hasAttachments) ...[
-              SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-              _buildAttachmentsSection(context, brightness, isDark),
-            ],
-            
-            // 处理详情 - 减少间距
-            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-            _buildProcessingDetails(context, brightness, isDark),
-            
-            // 技术详情（可折叠）- 减少间距
-            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-            _buildTechnicalDetails(context, brightness, isDark),
-            
-            // 底部间距
-            SizedBox(height: 16.0),
+            _buildAttachmentsSection(context, brightness, isDark),
           ],
-        ),
+          
+          // 处理详情 - 减少间距
+          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+          _buildProcessingDetails(context, brightness, isDark),
+          
+          // 技术详情（可折叠）- 减少间距
+          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+          _buildTechnicalDetails(context, brightness, isDark),
+          
+          // 底部间距
+          SizedBox(height: 16.0),
+        ],
       ),
     );
   }

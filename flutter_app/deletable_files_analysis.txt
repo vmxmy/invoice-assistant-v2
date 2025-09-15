@@ -1,0 +1,5 @@
+Flutter 可删除文件分析报告
+生成时间: 2025年 9月15日 星期一 15时57分48秒 CST
+项目路径: /Users/xumingyang/app/invoice-assistant-v2/flutter_app/lib
+总计文件:      160
+

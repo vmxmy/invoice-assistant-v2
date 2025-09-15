@@ -37,7 +37,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   ),
                 ],
               ),
-              child: _buildSampleCard('左滑查看导出按钮'),
+              child: _buildSampleCard(context, '左滑查看导出按钮'),
             ),
           ),
 
@@ -60,7 +60,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   ),
                 ],
               ),
-              child: _buildSampleCard('右滑查看删除按钮'),
+              child: _buildSampleCard(context, '右滑查看删除按钮'),
             ),
           ),
 
@@ -88,7 +88,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   ),
                 ],
               ),
-              child: _buildSampleCard('左滑查看分享和导出按钮'),
+              child: _buildSampleCard(context, '左滑查看分享和导出按钮'),
             ),
           ),
 
@@ -116,7 +116,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   ),
                 ],
               ),
-              child: _buildSampleCard('右滑查看加入和删除按钮'),
+              child: _buildSampleCard(context, '右滑查看加入和删除按钮'),
             ),
           ),
 
@@ -145,14 +145,14 @@ class UnifiedSlideButtonExample extends StatelessWidget {
                   ),
                 ],
               ),
-              child: _buildSampleCard('左滑查看自定义收藏按钮'),
+              child: _buildSampleCard(context, '左滑查看自定义收藏按钮'),
             ),
           ),
 
           const SizedBox(height: 40),
 
           // 最佳实践说明
-          _buildBestPracticesSection(),
+          _buildBestPracticesSection(context),
         ],
       ),
     );
@@ -186,14 +186,14 @@ class UnifiedSlideButtonExample extends StatelessWidget {
     );
   }
 
-  Widget _buildSampleCard(String text) {
+  Widget _buildSampleCard(BuildContext context, String text) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.3),
+          color: CupertinoColors.systemGrey4,
         ),
         boxShadow: [
           BoxShadow(
@@ -205,7 +205,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             CupertinoIcons.doc_text,
             size: 24,
             color: CupertinoColors.systemGrey.resolveFrom(context),
@@ -220,7 +220,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(
+          Icon(
             CupertinoIcons.chevron_right,
             size: 16,
             color: CupertinoColors.systemGrey.resolveFrom(context),
@@ -230,7 +230,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
     );
   }
 
-  Widget _buildBestPracticesSection() {
+  Widget _buildBestPracticesSection(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -246,22 +246,27 @@ class UnifiedSlideButtonExample extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildPracticeItem(
+              context,
               '1. 按钮位置',
               '• 左滑用于积极操作（分享、导出、收藏）\n• 右滑用于管理操作（删除、加入、移出）',
             ),
             _buildPracticeItem(
+              context,
               '2. 颜色使用',
               '• 使用 colorScheme 确保主题一致性\n• 危险操作使用 error 色\n• 主要操作使用 primary 色\n• 次要操作使用 secondary 色',
             ),
             _buildPracticeItem(
+              context,
               '3. 扩展比例',
               '• 单个按钮使用 0.25 extentRatio\n• 两个按钮使用 0.5 extentRatio\n• 三个或更多按钮考虑重新设计',
             ),
             _buildPracticeItem(
+              context,
               '4. 无障碍支持',
               '• 始终提供 semanticLabel\n• 为复杂操作提供 semanticHint\n• 确保足够的点击区域大小',
             ),
             _buildPracticeItem(
+              context,
               '5. 位置设置',
               '• 单个按钮使用 SlideButtonPosition.single\n• 多个按钮设置正确的 left/right 位置\n• 让组件自动处理圆角设置',
             ),
@@ -271,7 +276,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
     );
   }
 
-  Widget _buildPracticeItem(String title, String content) {
+  Widget _buildPracticeItem(BuildContext context, String title, String content) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -279,7 +284,7 @@ class UnifiedSlideButtonExample extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: CupertinoColors.activeBlue.resolveFrom(context),
