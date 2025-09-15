@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/cupertino_semantic_colors.dart';
+import '../../../../core/utils/logger.dart';
+import '../../../../core/services/file_operation_service.dart';
 
 /// iOS风格的文件选择组件
 ///
@@ -476,13 +478,17 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
     try {
       HapticFeedback.selectionClick();
 
-      final result = await FilePicker.platform.pickFiles(
+      // 确保在主线程中调用文件选择器
+      if (!mounted) return;
+      
+      final result = await FileOperationService.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
         allowMultiple: true,
+        context: context,
       );
 
-      if (result != null) {
+      if (result != null && mounted) {
         final files = result.paths
             .where((path) => path != null)
             .map((path) => File(path!))
@@ -493,7 +499,11 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
         }
       }
     } catch (e) {
-      // Ignore file operation failure
+      AppLogger.warning('文件选择操作失败', tag: 'FilePicker', error: e);
+      
+      if (mounted) {
+        await _showFilePickerErrorDialog();
+      }
     }
   }
 
@@ -501,18 +511,26 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
     try {
       HapticFeedback.selectionClick();
 
-      final result = await FilePicker.platform.pickFiles(
+      // 确保在主线程中调用文件选择器
+      if (!mounted) return;
+      
+      final result = await FileOperationService.pickFiles(
         type: FileType.image,
         allowMultiple: false,
+        context: context,
       );
 
-      if (result != null && result.files.single.path != null) {
+      if (result != null && result.files.single.path != null && mounted) {
         final file = File(result.files.single.path!);
         final updatedFiles = [...widget.selectedFiles, file];
         widget.onFilesSelected(updatedFiles);
       }
     } catch (e) {
-      // Ignore file operation failure
+      AppLogger.warning('拍照选择操作失败', tag: 'FilePicker', error: e);
+      
+      if (mounted) {
+        await _showFilePickerErrorDialog();
+      }
     }
   }
 
@@ -534,5 +552,29 @@ class _IOSFilePickerWidgetState extends State<IOSFilePickerWidget>
   bool _isImageFile(String fileName) {
     final ext = fileName.toLowerCase().split('.').last;
     return ['jpg', 'jpeg', 'png', 'webp'].contains(ext);
+  }
+
+  /// 显示文件选择器错误对话框
+  Future<void> _showFilePickerErrorDialog() async {
+    return showCupertinoDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('文件选择失败'),
+          content: const Text(
+            '无法打开文件选择器。请检查应用权限设置，或稍后再试。',
+          ),
+          actions: <CupertinoDialogAction>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

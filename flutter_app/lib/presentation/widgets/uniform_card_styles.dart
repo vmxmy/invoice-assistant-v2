@@ -10,13 +10,14 @@ class UniformCardStyles {
   // ==================== 卡片装饰 ====================
 
   /// 标准卡片装饰
-  static Decoration cardDecoration(BuildContext context, {bool isSelected = false}) {
+  static Decoration cardDecoration(BuildContext context,
+      {bool isSelected = false}) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(cardRadius),
-      border: isSelected 
+      border: isSelected
           ? Border.all(
               color: colorScheme.primary,
               width: 2,
@@ -50,7 +51,7 @@ class UniformCardStyles {
   static TextStyle cardTitle(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return textTheme.titleMedium!.copyWith(
       color: colorScheme.onSurface,
       fontWeight: FontWeight.w600,
@@ -61,7 +62,7 @@ class UniformCardStyles {
   static TextStyle cardAmount(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return textTheme.titleMedium!.copyWith(
       color: colorScheme.primary,
       fontWeight: FontWeight.bold,
@@ -72,7 +73,7 @@ class UniformCardStyles {
   static TextStyle cardSecondaryText(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return textTheme.bodySmall!.copyWith(
       color: colorScheme.onSurfaceVariant,
     );
@@ -82,7 +83,7 @@ class UniformCardStyles {
   static TextStyle cardLabel(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return textTheme.bodySmall!.copyWith(
       color: colorScheme.onSurfaceVariant,
     );
@@ -91,7 +92,8 @@ class UniformCardStyles {
   // ==================== 图标样式 ====================
 
   /// 主要图标容器装饰
-  static Decoration iconContainerDecoration(BuildContext context, Color iconColor) {
+  static Decoration iconContainerDecoration(
+      BuildContext context, Color iconColor) {
     return BoxDecoration(
       color: iconColor.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(8),
@@ -110,7 +112,8 @@ class UniformCardStyles {
   // ==================== 状态徽章样式 ====================
 
   /// 状态徽章装饰
-  static Decoration statusBadgeDecoration(BuildContext context, Color statusColor) {
+  static Decoration statusBadgeDecoration(
+      BuildContext context, Color statusColor) {
     return BoxDecoration(
       color: statusColor.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
@@ -126,7 +129,7 @@ class UniformCardStyles {
   /// 状态徽章文字样式
   static TextStyle statusBadgeText(BuildContext context, Color statusColor) {
     final textTheme = Theme.of(context).textTheme;
-    
+
     return textTheme.labelSmall!.copyWith(
       color: statusColor,
       fontWeight: FontWeight.w500,
@@ -136,7 +139,8 @@ class UniformCardStyles {
   // ==================== 操作按钮样式 ====================
 
   /// 圆形操作按钮装饰
-  static Decoration actionButtonDecoration(BuildContext context, Color buttonColor) {
+  static Decoration actionButtonDecoration(
+      BuildContext context, Color buttonColor) {
     return BoxDecoration(
       color: buttonColor.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(16),
@@ -207,7 +211,7 @@ class UniformCardStyles {
           ),
         ),
         const SizedBox(width: spacing12),
-        
+
         // 主要信息
         Expanded(
           child: Column(
@@ -299,7 +303,7 @@ class UniformCardStyles {
     return Row(
       children: [
         const Spacer(),
-        
+
         // 操作图标组
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -366,7 +370,7 @@ class UniformCardStyles {
     Color? iconColor,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -389,7 +393,7 @@ class UniformCardStyles {
   /// 在列表元素间插入分隔符
   static List<Widget> _intersperse(List<Widget> list, Widget separator) {
     if (list.isEmpty) return list;
-    
+
     final result = <Widget>[];
     for (int i = 0; i < list.length; i++) {
       if (i > 0) result.add(separator);
@@ -401,7 +405,7 @@ class UniformCardStyles {
 
 /// 卡片类型枚举
 enum CardType {
-  invoice,    // 发票卡片
+  invoice, // 发票卡片
   reimbursementSet, // 报销集卡片
 }
 
@@ -422,16 +426,17 @@ class CardThemeConfig {
   /// 获取卡片类型对应的主题配置
   static CardThemeConfig getConfig(BuildContext context, CardType type) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     switch (type) {
       case CardType.invoice:
         return CardThemeConfig(
           icon: CupertinoIcons.doc_text,
           color: colorScheme.primary,
-          getTitle: (entity) => entity.sellerName ?? entity.invoiceNumber ?? '未知发票',
+          getTitle: (entity) =>
+              entity.sellerName ?? entity.invoiceNumber ?? '未知发票',
           getSubtitle: (entity) => entity.formattedDate ?? '',
         );
-      
+
       case CardType.reimbursementSet:
         return CardThemeConfig(
           icon: CupertinoIcons.folder_fill,

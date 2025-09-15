@@ -219,8 +219,8 @@ class _ConfirmBottomSheet extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -229,8 +229,8 @@ class _ConfirmBottomSheet extends StatelessWidget {
                 Text(
                   content,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -248,9 +248,10 @@ class _ConfirmBottomSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         child: Text(
                           confirmText,
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onPrimary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: colorScheme.onPrimary,
+                                  ),
                         ),
                       ),
                     ),
@@ -266,9 +267,10 @@ class _ConfirmBottomSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         child: Text(
                           cancelText,
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                       ),
                     ),
@@ -335,19 +337,19 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                   textAlign: TextAlign.center,
                 ),
-                
+
                 // 消息
                 if (message != null) ...[
                   const SizedBox(height: 8),
                   Text(
                     message!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -380,9 +382,12 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                           ],
                           Text(
                             action.title,
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: action.color ?? colorScheme.primary,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: action.color ?? colorScheme.primary,
+                                ),
                           ),
                         ],
                       ),
@@ -402,8 +407,8 @@ class _ActionBottomSheet<T> extends StatelessWidget {
                     child: Text(
                       '取消',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ),
                 ),
@@ -473,8 +478,8 @@ class _CustomBottomSheet extends StatelessWidget {
                       child: Text(
                         title!,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   if (showCloseButton)
@@ -556,8 +561,8 @@ class _LoadingBottomSheet extends StatelessWidget {
                   Text(
                     message,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -622,10 +627,13 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final backgroundColor = widget.isSuccess ? colorScheme.secondary : colorScheme.error;
-    final iconColor = widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
-    final textColor = widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
-    
+    final backgroundColor =
+        widget.isSuccess ? colorScheme.secondary : colorScheme.error;
+    final iconColor =
+        widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
+    final textColor =
+        widget.isSuccess ? colorScheme.onSecondary : colorScheme.onError;
+
     return Container(
       margin: const EdgeInsets.all(16),
       child: Material(
@@ -647,7 +655,7 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              
+
               // 图标
               if (widget.icon != null)
                 Container(
@@ -664,25 +672,25 @@ class _ResultBottomSheetState extends State<_ResultBottomSheet> {
                     color: iconColor,
                   ),
                 ),
-              
+
               // 标题
               Text(
                 widget.title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // 消息
               Text(
                 widget.message,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: textColor.withValues(alpha: 0.9),
-                ),
+                      color: textColor.withValues(alpha: 0.9),
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -768,9 +776,9 @@ class _CustomSheetWithActions extends StatelessWidget {
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
             ),
           ),
         ],

@@ -111,19 +111,19 @@ class _ReimbursementSetDetailPageState
           }
 
           return CustomScrollView(
-              slivers: [
-                // 极简AppBar
-                _buildSimpleAppBar(),
+            slivers: [
+              // 极简AppBar
+              _buildSimpleAppBar(),
 
-                // 简化的报销集信息
-                SliverToBoxAdapter(
-                  child: _buildSimplifiedHeader(),
-                ),
+              // 简化的报销集信息
+              SliverToBoxAdapter(
+                child: _buildSimplifiedHeader(),
+              ),
 
-                // 发票列表
-                _buildInvoiceList(),
-              ],
-            );
+              // 发票列表
+              _buildInvoiceList(),
+            ],
+          );
         },
       ),
     );
@@ -138,21 +138,23 @@ class _ReimbursementSetDetailPageState
         _reimbursementSet?.setName ?? '报销集详情',
         style: DetailPageStyles.pageTitle(context),
       ),
-      trailing: _reimbursementSet != null ? CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: _showActionSheet,
-        child: const Icon(
-          CupertinoIcons.ellipsis,
-          color: CupertinoColors.activeBlue,
-        ),
-      ) : null,
+      trailing: _reimbursementSet != null
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _showActionSheet,
+              child: const Icon(
+                CupertinoIcons.ellipsis,
+                color: CupertinoColors.activeBlue,
+              ),
+            )
+          : null,
     );
   }
 
   /// 构建核心信息卡片 - 遵循发票详情页设计标准
   Widget _buildSimplifiedHeader() {
     final set = _reimbursementSet!;
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -172,7 +174,9 @@ class _ReimbursementSetDetailPageState
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
+            color: CupertinoColors.systemGrey
+                .resolveFrom(context)
+                .withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -429,7 +433,8 @@ class _ReimbursementSetDetailPageState
               },
               child: const Row(
                 children: [
-                  Icon(CupertinoIcons.paperplane, color: CupertinoColors.activeOrange),
+                  Icon(CupertinoIcons.paperplane,
+                      color: CupertinoColors.activeOrange),
                   SizedBox(width: 12),
                   Text('提交'),
                 ],
@@ -443,7 +448,8 @@ class _ReimbursementSetDetailPageState
               },
               child: const Row(
                 children: [
-                  Icon(CupertinoIcons.checkmark_circle, color: CupertinoColors.activeGreen),
+                  Icon(CupertinoIcons.checkmark_circle,
+                      color: CupertinoColors.activeGreen),
                   SizedBox(width: 12),
                   Text('已报销'),
                 ],
@@ -457,7 +463,8 @@ class _ReimbursementSetDetailPageState
             isDestructiveAction: true,
             child: const Row(
               children: [
-                Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed),
+                Icon(CupertinoIcons.delete,
+                    color: CupertinoColors.destructiveRed),
                 SizedBox(width: 12),
                 Text('删除'),
               ],
@@ -522,7 +529,7 @@ class _ReimbursementSetDetailPageState
         context.read<ReimbursementSetBloc>().add(
               RemoveInvoicesFromReimbursementSet([invoiceId]),
             );
-        
+
         // 显示成功反馈
         if (mounted) {
           AppFeedback.success(
@@ -530,7 +537,7 @@ class _ReimbursementSetDetailPageState
             '发票已从报销集中移出',
           );
         }
-        
+
         // 刷新发票列表
         setState(() {
           _invoices.removeWhere((invoice) => invoice.id == invoiceId);
@@ -550,7 +557,7 @@ class _ReimbursementSetDetailPageState
           context,
           '发票已删除',
         );
-        
+
         // 刷新发票列表
         setState(() {
           _invoices.removeWhere((invoice) => invoice.id == invoiceId);
@@ -560,7 +567,8 @@ class _ReimbursementSetDetailPageState
   }
 
   /// 构建报销单详情页面的右滑操作
-  List<SlideAction> _buildReimbursementSetDetailEndActions(InvoiceEntity invoice) {
+  List<SlideAction> _buildReimbursementSetDetailEndActions(
+      InvoiceEntity invoice) {
     List<SlideAction> actions = [];
 
     // 检查报销集状态，决定显示什么操作

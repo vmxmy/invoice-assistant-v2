@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // ⚠️ 需要保留：使用 Theme.of(context), ColorScheme
 
 /// 统一的应用卡片组件
-/// 
+///
 /// 提供一致的卡片样式和交互行为
-/// 
+///
 /// 示例用法:
 /// ```dart
 /// AppCard(
@@ -15,37 +15,37 @@ import 'package:flutter/material.dart';
 class AppCard extends StatelessWidget {
   /// 卡片内容
   final Widget child;
-  
+
   /// 是否处于选中状态
   final bool isSelected;
-  
+
   /// 点击事件回调
   final VoidCallback? onTap;
-  
+
   /// 长按事件回调
   final VoidCallback? onLongPress;
-  
+
   /// 自定义内边距，为null时使用默认值
   final EdgeInsets? padding;
-  
+
   /// 自定义外边距，为null时使用默认值
   final EdgeInsets? margin;
-  
+
   /// 自定义阴影高度，为null时使用默认值
   final double? elevation;
-  
+
   /// 自定义背景颜色，为null时使用主题颜色
   final Color? backgroundColor;
-  
+
   /// 自定义边框，为null时根据选中状态自动设置
   final Border? border;
-  
+
   /// 语义化标签，用于无障碍支持
   final String? semanticLabel;
-  
+
   /// 语义化提示，用于无障碍支持
   final String? semanticHint;
-  
+
   /// 是否启用涟漪效果
   final bool enableRipple;
 
@@ -69,13 +69,14 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasInteraction = onTap != null || onLongPress != null;
-    
+
     return Semantics(
       label: semanticLabel,
       hint: semanticHint,
       button: hasInteraction,
       child: Container(
-        margin: margin ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        margin: margin ??
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor ?? _getBackgroundColor(colorScheme),
@@ -103,7 +104,7 @@ class AppCard extends StatelessWidget {
   /// 构建静态卡片
   Widget _buildStaticCard() {
     final hasInteraction = onTap != null || onLongPress != null;
-    
+
     if (hasInteraction && !enableRipple) {
       // 有交互但禁用涟漪效果时使用GestureDetector
       return GestureDetector(
@@ -112,7 +113,7 @@ class AppCard extends StatelessWidget {
         child: _buildCardContent(),
       );
     }
-    
+
     return _buildCardContent();
   }
 
@@ -157,19 +158,19 @@ class AppCard extends StatelessWidget {
         width: 1.0,
       );
     }
-    
+
     // 非选中状态下的轻微边框，增强卡片边界
     return Border.all(
       color: colorScheme.outline.withValues(alpha: 0.12),
       width: 1.0,
     );
   }
-  
+
   /// 构建阴影效果
   List<BoxShadow> _buildBoxShadow(ColorScheme colorScheme) {
     final elevationValue = elevation ?? _getElevation();
     if (elevationValue <= 0) return [];
-    
+
     return [
       BoxShadow(
         color: _getShadowColor(colorScheme),
@@ -182,7 +183,7 @@ class AppCard extends StatelessWidget {
 }
 
 /// 紧凑版本的应用卡片
-/// 
+///
 /// 使用更小的内边距，适用于列表项等密集排列的场景
 class AppCardCompact extends AppCard {
   const AppCardCompact({
@@ -199,12 +200,12 @@ class AppCardCompact extends AppCard {
     super.semanticHint,
     super.enableRipple,
   }) : super(
-    padding: const EdgeInsets.all(12.0),
-  );
+          padding: const EdgeInsets.all(12.0),
+        );
 }
 
 /// 宽松版本的应用卡片
-/// 
+///
 /// 使用更大的内边距，适用于重要内容展示
 class AppCardLoose extends AppCard {
   const AppCardLoose({
@@ -221,12 +222,12 @@ class AppCardLoose extends AppCard {
     super.semanticHint,
     super.enableRipple,
   }) : super(
-    padding: const EdgeInsets.all(20.0),
-  );
+          padding: const EdgeInsets.all(20.0),
+        );
 }
 
 /// 简单的分割线卡片
-/// 
+///
 /// 在卡片底部添加分割线，适用于列表场景
 class AppCardWithDivider extends StatelessWidget {
   final Widget child;
@@ -255,7 +256,7 @@ class AppCardWithDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Column(
       children: [
         AppCard(
@@ -273,7 +274,11 @@ class AppCardWithDivider extends StatelessWidget {
           Container(
             height: 1.0,
             margin: EdgeInsets.symmetric(
-              horizontal: (margin ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0)).horizontal / 2,
+              horizontal: (margin ??
+                          const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0))
+                      .horizontal /
+                  2,
             ),
             color: colorScheme.outline.withValues(alpha: 0.12),
           ),

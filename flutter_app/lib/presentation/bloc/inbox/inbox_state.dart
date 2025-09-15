@@ -37,7 +37,8 @@ class InboxLoading extends InboxState {
   List<Object?> get props => [isFirstLoad, isRefreshing, isLoadingMore];
 
   @override
-  String toString() => 'InboxLoading(isFirstLoad: $isFirstLoad, isRefreshing: $isRefreshing, isLoadingMore: $isLoadingMore)';
+  String toString() =>
+      'InboxLoading(isFirstLoad: $isFirstLoad, isRefreshing: $isRefreshing, isLoadingMore: $isLoadingMore)';
 }
 
 /// 已加载状态
@@ -70,18 +71,18 @@ class InboxLoaded extends InboxState {
 
   @override
   List<Object?> get props => [
-    emails,
-    stats,
-    totalCount,
-    currentPage,
-    pageSize,
-    hasMore,
-    activeFilters,
-    selectedEmailId,
-    isRefreshing,
-    isLoadingMore,
-    lastUpdated,
-  ];
+        emails,
+        stats,
+        totalCount,
+        currentPage,
+        pageSize,
+        hasMore,
+        activeFilters,
+        selectedEmailId,
+        isRefreshing,
+        isLoadingMore,
+        lastUpdated,
+      ];
 
   /// 计算总页数
   int get totalPages => (totalCount / pageSize).ceil();
@@ -123,7 +124,9 @@ class InboxLoaded extends InboxState {
       pageSize: pageSize ?? this.pageSize,
       hasMore: hasMore ?? this.hasMore,
       activeFilters: activeFilters ?? this.activeFilters,
-      selectedEmailId: clearSelectedEmailId == true ? null : (selectedEmailId ?? this.selectedEmailId),
+      selectedEmailId: clearSelectedEmailId == true
+          ? null
+          : (selectedEmailId ?? this.selectedEmailId),
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       lastUpdated: lastUpdated ?? this.lastUpdated,
@@ -131,7 +134,8 @@ class InboxLoaded extends InboxState {
   }
 
   @override
-  String toString() => 'InboxLoaded(emails: ${emails.length}, totalCount: $totalCount, currentPage: $currentPage, hasMore: $hasMore)';
+  String toString() =>
+      'InboxLoaded(emails: ${emails.length}, totalCount: $totalCount, currentPage: $currentPage, hasMore: $hasMore)';
 }
 
 /// 错误状态
@@ -170,11 +174,11 @@ class InboxEmpty extends InboxState {
   /// 获取空状态的显示消息
   String get displayMessage {
     if (emptyMessage != null) return emptyMessage!;
-    
+
     if (activeFilters.hasFilters) {
       return '没有找到符合条件的邮件\n请尝试调整过滤条件';
     }
-    
+
     return '暂无邮件记录\n邮件处理后会自动显示在这里';
   }
 
@@ -182,7 +186,8 @@ class InboxEmpty extends InboxState {
   List<Object?> get props => [stats, activeFilters, emptyMessage];
 
   @override
-  String toString() => 'InboxEmpty(activeFilters: $activeFilters, message: $emptyMessage)';
+  String toString() =>
+      'InboxEmpty(activeFilters: $activeFilters, message: $emptyMessage)';
 }
 
 /// 操作中状态（标记已读、删除等）
@@ -200,10 +205,12 @@ class InboxOperating extends InboxState {
   });
 
   @override
-  List<Object?> get props => [baseState, operation, targetEmailId, targetEmailIds];
+  List<Object?> get props =>
+      [baseState, operation, targetEmailId, targetEmailIds];
 
   @override
-  String toString() => 'InboxOperating(operation: $operation, targetEmailId: $targetEmailId)';
+  String toString() =>
+      'InboxOperating(operation: $operation, targetEmailId: $targetEmailId)';
 }
 
 /// 操作成功状态
@@ -222,5 +229,6 @@ class InboxOperationSuccess extends InboxState {
   List<Object?> get props => [baseState, operation, successMessage];
 
   @override
-  String toString() => 'InboxOperationSuccess(operation: $operation, message: $successMessage)';
+  String toString() =>
+      'InboxOperationSuccess(operation: $operation, message: $successMessage)';
 }

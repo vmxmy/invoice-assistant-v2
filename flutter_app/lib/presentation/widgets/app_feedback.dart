@@ -207,7 +207,6 @@ class AppFeedback {
     );
   }
 
-
   /// 获取默认持续时间
   static Duration _getDefaultDuration(FeedbackType type) {
     switch (type) {
@@ -367,7 +366,8 @@ class _CupertinoFeedbackBanner extends StatefulWidget {
   });
 
   @override
-  State<_CupertinoFeedbackBanner> createState() => _CupertinoFeedbackBannerState();
+  State<_CupertinoFeedbackBanner> createState() =>
+      _CupertinoFeedbackBannerState();
 }
 
 class _CupertinoFeedbackBannerState extends State<_CupertinoFeedbackBanner>
@@ -383,7 +383,7 @@ class _CupertinoFeedbackBannerState extends State<_CupertinoFeedbackBanner>
       duration: AppConstants.normalAnimationDuration,
       vsync: this,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
@@ -391,7 +391,7 @@ class _CupertinoFeedbackBannerState extends State<_CupertinoFeedbackBanner>
       parent: _controller,
       curve: Curves.easeOut,
     ));
-    
+
     _opacityAnimation = Tween<double>(
       begin: 0,
       end: 1,
@@ -548,7 +548,7 @@ class _CupertinoFeedbackSheet extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
+
                 // 消息
                 if (config.message != null) ...[
                   const SizedBox(height: 8),
@@ -585,7 +585,8 @@ class _CupertinoFeedbackSheet extends StatelessWidget {
                     ),
 
                     // 操作按钮（如果有）
-                    if (config.action != null && config.actionLabel != null) ...[
+                    if (config.action != null &&
+                        config.actionLabel != null) ...[
                       const SizedBox(width: 12),
                       Expanded(
                         child: CupertinoButton(

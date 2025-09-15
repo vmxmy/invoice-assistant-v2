@@ -179,14 +179,14 @@ class PermissionUtils {
 
   /// 检查是否应该显示管理员功能
   static bool shouldShowAdminFeatures(BuildContext context) {
-    return PermissionChecker.isAdmin(context) || 
-           PermissionChecker.isSuperAdmin(context);
+    return PermissionChecker.isAdmin(context) ||
+        PermissionChecker.isSuperAdmin(context);
   }
 
   /// 检查是否应该显示版主功能
   static bool shouldShowModeratorFeatures(BuildContext context) {
-    return PermissionChecker.isModerator(context) || 
-           shouldShowAdminFeatures(context);
+    return PermissionChecker.isModerator(context) ||
+        shouldShowAdminFeatures(context);
   }
 
   /// 构建无权限提示组件
@@ -254,22 +254,22 @@ class PermissionUtils {
     String? message,
     VoidCallback? onRetry,
   }) async {
-    return showDialog<void>(
+    return showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text(title ?? '权限不足'),
           content: Text(message ?? '您没有权限执行此操作'),
           actions: <Widget>[
             if (onRetry != null)
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () {
                   Navigator.of(context).pop();
                   onRetry();
                 },
                 child: const Text('重试'),
               ),
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('确定'),
             ),

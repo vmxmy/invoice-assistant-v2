@@ -28,9 +28,10 @@ class InboxPage extends StatefulWidget {
   State<InboxPage> createState() => _InboxPageState();
 }
 
-class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixin {
+class _InboxPageState extends State<InboxPage>
+    with AutomaticKeepAliveClientMixin {
   late ScrollController _scrollController;
-  
+
   @override
   bool get wantKeepAlive => true;
 
@@ -39,7 +40,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
-    
+
     // 初始化时加载数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
@@ -65,11 +66,13 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
 
   /// 监听滚动事件，实现无限滚动
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       final currentUser = SupabaseClientManager.currentUser;
       if (currentUser != null) {
-        context.read<InboxBloc>().add(LoadMoreEmailsRequested(userId: currentUser.id));
+        context
+            .read<InboxBloc>()
+            .add(LoadMoreEmailsRequested(userId: currentUser.id));
       }
     }
   }
@@ -95,10 +98,10 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
                     children: [
                       // 统计信息区域
                       _buildStatsWidget(state, colorScheme),
-                      
+
                       // 过滤器区域
                       _buildFiltersWidget(state, colorScheme),
-                      
+
                       // 分隔线
                       Container(
                         height: 1,
@@ -106,7 +109,8 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: colorScheme.outline.withValues(alpha: 0.12),
+                              color:
+                                  colorScheme.outline.withValues(alpha: 0.12),
                               width: 0.5,
                             ),
                           ),
@@ -115,7 +119,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
                     ],
                   ),
                 ),
-                
+
                 // 可滚动的邮件列表区域
                 Expanded(
                   child: _buildScrollableEmailList(state, colorScheme),
@@ -194,7 +198,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
   /// 构建过滤器Widget（非Sliver版本）
   Widget _buildFiltersWidget(InboxState state, ColorScheme colorScheme) {
     EmailFilters filters = const EmailFilters();
-    
+
     if (state is InboxLoaded) {
       filters = state.activeFilters;
     } else if (state is InboxEmpty) {
@@ -206,12 +210,14 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
       child: EmailFiltersWidget(
         filters: filters,
         onFiltersChanged: (newFilters) {
-          context.read<InboxBloc>().add(EmailFiltersChanged(filters: newFilters));
+          context
+              .read<InboxBloc>()
+              .add(EmailFiltersChanged(filters: newFilters));
         },
         onClearFilters: () {
           context.read<InboxBloc>().add(
-            EmailFiltersChanged(filters: const EmailFilters()),
-          );
+                EmailFiltersChanged(filters: const EmailFilters()),
+              );
         },
       ),
     );
@@ -257,7 +263,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
           if (index == state.emails.length) {
             return _buildLoadMoreIndicatorNonSliver(colorScheme);
           }
-          
+
           // 邮件项
           final email = state.emails[index];
           return EmailListItem(
@@ -319,16 +325,14 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
               borderRadius: BorderRadius.circular(40),
             ),
             child: Icon(
-              state.activeFilters.hasFilters 
-                ? CupertinoIcons.search 
-                : CupertinoIcons.mail,
+              state.activeFilters.hasFilters
+                  ? CupertinoIcons.search
+                  : CupertinoIcons.mail,
               size: 40,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
-          
           const SizedBox(height: 20),
-          
           Text(
             state.displayMessage,
             textAlign: TextAlign.center,
@@ -338,14 +342,13 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
               height: 1.4,
             ),
           ),
-          
           if (state.activeFilters.hasFilters) ...[
             const SizedBox(height: 20),
             CupertinoButton(
               onPressed: () {
                 context.read<InboxBloc>().add(
-                  EmailFiltersChanged(filters: const EmailFilters()),
-                );
+                      EmailFiltersChanged(filters: const EmailFilters()),
+                    );
               },
               color: colorScheme.primary,
               borderRadius: BorderRadius.circular(25),
@@ -369,7 +372,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
     // 处理操作成功状态
     if (state is InboxOperationSuccess) {
       _showSuccessMessage(state.successMessage);
-      
+
       // 自动返回到加载状态
       final inboxBloc = context.read<InboxBloc>();
       Future.delayed(const Duration(milliseconds: 1500), () {
@@ -403,7 +406,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
         emailId: emailId,
         userId: currentUser.id,
       );
-      
+
       if (result.isSuccess && mounted) {
         // 显示邮件详情
         await EmailDetailSheet.show(
@@ -427,9 +430,9 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
     final currentUser = SupabaseClientManager.currentUser;
     if (currentUser != null) {
       context.read<InboxBloc>().add(MarkEmailAsReadRequested(
-        emailId: emailId,
-        userId: currentUser.id,
-      ));
+            emailId: emailId,
+            userId: currentUser.id,
+          ));
     }
   }
 
@@ -438,9 +441,9 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
     final currentUser = SupabaseClientManager.currentUser;
     if (currentUser != null) {
       context.read<InboxBloc>().add(DeleteEmailRequested(
-        emailId: emailId,
-        userId: currentUser.id,
-      ));
+            emailId: emailId,
+            userId: currentUser.id,
+          ));
     }
   }
 
@@ -463,7 +466,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
   /// 显示成功消息
   void _showSuccessMessage(String message) {
     if (!mounted) return;
-    
+
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -493,7 +496,7 @@ class _InboxPageState extends State<InboxPage> with AutomaticKeepAliveClientMixi
   /// 显示错误消息
   void _showErrorMessage(String message) {
     if (!mounted) return;
-    
+
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(

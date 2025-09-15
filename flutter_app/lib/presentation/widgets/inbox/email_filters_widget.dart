@@ -37,7 +37,8 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController(text: widget.filters.search ?? '');
+    _searchController =
+        TextEditingController(text: widget.filters.search ?? '');
     _lastSearchText = widget.filters.search ?? ''; // 初始化上次搜索文本
     // 只在清除按钮需要时更新UI，避免输入时频繁刷新
     _searchController.addListener(_onSearchControllerChanged);
@@ -151,7 +152,8 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
               decoration: const BoxDecoration(),
               padding: const EdgeInsets.symmetric(vertical: 10),
               textInputAction: TextInputAction.search,
-              onChanged: (value) => _onSearchChanged(value, _searchController.value),
+              onChanged: (value) =>
+                  _onSearchChanged(value, _searchController.value),
               onSubmitted: _onSearchSubmitted,
               onEditingComplete: _onEditingComplete,
             ),
@@ -270,22 +272,28 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
         children: [
           const Divider(height: 1),
           const SizedBox(height: 16),
-          
+
           // 邮件分类过滤
           _buildFilterSection(
             '邮件分类',
             [
               _buildFilterChip('全部', null, widget.filters.category, (value) {
-                widget.onFiltersChanged(widget.filters.copyWith(clearCategory: true));
+                widget.onFiltersChanged(
+                    widget.filters.copyWith(clearCategory: true));
               }, colorScheme),
-              _buildFilterChip('验证邮件', 'verification', widget.filters.category, (value) {
-                widget.onFiltersChanged(widget.filters.copyWith(category: value));
+              _buildFilterChip('验证邮件', 'verification', widget.filters.category,
+                  (value) {
+                widget
+                    .onFiltersChanged(widget.filters.copyWith(category: value));
               }, colorScheme),
-              _buildFilterChip('发票邮件', 'invoice', widget.filters.category, (value) {
-                widget.onFiltersChanged(widget.filters.copyWith(category: value));
+              _buildFilterChip('发票邮件', 'invoice', widget.filters.category,
+                  (value) {
+                widget
+                    .onFiltersChanged(widget.filters.copyWith(category: value));
               }, colorScheme),
               _buildFilterChip('其他', 'other', widget.filters.category, (value) {
-                widget.onFiltersChanged(widget.filters.copyWith(category: value));
+                widget
+                    .onFiltersChanged(widget.filters.copyWith(category: value));
               }, colorScheme),
             ],
             colorScheme,
@@ -298,18 +306,21 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
             '处理状态',
             [
               _buildFilterChip('全部', null, widget.filters.status, (value) {
-                widget.onFiltersChanged(widget.filters.copyWith(clearStatus: true));
+                widget.onFiltersChanged(
+                    widget.filters.copyWith(clearStatus: true));
               }, colorScheme),
               _buildFilterChip('成功', 'success', widget.filters.status, (value) {
                 widget.onFiltersChanged(widget.filters.copyWith(status: value));
               }, colorScheme),
-              _buildFilterChip('部分成功', 'partial_success', widget.filters.status, (value) {
+              _buildFilterChip('部分成功', 'partial_success', widget.filters.status,
+                  (value) {
                 widget.onFiltersChanged(widget.filters.copyWith(status: value));
               }, colorScheme),
               _buildFilterChip('失败', 'failed', widget.filters.status, (value) {
                 widget.onFiltersChanged(widget.filters.copyWith(status: value));
               }, colorScheme),
-              _buildFilterChip('未处理', 'not_processed', widget.filters.status, (value) {
+              _buildFilterChip('未处理', 'not_processed', widget.filters.status,
+                  (value) {
                 widget.onFiltersChanged(widget.filters.copyWith(status: value));
               }, colorScheme),
             ],
@@ -416,7 +427,8 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
                 '开始日期',
                 widget.filters.dateFrom,
                 (date) {
-                  widget.onFiltersChanged(widget.filters.copyWith(dateFrom: date));
+                  widget.onFiltersChanged(
+                      widget.filters.copyWith(dateFrom: date));
                 },
                 colorScheme,
               ),
@@ -427,7 +439,8 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
                 '结束日期',
                 widget.filters.dateTo,
                 (date) {
-                  widget.onFiltersChanged(widget.filters.copyWith(dateTo: date));
+                  widget
+                      .onFiltersChanged(widget.filters.copyWith(dateTo: date));
                 },
                 colorScheme,
               ),
@@ -517,14 +530,14 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
   void _onSearchChanged(String value, TextEditingValue textValue) {
     final wasComposing = _isComposing;
     _isComposing = textValue.composing.isValid;
-    
+
     // 智能空内容检测：如果内容为空且上次搜索也为空，跳过搜索
     if (_shouldSkipEmptySearch(value)) {
       _debounceTimer?.cancel();
       _lastSearchText = value;
       return;
     }
-    
+
     // 检测中文输入完成：从编辑状态变为非编辑状态，且文本有变化
     if (wasComposing && !_isComposing && value != _lastSearchText) {
       // 中文输入刚完成，立即搜索
@@ -533,18 +546,19 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
       _lastSearchText = value;
       return;
     }
-    
+
     // 如果正在使用输入法编辑（如中文拼音输入中），暂停搜索
     if (_isComposing) {
       // 正在输入拼音，取消之前的定时器但不设置新的
       _debounceTimer?.cancel();
       return;
     }
-    
+
     // 非中文输入状态或输入法未激活，使用正常防抖
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 600), () {
-      if (!_isComposing) { // 双重检查确保不在输入状态
+      if (!_isComposing) {
+        // 双重检查确保不在输入状态
         _updateSearchWithValidation(value);
         _lastSearchText = value;
       }
@@ -588,24 +602,24 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
   bool _shouldSkipEmptySearch(String currentValue) {
     final trimmedValue = currentValue.trim();
     final trimmedLastSearch = _lastSearchText.trim();
-    
+
     // 如果当前值为空且上次搜索也为空，跳过搜索
     if (trimmedValue.isEmpty && trimmedLastSearch.isEmpty) {
       return true;
     }
-    
+
     // 如果当前值和上次搜索完全相同，跳过搜索
     if (trimmedValue == trimmedLastSearch) {
       return true;
     }
-    
+
     return false;
   }
 
   /// 带验证的搜索更新（智能跳过无意义的搜索）
   void _updateSearchWithValidation(String value) {
     final trimmedValue = value.trim();
-    
+
     // 如果是有意义的搜索（非空或从非空变为空），才执行搜索
     if (trimmedValue.isNotEmpty || _lastSearchText.trim().isNotEmpty) {
       _updateSearch(value);
@@ -614,6 +628,7 @@ class _EmailFiltersWidgetState extends State<EmailFiltersWidget>
 
   /// 更新搜索内容（实际的搜索逻辑）
   void _updateSearch(String value) {
-    widget.onFiltersChanged(widget.filters.copyWith(search: value.isEmpty ? null : value));
+    widget.onFiltersChanged(
+        widget.filters.copyWith(search: value.isEmpty ? null : value));
   }
 }

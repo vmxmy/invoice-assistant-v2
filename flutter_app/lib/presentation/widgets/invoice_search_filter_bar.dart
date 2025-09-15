@@ -119,13 +119,13 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               size: 16,
             ),
           ),
-          
+
           // 搜索输入框
           Expanded(
             child: CupertinoTextField(
               controller: _searchController,
               onChanged: (value) {
-                setState(() {});  // 触发重建以更新清除按钮显示
+                setState(() {}); // 触发重建以更新清除按钮显示
                 widget.onSearchChanged?.call(value);
               },
               onTap: () {
@@ -150,7 +150,7 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
               ),
             ),
           ),
-          
+
           // 清除按钮
           if (_searchController.text.isNotEmpty)
             CupertinoButton(
@@ -337,7 +337,9 @@ class _InvoiceSearchFilterBarState extends State<InvoiceSearchFilterBar> {
                         child: Text(
                           badge,
                           style: TextStyle(
-                            color: isDark ? CupertinoColors.white : CupertinoColors.black,
+                            color: isDark
+                                ? CupertinoColors.white
+                                : CupertinoColors.black,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -445,7 +447,8 @@ class FilterOptions {
   bool get isAllInvoices => showAll && !hasActiveFilters;
 
   /// 是否有任何筛选条件激活
-  bool get hasActiveFilters => showOverdue || showUrgent || showUnreimbursed || showUncollected;
+  bool get hasActiveFilters =>
+      showOverdue || showUrgent || showUnreimbursed || showUncollected;
 
   /// 复制并修改筛选选项
   FilterOptions copyWith({

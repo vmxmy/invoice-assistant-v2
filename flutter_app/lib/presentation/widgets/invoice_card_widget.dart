@@ -10,7 +10,6 @@ import '../../core/utils/invoice_file_utils.dart';
 import '../../core/utils/icon_mapping.dart';
 import '../../core/constants/accessibility_constants.dart';
 import '../../core/events/app_event_bus.dart';
-import '../../core/theme/cupertino_semantic_colors.dart';
 import '../../core/widgets/atoms/app_card.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_header.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_body.dart';
@@ -27,22 +26,22 @@ class InvoiceCardWidget extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
   // 移除状态修改回调 - 发票状态必须通过报销集来修改
-  // final ValueChanged<InvoiceStatus>? onStatusChanged; 
+  // final ValueChanged<InvoiceStatus>? onStatusChanged;
   final bool showConsumptionDateOnly;
   final bool isSelectionMode;
   final bool isSelected;
   final VoidCallback? onLongPress;
   final VoidCallback? onSelectionToggle;
-  
+
   /// 自定义左滑操作（从右往左滑动时显示的操作）
   final List<SlideAction>? customStartActions;
-  
-  /// 自定义右滑操作（从左往右滑动时显示的操作）  
+
+  /// 自定义右滑操作（从左往右滑动时显示的操作）
   final List<SlideAction>? customEndActions;
-  
+
   /// 是否启用滑动功能
   final bool enableSwipe;
-  
+
   /// 报销集跳转回调
   final ValueChanged<String>? onReimbursementSetTap;
 
@@ -94,7 +93,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     super.dispose();
   }
 
-
   /// 构建头部右侧内容（报销集徽章 + 状态徽章）
   Widget? _buildHeaderTrailing() {
     // 在选择模式下，不显示额外的trailing内容，让选择框更突出
@@ -115,8 +113,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
         invoice: widget.invoice,
         size: BadgeSize.small,
         showLabel: false, // 在卡片头部只显示图标，节省空间
-        onTap: widget.onReimbursementSetTap != null && widget.invoice.reimbursementSetId != null
-            ? () => widget.onReimbursementSetTap!(widget.invoice.reimbursementSetId!)
+        onTap: widget.onReimbursementSetTap != null &&
+                widget.invoice.reimbursementSetId != null
+            ? () => widget
+                .onReimbursementSetTap!(widget.invoice.reimbursementSetId!)
             : null,
       );
 
@@ -142,9 +142,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   Widget build(BuildContext context) {
     // 移除BlocListener - 报销集状态监听已统一到InvoiceManagementPage
     // 避免重复显示成功消息
-    
+
     return Semantics(
-      label: '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
+      label:
+          '发票: ${(widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票'}',
       hint: AccessibilityConstants.cardActionHint,
       child: InvoiceCardSlidable(
         slidableKey: _slidableController.key,
@@ -154,7 +155,8 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
         groupTag: 'invoice-cards', // 所有发票卡片使用相同的 groupTag
         child: AppCard(
           isSelected: widget.isSelected,
-          onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
+          onTap:
+              widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
           onLongPress: widget.onLongPress,
           margin: EdgeInsets.only(
             left: 16.0,
@@ -169,7 +171,11 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
               // 头部组件
               InvoiceCardHeader(
                 invoice: widget.invoice,
-                title: (widget.invoice.sellerName?.isNotEmpty ?? false) ? widget.invoice.sellerName! : widget.invoice.invoiceNumber.isNotEmpty ? widget.invoice.invoiceNumber : '未知发票',
+                title: (widget.invoice.sellerName?.isNotEmpty ?? false)
+                    ? widget.invoice.sellerName!
+                    : widget.invoice.invoiceNumber.isNotEmpty
+                        ? widget.invoice.invoiceNumber
+                        : '未知发票',
                 subtitle: widget.invoice.buyerName,
                 // 移除状态修改回调参数
                 // onStatusChanged: widget.onStatusChanged,
@@ -179,13 +185,13 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
                 onSelectionToggle: widget.onSelectionToggle,
                 trailing: _buildHeaderTrailing(),
               ),
-              
+
               // 主体组件
               InvoiceCardBody(
                 invoice: widget.invoice,
                 showConsumptionDateOnly: widget.showConsumptionDateOnly,
               ),
-              
+
               // 底部操作组件（不显示时间）
               InvoiceCardActions(
                 timeText: '',
@@ -205,7 +211,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     if (widget.customStartActions != null) {
       return widget.customStartActions!;
     }
-    
+
     // 左滑固定显示分享操作
     return [
       InvoiceSlideActions.share(
@@ -220,7 +226,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     if (widget.customEndActions != null) {
       return widget.customEndActions!;
     }
-    
+
     // 根据发票状态生成操作（加入/移出报销集 + 删除）
     return _createStatusBasedActions();
   }
@@ -243,26 +249,23 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
       case InvoiceStatus.unsubmitted:
         return InvoiceStatusSlidableActionsFactory.createForUnsubmittedInSet(
           onRemoveFromSet: () => _handleRemoveFromReimbursementSet(context),
-          onViewReimbursementSet: invoice.isInReimbursementSet 
-            ? () => _handleViewReimbursementSet(context)
-            : null,
+          onViewReimbursementSet: invoice.isInReimbursementSet
+              ? () => _handleViewReimbursementSet(context)
+              : null,
         );
-        
+
       case InvoiceStatus.submitted:
         return InvoiceStatusSlidableActionsFactory.createForSubmittedInSet();
-        
+
       case InvoiceStatus.reimbursed:
         return InvoiceStatusSlidableActionsFactory.createForReimbursedInvoice();
     }
   }
 
-
   /// 处理删除操作 - 直接触发回调，由父组件处理确认逻辑
   void _handleDelete() {
     widget.onDelete?.call();
   }
-
-
 
   /// 处理下载和分享功能
   Future<void> _handleDownloadAndShare(BuildContext context) async {
@@ -397,7 +400,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
   /// 简化的加载对话框关闭方法
   void _closeLoadingDialog() {
-
     if (!mounted) {
       return;
     }
@@ -405,8 +407,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     try {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
-      } else {
-      }
+      } else {}
     } catch (e) {
       // Ignore operation failure
     }
@@ -449,7 +450,6 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
 
       await _showShareSheet(downloadedFile);
     } catch (e) {
-
       // 确保关闭加载对话框
       if (dialogShown && mounted) {
         _closeLoadingDialog();
@@ -492,31 +492,32 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   /// 显示错误消息
   void _showErrorMessage(BuildContext context, String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
                 CupertinoIcons.exclamationmark_triangle,
-                color: CupertinoSemanticColors.systemBackground,
+                color: CupertinoColors.systemRed,
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Expanded(child: Text(message)),
+              const Text('错误'),
             ],
           ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          duration: const Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          content: Text(message),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('确定'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
       );
     }
   }
-
 
   /// 处理加入报销集操作
   void _handleAddToReimbursementSet(BuildContext context) {
@@ -526,7 +527,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
         title: Text(
           '加入报销集',
           style: TextStyle(
-            fontSize: 16, 
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -606,16 +607,17 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     final invoice = widget.invoice;
     final reimbursementSetName = '报销集';
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     final result = await UnifiedBottomSheet.showConfirmDialog(
       context: context,
       title: '移出报销集',
-      content: '确定要将 ${invoice.sellerName ?? invoice.invoiceNumber} 从 $reimbursementSetName 中移出吗？',
+      content:
+          '确定要将 ${invoice.sellerName ?? invoice.invoiceNumber} 从 $reimbursementSetName 中移出吗？',
       confirmText: '移出',
       confirmColor: colorScheme.error,
       icon: IconMapping.getCupertinoIcon('folder_badge_minus'),
     );
-    
+
     if (result == true && context.mounted) {
       _executeRemoveFromReimbursementSet(context);
     }
@@ -624,19 +626,26 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
   /// 处理查看关联报销集详情
   void _handleViewReimbursementSet(BuildContext context) {
     final invoice = widget.invoice;
-    
+
     // 检查发票是否有关联的报销集ID
     if (invoice.reimbursementSetId == null || !invoice.isInReimbursementSet) {
       // 如果没有关联的报销集，显示提示
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('该发票未关联任何报销集'),
-          duration: Duration(seconds: 2),
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('提示'),
+          content: const Text('该发票未关联任何报销集'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('确定'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
       );
       return;
     }
-    
+
     // 跳转到报销集详情页面
     context.push('/reimbursement-set/${invoice.reimbursementSetId}');
   }
@@ -647,7 +656,7 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     final now = DateTime.now();
     final monthName = '${now.year}年${now.month.toString().padLeft(2, '0')}月';
     final defaultName = '$monthName报销单_单张发票';
-    
+
     _executeCreateReimbursementSet(context, defaultName, null);
   }
 
@@ -660,11 +669,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
     );
   }
 
-
   /// 执行创建报销集并加入发票
   void _executeCreateReimbursementSet(
-    BuildContext context, 
-    String setName, 
+    BuildContext context,
+    String setName,
     String? description,
   ) {
     try {
@@ -677,9 +685,8 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           timestamp: DateTime.now(),
         ),
       );
-      
+
       // 不显示"正在..."消息，让用户通过状态变化看到结果
-      
     } catch (e) {
       _showErrorMessage(context, '创建报销集失败: ${e.toString()}');
     }
@@ -695,14 +702,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           timestamp: DateTime.now(),
         ),
       );
-      
+
       // 不显示"正在..."消息，让用户通过状态变化看到结果
-      
     } catch (e) {
       _showErrorMessage(context, '移出发票失败: ${e.toString()}');
     }
   }
-
-
-
 }

@@ -45,12 +45,14 @@ class UserPermissions {
 
   /// 检查是否有任意一个指定权限
   bool hasAnyPermission(List<String> checkPermissions) {
-    return checkPermissions.any((permission) => permissions.contains(permission));
+    return checkPermissions
+        .any((permission) => permissions.contains(permission));
   }
 
   /// 检查是否有所有指定权限
   bool hasAllPermissions(List<String> checkPermissions) {
-    return checkPermissions.every((permission) => permissions.contains(permission));
+    return checkPermissions
+        .every((permission) => permissions.contains(permission));
   }
 
   /// 检查是否为工作人员（版主、管理员或超级管理员）
@@ -81,7 +83,8 @@ class UserPermissions {
       userId: json['user_id'] as String,
       roles: List<String>.from(json['roles'] as List? ?? []),
       permissions: List<String>.from(json['permissions'] as List? ?? []),
-      permissionLevel: PermissionLevel.fromString(json['permission_level'] as String? ?? 'user'),
+      permissionLevel: PermissionLevel.fromString(
+          json['permission_level'] as String? ?? 'user'),
       isAdmin: json['is_admin'] as bool? ?? false,
       isSuperAdmin: json['is_super_admin'] as bool? ?? false,
       isModerator: json['is_moderator'] as bool? ?? false,
@@ -113,7 +116,7 @@ class UserPermissions {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is UserPermissions &&
         other.userId == userId &&
         other.roles.toString() == roles.toString() &&

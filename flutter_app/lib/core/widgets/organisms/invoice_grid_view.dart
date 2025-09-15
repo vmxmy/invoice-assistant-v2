@@ -5,36 +5,36 @@ import 'responsive_grid_view.dart';
 import '../../theme/ios_theme_adapter.dart';
 
 /// 响应式发票网格视图组件
-/// 
+///
 /// 根据屏幕尺寸自动调整发票卡片的网格布局
 class InvoiceGridView extends StatelessWidget {
   /// 发票列表
   final List<InvoiceEntity> invoices;
-  
+
   /// 发票点击回调
   final ValueChanged<InvoiceEntity>? onInvoiceTap;
-  
+
   /// 发票长按回调
   final ValueChanged<InvoiceEntity>? onInvoiceLongPress;
-  
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
-  
+
   /// 是否显示加载指示器
   final bool showLoading;
-  
+
   /// 空状态占位组件
   final Widget? emptyWidget;
-  
+
   /// 加载指示器组件
   final Widget? loadingWidget;
-  
+
   /// 网格布局模式
   final InvoiceGridLayoutMode layoutMode;
 
@@ -58,12 +58,12 @@ class InvoiceGridView extends StatelessWidget {
     if (showLoading) {
       return _buildLoadingState();
     }
-    
+
     // 显示空状态
     if (invoices.isEmpty) {
       return _buildEmptyState(context);
     }
-    
+
     // 根据布局模式构建网格
     return _buildGridByLayoutMode(context);
   }
@@ -92,8 +92,8 @@ class InvoiceGridView extends StatelessWidget {
               Text(
                 '暂无发票数据',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
@@ -180,18 +180,18 @@ class InvoiceGridView extends StatelessWidget {
 }
 
 /// 响应式发票Sliver网格视图组件
-/// 
+///
 /// 用于在CustomScrollView中使用的网格布局
 class InvoiceSliverGridView extends StatelessWidget {
   /// 发票列表
   final List<InvoiceEntity> invoices;
-  
+
   /// 发票点击回调
   final ValueChanged<InvoiceEntity>? onInvoiceTap;
-  
+
   /// 发票长按回调
   final ValueChanged<InvoiceEntity>? onInvoiceLongPress;
-  
+
   /// 网格布局模式
   final InvoiceGridLayoutMode layoutMode;
 
@@ -213,7 +213,7 @@ class InvoiceSliverGridView extends StatelessWidget {
       builder: (context, constraints) {
         final deviceType = DeviceType.medium;
         final gridDelegate = _getGridDelegateForDevice(deviceType);
-        
+
         return SliverGrid(
           gridDelegate: gridDelegate,
           delegate: SliverChildBuilderDelegate(
@@ -245,10 +245,10 @@ class InvoiceSliverGridView extends StatelessWidget {
 enum InvoiceGridLayoutMode {
   /// 固定网格 - 使用固定的最小卡片宽度
   fixed,
-  
+
   /// 交错网格 - 使用最大横轴范围
   staggered,
-  
+
   /// 自适应网格 - 根据设备类型自动选择最佳布局
   adaptive,
 }

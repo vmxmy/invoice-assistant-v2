@@ -204,8 +204,13 @@ class InvoiceUploadCompleted extends InvoiceState {
   });
 
   @override
-  List<Object> get props =>
-      [results, successCount, failureCount, duplicateCount, hasCrossUserDuplicate];
+  List<Object> get props => [
+        results,
+        successCount,
+        failureCount,
+        duplicateCount,
+        hasCrossUserDuplicate
+      ];
 
   /// 是否有成功的上传
   bool get hasSuccess => successCount > 0;

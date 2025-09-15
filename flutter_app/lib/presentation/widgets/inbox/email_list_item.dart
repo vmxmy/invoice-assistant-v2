@@ -28,18 +28,18 @@ class EmailListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected 
-          ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
-          : CupertinoColors.systemGrey6,
+        color: isSelected
+            ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
+            : CupertinoColors.systemGrey6,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected 
-            ? CupertinoColors.systemBlue.withValues(alpha: 0.3)
-            : CupertinoColors.separator.withValues(alpha: 0.1),
+          color: isSelected
+              ? CupertinoColors.systemBlue.withValues(alpha: 0.3)
+              : CupertinoColors.separator.withValues(alpha: 0.1),
           width: isSelected ? 1.5 : 0.5,
         ),
       ),
@@ -64,14 +64,14 @@ class EmailListItem extends StatelessWidget {
                   _buildDateInfo(colorScheme),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // 邮件主题
               _buildSubjectInfo(colorScheme),
-              
+
               const SizedBox(height: 12),
-              
+
               // 底部：状态标签和附件信息
               Row(
                 children: [
@@ -168,7 +168,7 @@ class EmailListItem extends StatelessWidget {
   /// 构建分类标签
   Widget _buildCategoryBadge(ColorScheme colorScheme) {
     final config = _getCategoryConfig(email.emailCategory);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -285,9 +285,9 @@ class EmailListItem extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final emailDate = DateTime(date.year, date.month, date.day);
-    
+
     final difference = today.difference(emailDate).inDays;
-    
+
     if (difference == 0) {
       return '今天';
     } else if (difference == 1) {
@@ -310,7 +310,8 @@ class EmailListItem extends StatelessWidget {
   }
 
   /// 获取分类配置
-  ({String label, String icon, Color color}) _getCategoryConfig(String category) {
+  ({String label, String icon, Color color}) _getCategoryConfig(
+      String category) {
     switch (category) {
       case 'verification':
         return (

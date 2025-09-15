@@ -311,7 +311,9 @@ class UploadResultWidget extends StatelessWidget {
     String badgeText;
     Color badgeColor;
 
-    if (result.isSuccess && !result.isDuplicate && !result.isCrossUserDuplicate) {
+    if (result.isSuccess &&
+        !result.isDuplicate &&
+        !result.isCrossUserDuplicate) {
       badgeText = MessageConstants.getBadgeText('success');
       badgeColor = colorScheme.primary;
     } else if (result.isDuplicate) {
@@ -412,7 +414,7 @@ class UploadResultWidget extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // 次要操作按钮 - 重试（如果有失败文件）
           if (failureCount > 0) ...[
             const SizedBox(height: 12),
@@ -460,9 +462,8 @@ class UploadResultWidget extends StatelessWidget {
   Widget _buildCrossUserDuplicateWarning(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     // 获取跨用户重复的结果信息
-    final crossUserDuplicates = results
-        .where((result) => result.isCrossUserDuplicate)
-        .toList();
+    final crossUserDuplicates =
+        results.where((result) => result.isCrossUserDuplicate).toList();
 
     if (crossUserDuplicates.isEmpty) {
       return const SizedBox.shrink();
@@ -528,21 +529,22 @@ class UploadResultWidget extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 重复发票详情
           ...crossUserDuplicates.map((result) {
             final duplicateInfo = result.crossUserDuplicateInfo;
             if (duplicateInfo == null) return const SizedBox.shrink();
-            
+
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.tertiary.withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: colorScheme.tertiary.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,9 +572,9 @@ class UploadResultWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // 重复信息
                   _buildDuplicateInfoRow(
                     context,
@@ -598,9 +600,9 @@ class UploadResultWidget extends StatelessWidget {
                     duplicateInfo.formattedSimilarityScore,
                     CupertinoIcons.chart_bar,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // 建议
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -631,8 +633,8 @@ class UploadResultWidget extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        ...duplicateInfo.recommendations.map((recommendation) => 
-                          Padding(
+                        ...duplicateInfo.recommendations.map(
+                          (recommendation) => Padding(
                             padding: const EdgeInsets.only(bottom: 4),
                             child: Text(
                               '• $recommendation',
@@ -704,15 +706,16 @@ class UploadResultWidget extends StatelessWidget {
   String _maskEmail(String email) {
     final parts = email.split('@');
     if (parts.length != 2) return email;
-    
+
     final username = parts[0];
     final domain = parts[1];
-    
+
     if (username.length <= 2) {
       return '$username***@$domain';
     }
-    
-    final masked = '${username.substring(0, 2)}***${username.substring(username.length - 1)}';
+
+    final masked =
+        '${username.substring(0, 2)}***${username.substring(username.length - 1)}';
     return '$masked@$domain';
   }
 

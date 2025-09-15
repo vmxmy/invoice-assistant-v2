@@ -32,7 +32,7 @@ class IOSStyleUploadPage extends StatelessWidget {
 }
 
 /// iOS风格的发票上传页面内部实现
-/// 
+///
 /// 设计理念：
 /// - 遵循iOS Human Interface Guidelines
 /// - 使用系统标准颜色和字体
@@ -43,12 +43,12 @@ class _IOSStyleUploadPageImpl extends StatefulWidget {
   const _IOSStyleUploadPageImpl();
 
   @override
-  State<_IOSStyleUploadPageImpl> createState() => _IOSStyleUploadPageImplState();
+  State<_IOSStyleUploadPageImpl> createState() =>
+      _IOSStyleUploadPageImplState();
 }
 
 class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
     with TickerProviderStateMixin {
-  
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -66,7 +66,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 350),
       vsync: this,
@@ -100,7 +100,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return CupertinoPageScaffold(
       backgroundColor: colorScheme.surface,
       navigationBar: _buildNavigationBar(context),
@@ -130,7 +130,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
 
   CupertinoNavigationBar _buildNavigationBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return CupertinoNavigationBar(
       backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
       border: null, // iOS 15+ 风格：无边框
@@ -226,19 +226,23 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
       // UploadCompleted 状态继续显示进度页面，显示最终结果
       final mockInProgressState = UploadInProgress(
         files: state.files,
-        progresses: state.results.map((result) => FileUploadProgress(
-          index: result.index,
-          file: result.file,
-          progress: 1.0,
-          status: result.success ? UploadStatus.completed : UploadStatus.failed,
-          errorMessage: result.errorMessage,
-          invoiceId: result.invoiceId,
-        )).toList(),
+        progresses: state.results
+            .map((result) => FileUploadProgress(
+                  index: result.index,
+                  file: result.file,
+                  progress: 1.0,
+                  status: result.success
+                      ? UploadStatus.completed
+                      : UploadStatus.failed,
+                  errorMessage: result.errorMessage,
+                  invoiceId: result.invoiceId,
+                ))
+            .toList(),
         completedResults: state.results,
         completedCount: state.successCount,
         failedCount: state.failedCount,
       );
-      
+
       return _buildUploadProgress(context, mockInProgressState);
     } else if (state is UploadError) {
       return _buildErrorState(context, state);
@@ -259,13 +263,13 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
         HapticFeedback.selectionClick();
         final bloc = context.read<UploadBloc>();
         bloc.add(SelectFiles(selectedFiles));
-        
+
         // 如果文件选择有效，直接开始上传
         if (selectedFiles.isNotEmpty) {
           // 延迟一下让状态更新完成，然后检查验证状态并自动开始上传
           Future.delayed(const Duration(milliseconds: 100), () {
             if (!mounted) return;
-            
+
             final currentState = bloc.state;
             // 只有在文件验证通过的情况下才自动开始上传
             if (currentState is FilesSelected && currentState.isValid) {
@@ -295,64 +299,71 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
         progresses: state.progresses,
         completedResults: state.completedResults, // 传递实时结果
         isCompleted: state.isCompleted, // 当所有文件完成时为true
-        onCancel: !state.isCompleted ? () {
-          _showCancelConfirmation(context);
-        } : null,
-        onRetryFailed: state.hasFailures && state.isCompleted ? () {
-          HapticFeedback.lightImpact();
-          final failedIndices = <int>[];
-          for (int i = 0; i < state.completedResults.length; i++) {
-            final result = state.getResultForIndex(i);
-            if (result != null && !result.success) {
-              failedIndices.add(i);
-            }
-          }
-          context.read<UploadBloc>().add(RetryUpload(failedIndices));
-        } : null,
-        onUploadMore: state.isCompleted ? () {
-          HapticFeedback.lightImpact();
-          context.read<UploadBloc>().add(const ResetUpload());
-        } : null,
-        onClose: state.isCompleted ? () {
-          if (_isNavigating) {
-            return;
-          }
-          
-          _isNavigating = true;
-          HapticFeedback.lightImpact();
-          
-          // 检查当前路由
-          // GoRouterState.of(context).uri.toString();
-          
-          // 延迟一下再导航，确保状态稳定
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (!mounted) return;
-            
-            // 由于上传页面在MainPage的PageView内部，需要通过事件总线通知切换tab
-            try {
-              // 使用事件总线通知MainPage切换到发票管理页面
-              final eventBus = sl<AppEventBus>();
-              eventBus.emit(TabChangedEvent(
-                newTabIndex: 0,
-                oldTabIndex: 1, 
-                tabName: '发票管理',
-              )); 
-              _isNavigating = false; // 重置状态
-            } catch (e) {
-              _isNavigating = false; // 重置状态
-            }
-          });
-        } : null,
+        onCancel: !state.isCompleted
+            ? () {
+                _showCancelConfirmation(context);
+              }
+            : null,
+        onRetryFailed: state.hasFailures && state.isCompleted
+            ? () {
+                HapticFeedback.lightImpact();
+                final failedIndices = <int>[];
+                for (int i = 0; i < state.completedResults.length; i++) {
+                  final result = state.getResultForIndex(i);
+                  if (result != null && !result.success) {
+                    failedIndices.add(i);
+                  }
+                }
+                context.read<UploadBloc>().add(RetryUpload(failedIndices));
+              }
+            : null,
+        onUploadMore: state.isCompleted
+            ? () {
+                HapticFeedback.lightImpact();
+                context.read<UploadBloc>().add(const ResetUpload());
+              }
+            : null,
+        onClose: state.isCompleted
+            ? () {
+                if (_isNavigating) {
+                  return;
+                }
+
+                _isNavigating = true;
+                HapticFeedback.lightImpact();
+
+                // 检查当前路由
+                // GoRouterState.of(context).uri.toString();
+
+                // 延迟一下再导航，确保状态稳定
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (!mounted) return;
+
+                  // 由于上传页面在MainPage的PageView内部，需要通过事件总线通知切换tab
+                  try {
+                    // 使用事件总线通知MainPage切换到发票管理页面
+                    final eventBus = sl<AppEventBus>();
+                    eventBus.emit(TabChangedEvent(
+                      newTabIndex: 0,
+                      oldTabIndex: 1,
+                      tabName: '发票管理',
+                    ));
+                    _isNavigating = false; // 重置状态
+                  } catch (e) {
+                    _isNavigating = false; // 重置状态
+                  }
+                });
+              }
+            : null,
       );
     } else {
       return const Center(child: Text('Invalid state'));
     }
   }
 
-
   Widget _buildErrorState(BuildContext context, UploadError state) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -373,19 +384,22 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
                 color: colorScheme.error,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             Text(
               '上传失败',
-              style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle.copyWith(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: CupertinoTheme.of(context)
+                  .textTheme
+                  .navLargeTitleTextStyle
+                  .copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               state.message,
               textAlign: TextAlign.center,
@@ -395,9 +409,9 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
                 height: 1.4,
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // 重试按钮
             SizedBox(
               width: double.infinity,
@@ -437,7 +451,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
   Future<void> _showCancelConfirmation(BuildContext context) async {
     final bloc = context.read<UploadBloc>();
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     final confirmed = await UnifiedBottomSheet.showConfirmDialog(
       context: context,
       title: '取消上传',
@@ -447,7 +461,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
       confirmColor: colorScheme.error,
       icon: CupertinoIcons.stop_circle,
     );
-    
+
     if (confirmed == true && mounted) {
       bloc.add(const CancelUpload());
     }
@@ -518,7 +532,7 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
   void _handleBackNavigation(BuildContext context) {
     final router = GoRouter.of(context);
     final canPop = router.canPop();
-    
+
     if (canPop) {
       // 如果可以弹出路由（独立页面模式），直接弹出
       context.pop();
@@ -532,5 +546,4 @@ class _IOSStyleUploadPageImplState extends State<_IOSStyleUploadPageImpl>
       ));
     }
   }
-
 }

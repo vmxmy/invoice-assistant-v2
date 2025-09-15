@@ -6,24 +6,24 @@ import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 
 /// 发票卡片主体组件
-/// 
+///
 /// 负责显示发票的详细信息：日期、类型、金额等核心数据
 class InvoiceCardBody extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 是否只显示消费日期
   final bool showConsumptionDateOnly;
-  
+
   /// 自定义金额样式
   final TextStyle? amountStyle;
-  
+
   /// 是否显示类型图标
   final bool showCategoryIcon;
-  
+
   /// 是否显示日期信息
   final bool showDateInfo;
-  
+
   /// 日期信息布局方式
   final DateInfoLayout dateInfoLayout;
 
@@ -44,7 +44,7 @@ class InvoiceCardBody extends StatelessWidget {
       children: [
         // 主要信息行：日期 + 类型图标 + 金额
         _buildMainInfoRow(context),
-        
+
         // 可选的额外信息
         if (_hasAdditionalInfo()) ...[
           SizedBox(height: 8.0),
@@ -76,9 +76,9 @@ class InvoiceCardBody extends StatelessWidget {
           flex: 2,
           child: _buildDateAndCategoryInfo(context),
         ),
-        
+
         SizedBox(width: 12.0),
-        
+
         // 右侧：金额
         _buildAmountDisplay(context),
       ],
@@ -117,21 +117,20 @@ class InvoiceCardBody extends StatelessWidget {
   Widget _buildDateAndCategoryInfo(BuildContext context) {
     final dateText = _getFormattedDate();
     final categoryText = _getCategoryText();
-    
+
     if (!showDateInfo && (!showCategoryIcon || categoryText.isEmpty)) {
       return const SizedBox.shrink();
     }
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         // 日期信息
         if (showDateInfo && dateText.isNotEmpty) ...[
           _buildDateInfo(context, dateText),
-          if (showCategoryIcon && categoryText.isNotEmpty)
-            SizedBox(width: 8.0),
+          if (showCategoryIcon && categoryText.isNotEmpty) SizedBox(width: 8.0),
         ],
-        
+
         // 类型图标
         if (showCategoryIcon && categoryText.isNotEmpty)
           _buildCategoryIcon(context, categoryText),
@@ -175,7 +174,6 @@ class InvoiceCardBody extends StatelessWidget {
 
   /// 构建金额显示
   Widget _buildAmountDisplay(BuildContext context) {
-    
     return AppText(
       text: invoice.formattedAmount,
       variant: TextVariant.titleMedium,
@@ -188,13 +186,11 @@ class InvoiceCardBody extends StatelessWidget {
   /// 构建额外信息
   Widget _buildAdditionalInfo(BuildContext context) {
     final items = <Widget>[];
-    
-    
-    
+
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return Wrap(
       spacing: 12.0,
       runSpacing: 4.0,
@@ -202,17 +198,16 @@ class InvoiceCardBody extends StatelessWidget {
     );
   }
 
-
   /// 获取格式化日期
   String _getFormattedDate() {
     if (invoice.consumptionDate != null) {
       return invoice.formattedConsumptionDate ?? '';
     }
-    
+
     if (!showConsumptionDateOnly) {
       return invoice.formattedDate;
     }
-    
+
     return '';
   }
 
@@ -238,12 +233,12 @@ class InvoiceCardBody extends StatelessWidget {
 }
 
 /// 紧凑版本的发票卡片主体
-/// 
+///
 /// 只显示最核心的信息：日期和金额
 class InvoiceCardBodyCompact extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 是否只显示消费日期
   final bool showConsumptionDateOnly;
 
@@ -265,12 +260,12 @@ class InvoiceCardBodyCompact extends StatelessWidget {
 }
 
 /// 详细版本的发票卡片主体
-/// 
+///
 /// 显示所有可用信息
 class InvoiceCardBodyDetailed extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 是否只显示消费日期
   final bool showConsumptionDateOnly;
 
@@ -294,7 +289,7 @@ class InvoiceCardBodyDetailed extends StatelessWidget {
 
 /// 日期信息布局方式枚举
 enum DateInfoLayout {
-  leftAligned,   // 左对齐（原始布局）
-  spaceBetween,  // 两端对齐
-  stacked,       // 堆叠布局
+  leftAligned, // 左对齐（原始布局）
+  spaceBetween, // 两端对齐
+  stacked, // 堆叠布局
 }

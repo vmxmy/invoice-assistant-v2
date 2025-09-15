@@ -103,7 +103,7 @@ Future<void> init() async {
   sl.registerLazySingleton<PermissionCacheService>(
     () => PermissionCacheService(),
   );
-  
+
   sl.registerLazySingleton<PermissionService>(
     () => PermissionService(),
   );
@@ -114,7 +114,7 @@ Future<void> init() async {
   //! 核心服务 (Core Services)
   // 事件总线 - 用于跨Bloc通信（可选，因为使用单例模式）
   sl.registerLazySingleton<AppEventBus>(() => AppEventBus.instance);
-  
+
   // 其他核心服务，如网络检查、错误处理等
 }
 

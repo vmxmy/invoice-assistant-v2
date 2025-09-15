@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // ⚠️ 需要保留：使用 Icons 类
 
 /// 图标映射工具类
 class IconMapping {
@@ -9,7 +9,7 @@ class IconMapping {
     }
 
     final extension = fileName.toLowerCase().split('.').last;
-    
+
     switch (extension) {
       case 'pdf':
         return Icons.picture_as_pdf;
@@ -40,7 +40,7 @@ class IconMapping {
   /// 根据发票类型获取图标
   static IconData getInvoiceTypeIcon(String? type) {
     if (type == null) return Icons.receipt;
-    
+
     switch (type.toLowerCase()) {
       case 'vat':
       case '增值税发票':
@@ -62,7 +62,7 @@ class IconMapping {
   /// 根据金额范围获取图标
   static IconData getAmountIcon(double? amount) {
     if (amount == null) return Icons.monetization_on;
-    
+
     if (amount < 100) {
       return Icons.monetization_on_outlined;
     } else if (amount < 1000) {

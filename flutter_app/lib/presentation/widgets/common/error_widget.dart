@@ -41,9 +41,7 @@ class ErrorWidget extends StatelessWidget {
               color: colorScheme.error,
             ),
           ),
-
           const SizedBox(height: 16),
-
           Text(
             '出错了',
             style: TextStyle(
@@ -52,9 +50,7 @@ class ErrorWidget extends StatelessWidget {
               color: colorScheme.onSurface,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             message,
             textAlign: TextAlign.center,
@@ -64,7 +60,6 @@ class ErrorWidget extends StatelessWidget {
               height: 1.4,
             ),
           ),
-
           if (onRetry != null) ...[
             const SizedBox(height: 20),
             CupertinoButton(

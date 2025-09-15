@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../core/network/supabase_client.dart';
+import '../../core/theme/cupertino_theme_extensions.dart';
 
 /// 自适应高度的PDF容器
 class AdaptivePdfContainer extends StatefulWidget {
@@ -52,7 +53,6 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       universalHeight =
           universalHeight.clamp(widget.minHeight, widget.maxHeight);
 
-
       setState(() {
         _calculatedHeight = universalHeight;
         _isCalculating = false; // 直接设置为完成状态
@@ -85,7 +85,6 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
           _hasError = false;
         });
       }
-
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -103,28 +102,28 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       return Container(
         height: widget.minHeight,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: context.secondaryBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline,
-                  size: 48, color: Theme.of(context).colorScheme.error),
+              Icon(CupertinoIcons.exclamationmark_circle,
+                  size: 48, color: context.errorColor),
               const SizedBox(height: 16),
-              Text('PDF加载失败',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text('PDF加载失败', style: TextStyle(color: context.errorColor)),
               const SizedBox(height: 8),
               Text(
                 _errorMessage ?? '未知错误',
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12),
+                style:
+                    TextStyle(color: context.secondaryTextColor, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              OutlinedButton(
+              CupertinoButton.filled(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 onPressed: () {
                   setState(() {
                     _hasError = false;
@@ -149,12 +148,12 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(),
+              const CupertinoActivityIndicator(),
               const SizedBox(height: 16),
               Text(
                 '正在加载发票',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: context.secondaryTextColor,
                   fontSize: 14,
                 ),
               ),
@@ -164,13 +163,12 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       );
     }
 
-
     return GestureDetector(
       onTap: () => _showFullScreenPdf(),
       child: Container(
         height: _calculatedHeight,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: context.secondaryBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: ClipRRect(
@@ -207,12 +205,11 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
       PageRouteBuilder(
         opaque: false,
         barrierDismissible: true,
-        barrierColor:
-            Theme.of(context).colorScheme.scrim.withValues(alpha: 0.85),
+        barrierColor: CupertinoColors.black.withValues(alpha: 0.85),
         pageBuilder: (context, animation, secondaryAnimation) {
-          return Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.scrim,
-            body: Stack(
+          return CupertinoPageScaffold(
+            backgroundColor: CupertinoColors.black,
+            child: Stack(
               children: [
                 Center(
                   child: SfPdfViewer.network(
@@ -227,10 +224,11 @@ class _AdaptivePdfContainerState extends State<AdaptivePdfContainer> {
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 16,
                   right: 16,
-                  child: IconButton(
-                    icon: Icon(Icons.close,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        size: 28),
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(44, 44),
+                    child: Icon(CupertinoIcons.xmark,
+                        color: CupertinoColors.white, size: 24),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),

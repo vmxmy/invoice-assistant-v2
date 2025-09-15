@@ -33,10 +33,12 @@ class ReimbursementSetSearchFilterBar extends StatefulWidget {
   final bool showSearchBox;
 
   @override
-  State<ReimbursementSetSearchFilterBar> createState() => _ReimbursementSetSearchFilterBarState();
+  State<ReimbursementSetSearchFilterBar> createState() =>
+      _ReimbursementSetSearchFilterBarState();
 }
 
-class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearchFilterBar> {
+class _ReimbursementSetSearchFilterBarState
+    extends State<ReimbursementSetSearchFilterBar> {
   late TextEditingController _searchController;
   late ReimbursementSetFilterOptions _currentFilter;
   bool _isSearchFocused = false;
@@ -83,7 +85,9 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
             const SizedBox(height: 12.0),
 
           // 快捷筛选按钮区域
-          if (widget.showQuickFilters) _buildQuickFilters(Theme.of(context), Theme.of(context).colorScheme),
+          if (widget.showQuickFilters)
+            _buildQuickFilters(
+                Theme.of(context), Theme.of(context).colorScheme),
         ],
       ),
     );
@@ -117,13 +121,13 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
               size: 16.0,
             ),
           ),
-          
+
           // 搜索输入框
           Expanded(
             child: CupertinoTextField(
               controller: _searchController,
               onChanged: (value) {
-                setState(() {});  // 触发重建以更新清除按钮显示
+                setState(() {}); // 触发重建以更新清除按钮显示
                 widget.onSearchChanged?.call(value);
               },
               onTap: () {
@@ -148,7 +152,7 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
               ),
             ),
           ),
-          
+
           // 清除按钮
           if (_searchController.text.isNotEmpty)
             CupertinoButton(
@@ -320,9 +324,7 @@ class _ReimbursementSetSearchFilterBarState extends State<ReimbursementSetSearch
             color: isSelected ? color : colorScheme.outlineVariant,
             width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: isSelected
-              ? []
-              : null,
+          boxShadow: isSelected ? [] : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -496,12 +498,12 @@ class ReimbursementSetFilterOptions {
   bool get isAllReimbursementSets => showAll && !hasActiveFilters;
 
   /// 是否有任何筛选条件激活
-  bool get hasActiveFilters => 
-      showUnsubmitted || 
-      showSubmitted || 
-      showReimbursed || 
-      showThisMonth || 
-      showLargeAmount || 
+  bool get hasActiveFilters =>
+      showUnsubmitted ||
+      showSubmitted ||
+      showReimbursed ||
+      showThisMonth ||
+      showLargeAmount ||
       showCrossPeriod;
 
   /// 复制并修改筛选选项

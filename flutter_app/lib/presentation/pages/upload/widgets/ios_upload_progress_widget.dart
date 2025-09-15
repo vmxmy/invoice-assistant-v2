@@ -5,7 +5,7 @@ import '../bloc/upload_state.dart';
 import '../../../../core/theme/cupertino_semantic_colors.dart';
 
 /// iOS风格的上传进度组件
-/// 
+///
 /// 设计特点：
 /// - 使用iOS原生进度指示器
 /// - 清晰的进度展示和文件状态
@@ -35,12 +35,12 @@ class IOSUploadProgressWidget extends StatefulWidget {
   });
 
   @override
-  State<IOSUploadProgressWidget> createState() => _IOSUploadProgressWidgetState();
+  State<IOSUploadProgressWidget> createState() =>
+      _IOSUploadProgressWidgetState();
 }
 
 class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     with TickerProviderStateMixin {
-  
   late AnimationController _progressController;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -52,12 +52,12 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
@@ -98,22 +98,22 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
           SliverToBoxAdapter(
             child: _buildHeader(),
           ),
-          
+
           // 进度/结果概览卡片
           SliverToBoxAdapter(
             child: _buildOverviewCard(),
           ),
-          
+
           // 文件详细列表
           SliverToBoxAdapter(
             child: _buildFilesList(),
           ),
-          
+
           // 操作按钮区域
           SliverToBoxAdapter(
             child: _buildActionButtons(),
           ),
-          
+
           // 底部间距
           const SliverToBoxAdapter(
             child: SizedBox(height: 32),
@@ -125,7 +125,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
 
   Widget _buildHeader() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
       child: Column(
@@ -133,15 +133,16 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
         children: [
           Text(
             widget.isCompleted ? '上传完成' : '正在上传',
-            style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle.copyWith(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
+            style: CupertinoTheme.of(context)
+                .textTheme
+                .navLargeTitleTextStyle
+                .copyWith(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                ),
           ),
-          
           const SizedBox(height: 8),
-          
           Text(
             _getStatusDescription(),
             style: TextStyle(
@@ -159,7 +160,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     final successCount = widget.completedResults.where((r) => r.success).length;
     final failedCount = widget.completedResults.where((r) => !r.success).length;
     final totalCount = widget.files.length;
-    
+
     if (widget.isCompleted) {
       if (successCount == totalCount) {
         return '所有文件都已成功上传';
@@ -176,7 +177,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
 
   Widget _buildOverviewCard() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Container(
@@ -204,34 +205,34 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                   color: colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: widget.isCompleted 
-                  ? Icon(
-                      _getOverallStatusIcon(),
-                      size: 40,
-                      color: _getOverallStatusColor(),
-                    )
-                  : Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator(
-                            color: colorScheme.primary,
-                            strokeWidth: 3,
+                child: widget.isCompleted
+                    ? Icon(
+                        _getOverallStatusIcon(),
+                        size: 40,
+                        color: _getOverallStatusColor(),
+                      )
+                    : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(
+                              color: colorScheme.primary,
+                              strokeWidth: 3,
+                            ),
                           ),
-                        ),
-                        Icon(
-                          CupertinoIcons.cloud_upload,
-                          size: 24,
-                          color: colorScheme.primary,
-                        ),
-                      ],
-                    ),
+                          Icon(
+                            CupertinoIcons.cloud_upload,
+                            size: 24,
+                            color: colorScheme.primary,
+                          ),
+                        ],
+                      ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // 主要文本
               Text(
                 _getOverviewText(),
@@ -242,9 +243,9 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                   color: colorScheme.onSurface,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // 副标题文本
               Text(
                 _getOverviewSubtext(),
@@ -255,7 +256,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                   height: 1.4,
                 ),
               ),
-              
+
               if (!widget.isCompleted && widget.progresses != null) ...[
                 const SizedBox(height: 16),
                 _buildOverallProgress(),
@@ -271,28 +272,30 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     if (!widget.isCompleted) {
       return CupertinoIcons.cloud_upload; // 上传中显示上传图标
     }
-    
+
     final hasFailures = widget.completedResults.any((r) => !r.success);
     if (hasFailures) {
       final hasSuccesses = widget.completedResults.any((r) => r.success);
-      return hasSuccesses 
-        ? CupertinoIcons.exclamationmark_triangle_fill
-        : CupertinoIcons.xmark_circle_fill;
+      return hasSuccesses
+          ? CupertinoIcons.exclamationmark_triangle_fill
+          : CupertinoIcons.xmark_circle_fill;
     }
     return CupertinoIcons.checkmark_circle_fill;
   }
 
   Color _getOverallStatusColor() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     if (!widget.isCompleted) {
       return colorScheme.primary; // 上传中显示主色
     }
-    
+
     final hasFailures = widget.completedResults.any((r) => !r.success);
     if (hasFailures) {
       final hasSuccesses = widget.completedResults.any((r) => r.success);
-      return hasSuccesses ? CupertinoSemanticColors.warning : CupertinoSemanticColors.error;
+      return hasSuccesses
+          ? CupertinoSemanticColors.warning
+          : CupertinoSemanticColors.error;
     }
     return CupertinoSemanticColors.success;
   }
@@ -301,7 +304,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     if (!widget.isCompleted) {
       return '正在上传文件';
     }
-    
+
     final hasFailures = widget.completedResults.any((r) => !r.success);
     if (hasFailures) {
       final hasSuccesses = widget.completedResults.any((r) => r.success);
@@ -315,14 +318,14 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     final completedCount = widget.completedResults.length;
     final successCount = widget.completedResults.where((r) => r.success).length;
     final failedCount = widget.completedResults.where((r) => !r.success).length;
-    
+
     if (!widget.isCompleted) {
       if (completedCount > 0) {
         return '已完成 $completedCount / $totalCount 个文件';
       }
       return '请保持网络连接';
     }
-    
+
     if (successCount == totalCount) {
       return '所有 $totalCount 个文件都已成功处理';
     } else {
@@ -332,11 +335,13 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
 
   Widget _buildOverallProgress() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     if (widget.progresses == null) return const SizedBox.shrink();
-    
-    final totalProgress = widget.progresses!.fold<double>(0.0, (sum, p) => sum + p.progress) / widget.progresses!.length;
-    
+
+    final totalProgress =
+        widget.progresses!.fold<double>(0.0, (sum, p) => sum + p.progress) /
+            widget.progresses!.length;
+
     return Column(
       children: [
         LinearProgressIndicator(
@@ -360,7 +365,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
 
   Widget _buildFilesList() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
@@ -374,16 +379,16 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
               color: colorScheme.onSurface,
             ),
           ),
-          
           const SizedBox(height: 12),
-          
           Container(
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: widget.isCompleted && widget.completedResults.any((r) => !r.success)
-                ? Border.all(color: colorScheme.error.withValues(alpha: 0.3), width: 1)
-                : null,
+              border: widget.isCompleted &&
+                      widget.completedResults.any((r) => !r.success)
+                  ? Border.all(
+                      color: colorScheme.error.withValues(alpha: 0.3), width: 1)
+                  : null,
               boxShadow: [
                 BoxShadow(
                   color: colorScheme.shadow.withValues(alpha: 0.1),
@@ -417,21 +422,22 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
     final fileName = file.path.split('/').last;
     final fileSize = _formatFileSize(file);
     final isImage = _isImageFile(fileName);
-    
+
     // 检查该文件是否有完成的结果
     UploadResult? completedResult;
     try {
-      completedResult = widget.completedResults.firstWhere((r) => r.index == index);
+      completedResult =
+          widget.completedResults.firstWhere((r) => r.index == index);
     } catch (e) {
       completedResult = null;
     }
-    
+
     // 确定状态和颜色
     Color iconColor;
     IconData statusIcon;
     String statusText;
     bool showProgress = false;
-    
+
     if (completedResult != null) {
       // 文件已完成（成功或失败）
       if (completedResult.success) {
@@ -445,9 +451,10 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
       }
     } else {
       // 文件还未完成 - 显示进度或等待状态
-      iconColor = isImage ? CupertinoSemanticColors.success : colorScheme.primary;
+      iconColor =
+          isImage ? CupertinoSemanticColors.success : colorScheme.primary;
       statusIcon = isImage ? CupertinoIcons.photo : CupertinoIcons.doc_text;
-      
+
       if (widget.progresses != null && index < widget.progresses!.length) {
         final progress = widget.progresses![index];
         if (progress.progress > 0) {
@@ -471,8 +478,8 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
             height: 40,
             decoration: BoxDecoration(
               color: completedResult != null && !completedResult.success
-                ? colorScheme.error.withValues(alpha: 0.1)
-                : iconColor.withValues(alpha: 0.1),
+                  ? colorScheme.error.withValues(alpha: 0.1)
+                  : iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -481,9 +488,9 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
               color: iconColor,
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // 文件信息
           Expanded(
             child: Column(
@@ -499,9 +506,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
                 const SizedBox(height: 2),
-                
                 Text(
                   fileSize,
                   style: TextStyle(
@@ -512,14 +517,16 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
               ],
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // 状态信息
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (showProgress && widget.progresses != null && index < widget.progresses!.length) ...[
+              if (showProgress &&
+                  widget.progresses != null &&
+                  index < widget.progresses!.length) ...[
                 // 显示进度指示器
                 SizedBox(
                   width: 24,
@@ -541,14 +548,13 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                 ),
                 const SizedBox(height: 4),
               ],
-              
               Text(
                 statusText,
                 style: TextStyle(
                   fontSize: 12,
                   color: completedResult != null && !completedResult.success
-                    ? colorScheme.error
-                    : colorScheme.onSurface.withValues(alpha: 0.7),
+                      ? colorScheme.error
+                      : colorScheme.onSurface.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -561,7 +567,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
 
   Widget _buildActionButtons() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: Column(
@@ -598,7 +604,8 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
             ),
           ] else ...[
             // 已完成状态的按钮
-            if (widget.completedResults.any((r) => !r.success) && widget.onRetryFailed != null) ...[
+            if (widget.completedResults.any((r) => !r.success) &&
+                widget.onRetryFailed != null) ...[
               SizedBox(
                 width: double.infinity,
                 child: CupertinoButton(
@@ -629,7 +636,7 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
               ),
               const SizedBox(height: 12),
             ],
-            
+
             Row(
               children: [
                 // 继续上传按钮
@@ -650,10 +657,10 @@ class _IOSUploadProgressWidgetState extends State<IOSUploadProgressWidget>
                       ),
                     ),
                   ),
-                
+
                 if (widget.onUploadMore != null && widget.onClose != null)
                   const SizedBox(width: 12),
-                
+
                 // 完成按钮
                 if (widget.onClose != null)
                   Expanded(

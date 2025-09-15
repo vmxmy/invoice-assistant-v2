@@ -16,7 +16,7 @@ class PermissionCacheService {
   static const String _permissionsCacheKey = 'user_permissions_cache';
   static const String _permissionsCacheTimeKey = 'user_permissions_cache_time';
   static const String _userIdKey = 'cached_user_id';
-  
+
   // 缓存过期时间：2小时
   static Duration get _cacheExpiration => AppConstants.permissionsCacheTtl;
 
@@ -24,23 +24,21 @@ class PermissionCacheService {
   Future<void> cachePermissions(UserPermissions permissions) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // 🔐 安全：加密存储权限数据
       final permissionsJson = json.encode(permissions.toJson());
-      final encryptedData = await SecureStorageService.encryptData(permissionsJson);
+      final encryptedData =
+          await SecureStorageService.encryptData(permissionsJson);
       await prefs.setString(_permissionsCacheKey, encryptedData);
-      
+
       // 存储缓存时间戳（明文，用于过期检查）
       final cacheTime = DateTime.now().millisecondsSinceEpoch;
       await prefs.setInt(_permissionsCacheTimeKey, cacheTime);
-      
+
       // 存储用户ID（明文，用于验证缓存有效性）
       await prefs.setString(_userIdKey, permissions.userId);
-      
-      AppLogger.debug(
-        '🔐 [PermissionCache] 权限缓存已加密保存到本地存储',
-        tag: 'Permission'
-      );
+
+      AppLogger.debug('🔐 [PermissionCache] 权限缓存已加密保存到本地存储', tag: 'Permission');
     } catch (e, stackTrace) {
       AppLogger.error(
         '🔐 [PermissionCache] 权限缓存保存失败',
@@ -55,61 +53,58 @@ class PermissionCacheService {
   Future<UserPermissions?> getCachedPermissions(String currentUserId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // 检查用户ID是否匹配
       final cachedUserId = prefs.getString(_userIdKey);
       if (cachedUserId != currentUserId) {
-        AppLogger.debug(
-          '🔐 [PermissionCache] 用户ID不匹配，清除旧缓存',
-          tag: 'Permission'
-        );
+        AppLogger.debug('🔐 [PermissionCache] 用户ID不匹配，清除旧缓存',
+            tag: 'Permission');
         await clearCache();
         return null;
       }
-      
+
       // 检查缓存是否过期
       final cacheTime = prefs.getInt(_permissionsCacheTimeKey);
       if (cacheTime == null) {
         AppLogger.debug('🔐 [PermissionCache] 缓存时间戳不存在', tag: 'Permission');
         return null;
       }
-      
+
       final cacheDateTime = DateTime.fromMillisecondsSinceEpoch(cacheTime);
       final now = DateTime.now();
       final isExpired = now.difference(cacheDateTime) > _cacheExpiration;
-      
+
       if (isExpired) {
-        AppLogger.debug(
-          '🔐 [PermissionCache] 缓存已过期，清除缓存',
-          tag: 'Permission'
-        );
+        AppLogger.debug('🔐 [PermissionCache] 缓存已过期，清除缓存', tag: 'Permission');
         await clearCache();
         return null;
       }
-      
+
       // 🔐 安全：获取并解密权限数据
       final encryptedData = prefs.getString(_permissionsCacheKey);
       if (encryptedData == null) {
         AppLogger.debug('🔐 [PermissionCache] 权限缓存数据不存在', tag: 'Permission');
         return null;
       }
-      
+
       // 解密权限数据
-      final permissionsJson = await SecureStorageService.decryptData(encryptedData);
+      final permissionsJson =
+          await SecureStorageService.decryptData(encryptedData);
       if (permissionsJson == null) {
-        AppLogger.warning('🔐 [PermissionCache] 权限数据解密失败，可能被篡改', tag: 'Permission');
+        AppLogger.warning('🔐 [PermissionCache] 权限数据解密失败，可能被篡改',
+            tag: 'Permission');
         await clearCache(); // 清除可能损坏的缓存
         return null;
       }
-      
-      final permissionsMap = json.decode(permissionsJson) as Map<String, dynamic>;
+
+      final permissionsMap =
+          json.decode(permissionsJson) as Map<String, dynamic>;
       final permissions = UserPermissions.fromJson(permissionsMap);
-      
+
       AppLogger.debug(
-        '🔐 [PermissionCache] 从加密缓存加载权限成功: ${permissions.permissionLevel.displayName}',
-        tag: 'Permission'
-      );
-      
+          '🔐 [PermissionCache] 从加密缓存加载权限成功: ${permissions.permissionLevel.displayName}',
+          tag: 'Permission');
+
       return permissions;
     } catch (e, stackTrace) {
       AppLogger.error(
@@ -118,7 +113,7 @@ class PermissionCacheService {
         error: e,
         stackTrace: stackTrace,
       );
-      
+
       // 发生错误时清除可能损坏的缓存
       await clearCache();
       return null;
@@ -129,19 +124,19 @@ class PermissionCacheService {
   Future<bool> isCacheValid(String currentUserId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // 检查用户ID
       final cachedUserId = prefs.getString(_userIdKey);
       if (cachedUserId != currentUserId) return false;
-      
+
       // 检查过期时间
       final cacheTime = prefs.getInt(_permissionsCacheTimeKey);
       if (cacheTime == null) return false;
-      
+
       final cacheDateTime = DateTime.fromMillisecondsSinceEpoch(cacheTime);
       final now = DateTime.now();
       final isExpired = now.difference(cacheDateTime) > _cacheExpiration;
-      
+
       return !isExpired && prefs.containsKey(_permissionsCacheKey);
     } catch (e) {
       AppLogger.warning(
@@ -157,13 +152,13 @@ class PermissionCacheService {
   Future<void> clearCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       await Future.wait([
         prefs.remove(_permissionsCacheKey),
         prefs.remove(_permissionsCacheTimeKey),
         prefs.remove(_userIdKey),
       ]);
-      
+
       AppLogger.debug('🔐 [PermissionCache] 权限缓存已清除', tag: 'Permission');
     } catch (e) {
       AppLogger.error(
@@ -178,23 +173,24 @@ class PermissionCacheService {
   Future<Map<String, dynamic>> getCacheStats() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final cachedUserId = prefs.getString(_userIdKey);
       final cacheTime = prefs.getInt(_permissionsCacheTimeKey);
       final hasPermissionsData = prefs.containsKey(_permissionsCacheKey);
-      
+
       DateTime? cacheDateTime;
       Duration? cacheAge;
       bool isExpired = true;
-      
+
       if (cacheTime != null) {
         cacheDateTime = DateTime.fromMillisecondsSinceEpoch(cacheTime);
         cacheAge = DateTime.now().difference(cacheDateTime);
         isExpired = cacheAge > _cacheExpiration;
       }
-      
+
       return {
-        'hasCache': hasPermissionsData && cachedUserId != null && cacheTime != null,
+        'hasCache':
+            hasPermissionsData && cachedUserId != null && cacheTime != null,
         'cachedUserId': cachedUserId,
         'cacheTime': cacheDateTime?.toIso8601String(),
         'cacheAgeInMinutes': cacheAge?.inMinutes,
@@ -207,7 +203,7 @@ class PermissionCacheService {
         tag: 'Permission',
         error: e,
       );
-      
+
       return {
         'hasCache': false,
         'error': e.toString(),

@@ -3,40 +3,40 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../molecules/unified_slide_button.dart';
 
 /// 统一滑动操作面板
-/// 
+///
 /// 基于UnifiedSlideButton构建的完整滑动操作解决方案，
 /// 提供自动关闭、位置智能识别等高级功能
 class UnifiedSlideActions extends StatefulWidget {
   /// 子组件（被滑动的内容）
   final Widget child;
-  
+
   /// 左滑操作列表（从右向左滑动时显示）
   final List<UnifiedSlideButton> startActions;
-  
+
   /// 右滑操作列表（从左向右滑动时显示）
   final List<UnifiedSlideButton> endActions;
-  
+
   /// 是否启用滑动
   final bool enabled;
-  
+
   /// 滑动范围比例
   final double extentRatio;
-  
+
   /// 滑动动画类型
   final Widget motion;
-  
+
   /// 是否在滚动时自动关闭
   final bool closeOnScroll;
-  
+
   /// 分组标签（同组内互斥）
   final Object? groupTag;
-  
+
   /// 自动关闭延迟时间（毫秒）
   final int autoCloseDuration;
-  
+
   /// 是否启用自动关闭
   final bool enableAutoClose;
-  
+
   /// 滑动控制器
   final GlobalKey<State<Slidable>>? slidableKey;
 
@@ -59,16 +59,16 @@ class UnifiedSlideActions extends StatefulWidget {
   State<UnifiedSlideActions> createState() => _UnifiedSlideActionsState();
 }
 
-class _UnifiedSlideActionsState extends State<UnifiedSlideActions> 
+class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
     with TickerProviderStateMixin {
   late final SlidableController _controller;
-  
+
   @override
   void initState() {
     super.initState();
     _controller = SlidableController(this);
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -78,7 +78,7 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
   @override
   Widget build(BuildContext context) {
     // 如果没有操作或被禁用，直接返回子组件
-    if (!widget.enabled || 
+    if (!widget.enabled ||
         (widget.startActions.isEmpty && widget.endActions.isEmpty)) {
       return widget.child;
     }
@@ -89,7 +89,7 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
       enabled: widget.enabled,
       closeOnScroll: widget.closeOnScroll,
       groupTag: widget.groupTag,
-      
+
       // 左滑操作面板
       startActionPane: widget.startActions.isNotEmpty
           ? ActionPane(
@@ -99,7 +99,7 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
               children: _buildActionButtons(widget.startActions, isStart: true),
             )
           : null,
-      
+
       // 右滑操作面板
       endActionPane: widget.endActions.isNotEmpty
           ? ActionPane(
@@ -109,21 +109,22 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
               children: _buildActionButtons(widget.endActions, isStart: false),
             )
           : null,
-      
+
       child: widget.child,
     );
   }
 
   /// 构建操作按钮列表
-  List<Widget> _buildActionButtons(List<UnifiedSlideButton> actions, {required bool isStart}) {
+  List<Widget> _buildActionButtons(List<UnifiedSlideButton> actions,
+      {required bool isStart}) {
     return actions.asMap().entries.map((entry) {
       final index = entry.key;
       final button = entry.value;
-      
+
       // 智能位置识别
       final isFirstButton = index == 0;
       final isLastButton = index == actions.length - 1;
-      
+
       // 为按钮添加自动关闭功能
       final wrappedButton = _wrapWithAutoClose(
         button.copyWith(
@@ -131,7 +132,7 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
           isEnd: isStart ? isLastButton : isFirstButton,
         ),
       );
-      
+
       return wrappedButton;
     }).toList();
   }
@@ -146,7 +147,7 @@ class _UnifiedSlideActionsState extends State<UnifiedSlideActions>
       onPressed: () {
         // 执行原始操作
         button.onPressed();
-        
+
         // 延迟自动关闭
         if (mounted && widget.autoCloseDuration > 0) {
           Future.delayed(Duration(milliseconds: widget.autoCloseDuration), () {
@@ -191,8 +192,10 @@ extension UnifiedSlideButtonExtension on UnifiedSlideButton {
       isStart: isStart ?? this.isStart,
       isEnd: isEnd ?? this.isEnd,
       enableHapticFeedback: enableHapticFeedback ?? this.enableHapticFeedback,
-      customBackgroundColor: customBackgroundColor ?? this.customBackgroundColor,
-      customForegroundColor: customForegroundColor ?? this.customForegroundColor,
+      customBackgroundColor:
+          customBackgroundColor ?? this.customBackgroundColor,
+      customForegroundColor:
+          customForegroundColor ?? this.customForegroundColor,
       flex: flex ?? this.flex,
       isDisabled: isDisabled ?? this.isDisabled,
     );
@@ -200,7 +203,7 @@ extension UnifiedSlideButtonExtension on UnifiedSlideButton {
 }
 
 /// 滑动操作构建器
-/// 
+///
 /// 用于流式构建复杂的滑动操作组合
 class SlideActionsBuilder {
   final List<UnifiedSlideButton> _actions = [];

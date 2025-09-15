@@ -5,25 +5,25 @@ import '../atoms/app_text.dart';
 import '../atoms/app_icon.dart';
 
 /// 报销集状态徽章
-/// 
+///
 /// 用于显示发票是否已加入报销集的状态指示器
 /// 支持点击跳转到报销集详情页面
 class ReimbursementSetBadge extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 点击跳转到报销集回调
   final VoidCallback? onTap;
-  
+
   /// 徽章尺寸
   final BadgeSize size;
-  
+
   /// 是否显示文本标签
   final bool showLabel;
-  
+
   /// 自定义背景颜色
   final Color? backgroundColor;
-  
+
   /// 自定义前景色
   final Color? foregroundColor;
 
@@ -146,18 +146,18 @@ class ReimbursementSetBadge extends StatelessWidget {
 }
 
 /// 简化版报销集指示器
-/// 
+///
 /// 仅显示图标，不显示文字，适用于空间紧张的场景
 class ReimbursementSetIndicator extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 点击跳转到报销集回调
   final VoidCallback? onTap;
-  
+
   /// 指示器尺寸
   final double size;
-  
+
   /// 自定义颜色
   final Color? color;
 
@@ -203,18 +203,18 @@ class ReimbursementSetIndicator extends StatelessWidget {
 }
 
 /// 彩色条状态指示器
-/// 
+///
 /// 在卡片左侧显示一个细条，用于指示报销集状态
 class ReimbursementSetStatusStrip extends StatelessWidget {
   /// 发票实体
   final InvoiceEntity invoice;
-  
+
   /// 条的宽度
   final double width;
-  
+
   /// 条的高度
   final double height;
-  
+
   /// 自定义颜色
   final Color? color;
 

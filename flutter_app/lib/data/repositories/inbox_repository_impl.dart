@@ -33,7 +33,8 @@ class InboxRepositoryImpl implements InboxRepository {
 
       // 转换为实体并获取总数
       final emails = emailModels.map((model) => model.toEntity()).toList();
-      final totalCount = emailModels.isNotEmpty ? emailModels.first.totalCount ?? 0 : 0;
+      final totalCount =
+          emailModels.isNotEmpty ? emailModels.first.totalCount ?? 0 : 0;
 
       return Result.success((emails: emails, totalCount: totalCount));
     } on ServerException catch (e) {
@@ -134,7 +135,8 @@ class InboxRepositoryImpl implements InboxRepository {
 
   /// 使用备用查询方法获取邮件列表
   /// 当RPC函数不可用时的备选方案
-  Future<Result<({List<EmailRecord> emails, int totalCount})>> getUserEmailsViaView({
+  Future<Result<({List<EmailRecord> emails, int totalCount})>>
+      getUserEmailsViaView({
     required String userId,
     required int page,
     required int pageSize,
@@ -149,7 +151,7 @@ class InboxRepositoryImpl implements InboxRepository {
       );
 
       final emails = result.emails.map((model) => model.toEntity()).toList();
-      
+
       return Result.success((emails: emails, totalCount: result.totalCount));
     } on ServerException catch (e) {
       return Result.failure(e.message);

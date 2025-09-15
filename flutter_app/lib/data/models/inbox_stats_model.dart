@@ -102,7 +102,8 @@ class InboxStatsModel extends InboxStats {
       invoiceEmails: invoiceEmails ?? this.invoiceEmails,
       successfulProcessing: successfulProcessing ?? this.successfulProcessing,
       failedProcessing: failedProcessing ?? this.failedProcessing,
-      emailsWithAttachments: emailsWithAttachments ?? this.emailsWithAttachments,
+      emailsWithAttachments:
+          emailsWithAttachments ?? this.emailsWithAttachments,
       emailsWithBody: emailsWithBody ?? this.emailsWithBody,
       recentEmailsToday: recentEmailsToday ?? this.recentEmailsToday,
       recentEmailsWeek: recentEmailsWeek ?? this.recentEmailsWeek,

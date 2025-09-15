@@ -45,7 +45,7 @@ class EmailDetailModel extends EmailDetail {
   /// 从Supabase JSON响应创建模型
   factory EmailDetailModel.fromJson(Map<String, dynamic> json) {
     // 解析邮件详情数据
-    
+
     try {
       // 先创建基础邮件记录信息
       final baseInfo = EmailRecordModel.fromJson(json);
@@ -125,7 +125,7 @@ class EmailDetailModel extends EmailDetail {
   /// 转换为JSON
   Map<String, dynamic> toJson() {
     final baseJson = (baseInfo as EmailRecordModel).toJson();
-    
+
     return {
       ...baseJson,
       'email_body_text': emailBodyText,

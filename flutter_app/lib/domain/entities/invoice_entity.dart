@@ -28,7 +28,7 @@ class InvoiceEntity extends Equatable {
   final InvoiceStatus status;
   final String? invoiceType;
   final String? invoiceCode;
-  
+
   // 报销集关联
   final String? reimbursementSetId;
 
@@ -157,10 +157,13 @@ class InvoiceEntity extends Equatable {
   bool get isReimbursed => effectiveStatus == InvoiceStatus.reimbursed;
 
   /// 业务逻辑：是否待报销（基于有效状态）
-  bool get isUnreimbursed => effectiveStatus == InvoiceStatus.unsubmitted || effectiveStatus == InvoiceStatus.submitted;
+  bool get isUnreimbursed =>
+      effectiveStatus == InvoiceStatus.unsubmitted ||
+      effectiveStatus == InvoiceStatus.submitted;
 
   /// 业务逻辑：是否在报销集中
-  bool get isInReimbursementSet => reimbursementSetId != null && reimbursementSetId!.isNotEmpty;
+  bool get isInReimbursementSet =>
+      reimbursementSetId != null && reimbursementSetId!.isNotEmpty;
 
   /// 业务逻辑：是否可以独立修改状态（强制约束：不可以）
   bool get canChangeStatusIndependently => false;
@@ -170,7 +173,8 @@ class InvoiceEntity extends Equatable {
 
   /// 业务逻辑：是否可以加入报销集
   /// 只有未提交状态的独立发票才能加入报销集
-  bool get canAddToReimbursementSet => !isInReimbursementSet && effectiveStatus == InvoiceStatus.unsubmitted;
+  bool get canAddToReimbursementSet =>
+      !isInReimbursementSet && effectiveStatus == InvoiceStatus.unsubmitted;
 
   /// 业务逻辑：是否已删除
   bool get isDeleted => deletedAt != null;

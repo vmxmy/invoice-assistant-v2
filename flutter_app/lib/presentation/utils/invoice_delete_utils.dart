@@ -16,10 +16,10 @@ class InvoiceDeleteUtils {
     String? customMessage,
     VoidCallback? onDeleted,
   }) async {
-    final invoiceName = invoice.sellerName?.isNotEmpty == true 
-        ? invoice.sellerName! 
-        : invoice.invoiceNumber.isNotEmpty 
-            ? invoice.invoiceNumber 
+    final invoiceName = invoice.sellerName?.isNotEmpty == true
+        ? invoice.sellerName!
+        : invoice.invoiceNumber.isNotEmpty
+            ? invoice.invoiceNumber
             : '未知发票';
 
     final result = await UnifiedBottomSheet.showConfirmDialog(

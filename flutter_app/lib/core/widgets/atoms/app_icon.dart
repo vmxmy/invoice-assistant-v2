@@ -11,16 +11,16 @@ enum IconSize {
 
 /// 图标变体枚举
 enum IconVariant {
-  filled,    // 实心图标
-  outlined,  // 轮廓图标
-  rounded,   // 圆角图标
-  sharp,     // 尖角图标
+  filled, // 实心图标
+  outlined, // 轮廓图标
+  rounded, // 圆角图标
+  sharp, // 尖角图标
 }
 
 /// 统一的应用图标组件
-/// 
+///
 /// 提供一致的图标样式和尺寸标准
-/// 
+///
 /// 示例用法:
 /// ```dart
 /// AppIcon(
@@ -32,25 +32,25 @@ enum IconVariant {
 class AppIcon extends StatelessWidget {
   /// 图标数据
   final IconData icon;
-  
+
   /// 图标尺寸
   final IconSize size;
-  
+
   /// 自定义图标颜色，为null时使用主题默认颜色
   final Color? color;
-  
+
   /// 语义化标签，用于无障碍支持
   final String? semanticLabel;
-  
+
   /// 自定义图标大小，覆盖size参数
   final double? customSize;
-  
+
   /// 图标变体（预留扩展）
   final IconVariant variant;
-  
+
   /// 是否应用阴影效果
   final bool applyShadow;
-  
+
   /// 阴影颜色
   final Color? shadowColor;
 
@@ -71,14 +71,14 @@ class AppIcon extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final effectiveSize = customSize ?? _getIconSize();
     final effectiveColor = color ?? colorScheme.onSurface;
-    
+
     Widget iconWidget = Icon(
       icon,
       size: effectiveSize,
       color: effectiveColor,
       semanticLabel: semanticLabel,
     );
-    
+
     if (applyShadow) {
       iconWidget = Container(
         decoration: BoxDecoration(
@@ -93,7 +93,7 @@ class AppIcon extends StatelessWidget {
         child: iconWidget,
       );
     }
-    
+
     return iconWidget;
   }
 
@@ -115,30 +115,30 @@ class AppIcon extends StatelessWidget {
 }
 
 /// 带背景的图标组件
-/// 
+///
 /// 为图标添加圆形或方形背景
 class AppIconWithBackground extends StatelessWidget {
   /// 图标数据
   final IconData icon;
-  
+
   /// 图标尺寸
   final IconSize iconSize;
-  
+
   /// 背景形状
   final BackgroundShape backgroundShape;
-  
+
   /// 背景颜色，为null时使用主题颜色
   final Color? backgroundColor;
-  
+
   /// 图标颜色，为null时使用主题颜色
   final Color? iconColor;
-  
+
   /// 自定义背景大小
   final double? backgroundSize;
-  
+
   /// 语义化标签
   final String? semanticLabel;
-  
+
   /// 点击事件回调
   final VoidCallback? onTap;
 
@@ -158,16 +158,17 @@ class AppIconWithBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final effectiveBackgroundSize = backgroundSize ?? _getBackgroundSize();
-    final effectiveBackgroundColor = backgroundColor ?? colorScheme.primaryContainer;
+    final effectiveBackgroundColor =
+        backgroundColor ?? colorScheme.primaryContainer;
     final effectiveIconColor = iconColor ?? colorScheme.onPrimaryContainer;
-    
+
     Widget container = Container(
       width: effectiveBackgroundSize,
       height: effectiveBackgroundSize,
       decoration: BoxDecoration(
         color: effectiveBackgroundColor,
-        shape: backgroundShape == BackgroundShape.circle 
-            ? BoxShape.circle 
+        shape: backgroundShape == BackgroundShape.circle
+            ? BoxShape.circle
             : BoxShape.rectangle,
         borderRadius: backgroundShape == BackgroundShape.roundedSquare
             ? BorderRadius.circular(8.0)
@@ -182,14 +183,14 @@ class AppIconWithBackground extends StatelessWidget {
         ),
       ),
     );
-    
+
     if (onTap != null) {
       return GestureDetector(
         onTap: onTap,
         child: container,
       );
     }
-    
+
     return container;
   }
 
@@ -211,30 +212,30 @@ class AppIconWithBackground extends StatelessWidget {
 }
 
 /// 徽章图标组件
-/// 
+///
 /// 在图标右上角显示红点或数字徽章
 class AppIconWithBadge extends StatelessWidget {
   /// 图标数据
   final IconData icon;
-  
+
   /// 图标尺寸
   final IconSize iconSize;
-  
+
   /// 图标颜色
   final Color? iconColor;
-  
+
   /// 是否显示徽章
   final bool showBadge;
-  
+
   /// 徽章文本，为null时显示红点
   final String? badgeText;
-  
+
   /// 徽章背景颜色
   final Color? badgeColor;
-  
+
   /// 徽章文本颜色
   final Color? badgeTextColor;
-  
+
   /// 语义化标签
   final String? semanticLabel;
 
@@ -253,7 +254,7 @@ class AppIconWithBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -307,27 +308,27 @@ class AppIconWithBadge extends StatelessWidget {
 }
 
 /// 动画图标组件
-/// 
+///
 /// 支持旋转、缩放等动画效果
 class AppAnimatedIcon extends StatefulWidget {
   /// 图标数据
   final IconData icon;
-  
+
   /// 图标尺寸
   final IconSize iconSize;
-  
+
   /// 图标颜色
   final Color? iconColor;
-  
+
   /// 动画类型
   final AnimationType animationType;
-  
+
   /// 动画时长
   final Duration duration;
-  
+
   /// 是否自动开始动画
   final bool autoStart;
-  
+
   /// 语义化标签
   final String? semanticLabel;
 
@@ -358,7 +359,7 @@ class _AppAnimatedIconState extends State<AppAnimatedIcon>
       duration: widget.duration,
       vsync: this,
     );
-    
+
     switch (widget.animationType) {
       case AnimationType.rotation:
         _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
@@ -372,7 +373,7 @@ class _AppAnimatedIconState extends State<AppAnimatedIcon>
         _animation = Tween<double>(begin: 0.3, end: 1.0).animate(_controller);
         break;
     }
-    
+
     if (widget.autoStart) {
       _controller.repeat();
     }
@@ -419,14 +420,14 @@ class _AppAnimatedIconState extends State<AppAnimatedIcon>
 
 /// 背景形状枚举
 enum BackgroundShape {
-  circle,        // 圆形
-  square,        // 正方形
+  circle, // 圆形
+  square, // 正方形
   roundedSquare, // 圆角正方形
 }
 
 /// 动画类型枚举
 enum AnimationType {
   rotation, // 旋转
-  scale,    // 缩放
-  fade,     // 淡入淡出
+  scale, // 缩放
+  fade, // 淡入淡出
 }

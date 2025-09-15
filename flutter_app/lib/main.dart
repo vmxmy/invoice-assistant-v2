@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // ⚠️ 需要保留：使用 WidgetsFlutterBinding
 import 'core/network/supabase_client.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/security/secure_storage_service.dart';
@@ -29,7 +29,6 @@ void main() async {
 
     // 初始化Supabase客户端
     await SupabaseClientManager.initialize();
-
   } catch (e) {
     if (AppConfig.enableLogging) {
       AppLogger.error('🚨 应用初始化失败', tag: 'App', error: e);

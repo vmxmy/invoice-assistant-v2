@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../bloc/upload_state.dart';
 
 /// iOS风格的上传结果组件
-/// 
+///
 /// 设计特点：
 /// - 清晰的成功/失败状态展示
 /// - 详细的文件处理结果
@@ -30,7 +30,6 @@ class IOSUploadResultWidget extends StatefulWidget {
 
 class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
     with TickerProviderStateMixin {
-  
   late AnimationController _fadeController;
   late AnimationController _bounceController;
   late Animation<double> _fadeAnimation;
@@ -47,7 +46,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _bounceController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -94,22 +93,22 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
           SliverToBoxAdapter(
             child: _buildResultHeader(successCount, failedCount, hasFailures),
           ),
-          
+
           // 统计卡片
           SliverToBoxAdapter(
             child: _buildStatsCards(successCount, failedCount),
           ),
-          
+
           // 文件结果列表
           SliverToBoxAdapter(
             child: _buildResultsList(),
           ),
-          
+
           // 操作按钮
           SliverToBoxAdapter(
             child: _buildActionButtons(hasFailures),
           ),
-          
+
           // 底部间距
           const SliverToBoxAdapter(
             child: SizedBox(height: 32),
@@ -119,7 +118,8 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
     );
   }
 
-  Widget _buildResultHeader(int successCount, int failedCount, bool hasFailures) {
+  Widget _buildResultHeader(
+      int successCount, int failedCount, bool hasFailures) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       child: Column(
@@ -152,9 +152,9 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
               );
             },
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // 主标题
           Text(
             hasFailures ? '部分上传完成' : '上传完成',
@@ -164,9 +164,9 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
               color: CupertinoColors.label,
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // 副标题
           Text(
             _buildSummaryText(successCount, failedCount),
@@ -196,9 +196,9 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
               color: CupertinoColors.systemGreen,
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // 失败统计卡片
           Expanded(
             child: _buildStatCard(
@@ -240,9 +240,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
             size: 32,
             color: color,
           ),
-          
           const SizedBox(height: 8),
-          
           Text(
             count.toString(),
             style: TextStyle(
@@ -251,9 +249,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
               color: color,
             ),
           ),
-          
           const SizedBox(height: 4),
-          
           Text(
             title,
             style: const TextStyle(
@@ -281,9 +277,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
               color: CupertinoColors.label,
             ),
           ),
-          
           const SizedBox(height: 16),
-          
           Container(
             decoration: BoxDecoration(
               color: CupertinoColors.systemBackground,
@@ -337,17 +331,21 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                 ),
                 child: Icon(
                   result.success
-                      ? (isImage ? CupertinoIcons.photo_fill : CupertinoIcons.doc_text_fill)
+                      ? (isImage
+                          ? CupertinoIcons.photo_fill
+                          : CupertinoIcons.doc_text_fill)
                       : CupertinoIcons.xmark_circle_fill,
                   size: 22,
                   color: result.success
-                      ? (isImage ? CupertinoColors.systemGreen : CupertinoColors.systemBlue)
+                      ? (isImage
+                          ? CupertinoColors.systemGreen
+                          : CupertinoColors.systemBlue)
                       : CupertinoColors.systemRed,
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // 文件信息
               Expanded(
                 child: Column(
@@ -363,9 +361,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    
                     const SizedBox(height: 2),
-                    
                     Row(
                       children: [
                         Text(
@@ -375,7 +371,6 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                             color: CupertinoColors.secondaryLabel,
                           ),
                         ),
-                        
                         Text(
                           ' • ${_formatUploadTime(result.uploadTime)}',
                           style: const TextStyle(
@@ -388,12 +383,12 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                   ],
                 ),
               ),
-              
+
               // 状态指示器
               _buildStatusBadge(result),
             ],
           ),
-          
+
           // 错误信息
           if (!result.success && result.errorMessage != null) ...[
             const SizedBox(height: 12),
@@ -476,9 +471,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
             size: 16,
             color: CupertinoColors.systemRed,
           ),
-          
           const SizedBox(width: 8),
-          
           Expanded(
             child: Text(
               errorMessage,
@@ -531,7 +524,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
             ),
             const SizedBox(height: 12),
           ],
-          
+
           // 继续上传按钮
           SizedBox(
             width: double.infinity,
@@ -540,9 +533,9 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                 HapticFeedback.lightImpact();
                 widget.onUploadMore?.call();
               },
-              color: hasFailures 
-                ? CupertinoColors.systemGrey5 
-                : CupertinoColors.systemBlue,
+              color: hasFailures
+                  ? CupertinoColors.systemGrey5
+                  : CupertinoColors.systemBlue,
               borderRadius: BorderRadius.circular(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -550,9 +543,9 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                   Icon(
                     CupertinoIcons.plus,
                     size: 18,
-                    color: hasFailures 
-                      ? CupertinoColors.label 
-                      : CupertinoColors.white,
+                    color: hasFailures
+                        ? CupertinoColors.label
+                        : CupertinoColors.white,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -560,20 +553,19 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: hasFailures 
-                        ? CupertinoColors.label 
-                        : CupertinoColors.white,
+                      color: hasFailures
+                          ? CupertinoColors.label
+                          : CupertinoColors.white,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          
+
           // 完成按钮
           if (widget.onClose != null) ...[
             const SizedBox(height: 12),
-            
             SizedBox(
               width: double.infinity,
               child: CupertinoButton(
@@ -625,7 +617,7 @@ class _IOSUploadResultWidgetState extends State<IOSUploadResultWidget>
   String _formatUploadTime(DateTime uploadTime) {
     final now = DateTime.now();
     final difference = now.difference(uploadTime);
-    
+
     if (difference.inSeconds < 60) {
       return '刚刚';
     } else if (difference.inMinutes < 60) {

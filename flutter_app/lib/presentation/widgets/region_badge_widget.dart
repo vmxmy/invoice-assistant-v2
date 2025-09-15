@@ -193,10 +193,10 @@ class RegionStatisticsWidget extends StatelessWidget {
     }
 
     final entries = regionStatistics!.entries.toList();
-    
+
     // 按发票数量降序排列
     entries.sort((a, b) => b.value.compareTo(a.value));
-    
+
     // 获取要显示的徽章
     final visibleEntries = entries.take(maxVisibleBadges).toList();
     final hasMore = entries.length > maxVisibleBadges;
@@ -208,11 +208,11 @@ class RegionStatisticsWidget extends StatelessWidget {
       children: [
         // 显示可见的区域徽章
         ...visibleEntries.map((entry) => RegionBadge(
-          regionName: entry.key == '未知区域' ? '未知' : entry.key,
-          invoiceCount: entry.value,
-          size: badgeSize,
-        )),
-        
+              regionName: entry.key == '未知区域' ? '未知' : entry.key,
+              invoiceCount: entry.value,
+              size: badgeSize,
+            )),
+
         // 如果有更多区域，显示"更多"徽章
         if (hasMore)
           GestureDetector(
@@ -307,4 +307,3 @@ class RegionStatisticsWidget extends StatelessWidget {
     }
   }
 }
-

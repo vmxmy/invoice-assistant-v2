@@ -105,7 +105,7 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   ) async {
     try {
       AppLogger.debug('🔐 [PermissionBloc] 开始加载权限信息', tag: 'Permission');
-      
+
       // 如果已有缓存权限且不是强制刷新，直接返回缓存
       if (_cachedPermissions != null) {
         AppLogger.debug('🔐 [PermissionBloc] 使用缓存的权限信息', tag: 'Permission');
@@ -116,13 +116,12 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       emit(const PermissionLoading());
 
       final permissions = await _permissionService.getCurrentUserPermissions();
-      
+
       if (permissions != null) {
         _cachedPermissions = permissions;
         AppLogger.info(
-          '🔐 [PermissionBloc] 权限加载成功: ${permissions.permissionLevel.displayName}',
-          tag: 'Permission'
-        );
+            '🔐 [PermissionBloc] 权限加载成功: ${permissions.permissionLevel.displayName}',
+            tag: 'Permission');
         emit(PermissionLoaded(permissions));
       } else {
         AppLogger.warning('🔐 [PermissionBloc] 无法获取权限信息', tag: 'Permission');
@@ -146,20 +145,19 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   ) async {
     try {
       AppLogger.debug('🔐 [PermissionBloc] 强制刷新权限信息', tag: 'Permission');
-      
+
       emit(const PermissionLoading());
-      
+
       // 清除内存缓存，使用PermissionService的刷新方法
       _cachedPermissions = null;
 
       final permissions = await _permissionService.refreshPermissions();
-      
+
       if (permissions != null) {
         _cachedPermissions = permissions;
         AppLogger.info(
-          '🔐 [PermissionBloc] 权限刷新成功: ${permissions.permissionLevel.displayName}',
-          tag: 'Permission'
-        );
+            '🔐 [PermissionBloc] 权限刷新成功: ${permissions.permissionLevel.displayName}',
+            tag: 'Permission');
         emit(PermissionLoaded(permissions));
       } else {
         AppLogger.warning('🔐 [PermissionBloc] 刷新后无法获取权限信息', tag: 'Permission');
@@ -182,13 +180,13 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
     Emitter<PermissionState> emit,
   ) async {
     AppLogger.debug('🔐 [PermissionBloc] 清除权限信息', tag: 'Permission');
-    
+
     // 清除内存缓存
     _cachedPermissions = null;
-    
+
     // 清除持久化缓存
     await _permissionService.clearPermissionCache();
-    
+
     emit(const PermissionInitial());
   }
 
@@ -206,10 +204,9 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
 
       final hasPermission = _cachedPermissions!.hasPermission(event.permission);
       AppLogger.debug(
-        '🔐 [PermissionBloc] 权限检查 [${event.permission}]: $hasPermission',
-        tag: 'Permission'
-      );
-      
+          '🔐 [PermissionBloc] 权限检查 [${event.permission}]: $hasPermission',
+          tag: 'Permission');
+
       // 保持当前状态，只是用于触发检查
       emit(PermissionLoaded(_cachedPermissions!));
     } catch (e) {
@@ -234,11 +231,9 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       }
 
       final hasRole = _cachedPermissions!.hasRole(event.role);
-      AppLogger.debug(
-        '🔐 [PermissionBloc] 角色检查 [${event.role}]: $hasRole',
-        tag: 'Permission'
-      );
-      
+      AppLogger.debug('🔐 [PermissionBloc] 角色检查 [${event.role}]: $hasRole',
+          tag: 'Permission');
+
       // 保持当前状态，只是用于触发检查
       emit(PermissionLoaded(_cachedPermissions!));
     } catch (e) {
@@ -276,7 +271,7 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
   bool get isStaff => _cachedPermissions?.isStaff ?? false;
 
   /// 获取权限级别
-  PermissionLevel get permissionLevel => 
+  PermissionLevel get permissionLevel =>
       _cachedPermissions?.permissionLevel ?? PermissionLevel.user;
 
   @override

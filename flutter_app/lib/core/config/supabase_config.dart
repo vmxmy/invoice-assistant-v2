@@ -13,7 +13,8 @@ class SupabaseConfig {
 
   // Supabase 配置 - 只从环境变量获取，不提供硬编码默认值
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const String supabaseAnonKey =
+      String.fromEnvironment('SUPABASE_ANON_KEY');
 
   // 认证配置 - 与前端保持一致
   static const Map<String, dynamic> authConfig = {
@@ -43,31 +44,37 @@ class SupabaseConfig {
         if (AppConfig.enableLogging) {
           AppLogger.error('CRITICAL: SUPABASE_URL 环境变量未配置', tag: 'Security');
         }
-        throw ConfigurationException('Missing SUPABASE_URL environment variable');
+        throw ConfigurationException(
+            'Missing SUPABASE_URL environment variable');
       }
 
       if (supabaseAnonKey.isEmpty) {
         if (AppConfig.enableLogging) {
-          AppLogger.error('CRITICAL: SUPABASE_ANON_KEY 环境变量未配置', tag: 'Security');
+          AppLogger.error('CRITICAL: SUPABASE_ANON_KEY 环境变量未配置',
+              tag: 'Security');
         }
-        throw ConfigurationException('Missing SUPABASE_ANON_KEY environment variable');
+        throw ConfigurationException(
+            'Missing SUPABASE_ANON_KEY environment variable');
       }
 
       // 检查 URL 格式
       final uri = Uri.tryParse(supabaseUrl);
       if (uri == null || !uri.isAbsolute) {
         if (AppConfig.enableLogging) {
-          AppLogger.error('Invalid Supabase URL format: ${supabaseUrl.substring(0, 20)}...', tag: 'Config');
+          AppLogger.error(
+              'Invalid Supabase URL format: ${supabaseUrl.substring(0, 20)}...',
+              tag: 'Config');
         }
         return false;
       }
 
       // 🚨 安全检查：验证是否为合法的 Supabase 域名
-      if (!uri.host.endsWith('.supabase.co') && 
-          !uri.host.contains('localhost') && 
+      if (!uri.host.endsWith('.supabase.co') &&
+          !uri.host.contains('localhost') &&
           !uri.host.contains('127.0.0.1')) {
         if (AppConfig.enableLogging) {
-          AppLogger.error('Untrusted Supabase domain: ${uri.host}', tag: 'Security');
+          AppLogger.error('Untrusted Supabase domain: ${uri.host}',
+              tag: 'Security');
         }
         return false;
       }
@@ -91,18 +98,21 @@ class SupabaseConfig {
       // 环境一致性检查
       if (isProduction && isLocal) {
         if (AppConfig.enableLogging) {
-          AppLogger.warning('Production environment with local URL', tag: 'Config');
+          AppLogger.warning('Production environment with local URL',
+              tag: 'Config');
         }
       }
 
       if (AppConfig.enableLogging) {
-        AppLogger.info('✅ Supabase configuration validated successfully', tag: 'Security');
+        AppLogger.info('✅ Supabase configuration validated successfully',
+            tag: 'Security');
       }
 
       return true;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.error('Supabase config validation error', tag: 'Config', error: e);
+        AppLogger.error('Supabase config validation error',
+            tag: 'Config', error: e);
       }
       return false;
     }
@@ -111,11 +121,11 @@ class SupabaseConfig {
   /// 验证 JWT 格式
   static bool _isValidJWTFormat(String token) {
     if (token.isEmpty) return false;
-    
+
     // JWT 应该有三个部分，用 . 分隔
     final parts = token.split('.');
     if (parts.length != 3) return false;
-    
+
     // 每个部分都应该是有效的 base64 编码
     try {
       for (final part in parts) {

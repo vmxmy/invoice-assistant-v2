@@ -13,10 +13,12 @@ class InvoiceCache {
   String? _currentUserId;
 
   // 发票列表缓存 - 按用户ID分组
-  final Map<String, Map<String, _CacheEntry<List<InvoiceEntity>>>> _listCacheByUser = {};
+  final Map<String, Map<String, _CacheEntry<List<InvoiceEntity>>>>
+      _listCacheByUser = {};
 
-  // 发票详情缓存 - 按用户ID分组  
-  final Map<String, Map<String, _CacheEntry<InvoiceEntity>>> _detailCacheByUser = {};
+  // 发票详情缓存 - 按用户ID分组
+  final Map<String, Map<String, _CacheEntry<InvoiceEntity>>>
+      _detailCacheByUser = {};
 
   // 统计数据缓存 - 按用户ID分组
   final Map<String, _CacheEntry<int>> _countCacheByUser = {};
@@ -31,7 +33,7 @@ class InvoiceCache {
   void _ensureUserContext() {
     final currentUser = SupabaseClientManager.currentUser;
     final newUserId = currentUser?.id;
-    
+
     if (_currentUserId != newUserId) {
       if (_currentUserId != null) {
         AppLogger.info(
@@ -39,9 +41,9 @@ class InvoiceCache {
           tag: 'Cache',
         );
       }
-      
+
       _currentUserId = newUserId;
-      
+
       // 为新用户初始化缓存空间
       if (newUserId != null) {
         _listCacheByUser.putIfAbsent(newUserId, () => {});
@@ -77,7 +79,7 @@ class InvoiceCache {
   set _countCache(_CacheEntry<int>? value) {
     _ensureUserContext();
     if (_currentUserId == null) return;
-    
+
     if (value == null) {
       _countCacheByUser.remove(_currentUserId!);
     } else {
@@ -110,7 +112,7 @@ class InvoiceCache {
       data: invoices,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
     );
-    
+
     AppLogger.debug(
       '💾 [InvoiceCache] 缓存发票列表: $_currentUserId [$cacheKey] ${invoices.length}条',
       tag: 'Cache',
@@ -124,7 +126,7 @@ class InvoiceCache {
 
     final userListCache = _listCacheByUser[_currentUserId!] ?? {};
     final entry = userListCache[cacheKey];
-    
+
     if (entry != null && !entry.isExpired) {
       AppLogger.debug(
         '✅ [InvoiceCache] 命中发票列表缓存: $_currentUserId [$cacheKey]',
@@ -170,7 +172,7 @@ class InvoiceCache {
       data: invoice,
       expiration: DateTime.now().add(ttl ?? _defaultTtl),
     );
-    
+
     AppLogger.debug(
       '💾 [InvoiceCache] 缓存发票详情: $_currentUserId [$invoiceId]',
       tag: 'Cache',
@@ -184,7 +186,7 @@ class InvoiceCache {
 
     final userDetailCache = _detailCacheByUser[_currentUserId!] ?? {};
     final entry = userDetailCache[invoiceId];
-    
+
     if (entry != null && !entry.isExpired) {
       AppLogger.debug(
         '✅ [InvoiceCache] 命中发票详情缓存: $_currentUserId [$invoiceId]',
@@ -217,7 +219,7 @@ class InvoiceCache {
       data: count,
       expiration: DateTime.now().add(ttl ?? _countTtl),
     );
-    
+
     AppLogger.debug(
       '💾 [InvoiceCache] 缓存发票总数: $_currentUserId [$count]',
       tag: 'Cache',
@@ -313,7 +315,7 @@ class InvoiceCache {
     _listCacheByUser[_currentUserId!]?.clear();
     _detailCacheByUser[_currentUserId!]?.clear();
     _countCacheByUser.remove(_currentUserId!);
-    
+
     AppLogger.info(
       '🧹 [InvoiceCache] 清理当前用户所有缓存: $_currentUserId',
       tag: 'Cache',
@@ -326,7 +328,7 @@ class InvoiceCache {
     _detailCacheByUser.clear();
     _countCacheByUser.clear();
     _currentUserId = null;
-    
+
     AppLogger.warning(
       '🧨 [InvoiceCache] 清理所有用户缓存（紧急清理）',
       tag: 'Cache',
@@ -338,7 +340,7 @@ class InvoiceCache {
     _listCacheByUser.remove(userId);
     _detailCacheByUser.remove(userId);
     _countCacheByUser.remove(userId);
-    
+
     AppLogger.info(
       '🗑️ [InvoiceCache] 清理指定用户缓存: $userId',
       tag: 'Cache',
@@ -363,11 +365,11 @@ class InvoiceCache {
   /// 获取缓存统计信息
   Map<String, dynamic> getCacheStats() {
     _ensureUserContext();
-    
+
     final userListCache = _listCacheByUser[_currentUserId] ?? {};
     final userDetailCache = _detailCacheByUser[_currentUserId] ?? {};
     final userCountCache = _countCacheByUser[_currentUserId];
-    
+
     return {
       'currentUserId': _currentUserId,
       'totalUsers': _listCacheByUser.keys.length,
@@ -375,12 +377,16 @@ class InvoiceCache {
         'listCacheSize': userListCache.length,
         'detailCacheSize': userDetailCache.length,
         'hasCountCache': userCountCache != null && !userCountCache.isExpired,
-        'expiredListEntries': userListCache.values.where((e) => e.isExpired).length,
-        'expiredDetailEntries': userDetailCache.values.where((e) => e.isExpired).length,
+        'expiredListEntries':
+            userListCache.values.where((e) => e.isExpired).length,
+        'expiredDetailEntries':
+            userDetailCache.values.where((e) => e.isExpired).length,
       },
       'systemStats': {
-        'totalListCaches': _listCacheByUser.values.fold<int>(0, (sum, cache) => sum + cache.length),
-        'totalDetailCaches': _detailCacheByUser.values.fold<int>(0, (sum, cache) => sum + cache.length),
+        'totalListCaches': _listCacheByUser.values
+            .fold<int>(0, (sum, cache) => sum + cache.length),
+        'totalDetailCaches': _detailCacheByUser.values
+            .fold<int>(0, (sum, cache) => sum + cache.length),
         'totalCountCaches': _countCacheByUser.length,
       },
     };

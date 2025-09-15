@@ -131,9 +131,10 @@ class _LoginPageState extends State<LoginPage> {
           child: ConstrainedBox(
             constraints: BoxConstraints(
               minHeight: (MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom -
-                  48).clamp(200.0, double.infinity),
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom -
+                      48)
+                  .clamp(200.0, double.infinity),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -233,11 +234,14 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(
                               color: colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                  color:
+                                      colorScheme.error.withValues(alpha: 0.3)),
                             ),
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(color: colorScheme.onErrorContainer),
+                              style: TextStyle(
+                                  color: colorScheme.onErrorContainer),
                             ),
                           ),
 
@@ -285,10 +289,15 @@ class _LoginPageState extends State<LoginPage> {
                     CupertinoButton(
                       onPressed: () {
                         if (AppConfig.enableLogging) {
-                          AppLogger.debug('🔗 [Navigation] 点击立即注册按钮', tag: 'Navigation');
-                          AppLogger.debug('🔗 [Navigation] 当前路由: /login', tag: 'Navigation');
-                          AppLogger.debug('🔗 [Navigation] 目标路由: /register', tag: 'Navigation');
-                          AppLogger.debug('🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}', tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 点击立即注册按钮',
+                              tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 当前路由: /login',
+                              tag: 'Navigation');
+                          AppLogger.debug('🔗 [Navigation] 目标路由: /register',
+                              tag: 'Navigation');
+                          AppLogger.debug(
+                              '🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}',
+                              tag: 'Navigation');
                         }
                         context.push('/register');
                       },

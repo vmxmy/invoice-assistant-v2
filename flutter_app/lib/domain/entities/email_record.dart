@@ -45,24 +45,24 @@ class EmailRecord extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    triggerEventId,
-    workflowExecutionId,
-    emailSubject,
-    fromEmail,
-    fromName,
-    toEmail,
-    emailDate,
-    emailCategory,
-    classificationReason,
-    executionPath,
-    overallStatus,
-    hasAttachments,
-    attachmentCount,
-    userMappingStatus,
-    createdAt,
-    totalCount,
-  ];
+        id,
+        triggerEventId,
+        workflowExecutionId,
+        emailSubject,
+        fromEmail,
+        fromName,
+        toEmail,
+        emailDate,
+        emailCategory,
+        classificationReason,
+        executionPath,
+        overallStatus,
+        hasAttachments,
+        attachmentCount,
+        userMappingStatus,
+        createdAt,
+        totalCount,
+      ];
 
   EmailRecord copyWith({
     String? id,

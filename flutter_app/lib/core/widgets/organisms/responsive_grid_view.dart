@@ -1,37 +1,37 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../theme/ios_theme_adapter.dart';
 
 /// 响应式网格视图组件
-/// 
+///
 /// 根据屏幕尺寸自动调整列数和布局，提供一致的网格体验
 class ResponsiveGridView extends StatelessWidget {
   /// 子组件构建器
   final Widget Function(BuildContext context, int index) itemBuilder;
-  
+
   /// 子组件数量
   final int itemCount;
-  
+
   /// 最小卡片宽度 (用于计算列数)
   final double minItemWidth;
-  
+
   /// 主轴间距
   final double mainAxisSpacing;
-  
+
   /// 横轴间距
   final double crossAxisSpacing;
-  
+
   /// 网格内边距
   final EdgeInsets padding;
-  
+
   /// 子组件宽高比
   final double childAspectRatio;
-  
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
 
@@ -54,7 +54,7 @@ class ResponsiveGridView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = _calculateCrossAxisCount(constraints.maxWidth);
-        
+
         return GridView.builder(
           controller: controller,
           physics: physics,
@@ -77,17 +77,18 @@ class ResponsiveGridView extends StatelessWidget {
   int _calculateCrossAxisCount(double availableWidth) {
     // 减去内边距
     final contentWidth = availableWidth - padding.horizontal;
-    
+
     // 计算理论上可以容纳的列数
-    final theoreticalCount = (contentWidth + crossAxisSpacing) / (minItemWidth + crossAxisSpacing);
-    
+    final theoreticalCount =
+        (contentWidth + crossAxisSpacing) / (minItemWidth + crossAxisSpacing);
+
     // 至少1列，最多根据设备类型限制
     final deviceType = DeviceType.medium;
     final maxColumns = _getMaxColumnsForDevice(deviceType);
-    
+
     return theoreticalCount.floor().clamp(1, maxColumns);
   }
-  
+
   /// 根据设备类型获取最大列数
   int _getMaxColumnsForDevice(DeviceType deviceType) {
     switch (deviceType) {
@@ -103,36 +104,36 @@ class ResponsiveGridView extends StatelessWidget {
 }
 
 /// 响应式交错网格视图组件
-/// 
+///
 /// 使用 SliverGridDelegateWithMaxCrossAxisExtent 实现更灵活的布局
 class ResponsiveStaggeredGridView extends StatelessWidget {
   /// 子组件构建器
   final Widget Function(BuildContext context, int index) itemBuilder;
-  
+
   /// 子组件数量
   final int itemCount;
-  
+
   /// 横轴最大范围
   final double maxCrossAxisExtent;
-  
+
   /// 主轴间距
   final double mainAxisSpacing;
-  
+
   /// 横轴间距
   final double crossAxisSpacing;
-  
+
   /// 网格内边距
   final EdgeInsets padding;
-  
+
   /// 子组件宽高比
   final double childAspectRatio;
-  
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
 
@@ -156,7 +157,7 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
       builder: (context, constraints) {
         final deviceType = DeviceType.medium;
         final responsiveMaxExtent = _getResponsiveMaxExtent(deviceType);
-        
+
         return GridView.builder(
           controller: controller,
           physics: physics,
@@ -174,7 +175,7 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
       },
     );
   }
-  
+
   /// 根据设备类型获取响应式最大横轴范围
   double _getResponsiveMaxExtent(DeviceType deviceType) {
     switch (deviceType) {
@@ -190,27 +191,27 @@ class ResponsiveStaggeredGridView extends StatelessWidget {
 }
 
 /// 自适应网格组件
-/// 
+///
 /// 结合了固定列数和最大范围的优点，提供最佳的响应式体验
 class AdaptiveGridView extends StatelessWidget {
   /// 子组件构建器
   final Widget Function(BuildContext context, int index) itemBuilder;
-  
+
   /// 子组件数量
   final int itemCount;
-  
+
   /// 网格配置
   final AdaptiveGridConfig config;
-  
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
-  
+
   /// 网格内边距
   final EdgeInsets padding;
 
@@ -231,7 +232,7 @@ class AdaptiveGridView extends StatelessWidget {
       builder: (context, constraints) {
         final deviceType = DeviceType.medium;
         final gridDelegate = config.getDelegateForDevice(deviceType);
-        
+
         return GridView.builder(
           controller: controller,
           physics: physics,
@@ -250,13 +251,13 @@ class AdaptiveGridView extends StatelessWidget {
 class AdaptiveGridConfig {
   /// 移动端配置
   final GridConfig mobileConfig;
-  
+
   /// 平板端配置
   final GridConfig tabletConfig;
-  
+
   /// 桌面端配置
   final GridConfig desktopConfig;
-  
+
   /// 大屏配置
   final GridConfig largeConfig;
 
@@ -275,7 +276,7 @@ class AdaptiveGridConfig {
       DeviceType.large => largeConfig,
       DeviceType.tablet => tabletConfig,
     };
-    
+
     return config.createDelegate();
   }
 }
@@ -284,16 +285,16 @@ class AdaptiveGridConfig {
 class GridConfig {
   /// 横轴数量 (如果设置则使用固定列数)
   final int? crossAxisCount;
-  
+
   /// 横轴最大范围 (如果设置则使用最大范围)
   final double? maxCrossAxisExtent;
-  
+
   /// 主轴间距
   final double mainAxisSpacing;
-  
+
   /// 横轴间距
   final double crossAxisSpacing;
-  
+
   /// 子组件宽高比
   final double childAspectRatio;
 
@@ -304,7 +305,7 @@ class GridConfig {
     this.crossAxisSpacing = 12.0,
     this.childAspectRatio = 1.2,
   }) : assert(crossAxisCount != null || maxCrossAxisExtent != null,
-             'Either crossAxisCount or maxCrossAxisExtent must be provided');
+            'Either crossAxisCount or maxCrossAxisExtent must be provided');
 
   /// 创建网格代理
   SliverGridDelegate createDelegate() {

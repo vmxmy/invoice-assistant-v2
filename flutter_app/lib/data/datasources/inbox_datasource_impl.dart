@@ -11,7 +11,6 @@ import '../../domain/entities/email_filters.dart';
 import 'inbox_datasource.dart';
 
 class InboxDataSourceImpl implements InboxDataSource {
-
   @override
   Future<List<EmailRecordModel>> getUserEmails({
     required String userId,
@@ -30,13 +29,15 @@ class InboxDataSourceImpl implements InboxDataSource {
       }
 
       // 调用数据库RPC函数，对应Web项目的 get_user_emails
-      final response = await SupabaseClientManager.client.rpc('get_user_emails', params: {
+      final response =
+          await SupabaseClientManager.client.rpc('get_user_emails', params: {
         'user_uuid': userId,
         'limit_count': pageSize,
         'offset_count': (page - 1) * pageSize,
         'category_filter': filters?.category,
         'status_filter': filters?.status,
-        'search_query': filters?.search?.isNotEmpty == true ? filters!.search : null,
+        'search_query':
+            filters?.search?.isNotEmpty == true ? filters!.search : null,
       });
 
       if (response == null) {
@@ -45,7 +46,10 @@ class InboxDataSourceImpl implements InboxDataSource {
 
       // 将响应转换为EmailRecordModel列表
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => EmailRecordModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map(
+              (json) => EmailRecordModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       throw ServerException(
         message: '获取邮件列表失败: ${e.toString()}',
@@ -70,11 +74,11 @@ class InboxDataSourceImpl implements InboxDataSource {
       }
 
       // 调用数据库RPC函数，对应Web项目的 get_email_detail
-      final response = await SupabaseClientManager.client.rpc('get_email_detail', params: {
+      final response =
+          await SupabaseClientManager.client.rpc('get_email_detail', params: {
         'email_id': emailId,
         'user_uuid': userId,
       });
-
 
       if (response == null) {
         throw ServerException(
@@ -85,7 +89,7 @@ class InboxDataSourceImpl implements InboxDataSource {
 
       // 处理不同的响应格式
       Map<String, dynamic> emailData;
-      
+
       if (response is List) {
         if (response.isEmpty) {
           throw ServerException(
@@ -99,7 +103,8 @@ class InboxDataSourceImpl implements InboxDataSource {
           emailData = firstItem;
         } else {
           throw ServerException(
-            message: '邮件数据格式错误: 期望Map<String, dynamic>，实际获得${firstItem.runtimeType}',
+            message:
+                '邮件数据格式错误: 期望Map<String, dynamic>，实际获得${firstItem.runtimeType}',
             statusCode: 500,
           );
         }
@@ -137,7 +142,8 @@ class InboxDataSourceImpl implements InboxDataSource {
       }
 
       // 调用数据库RPC函数，对应Web项目的 get_user_inbox_stats
-      final response = await SupabaseClientManager.client.rpc('get_user_inbox_stats', params: {
+      final response = await SupabaseClientManager.client
+          .rpc('get_user_inbox_stats', params: {
         'user_uuid': userId,
       });
 
@@ -180,7 +186,7 @@ class InboxDataSourceImpl implements InboxDataSource {
       page: page,
       pageSize: pageSize,
     );
-    
+
     return (
       emails: emails,
       totalCount: emails.length,

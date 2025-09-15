@@ -81,7 +81,9 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
           children: [
             CupertinoActivityIndicator(radius: 16),
             SizedBox(height: 16),
-            Text('加载中...', style: TextStyle(color: CupertinoSemanticColors.secondaryLabel)),
+            Text('加载中...',
+                style:
+                    TextStyle(color: CupertinoSemanticColors.secondaryLabel)),
           ],
         ),
       ),
@@ -115,7 +117,8 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
               message,
               style: TextStyle(
                 fontSize: 14,
-                color: CupertinoSemanticColors.secondaryLabel.withValues(alpha: 0.8),
+                color: CupertinoSemanticColors.secondaryLabel
+                    .withValues(alpha: 0.8),
               ),
               textAlign: TextAlign.center,
             ),
@@ -200,7 +203,9 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey.resolveFrom(context).withValues(alpha: 0.1),
+            color: CupertinoColors.systemGrey
+                .resolveFrom(context)
+                .withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -349,7 +354,9 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
                 '验证状态',
                 invoice.isVerified ? '已验证' : '未验证',
                 invoice.isVerified ? Icons.verified : Icons.pending_outlined,
-                textColor: invoice.isVerified ? CupertinoSemanticColors.success : CupertinoSemanticColors.warning,
+                textColor: invoice.isVerified
+                    ? CupertinoSemanticColors.success
+                    : CupertinoSemanticColors.warning,
               ),
 
               if (invoice.verifiedAt != null)
@@ -410,18 +417,34 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton.icon(
+          child: CupertinoButton(
             onPressed: () => _shareInvoice(invoice),
-            icon: const Icon(Icons.share),
-            label: const Text('分享'),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            color: CupertinoColors.systemGrey6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(CupertinoIcons.share, color: CupertinoColors.systemBlue),
+                const SizedBox(width: 4),
+                const Text('分享', style: TextStyle(color: CupertinoColors.systemBlue)),
+              ],
+            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: OutlinedButton.icon(
+          child: CupertinoButton(
             onPressed: () => _exportInvoice(invoice),
-            icon: const Icon(Icons.download),
-            label: const Text('导出'),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            color: CupertinoColors.systemGrey6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(CupertinoIcons.cloud_download, color: CupertinoColors.systemBlue),
+                const SizedBox(width: 4),
+                const Text('导出', style: TextStyle(color: CupertinoColors.systemBlue)),
+              ],
+            ),
           ),
         ),
       ],
@@ -481,8 +504,6 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
-
-
 
   void _shareInvoice(InvoiceEntity invoice) {
     // 实现分享功能
@@ -562,5 +583,4 @@ class _InvoiceDetailPageState extends State<InvoiceDetailPage> {
       ),
     );
   }
-
 }

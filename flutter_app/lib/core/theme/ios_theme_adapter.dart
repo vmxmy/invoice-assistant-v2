@@ -15,12 +15,12 @@ enum DeviceType {
 /// 遵循 Apple Human Interface Guidelines 和 2025 最佳实践
 class IOSThemeAdapter {
   IOSThemeAdapter._();
-  
+
   /// 获取适配的 ColorScheme（过渡期兼容）
   /// 将 Cupertino 颜色映射为 Material ColorScheme 格式
   static ColorScheme getCompatibleColorScheme(BuildContext context) {
     final isDark = CupertinoTheme.of(context).brightness == Brightness.dark;
-    
+
     if (isDark) {
       return const ColorScheme.dark(
         primary: CupertinoColors.systemBlue,
@@ -51,14 +51,15 @@ class IOSThemeAdapter {
       );
     }
   }
-  
+
   /// 获取适配的 TextTheme
   /// 基于 iOS 排版系统创建 Material TextTheme
   static TextTheme getCompatibleTextTheme(BuildContext context) {
     final isDark = CupertinoTheme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? CupertinoColors.white : CupertinoColors.black;
-    final secondaryTextColor = isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey;
-    
+    final secondaryTextColor =
+        isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey;
+
     return TextTheme(
       // iOS Large Title - 34pt Bold
       headlineLarge: TextStyle(
@@ -67,7 +68,7 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: 0.41,
       ),
-      
+
       // iOS Title 1 - 22pt Regular
       headlineMedium: TextStyle(
         fontSize: 22.0,
@@ -75,7 +76,7 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: 0.35,
       ),
-      
+
       // iOS Title 2 - 17pt Semibold
       titleLarge: TextStyle(
         fontSize: 17.0,
@@ -83,7 +84,7 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: -0.41,
       ),
-      
+
       // iOS Title 3 - 16pt Regular
       titleMedium: TextStyle(
         fontSize: 16.0,
@@ -91,7 +92,7 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: -0.31,
       ),
-      
+
       // iOS Body - 14pt Regular
       bodyLarge: TextStyle(
         fontSize: 14.0,
@@ -99,7 +100,7 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: -0.15,
       ),
-      
+
       // iOS Caption 1 - 12pt Regular
       bodyMedium: TextStyle(
         fontSize: 12.0,
@@ -107,7 +108,7 @@ class IOSThemeAdapter {
         color: secondaryTextColor,
         letterSpacing: 0.0,
       ),
-      
+
       // iOS Caption 2 - 11pt Regular
       bodySmall: TextStyle(
         fontSize: 11.0,
@@ -115,7 +116,7 @@ class IOSThemeAdapter {
         color: secondaryTextColor,
         letterSpacing: 0.07,
       ),
-      
+
       // Labels
       labelLarge: TextStyle(
         fontSize: 17.0,
@@ -123,14 +124,14 @@ class IOSThemeAdapter {
         color: textColor,
         letterSpacing: -0.41,
       ),
-      
+
       labelMedium: TextStyle(
         fontSize: 14.0,
         fontWeight: FontWeight.w500,
         color: textColor,
         letterSpacing: -0.15,
       ),
-      
+
       labelSmall: TextStyle(
         fontSize: 12.0,
         fontWeight: FontWeight.w500,
@@ -139,13 +140,13 @@ class IOSThemeAdapter {
       ),
     );
   }
-  
+
   /// 创建假的 Theme 来兼容现有组件
   /// 这是过渡期的临时方案
   static ThemeData createCompatibleTheme(BuildContext context) {
     final colorScheme = getCompatibleColorScheme(context);
     final textTheme = getCompatibleTextTheme(context);
-    
+
     return ThemeData.from(
       colorScheme: colorScheme,
       textTheme: textTheme,
@@ -160,7 +161,7 @@ class IOSThemeAdapter {
         centerTitle: true, // iOS 标准居中
         titleTextStyle: textTheme.titleLarge,
       ),
-      
+
       cardTheme: CardThemeData(
         color: colorScheme.surface,
         elevation: 0,
@@ -172,7 +173,7 @@ class IOSThemeAdapter {
           vertical: 8.0,
         ),
       ),
-      
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
@@ -184,7 +185,7 @@ class IOSThemeAdapter {
           minimumSize: const Size.fromHeight(44.0),
         ),
       ),
-      
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.primary,
@@ -195,7 +196,7 @@ class IOSThemeAdapter {
           minimumSize: const Size.fromHeight(44.0),
         ),
       ),
-      
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: colorScheme.primary,
@@ -204,7 +205,7 @@ class IOSThemeAdapter {
           ),
         ),
       ),
-      
+
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
@@ -222,7 +223,7 @@ class IOSThemeAdapter {
         fillColor: colorScheme.surface,
         contentPadding: const EdgeInsets.all(16.0),
       ),
-      
+
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.surface,
         selectedItemColor: colorScheme.primary,
@@ -230,7 +231,7 @@ class IOSThemeAdapter {
         elevation: 0,
         type: BottomNavigationBarType.fixed,
       ),
-      
+
       tabBarTheme: TabBarThemeData(
         labelColor: colorScheme.primary,
         unselectedLabelColor: colorScheme.onSurfaceVariant,
@@ -243,12 +244,12 @@ class IOSThemeAdapter {
           ),
         ),
       ),
-      
+
       dividerTheme: DividerThemeData(
         color: colorScheme.outline.withValues(alpha: 0.3),
         thickness: 0.5,
       ),
-      
+
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16.0,
@@ -259,7 +260,7 @@ class IOSThemeAdapter {
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
-      
+
       dialogTheme: DialogThemeData(
         backgroundColor: colorScheme.surface,
         shape: RoundedRectangleBorder(
@@ -268,7 +269,7 @@ class IOSThemeAdapter {
         titleTextStyle: textTheme.titleLarge,
         contentTextStyle: textTheme.bodyLarge,
       ),
-      
+
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colorScheme.surface,
         shape: RoundedRectangleBorder(
@@ -277,7 +278,7 @@ class IOSThemeAdapter {
           ),
         ),
       ),
-      
+
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.surface,
         contentTextStyle: textTheme.bodyMedium,
@@ -288,7 +289,7 @@ class IOSThemeAdapter {
       ),
     );
   }
-  
+
   /// 获取适配的设备信息
   static DeviceType getDeviceType(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -297,7 +298,7 @@ class IOSThemeAdapter {
     if (size.width < 430) return DeviceType.large;
     return DeviceType.tablet;
   }
-  
+
   /// 获取适配的安全区域
   static EdgeInsets getSafeAreaPadding(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
@@ -308,24 +309,22 @@ class IOSThemeAdapter {
       right: padding.right,
     );
   }
-  
+
   /// 获取适配的动画曲线（iOS 风格）
   static Curve get iosAnimationCurve => Curves.easeInOut;
-  
+
   /// 获取适配的动画时长
   static Duration get iosAnimationDuration => const Duration(milliseconds: 300);
-  
+
   /// 判断是否为深色模式
   static bool isDarkMode(BuildContext context) {
     return CupertinoTheme.of(context).brightness == Brightness.dark;
   }
-  
+
   /// 获取系统状态栏样式
   static SystemUiOverlayStyle getSystemUiOverlayStyle(BuildContext context) {
     final isDark = isDarkMode(context);
-    return isDark 
-        ? SystemUiOverlayStyle.light 
-        : SystemUiOverlayStyle.dark;
+    return isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
   }
 }
 
@@ -333,10 +332,12 @@ class IOSThemeAdapter {
 extension BuildContextThemeExtension on BuildContext {
   /// 获取兼容的主题数据
   ThemeData get compatibleTheme => IOSThemeAdapter.createCompatibleTheme(this);
-  
+
   /// 获取兼容的颜色方案
-  ColorScheme get compatibleColorScheme => IOSThemeAdapter.getCompatibleColorScheme(this);
-  
+  ColorScheme get compatibleColorScheme =>
+      IOSThemeAdapter.getCompatibleColorScheme(this);
+
   /// 获取兼容的文字主题
-  TextTheme get compatibleTextTheme => IOSThemeAdapter.getCompatibleTextTheme(this);
+  TextTheme get compatibleTextTheme =>
+      IOSThemeAdapter.getCompatibleTextTheme(this);
 }

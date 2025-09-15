@@ -26,27 +26,27 @@ class ActionItem {
 }
 
 /// 发票卡片操作组件
-/// 
+///
 /// 负责显示卡片底部的操作按钮和时间信息
 class InvoiceCardActions extends StatelessWidget {
   /// 相对时间文本（如"2小时前"）
   final String timeText;
-  
+
   /// 操作项列表
   final List<ActionItem> actions;
-  
+
   /// 操作项显示方式
   final ActionDisplayMode displayMode;
-  
+
   /// 是否显示时间信息
   final bool showTime;
-  
+
   /// 自定义时间样式
   final TextStyle? timeStyle;
-  
+
   /// 操作项之间的间距
   final double actionSpacing;
-  
+
   /// 最大操作项数量（超出时显示更多按钮）
   final int maxVisibleActions;
 
@@ -66,13 +66,13 @@ class InvoiceCardActions extends StatelessWidget {
     if (!showTime && actions.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // 左侧：时间信息
         if (showTime) _buildTimeInfo(context),
-        
+
         // 右侧：操作按钮
         if (actions.isNotEmpty) _buildActions(context),
       ],
@@ -93,13 +93,13 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildActions(BuildContext context) {
     final visibleActions = actions.take(maxVisibleActions).toList();
     final hasMoreActions = actions.length > maxVisibleActions;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         // 显示的操作项
         ...visibleActions.map((action) => _buildActionItem(context, action)),
-        
+
         // 更多操作按钮
         if (hasMoreActions) ...[
           SizedBox(width: actionSpacing),
@@ -115,9 +115,9 @@ class InvoiceCardActions extends StatelessWidget {
     final effectiveColor = action.isDestructive
         ? colorScheme.error
         : (action.color ?? colorScheme.onSurfaceVariant);
-    
+
     Widget actionWidget;
-    
+
     switch (displayMode) {
       case ActionDisplayMode.iconsOnly:
         actionWidget = _buildIconAction(context, action, effectiveColor);
@@ -126,13 +126,14 @@ class InvoiceCardActions extends StatelessWidget {
         actionWidget = _buildLabelAction(context, action, effectiveColor);
         break;
       case ActionDisplayMode.iconsWithLabels:
-        actionWidget = _buildIconWithLabelAction(context, action, effectiveColor);
+        actionWidget =
+            _buildIconWithLabelAction(context, action, effectiveColor);
         break;
       case ActionDisplayMode.buttons:
         actionWidget = _buildButtonAction(context, action);
         break;
     }
-    
+
     // 添加Tooltip（如果有）
     if (action.tooltip != null) {
       actionWidget = Tooltip(
@@ -140,7 +141,7 @@ class InvoiceCardActions extends StatelessWidget {
         child: actionWidget,
       );
     }
-    
+
     // 添加间距
     return Padding(
       padding: EdgeInsets.only(right: actionSpacing),
@@ -149,7 +150,8 @@ class InvoiceCardActions extends StatelessWidget {
   }
 
   /// 构建纯图标操作
-  Widget _buildIconAction(BuildContext context, ActionItem action, Color color) {
+  Widget _buildIconAction(
+      BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
       borderRadius: BorderRadius.circular(8.0),
@@ -175,7 +177,8 @@ class InvoiceCardActions extends StatelessWidget {
   }
 
   /// 构建纯标签操作
-  Widget _buildLabelAction(BuildContext context, ActionItem action, Color color) {
+  Widget _buildLabelAction(
+      BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
       borderRadius: BorderRadius.circular(8.0),
@@ -194,7 +197,8 @@ class InvoiceCardActions extends StatelessWidget {
   }
 
   /// 构建图标+标签操作
-  Widget _buildIconWithLabelAction(BuildContext context, ActionItem action, Color color) {
+  Widget _buildIconWithLabelAction(
+      BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
       borderRadius: BorderRadius.circular(8.0),
@@ -238,8 +242,10 @@ class InvoiceCardActions extends StatelessWidget {
       text: action.label,
       icon: action.icon,
       onPressed: action.onPressed,
-      variant: action.isDestructive ? ButtonVariant.error : ButtonVariant.outline,
-      size: ButtonSize.small,
+      style: action.isDestructive
+          ? AppButtonStyle.destructive
+          : AppButtonStyle.ghost,
+      size: AppButtonSize.small,
       loading: action.isLoading,
     );
   }
@@ -264,7 +270,7 @@ class InvoiceCardActions extends StatelessWidget {
   /// 显示更多操作菜单
   void _showMoreActionsMenu(BuildContext context) {
     final hiddenActions = actions.skip(maxVisibleActions).toList();
-    
+
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -297,9 +303,9 @@ class _MoreActionsBottomSheet extends StatelessWidget {
             text: '更多操作',
             variant: TextVariant.titleMedium,
           ),
-          
+
           SizedBox(height: 16.0),
-          
+
           // 操作项列表
           ...actions.map((action) => _buildBottomSheetAction(context, action)),
         ],
@@ -309,10 +315,9 @@ class _MoreActionsBottomSheet extends StatelessWidget {
 
   Widget _buildBottomSheetAction(BuildContext context, ActionItem action) {
     final colorScheme = Theme.of(context).colorScheme;
-    final effectiveColor = action.isDestructive
-        ? colorScheme.error
-        : colorScheme.onSurface;
-    
+    final effectiveColor =
+        action.isDestructive ? colorScheme.error : colorScheme.onSurface;
+
     return InkWell(
       onTap: () {
         Navigator.of(context).pop();
@@ -345,12 +350,12 @@ class _MoreActionsBottomSheet extends StatelessWidget {
 }
 
 /// 简化版本的发票卡片操作
-/// 
+///
 /// 只显示时间信息，不显示操作按钮
 class InvoiceCardActionsSimple extends StatelessWidget {
   /// 相对时间文本
   final String timeText;
-  
+
   /// 自定义时间样式
   final TextStyle? timeStyle;
 
@@ -372,27 +377,27 @@ class InvoiceCardActionsSimple extends StatelessWidget {
 }
 
 /// 带快速操作的发票卡片操作
-/// 
+///
 /// 预定义了常用的发票操作
 class InvoiceCardActionsQuick extends StatelessWidget {
   /// 相对时间文本
   final String timeText;
-  
+
   /// 分享操作回调
   final VoidCallback? onShare;
-  
+
   /// 查看操作回调
   final VoidCallback? onView;
-  
+
   /// 编辑操作回调
   final VoidCallback? onEdit;
-  
+
   /// 删除操作回调
   final VoidCallback? onDelete;
-  
+
   /// 是否显示删除操作
   final bool showDelete;
-  
+
   /// 是否显示编辑操作
   final bool showEdit;
 
@@ -440,7 +445,7 @@ class InvoiceCardActionsQuick extends StatelessWidget {
           isDestructive: true,
         ),
     ];
-    
+
     return InvoiceCardActions(
       timeText: timeText,
       actions: actions,
@@ -451,8 +456,8 @@ class InvoiceCardActionsQuick extends StatelessWidget {
 
 /// 操作显示模式枚举
 enum ActionDisplayMode {
-  iconsOnly,        // 仅显示图标
-  labelsOnly,       // 仅显示标签
-  iconsWithLabels,  // 显示图标和标签
-  buttons,          // 显示为按钮
+  iconsOnly, // 仅显示图标
+  labelsOnly, // 仅显示标签
+  iconsWithLabels, // 显示图标和标签
+  buttons, // 显示为按钮
 }

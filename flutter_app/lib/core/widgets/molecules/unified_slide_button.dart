@@ -2,40 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 统一的滑动按钮样式组件
-/// 
+///
 /// 基于UI审计结果，统一发票卡片和报销集卡片的滑动按钮样式
 /// 遵循UIOS Human Interface Guidelines和项目的Cupertino主题系统
 class UnifiedSlideButton extends StatelessWidget {
   /// 图标
   final IconData icon;
-  
+
   /// 按钮文本标签
   final String label;
-  
+
   /// 按钮背景色
   final Color backgroundColor;
-  
+
   /// 前景色（图标和文字颜色）
   final Color foregroundColor;
-  
+
   /// 点击回调
   final VoidCallback onTap;
-  
+
   /// 语义化标签（无障碍支持）
   final String? semanticLabel;
-  
+
   /// 语义化提示（无障碍支持）
   final String? semanticHint;
-  
+
   /// 按钮类型，影响视觉样式
   final SlideButtonType type;
-  
+
   /// 按钮位置，影响圆角设置
   final SlideButtonPosition position;
-  
+
   /// 是否启用阴影效果
   final bool enableElevation;
-  
+
   /// 自定义圆角设置
   final BorderRadius? borderRadius;
 
@@ -159,13 +159,15 @@ class UnifiedSlideButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: _getBorderRadius(),
-            boxShadow: enableElevation ? [
-              BoxShadow(
-                color: CupertinoColors.black.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ] : null,
+            boxShadow: enableElevation
+                ? [
+                    BoxShadow(
+                      color: CupertinoColors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Semantics(
             label: semanticLabel ?? label,
@@ -212,9 +214,9 @@ class UnifiedSlideButton extends StatelessWidget {
   /// 根据位置计算边框圆角
   BorderRadius _getBorderRadius() {
     if (borderRadius != null) return borderRadius!;
-    
+
     const radius = Radius.circular(12); // 统一圆角半径
-    
+
     switch (position) {
       case SlideButtonPosition.left:
         return const BorderRadius.only(
@@ -238,13 +240,13 @@ class UnifiedSlideButton extends StatelessWidget {
 enum SlideButtonType {
   /// 主要操作按钮
   primary,
-  
+
   /// 次要操作按钮
   secondary,
-  
+
   /// 危险操作按钮
   destructive,
-  
+
   /// 中性操作按钮
   neutral,
 }
@@ -253,27 +255,27 @@ enum SlideButtonType {
 enum SlideButtonPosition {
   /// 左侧位置（右侧圆角）
   left,
-  
+
   /// 右侧位置（左侧圆角）
   right,
-  
+
   /// 中间位置（无圆角）
   middle,
-  
+
   /// 单独按钮（全圆角）
   single,
 }
 
 /// 统一的滑动按钮组
-/// 
+///
 /// 用于管理一组滑动按钮的布局和样式
 class UnifiedSlideButtonGroup extends StatelessWidget {
   /// 按钮列表
   final List<UnifiedSlideButton> buttons;
-  
+
   /// 是否为左滑区域
   final bool isStartActionPane;
-  
+
   /// 扩展比例
   final double extentRatio;
 
@@ -287,10 +289,10 @@ class UnifiedSlideButtonGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (buttons.isEmpty) return const SizedBox.shrink();
-    
+
     // 为多按钮组合自动设置位置
     final adjustedButtons = _adjustButtonPositions(buttons);
-    
+
     return SizedBox(
       width: MediaQuery.of(context).size.width * extentRatio,
       child: Row(
@@ -300,7 +302,8 @@ class UnifiedSlideButtonGroup extends StatelessWidget {
   }
 
   /// 调整按钮位置属性
-  List<UnifiedSlideButton> _adjustButtonPositions(List<UnifiedSlideButton> originalButtons) {
+  List<UnifiedSlideButton> _adjustButtonPositions(
+      List<UnifiedSlideButton> originalButtons) {
     if (originalButtons.length == 1) {
       // 单个按钮使用single位置
       final button = originalButtons.first;
@@ -319,14 +322,14 @@ class UnifiedSlideButtonGroup extends StatelessWidget {
         ),
       ];
     }
-    
+
     // 多个按钮时设置首末位置
     return originalButtons.asMap().entries.map((entry) {
       final index = entry.key;
       final button = entry.value;
       final isFirst = index == 0;
       final isLast = index == originalButtons.length - 1;
-      
+
       SlideButtonPosition position;
       if (isStartActionPane) {
         // 左滑区域：第一个按钮左侧圆角，最后一个按钮右侧圆角
@@ -351,7 +354,7 @@ class UnifiedSlideButtonGroup extends StatelessWidget {
           position = SlideButtonPosition.middle;
         }
       }
-      
+
       return UnifiedSlideButton(
         icon: button.icon,
         label: button.label,
@@ -369,11 +372,12 @@ class UnifiedSlideButtonGroup extends StatelessWidget {
 }
 
 /// 滑动按钮主题配置
-/// 
+///
 /// 为不同类型的按钮提供主题色彩配置
 class SlideButtonTheme {
   /// 根据按钮类型和颜色方案创建颜色配置
-  static SlideButtonColors getColors(SlideButtonType type, ColorScheme colorScheme) {
+  static SlideButtonColors getColors(
+      SlideButtonType type, ColorScheme colorScheme) {
     switch (type) {
       case SlideButtonType.primary:
         return SlideButtonColors(

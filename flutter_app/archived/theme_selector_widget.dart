@@ -115,16 +115,16 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                 Text(
                   '主题选择器',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: AppThemeConstants.spacing4),
                 Text(
                   '当前主题：${widget.themeManager.currentThemeName}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
@@ -225,11 +225,11 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
             Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: isSelected
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
             ),
           ],
         ),
@@ -255,8 +255,8 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
         labelColor: colorScheme.primary,
         unselectedLabelColor: colorScheme.onSurfaceVariant,
         labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+              fontWeight: FontWeight.w600,
+            ),
         unselectedLabelStyle: Theme.of(context).textTheme.labelLarge,
         indicator: BoxDecoration(
           color: colorScheme.primary.withValues(alpha: 0.1),
@@ -414,12 +414,12 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                     Text(
                       preset.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.w600,
-                        color: isSelected
-                            ? colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurface,
-                      ),
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w600,
+                            color: isSelected
+                                ? colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -429,8 +429,9 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
                     Text(
                       preset.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -493,9 +494,9 @@ class _ThemeSelectorWidgetState extends State<ThemeSelectorWidget>
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
       ),
     );
   }

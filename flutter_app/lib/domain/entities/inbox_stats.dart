@@ -31,17 +31,17 @@ class InboxStats extends Equatable {
 
   @override
   List<Object?> get props => [
-    totalEmails,
-    unreadEmails,
-    verificationEmails,
-    invoiceEmails,
-    successfulProcessing,
-    failedProcessing,
-    emailsWithAttachments,
-    emailsWithBody,
-    recentEmailsToday,
-    recentEmailsWeek,
-  ];
+        totalEmails,
+        unreadEmails,
+        verificationEmails,
+        invoiceEmails,
+        successfulProcessing,
+        failedProcessing,
+        emailsWithAttachments,
+        emailsWithBody,
+        recentEmailsToday,
+        recentEmailsWeek,
+      ];
 
   // 处理成功率
   double get successRate {
@@ -126,7 +126,8 @@ class InboxStats extends Equatable {
       invoiceEmails: invoiceEmails ?? this.invoiceEmails,
       successfulProcessing: successfulProcessing ?? this.successfulProcessing,
       failedProcessing: failedProcessing ?? this.failedProcessing,
-      emailsWithAttachments: emailsWithAttachments ?? this.emailsWithAttachments,
+      emailsWithAttachments:
+          emailsWithAttachments ?? this.emailsWithAttachments,
       emailsWithBody: emailsWithBody ?? this.emailsWithBody,
       recentEmailsToday: recentEmailsToday ?? this.recentEmailsToday,
       recentEmailsWeek: recentEmailsWeek ?? this.recentEmailsWeek,

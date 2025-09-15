@@ -288,10 +288,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: CupertinoSemanticColors.success.withValues(alpha: 0.1),
+                                color: CupertinoSemanticColors.success
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: CupertinoSemanticColors.success.withValues(alpha: 0.3)),
+                                border: Border.all(
+                                    color: CupertinoSemanticColors.success
+                                        .withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -302,7 +304,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     child: Text(
                                       _successMessage!,
                                       style: TextStyle(
-                                          color: CupertinoSemanticColors.success),
+                                          color:
+                                              CupertinoSemanticColors.success),
                                     ),
                                   ),
                                 ],
@@ -316,9 +319,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: CupertinoSemanticColors.error.withValues(alpha: 0.1),
+                                color: CupertinoSemanticColors.error
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: CupertinoSemanticColors.error.withValues(alpha: 0.3)),
+                                border: Border.all(
+                                    color: CupertinoSemanticColors.error
+                                        .withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -328,8 +334,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   Expanded(
                                     child: Text(
                                       _errorMessage!,
-                                      style:
-                                          TextStyle(color: CupertinoSemanticColors.error),
+                                      style: TextStyle(
+                                          color: CupertinoSemanticColors.error),
                                     ),
                                   ),
                                 ],
@@ -343,8 +349,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: CupertinoSemanticColors.primary,
-                                foregroundColor: CupertinoSemanticColors.systemBackground,
+                                backgroundColor:
+                                    CupertinoSemanticColors.primary,
+                                foregroundColor:
+                                    CupertinoSemanticColors.systemBackground,
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -354,7 +362,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                CupertinoSemanticColors.systemBackground),
+                                                CupertinoSemanticColors
+                                                    .systemBackground),
                                       ),
                                     )
                                   : const Text(
@@ -377,13 +386,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     const Text(
                       '已有账户？',
-                      style: TextStyle(color: CupertinoSemanticColors.secondaryLabel),
+                      style: TextStyle(
+                          color: CupertinoSemanticColors.secondaryLabel),
                     ),
-                    TextButton(
+                    CupertinoButton(
                       onPressed: () => Navigator.of(context).pop(),
+                      padding: EdgeInsets.zero,
                       child: const Text(
                         '立即登录',
-                        style: TextStyle(color: CupertinoSemanticColors.primary),
+                        style:
+                            TextStyle(color: CupertinoSemanticColors.primary),
                       ),
                     ),
                   ],

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // ⚠️ 需要保留：使用 CircularProgressIndicator
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/user_permissions.dart';
 import '../bloc/permission_bloc.dart';
@@ -32,7 +32,7 @@ class RoleGuard extends StatelessWidget {
 
         if (state is PermissionLoaded) {
           final permissions = state.permissions;
-          
+
           bool hasAccess;
           if (requireAll) {
             hasAccess = permissions.hasAllRoles(roles);
@@ -79,7 +79,7 @@ class PermissionGuard extends StatelessWidget {
 
         if (state is PermissionLoaded) {
           final userPermissions = state.permissions;
-          
+
           bool hasAccess;
           if (requireAll) {
             hasAccess = userPermissions.hasAllPermissions(permissions);
@@ -124,7 +124,7 @@ class PermissionLevelGuard extends StatelessWidget {
 
         if (state is PermissionLoaded) {
           final permissions = state.permissions;
-          
+
           if (permissions.hasPermissionLevel(requiredLevel)) {
             return child;
           }
@@ -182,15 +182,18 @@ class ComplexPermissionGuard extends StatelessWidget {
           // 检查权限
           if (permissions != null && permissions!.isNotEmpty) {
             if (requireAll) {
-              hasAccess = hasAccess && userPermissions.hasAllPermissions(permissions!);
+              hasAccess =
+                  hasAccess && userPermissions.hasAllPermissions(permissions!);
             } else {
-              hasAccess = hasAccess && userPermissions.hasAnyPermission(permissions!);
+              hasAccess =
+                  hasAccess && userPermissions.hasAnyPermission(permissions!);
             }
           }
 
           // 检查权限级别
           if (requiredLevel != null) {
-            hasAccess = hasAccess && userPermissions.hasPermissionLevel(requiredLevel!);
+            hasAccess =
+                hasAccess && userPermissions.hasPermissionLevel(requiredLevel!);
           }
 
           if (hasAccess) {
@@ -395,7 +398,8 @@ class PermissionChecker {
   }
 
   /// 记录权限检查日志
-  static void logPermissionCheck(String action, bool hasPermission, {String? userId}) {
+  static void logPermissionCheck(String action, bool hasPermission,
+      {String? userId}) {
     AppLogger.debug(
       '🔐 [PermissionCheck] $action: ${hasPermission ? '✅ 允许' : '❌ 拒绝'}',
       tag: 'Permission',

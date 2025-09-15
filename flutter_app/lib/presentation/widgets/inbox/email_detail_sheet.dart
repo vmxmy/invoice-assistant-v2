@@ -35,10 +35,11 @@ class EmailDetailSheet extends StatelessWidget {
       onMarkAsRead: onMarkAsRead,
       onDelete: onDelete,
     );
-    
-    final brightness = CupertinoTheme.of(context).brightness ?? Brightness.light;
+
+    final brightness =
+        CupertinoTheme.of(context).brightness ?? Brightness.light;
     final isDark = brightness == Brightness.dark;
-    
+
     return UnifiedBottomSheet.showCustomSheetWithActions(
       context: context,
       title: '邮件详情',
@@ -55,9 +56,10 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    final brightness = CupertinoTheme.of(context).brightness ?? Brightness.light;
+    final brightness =
+        CupertinoTheme.of(context).brightness ?? Brightness.light;
     final isDark = brightness == Brightness.dark;
-    
+
     return SingleChildScrollView(
       padding: InboxThemeConstants.emailDetailPadding,
       physics: const BouncingScrollPhysics(), // iOS风格滚动
@@ -66,34 +68,38 @@ class EmailDetailSheet extends StatelessWidget {
         children: [
           // 邮件基本信息 - 紧凑布局
           _buildEmailHeaderCompact(context, brightness, isDark),
-          
-          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
-          
+
+          SizedBox(
+              height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+
           // 处理状态和分类 - 紧凑布局
           _buildStatusSectionCompact(context, brightness, isDark),
-          
+
           SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
-          
+
           // 邮件正文 - 主要内容区域
           if (emailDetail.bodyPreview.isNotEmpty)
             _buildEmailBody(context, brightness, isDark),
-          
+
           SizedBox(height: InboxThemeConstants.emailDetailSectionSpacing),
-          
+
           // 附件信息 - 减少间距
           if (emailDetail.hasAttachments) ...[
-            SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+            SizedBox(
+                height: InboxThemeConstants.emailDetailSectionSpacingCompact),
             _buildAttachmentsSection(context, brightness, isDark),
           ],
-          
+
           // 处理详情 - 减少间距
-          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+          SizedBox(
+              height: InboxThemeConstants.emailDetailSectionSpacingCompact),
           _buildProcessingDetails(context, brightness, isDark),
-          
+
           // 技术详情（可折叠）- 减少间距
-          SizedBox(height: InboxThemeConstants.emailDetailSectionSpacingCompact),
+          SizedBox(
+              height: InboxThemeConstants.emailDetailSectionSpacingCompact),
           _buildTechnicalDetails(context, brightness, isDark),
-          
+
           // 底部间距
           SizedBox(height: 16.0),
         ],
@@ -102,7 +108,8 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建操作按钮
-  List<Widget> _buildActions(BuildContext context, Brightness brightness, bool isDark) {
+  List<Widget> _buildActions(
+      BuildContext context, Brightness brightness, bool isDark) {
     return [
       if (onMarkAsRead != null)
         _buildActionButton(
@@ -157,7 +164,7 @@ class EmailDetailSheet extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: color,
                 // 优化字母间距
-              letterSpacing: -0.1,
+                letterSpacing: -0.1,
               ),
             ),
           ],
@@ -167,12 +174,16 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建紧凑版邮件头部信息
-  Widget _buildEmailHeaderCompact(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildEmailHeaderCompact(
+      BuildContext context, Brightness brightness, bool isDark) {
     return Container(
       padding: InboxThemeConstants.emailHeaderPaddingCompact,
       decoration: BoxDecoration(
-        color: isDark ? CupertinoColors.systemGrey6.darkColor : CupertinoColors.systemGrey6.color,
-        borderRadius: BorderRadius.circular(InboxThemeConstants.emailDetailSectionRadius),
+        color: isDark
+            ? CupertinoColors.systemGrey6.darkColor
+            : CupertinoColors.systemGrey6.color,
+        borderRadius:
+            BorderRadius.circular(InboxThemeConstants.emailDetailSectionRadius),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,13 +195,18 @@ class EmailDetailSheet extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  CupertinoColors.systemBlue.resolveFrom(context).withValues(alpha: 0.08 * 1.875),
-                  CupertinoColors.systemBlue.resolveFrom(context).withValues(alpha: 0.08 * 0.625),
+                  CupertinoColors.systemBlue
+                      .resolveFrom(context)
+                      .withValues(alpha: 0.08 * 1.875),
+                  CupertinoColors.systemBlue
+                      .resolveFrom(context)
+                      .withValues(alpha: 0.08 * 0.625),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(InboxThemeConstants.avatarRadius),
+              borderRadius:
+                  BorderRadius.circular(InboxThemeConstants.avatarRadius),
             ),
             child: Icon(
               CupertinoIcons.person_fill,
@@ -223,14 +239,17 @@ class EmailDetailSheet extends StatelessWidget {
                     Icon(
                       CupertinoIcons.time,
                       size: 12.0,
-                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                      color:
+                          CupertinoColors.secondaryLabel.resolveFrom(context),
                     ),
                     SizedBox(width: 4.0),
                     Text(
-                      _formatDateTime(emailDetail.emailDate ?? emailDetail.createdAt),
+                      _formatDateTime(
+                          emailDetail.emailDate ?? emailDetail.createdAt),
                       style: TextStyle(
                         fontSize: 12.0,
-                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                        color:
+                            CupertinoColors.secondaryLabel.resolveFrom(context),
                       ),
                     ),
                   ],
@@ -256,13 +275,15 @@ class EmailDetailSheet extends StatelessWidget {
     );
   }
 
-
   /// 构建紧凑版状态区域
-  Widget _buildStatusSectionCompact(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildStatusSectionCompact(
+      BuildContext context, Brightness brightness, bool isDark) {
     return Container(
       padding: InboxThemeConstants.statusSectionPaddingCompact,
       decoration: BoxDecoration(
-        color: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+        color: isDark
+            ? CupertinoColors.systemGrey5.darkColor
+            : CupertinoColors.systemGrey5.color,
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
@@ -284,9 +305,11 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建紧凑版分类标签
-  Widget _buildCategoryChipCompact(BuildContext context, Brightness brightness, bool isDark) {
-    final config = _getCategoryConfig(emailDetail.emailCategory, context, brightness, isDark);
-    
+  Widget _buildCategoryChipCompact(
+      BuildContext context, Brightness brightness, bool isDark) {
+    final config = _getCategoryConfig(
+        emailDetail.emailCategory, context, brightness, isDark);
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 8.0,
@@ -322,14 +345,15 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建紧凑版处理统计
-  Widget _buildCompactProcessingStats(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildCompactProcessingStats(
+      BuildContext context, Brightness brightness, bool isDark) {
     if (!emailDetail.hasProcessingStats) return const SizedBox.shrink();
-    
+
     final total = emailDetail.totalAttachments ?? 0;
     final success = emailDetail.successfulProcessing ?? 0;
-    
+
     if (total == 0) return const SizedBox.shrink();
-    
+
     return Text(
       '$success/$total',
       style: TextStyle(
@@ -339,27 +363,32 @@ class EmailDetailSheet extends StatelessWidget {
     );
   }
 
-
   /// 构建邮件正文
-  Widget _buildEmailBody(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildEmailBody(
+      BuildContext context, Brightness brightness, bool isDark) {
     // 获取邮件内容，优先使用HTML格式
     String? htmlContent = emailDetail.emailBodyHtml;
     String? textContent = emailDetail.emailBodyText;
     String previewContent = emailDetail.bodyPreview;
-    
+
     // 确定要显示的内容和渲染方式
     bool useHtmlRender = htmlContent?.isNotEmpty == true;
-    String displayContent = useHtmlRender 
-        ? htmlContent! 
+    String displayContent = useHtmlRender
+        ? htmlContent!
         : (textContent?.isNotEmpty == true ? textContent! : previewContent);
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark ? CupertinoColors.systemGrey6.darkColor : CupertinoColors.systemGrey6.color,
+        color: isDark
+            ? CupertinoColors.systemGrey6.darkColor
+            : CupertinoColors.systemGrey6.color,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: (isDark ? CupertinoColors.systemGrey3.darkColor : CupertinoColors.systemGrey3.color).withValues(alpha: 0.08),
+          color: (isDark
+                  ? CupertinoColors.systemGrey3.darkColor
+                  : CupertinoColors.systemGrey3.color)
+              .withValues(alpha: 0.08),
           width: 1.0,
         ),
       ),
@@ -384,7 +413,9 @@ class EmailDetailSheet extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: CupertinoColors.systemBlue.resolveFrom(context).withValues(alpha: 0.08 * 1.25),
+                      color: CupertinoColors.systemBlue
+                          .resolveFrom(context)
+                          .withValues(alpha: 0.08 * 1.25),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text(
@@ -399,7 +430,7 @@ class EmailDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // 可滚动的邮件内容区域
           Container(
             constraints: BoxConstraints(maxHeight: 200), // 使用约束而非固定高度
@@ -409,8 +440,10 @@ class EmailDetailSheet extends StatelessWidget {
               16.0 + 2,
               16.0 + 2,
             ),
-            child: useHtmlRender ? _buildHtmlContent(displayContent, context, brightness, isDark) 
-                                : _buildTextContent(displayContent, context, brightness, isDark),
+            child: useHtmlRender
+                ? _buildHtmlContent(displayContent, context, brightness, isDark)
+                : _buildTextContent(
+                    displayContent, context, brightness, isDark),
           ),
         ],
       ),
@@ -418,7 +451,8 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建HTML内容
-  Widget _buildHtmlContent(String htmlContent, BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildHtmlContent(String htmlContent, BuildContext context,
+      Brightness brightness, bool isDark) {
     return _buildScrollableContentWithIndicator(
       child: Html(
         data: htmlContent,
@@ -428,7 +462,9 @@ class EmailDetailSheet extends StatelessWidget {
             padding: HtmlPaddings.zero,
             fontSize: FontSize(15),
             lineHeight: const LineHeight(1.6),
-            color: CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.6 + 0.25),
+            color: CupertinoColors.label
+                .resolveFrom(context)
+                .withValues(alpha: 0.6 + 0.25),
           ),
           'p': Style(
             margin: Margins.only(bottom: 12),
@@ -447,19 +483,28 @@ class EmailDetailSheet extends StatelessWidget {
             padding: HtmlPaddings.only(left: 12),
             border: Border(
               left: BorderSide(
-                color: (isDark ? CupertinoColors.systemGrey3.darkColor : CupertinoColors.systemGrey3.color).withValues(alpha: 0.4 - 0.08),
+                color: (isDark
+                        ? CupertinoColors.systemGrey3.darkColor
+                        : CupertinoColors.systemGrey3.color)
+                    .withValues(alpha: 0.4 - 0.08),
                 width: 3,
               ),
             ),
-            backgroundColor: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+            backgroundColor: isDark
+                ? CupertinoColors.systemGrey5.darkColor
+                : CupertinoColors.systemGrey5.color,
           ),
           'code': Style(
-            backgroundColor: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+            backgroundColor: isDark
+                ? CupertinoColors.systemGrey5.darkColor
+                : CupertinoColors.systemGrey5.color,
             padding: HtmlPaddings.symmetric(horizontal: 4, vertical: 2),
             fontFamily: 'Courier',
           ),
           'pre': Style(
-            backgroundColor: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+            backgroundColor: isDark
+                ? CupertinoColors.systemGrey5.darkColor
+                : CupertinoColors.systemGrey5.color,
             padding: HtmlPaddings.all(12),
             margin: Margins.symmetric(vertical: 8),
           ),
@@ -478,16 +523,19 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建纯文本内容
-  Widget _buildTextContent(String textContent, BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildTextContent(String textContent, BuildContext context,
+      Brightness brightness, bool isDark) {
     return _buildScrollableContentWithIndicator(
       child: SelectableText(
         textContent,
         style: TextStyle(
           fontSize: 16.0,
-          color: CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.6 + 0.25),
+          color: CupertinoColors.label
+              .resolveFrom(context)
+              .withValues(alpha: 0.6 + 0.25),
           height: 1.6,
           // 优化字母间距
-              letterSpacing: -0.1,
+          letterSpacing: -0.1,
         ),
       ),
     );
@@ -502,28 +550,28 @@ class EmailDetailSheet extends StatelessWidget {
         int totalLines = 0;
         int visibleLines = 0;
         bool showIndicator = false;
-        
+
         // 监听滚动变化
         void updateScrollInfo() {
           if (scrollController.hasClients) {
             final maxScrollExtent = scrollController.position.maxScrollExtent;
             final currentScroll = scrollController.position.pixels;
             final viewportHeight = scrollController.position.viewportDimension;
-            
+
             // 只有当内容确实可以滚动时才显示指示器
             final canScroll = maxScrollExtent > 10; // 至少10像素的滚动空间才显示
-            
+
             if (canScroll) {
               final newScrollProgress = currentScroll / maxScrollExtent;
               final contentHeight = maxScrollExtent + viewportHeight;
               final lineHeight = 16.0 * 1.6;
-              
+
               final newTotalLines = (contentHeight / lineHeight).ceil();
               final newVisibleLines = (viewportHeight / lineHeight).ceil();
-              
+
               // 减少不必要的重绘
               if ((newScrollProgress - scrollProgress).abs() > 0.01 ||
-                  newTotalLines != totalLines || 
+                  newTotalLines != totalLines ||
                   newVisibleLines != visibleLines ||
                   showIndicator != canScroll) {
                 setState(() {
@@ -540,14 +588,14 @@ class EmailDetailSheet extends StatelessWidget {
             }
           }
         }
-        
+
         scrollController.addListener(updateScrollInfo);
-        
+
         // 内容加载后检查是否需要显示指示器
         WidgetsBinding.instance.addPostFrameCallback((_) {
           updateScrollInfo();
         });
-        
+
         return Stack(
           children: [
             // 主要的滚动内容
@@ -564,7 +612,7 @@ class EmailDetailSheet extends StatelessWidget {
                 child: child,
               ),
             ),
-            
+
             // 内容位置指示器 - 仅在内容可滚动时显示
             if (showIndicator)
               Positioned(
@@ -594,21 +642,28 @@ class EmailDetailSheet extends StatelessWidget {
   }) {
     return Builder(
       builder: (context) {
-        final brightness = CupertinoTheme.of(context).brightness ?? Brightness.light;
+        final brightness =
+            CupertinoTheme.of(context).brightness ?? Brightness.light;
         final isDark = brightness == Brightness.dark;
-        
+
         return Container(
           padding: EdgeInsets.symmetric(
             horizontal: 8.0 - 2,
             vertical: 4.0 / 2,
           ),
           decoration: BoxDecoration(
-            color: (isDark ? CupertinoColors.systemGrey6.darkColor : CupertinoColors.systemGrey6.color).withValues(
+            color: (isDark
+                    ? CupertinoColors.systemGrey6.darkColor
+                    : CupertinoColors.systemGrey6.color)
+                .withValues(
               alpha: 0.08 * 11, // ~0.88
             ),
             borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
-              color: (isDark ? CupertinoColors.systemGrey3.darkColor : CupertinoColors.systemGrey3.color).withValues(
+              color: (isDark
+                      ? CupertinoColors.systemGrey3.darkColor
+                      : CupertinoColors.systemGrey3.color)
+                  .withValues(
                 alpha: 0.08 * 2, // ~0.16
               ),
               width: 1.0,
@@ -622,10 +677,15 @@ class EmailDetailSheet extends StatelessWidget {
                 width: 16.0,
                 height: 16.0 * 3, // 48px
                 decoration: BoxDecoration(
-                  color: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+                  color: isDark
+                      ? CupertinoColors.systemGrey5.darkColor
+                      : CupertinoColors.systemGrey5.color,
                   borderRadius: BorderRadius.circular(8.0 / 2),
                   border: Border.all(
-                    color: (isDark ? CupertinoColors.systemGrey3.darkColor : CupertinoColors.systemGrey3.color).withValues(
+                    color: (isDark
+                            ? CupertinoColors.systemGrey3.darkColor
+                            : CupertinoColors.systemGrey3.color)
+                        .withValues(
                       alpha: 0.08,
                     ),
                     width: 1.0,
@@ -646,7 +706,9 @@ class EmailDetailSheet extends StatelessWidget {
                             end: Alignment.topCenter,
                             colors: [
                               CupertinoColors.systemBlue.resolveFrom(context),
-                              CupertinoColors.systemBlue.resolveFrom(context).withValues(alpha: 0.6),
+                              CupertinoColors.systemBlue
+                                  .resolveFrom(context)
+                                  .withValues(alpha: 0.6),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(8.0 / 2),
@@ -656,9 +718,9 @@ class EmailDetailSheet extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               SizedBox(height: 4.0 / 2),
-              
+
               // 内容统计信息
               Text(
                 '${(scrollProgress * 100).round()}%',
@@ -666,13 +728,13 @@ class EmailDetailSheet extends StatelessWidget {
                   fontSize: 12.0 - 2,
                   fontWeight: FontWeight.w600,
                   color: CupertinoColors.label.resolveFrom(context).withValues(
-                    alpha: 0.6 + 0.2,
-                  ),
+                        alpha: 0.6 + 0.2,
+                      ),
                 ),
               ),
-              
+
               SizedBox(height: 4.0 / 4),
-              
+
               // 行数信息
               if (totalLines > visibleLines)
                 Text(
@@ -701,13 +763,15 @@ class EmailDetailSheet extends StatelessWidget {
     }
   }
 
-
   /// 构建附件区域
-  Widget _buildAttachmentsSection(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildAttachmentsSection(
+      BuildContext context, Brightness brightness, bool isDark) {
     return Container(
       padding: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+        color: isDark
+            ? CupertinoColors.systemGrey5.darkColor
+            : CupertinoColors.systemGrey5.color,
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: Column(
@@ -731,24 +795,31 @@ class EmailDetailSheet extends StatelessWidget {
               ),
             ],
           ),
-          
           SizedBox(height: 12.0),
-          
           if (emailDetail.totalAttachments != null) ...[
-            _buildAttachmentStat('总附件数', '${emailDetail.totalAttachments}', context, brightness, isDark),
+            _buildAttachmentStat('总附件数', '${emailDetail.totalAttachments}',
+                context, brightness, isDark),
             if (emailDetail.pdfAttachments != null)
-              _buildAttachmentStat('PDF文件', '${emailDetail.pdfAttachments}', context, brightness, isDark),
+              _buildAttachmentStat('PDF文件', '${emailDetail.pdfAttachments}',
+                  context, brightness, isDark),
             if (emailDetail.successfulProcessing != null)
-              _buildAttachmentStat('处理成功', '${emailDetail.successfulProcessing}', context, brightness, isDark),
-            if (emailDetail.failedProcessing != null && emailDetail.failedProcessing! > 0)
-              _buildAttachmentStat('处理失败', '${emailDetail.failedProcessing}', context, brightness, isDark),
+              _buildAttachmentStat(
+                  '处理成功',
+                  '${emailDetail.successfulProcessing}',
+                  context,
+                  brightness,
+                  isDark),
+            if (emailDetail.failedProcessing != null &&
+                emailDetail.failedProcessing! > 0)
+              _buildAttachmentStat('处理失败', '${emailDetail.failedProcessing}',
+                  context, brightness, isDark),
           ],
-          
           if (emailDetail.attachmentNames?.isNotEmpty == true) ...[
             SizedBox(height: 8.0),
             const Divider(),
             SizedBox(height: 8.0),
-            ...emailDetail.attachmentNames!.map((name) => _buildAttachmentItem(name, context, brightness, isDark)),
+            ...emailDetail.attachmentNames!.map((name) =>
+                _buildAttachmentItem(name, context, brightness, isDark)),
           ],
         ],
       ),
@@ -756,11 +827,14 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建处理详情
-  Widget _buildProcessingDetails(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildProcessingDetails(
+      BuildContext context, Brightness brightness, bool isDark) {
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: isDark ? CupertinoColors.systemGrey6.darkColor : CupertinoColors.systemGrey6.color,
+        color: isDark
+            ? CupertinoColors.systemGrey6.darkColor
+            : CupertinoColors.systemGrey6.color,
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: Column(
@@ -774,27 +848,29 @@ class EmailDetailSheet extends StatelessWidget {
               color: CupertinoColors.label.resolveFrom(context),
             ),
           ),
-          
           SizedBox(height: 12.0),
-          
           if (emailDetail.matchedKeywords?.isNotEmpty == true) ...[
-            _buildDetailItem('匹配关键词', emailDetail.matchedKeywords!.join(', '), context, brightness, isDark),
+            _buildDetailItem('匹配关键词', emailDetail.matchedKeywords!.join(', '),
+                context, brightness, isDark),
             SizedBox(height: 8.0),
           ],
-          
           if (emailDetail.extractionCompleteness != null)
-            _buildDetailItem('提取完整性', emailDetail.extractionCompletenessDisplayName, context, brightness, isDark),
-          
+            _buildDetailItem(
+                '提取完整性',
+                emailDetail.extractionCompletenessDisplayName,
+                context,
+                brightness,
+                isDark),
           if (emailDetail.linkQuality != null) ...[
             SizedBox(height: 8.0),
-            _buildDetailItem('链接质量', emailDetail.linkQualityDisplayName, context, brightness, isDark),
+            _buildDetailItem('链接质量', emailDetail.linkQualityDisplayName,
+                context, brightness, isDark),
           ],
-          
           if (emailDetail.mappingMethod != null) ...[
             SizedBox(height: 8.0),
-            _buildDetailItem('用户映射', emailDetail.mappingMethodDisplayName, context, brightness, isDark),
+            _buildDetailItem('用户映射', emailDetail.mappingMethodDisplayName,
+                context, brightness, isDark),
           ],
-          
           if (emailDetail.recommendations?.isNotEmpty == true) ...[
             SizedBox(height: 12.0),
             Text(
@@ -802,28 +878,35 @@ class EmailDetailSheet extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.0 - 1,
                 fontWeight: FontWeight.w600,
-                color: CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.6 + 0.2),
+                color: CupertinoColors.label
+                    .resolveFrom(context)
+                    .withValues(alpha: 0.6 + 0.2),
               ),
             ),
             SizedBox(height: 6),
             ...emailDetail.recommendations!.map((rec) => Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('• ', style: TextStyle(color: CupertinoColors.systemBlue.resolveFrom(context))),
-                  Expanded(
-                    child: Text(
-                      rec,
-                      style: TextStyle(
-                        fontSize: 14.0 - 1,
-                        color: CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.6 + 0.1),
+                  padding: EdgeInsets.only(top: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ',
+                          style: TextStyle(
+                              color: CupertinoColors.systemBlue
+                                  .resolveFrom(context))),
+                      Expanded(
+                        child: Text(
+                          rec,
+                          style: TextStyle(
+                            fontSize: 14.0 - 1,
+                            color: CupertinoColors.label
+                                .resolveFrom(context)
+                                .withValues(alpha: 0.6 + 0.1),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                )),
           ],
         ],
       ),
@@ -831,7 +914,8 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建技术详情
-  Widget _buildTechnicalDetails(BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildTechnicalDetails(
+      BuildContext context, Brightness brightness, bool isDark) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
@@ -841,7 +925,9 @@ class EmailDetailSheet extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: isDark ? CupertinoColors.systemGrey5.darkColor : CupertinoColors.systemGrey5.color,
+          color: isDark
+              ? CupertinoColors.systemGrey5.darkColor
+              : CupertinoColors.systemGrey5.color,
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Column(
@@ -859,18 +945,27 @@ class EmailDetailSheet extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            _buildDetailItem('邮件ID', emailDetail.id, context, brightness, isDark),
-            SizedBox(height: 8.0),
-            _buildDetailItem('工作流ID', emailDetail.baseInfo.workflowExecutionId, context, brightness, isDark),
-            SizedBox(height: 8.0),
-            _buildDetailItem('触发事件ID', emailDetail.baseInfo.triggerEventId, context, brightness, isDark),
-            SizedBox(height: 8.0),
-            _buildDetailItem('执行路径', emailDetail.baseInfo.executionPath, context, brightness, isDark),
-            if (emailDetail.mappedUserId != null) ...[
-              SizedBox(height: 8.0),
-              _buildDetailItem('映射用户ID', emailDetail.mappedUserId!, context, brightness, isDark),
-            ],
-          ],
+                _buildDetailItem(
+                    '邮件ID', emailDetail.id, context, brightness, isDark),
+                SizedBox(height: 8.0),
+                _buildDetailItem(
+                    '工作流ID',
+                    emailDetail.baseInfo.workflowExecutionId,
+                    context,
+                    brightness,
+                    isDark),
+                SizedBox(height: 8.0),
+                _buildDetailItem('触发事件ID', emailDetail.baseInfo.triggerEventId,
+                    context, brightness, isDark),
+                SizedBox(height: 8.0),
+                _buildDetailItem('执行路径', emailDetail.baseInfo.executionPath,
+                    context, brightness, isDark),
+                if (emailDetail.mappedUserId != null) ...[
+                  SizedBox(height: 8.0),
+                  _buildDetailItem('映射用户ID', emailDetail.mappedUserId!, context,
+                      brightness, isDark),
+                ],
+              ],
             ),
           ],
         ),
@@ -878,10 +973,9 @@ class EmailDetailSheet extends StatelessWidget {
     );
   }
 
-
-
   /// 构建附件统计项
-  Widget _buildAttachmentStat(String label, String value, BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildAttachmentStat(String label, String value, BuildContext context,
+      Brightness brightness, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -908,7 +1002,8 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建附件项
-  Widget _buildAttachmentItem(String name, BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildAttachmentItem(
+      String name, BuildContext context, Brightness brightness, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -924,7 +1019,9 @@ class EmailDetailSheet extends StatelessWidget {
               name,
               style: TextStyle(
                 fontSize: 14.0 - 1,
-                color: CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.6 + 0.2),
+                color: CupertinoColors.label
+                    .resolveFrom(context)
+                    .withValues(alpha: 0.6 + 0.2),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -936,7 +1033,8 @@ class EmailDetailSheet extends StatelessWidget {
   }
 
   /// 构建详情项
-  Widget _buildDetailItem(String label, String value, BuildContext context, Brightness brightness, bool isDark) {
+  Widget _buildDetailItem(String label, String value, BuildContext context,
+      Brightness brightness, bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1007,22 +1105,39 @@ class EmailDetailSheet extends StatelessWidget {
       return '${difference.inDays}天前';
     } else {
       return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 '
-             '${dateTime.hour.toString().padLeft(2, '0')}:'
-             '${dateTime.minute.toString().padLeft(2, '0')}';
+          '${dateTime.hour.toString().padLeft(2, '0')}:'
+          '${dateTime.minute.toString().padLeft(2, '0')}';
     }
   }
 
   /// 获取分类配置
-  ({String label, String icon, Color color}) _getCategoryConfig(String category, BuildContext context, Brightness brightness, bool isDark) {
+  ({String label, String icon, Color color}) _getCategoryConfig(String category,
+      BuildContext context, Brightness brightness, bool isDark) {
     switch (category) {
       case 'verification':
-        return (label: '验证邮件', icon: '🔐', color: CupertinoColors.systemBlue.resolveFrom(context));
+        return (
+          label: '验证邮件',
+          icon: '🔐',
+          color: CupertinoColors.systemBlue.resolveFrom(context)
+        );
       case 'invoice':
-        return (label: '发票邮件', icon: '📄', color: CupertinoColors.systemGreen.resolveFrom(context));
+        return (
+          label: '发票邮件',
+          icon: '📄',
+          color: CupertinoColors.systemGreen.resolveFrom(context)
+        );
       case 'other':
-        return (label: '其他', icon: '📧', color: CupertinoColors.systemOrange.resolveFrom(context));
+        return (
+          label: '其他',
+          icon: '📧',
+          color: CupertinoColors.systemOrange.resolveFrom(context)
+        );
       default:
-        return (label: '未知', icon: '❓', color: CupertinoColors.systemGrey.resolveFrom(context));
+        return (
+          label: '未知',
+          icon: '❓',
+          color: CupertinoColors.systemGrey.resolveFrom(context)
+        );
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../domain/entities/invoice_entity.dart';
 import '../../domain/value_objects/invoice_status.dart';
 
@@ -139,11 +139,10 @@ class OptimisticUIHandler {
     return _pendingOperations.values.any((op) => op.invoiceId == invoiceId);
   }
 
-  /// 获取待处理操作的UI状态  
+  /// 获取待处理操作的UI状态
   /// 返回null表示无待处理操作
   bool hasPendingOperationDetails(String invoiceId) {
-    return _pendingOperations.values
-        .any((op) => op.invoiceId == invoiceId);
+    return _pendingOperations.values.any((op) => op.invoiceId == invoiceId);
   }
 
   /// 清理超时的乐观操作

@@ -27,16 +27,19 @@ class ReimbursementStatusButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final status = reimbursementSet.status;
-    
+
     // 根据状态和模式决定样式
-    return isCompact ? _buildBadgeStyle(context, colorScheme, status) 
-                    : _buildFullButton(context, colorScheme, status);
+    return isCompact
+        ? _buildBadgeStyle(context, colorScheme, status)
+        : _buildFullButton(context, colorScheme, status);
   }
 
   /// 构建徽章样式按钮（与发票状态徽章一致）
-  Widget _buildBadgeStyle(BuildContext context, ColorScheme colorScheme, ReimbursementSetStatus status) {
-    final (statusText, statusColor, statusIcon) = _getStatusInfo(colorScheme, status);
-    
+  Widget _buildBadgeStyle(BuildContext context, ColorScheme colorScheme,
+      ReimbursementSetStatus status) {
+    final (statusText, statusColor, statusIcon) =
+        _getStatusInfo(colorScheme, status);
+
     return GestureDetector(
       onTap: () => _handleStatusUpdate(context),
       child: Container(
@@ -73,9 +76,11 @@ class ReimbursementStatusButton extends StatelessWidget {
   }
 
   /// 构建完整模式按钮（用于详情页）
-  Widget _buildFullButton(BuildContext context, ColorScheme colorScheme, ReimbursementSetStatus status) {
-    final (statusText, statusColor, statusIcon) = _getStatusInfo(colorScheme, status);
-    
+  Widget _buildFullButton(BuildContext context, ColorScheme colorScheme,
+      ReimbursementSetStatus status) {
+    final (statusText, statusColor, statusIcon) =
+        _getStatusInfo(colorScheme, status);
+
     return ElevatedButton.icon(
       onPressed: () => _handleStatusUpdate(context),
       icon: Icon(statusIcon, size: AppThemeConstants.iconMedium),
@@ -95,7 +100,8 @@ class ReimbursementStatusButton extends StatelessWidget {
   }
 
   /// 获取状态相关信息
-  (String, Color, IconData) _getStatusInfo(ColorScheme colorScheme, ReimbursementSetStatus status) {
+  (String, Color, IconData) _getStatusInfo(
+      ColorScheme colorScheme, ReimbursementSetStatus status) {
     switch (status) {
       case ReimbursementSetStatus.unsubmitted:
         return ('待报销', colorScheme.secondary, CupertinoIcons.pencil);
@@ -123,7 +129,6 @@ class ReimbursementStatusButton extends StatelessWidget {
     // 优先使用报销集实体中的数量，这是最准确的
     return reimbursementSet.invoiceCount;
   }
-
 
   // ==================== 尺寸方法（与发票状态徽章一致） ====================
 

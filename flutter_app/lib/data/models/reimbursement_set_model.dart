@@ -27,9 +27,12 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
     @JsonKey(name: 'consumption_end_date') DateTime? consumptionEndDate,
     @JsonKey(name: 'date_range_text') String? dateRangeText,
     @JsonKey(name: 'date_range_type') String? dateRangeType,
-    @JsonKey(name: 'smart_name_generated') @Default(false) bool smartNameGenerated,
+    @JsonKey(name: 'smart_name_generated')
+    @Default(false)
+    bool smartNameGenerated,
     @JsonKey(name: 'original_name') String? originalName,
-    @JsonKey(name: 'date_range_metadata') Map<String, dynamic>? dateRangeMetadata,
+    @JsonKey(name: 'date_range_metadata')
+    Map<String, dynamic>? dateRangeMetadata,
     // 扩展字段（来自视图查询）
     @JsonKey(name: 'user_email') String? userEmail,
     @JsonKey(name: 'approver_email') String? approverEmail,
@@ -38,8 +41,10 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
     @JsonKey(name: 'region_count') int? regionCount,
     @JsonKey(name: 'category_count') int? categoryCount,
     // 区域统计信息
-    @JsonKey(name: 'region_statistics') Map<String, dynamic>? regionStatisticsJson,
-    @JsonKey(name: 'province_statistics') Map<String, dynamic>? provinceStatisticsJson,
+    @JsonKey(name: 'region_statistics')
+    Map<String, dynamic>? regionStatisticsJson,
+    @JsonKey(name: 'province_statistics')
+    Map<String, dynamic>? provinceStatisticsJson,
   }) = _ReimbursementSetModel;
 
   factory ReimbursementSetModel.fromJson(Map<String, dynamic> json) =>
@@ -48,13 +53,15 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
   /// 解析区域统计JSON为Map&lt;String, int&gt;
   Map<String, int>? get regionStatistics {
     if (regionStatisticsJson == null) return null;
-    return regionStatisticsJson!.map((key, value) => MapEntry(key, (value as num).toInt()));
+    return regionStatisticsJson!
+        .map((key, value) => MapEntry(key, (value as num).toInt()));
   }
 
   /// 解析省份统计JSON为Map&lt;String, int&gt;
   Map<String, int>? get provinceStatistics {
     if (provinceStatisticsJson == null) return null;
-    return provinceStatisticsJson!.map((key, value) => MapEntry(key, (value as num).toInt()));
+    return provinceStatisticsJson!
+        .map((key, value) => MapEntry(key, (value as num).toInt()));
   }
 
   /// 转换为实体对象
@@ -126,8 +133,10 @@ class ReimbursementSetModel with _$ReimbursementSetModel {
       regionCount: entity.regionCount,
       categoryCount: entity.categoryCount,
       // 区域统计信息转换为JSON格式
-      regionStatisticsJson: entity.regionStatistics?.map((key, value) => MapEntry(key, value)),
-      provinceStatisticsJson: entity.provinceStatistics?.map((key, value) => MapEntry(key, value)),
+      regionStatisticsJson:
+          entity.regionStatistics?.map((key, value) => MapEntry(key, value)),
+      provinceStatisticsJson:
+          entity.provinceStatistics?.map((key, value) => MapEntry(key, value)),
     );
   }
 

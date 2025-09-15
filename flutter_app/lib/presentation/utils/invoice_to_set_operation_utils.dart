@@ -13,7 +13,7 @@ import '../bloc/reimbursement_set_state.dart';
 /// 职责：UI确认逻辑 + 事件触发，不直接调用BLoC
 class InvoiceToSetOperationUtils {
   InvoiceToSetOperationUtils._();
-  
+
   static final AppEventBus _eventBus = AppEventBus.instance;
 
   /// 显示选择已有报销集对话框
@@ -26,7 +26,7 @@ class InvoiceToSetOperationUtils {
     final reimbursementSetBloc = context.read<ReimbursementSetBloc>();
     reimbursementSetBloc.add(const LoadReimbursementSets(refresh: false));
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // 构建选择报销集内容
     final selectForm = StatefulBuilder(
       builder: (context, setState) => Column(
@@ -70,7 +70,7 @@ class InvoiceToSetOperationUtils {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // 报销集列表
           BlocBuilder<ReimbursementSetBloc, ReimbursementSetState>(
             builder: (context, state) {
@@ -82,12 +82,13 @@ class InvoiceToSetOperationUtils {
                   ),
                 );
               }
-              
+
               if (state is ReimbursementSetLoaded) {
-                final availableSets = state.reimbursementSets.where((set) => 
-                  set.status == ReimbursementSetStatus.unsubmitted
-                ).toList();
-                
+                final availableSets = state.reimbursementSets
+                    .where((set) =>
+                        set.status == ReimbursementSetStatus.unsubmitted)
+                    .toList();
+
                 if (availableSets.isEmpty) {
                   return Container(
                     padding: const EdgeInsets.all(32),
@@ -101,23 +102,25 @@ class InvoiceToSetOperationUtils {
                         const SizedBox(height: 16),
                         Text(
                           '暂无可用的报销集',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '只有未提交状态的报销集才能添加发票',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
                   );
                 }
-                
+
                 return ConstrainedBox(
                   constraints: const BoxConstraints(
                     maxHeight: 300, // 限制最大高度
@@ -147,15 +150,17 @@ class InvoiceToSetOperationUtils {
                         ),
                         title: Text(
                           set.setName,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                         subtitle: Text(
                           '${set.invoiceCount} 张发票 · ¥${set.totalAmount.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                         trailing: Icon(
                           CupertinoIcons.chevron_right,
@@ -171,7 +176,7 @@ class InvoiceToSetOperationUtils {
                   ),
                 );
               }
-              
+
               if (state is ReimbursementSetError) {
                 return Container(
                   padding: const EdgeInsets.all(32),
@@ -201,7 +206,7 @@ class InvoiceToSetOperationUtils {
                   ),
                 );
               }
-              
+
               return const SizedBox.shrink();
             },
           ),

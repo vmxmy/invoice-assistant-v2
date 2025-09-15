@@ -7,7 +7,7 @@ import '../../core/events/app_event_bus.dart';
 /// 职责：UI确认逻辑 + 事件触发，不直接调用BLoC
 class InvoiceStatusOperationUtils {
   InvoiceStatusOperationUtils._();
-  
+
   static final AppEventBus _eventBus = AppEventBus.instance;
 
   /// 显示发票状态修改操作表（iOS风格）
@@ -27,8 +27,7 @@ class InvoiceStatusOperationUtils {
         message: Text(
           invoice.sellerName ?? invoice.invoiceNumber,
           style: const TextStyle(
-              fontSize: 14,
-              color: CupertinoColors.secondaryLabel),
+              fontSize: 14, color: CupertinoColors.secondaryLabel),
         ),
         actions: [
           if (!isCurrentlyReimbursed)

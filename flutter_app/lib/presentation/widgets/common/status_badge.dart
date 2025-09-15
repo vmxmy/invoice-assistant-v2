@@ -80,17 +80,20 @@ class StatusBadge extends StatelessWidget {
   }
 
   /// 获取状态配置
-  _StatusConfig _getStatusConfig(StatusBadgeStatus status, ColorScheme colorScheme) {
+  _StatusConfig _getStatusConfig(
+      StatusBadgeStatus status, ColorScheme colorScheme) {
     switch (status) {
       case StatusBadgeStatus.success:
         return _StatusConfig(
-          backgroundColor: CupertinoSemanticColors.success.withValues(alpha: 0.1),
+          backgroundColor:
+              CupertinoSemanticColors.success.withValues(alpha: 0.1),
           borderColor: CupertinoSemanticColors.success.withValues(alpha: 0.3),
           textColor: CupertinoSemanticColors.success,
         );
       case StatusBadgeStatus.warning:
         return _StatusConfig(
-          backgroundColor: CupertinoSemanticColors.warning.withValues(alpha: 0.1),
+          backgroundColor:
+              CupertinoSemanticColors.warning.withValues(alpha: 0.1),
           borderColor: CupertinoSemanticColors.warning.withValues(alpha: 0.3),
           textColor: CupertinoSemanticColors.warning,
         );

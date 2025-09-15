@@ -36,18 +36,17 @@ class InboxStatsWidget extends StatelessWidget {
         children: [
           // 主要统计行
           _buildMainStatsRow(colorScheme),
-          
+
           SizedBox(height: 8.0 - 2),
-          
+
           // 分类统计行
           _buildCategoryStatsRow(context, colorScheme),
-          
+
           // 处理状态行（如果有数据）
-          if (_hasProcessingData())
-            ...[
-              SizedBox(height: 8.0 - 2),
-              _buildProcessingStatsRow(context, colorScheme),
-            ],
+          if (_hasProcessingData()) ...[
+            SizedBox(height: 8.0 - 2),
+            _buildProcessingStatsRow(context, colorScheme),
+          ],
         ],
       ),
     );
@@ -80,9 +79,9 @@ class InboxStatsWidget extends StatelessWidget {
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
-        
+
         const Spacer(),
-        
+
         // 未读徽章（如果有未读邮件）
         if (stats.unreadEmails > 0) ...[
           _buildStatBadge(
@@ -92,7 +91,7 @@ class InboxStatsWidget extends StatelessWidget {
           ),
           SizedBox(width: 8.0),
         ],
-        
+
         // 今日邮件徽章（如果有今日邮件）
         if (stats.recentEmailsToday > 0) ...[
           _buildStatBadge(
@@ -101,7 +100,7 @@ class InboxStatsWidget extends StatelessWidget {
             CupertinoIcons.calendar_today,
           ),
         ],
-        
+
         // 加载指示器
         if (isLoading) ...[
           SizedBox(width: 8.0),
@@ -133,7 +132,7 @@ class InboxStatsWidget extends StatelessWidget {
           ),
           SizedBox(width: 16.0),
         ],
-        
+
         // 发票邮件
         if (stats.invoiceEmails > 0) ...[
           _buildInlineStatItem(
@@ -145,7 +144,7 @@ class InboxStatsWidget extends StatelessWidget {
           ),
           SizedBox(width: 16.0),
         ],
-        
+
         // 有附件邮件
         if (stats.emailsWithAttachments > 0) ...[
           _buildInlineStatItem(
@@ -156,9 +155,9 @@ class InboxStatsWidget extends StatelessWidget {
             colorScheme,
           ),
         ],
-        
+
         const Spacer(),
-        
+
         // 本周统计（右侧）
         if (stats.recentEmailsWeek > 0) ...[
           Text(
@@ -174,10 +173,11 @@ class InboxStatsWidget extends StatelessWidget {
   }
 
   /// 构建处理统计行
-  Widget _buildProcessingStatsRow(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildProcessingStatsRow(
+      BuildContext context, ColorScheme colorScheme) {
     final total = stats.successfulProcessing + stats.failedProcessing;
     final successRate = total > 0 ? stats.successfulProcessing / total : 0.0;
-    
+
     return Row(
       children: [
         // 处理状态文本
@@ -189,7 +189,7 @@ class InboxStatsWidget extends StatelessWidget {
           ),
         ),
         SizedBox(width: 12.0),
-        
+
         // 成功徽章
         if (stats.successfulProcessing > 0) ...[
           _buildMiniStatBadge(
@@ -198,7 +198,7 @@ class InboxStatsWidget extends StatelessWidget {
           ),
           SizedBox(width: 8.0 - 2),
         ],
-        
+
         // 失败徽章
         if (stats.failedProcessing > 0) ...[
           _buildMiniStatBadge(
@@ -206,9 +206,9 @@ class InboxStatsWidget extends StatelessWidget {
             InboxThemeConstants.getStatusColor('error', context),
           ),
         ],
-        
+
         const Spacer(),
-        
+
         // 成功率
         if (total > 0) ...[
           Text(
@@ -318,7 +318,6 @@ class InboxStatsWidget extends StatelessWidget {
   bool _hasProcessingData() {
     return stats.successfulProcessing > 0 || stats.failedProcessing > 0;
   }
-
 
   /// 获取成功率对应的颜色
   Color _getSuccessRateColor(double rate, ColorScheme colorScheme) {

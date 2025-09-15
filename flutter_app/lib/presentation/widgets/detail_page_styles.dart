@@ -294,8 +294,9 @@ class DetailPageComponents {
     bool isPrimary = true,
   }) {
     return Container(
-      margin: margin ?? const EdgeInsets.symmetric(vertical: DetailPageStyles.spacing8),
-      decoration: isPrimary 
+      margin: margin ??
+          const EdgeInsets.symmetric(vertical: DetailPageStyles.spacing8),
+      decoration: isPrimary
           ? DetailPageStyles.mainCardDecoration(context)
           : DetailPageStyles.secondaryCardDecoration(context),
       child: Padding(

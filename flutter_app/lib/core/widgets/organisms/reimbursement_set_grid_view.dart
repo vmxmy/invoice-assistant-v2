@@ -7,42 +7,43 @@ import 'responsive_grid_view.dart';
 import '../../theme/ios_theme_adapter.dart';
 
 /// 响应式报销集合网格视图组件
-/// 
+///
 /// 根据屏幕尺寸自动调整报销集合卡片的网格布局
 class ReimbursementSetGridView extends StatelessWidget {
   /// 报销集合列表
   final List<ReimbursementSetEntity> reimbursementSets;
-  
+
   /// 报销集合点击回调
   final ValueChanged<ReimbursementSetEntity>? onSetTap;
-  
+
   /// 报销集合长按回调
   final ValueChanged<ReimbursementSetEntity>? onSetLongPress;
-  
+
   /// 报销集合删除回调
   final ValueChanged<ReimbursementSetEntity>? onSetDelete;
-  
+
   /// 状态变更回调
-  final void Function(ReimbursementSetEntity, ReimbursementSetStatus)? onStatusChange;
-  
+  final void Function(ReimbursementSetEntity, ReimbursementSetStatus)?
+      onStatusChange;
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
-  
+
   /// 是否显示加载指示器
   final bool showLoading;
-  
+
   /// 空状态占位组件
   final Widget? emptyWidget;
-  
+
   /// 加载指示器组件
   final Widget? loadingWidget;
-  
+
   /// 网格布局模式
   final ReimbursementSetGridLayoutMode layoutMode;
 
@@ -68,12 +69,12 @@ class ReimbursementSetGridView extends StatelessWidget {
     if (showLoading) {
       return _buildLoadingState();
     }
-    
+
     // 显示空状态
     if (reimbursementSets.isEmpty) {
       return _buildEmptyState(context);
     }
-    
+
     // 根据布局模式构建网格
     return _buildGridByLayoutMode(context);
   }
@@ -102,15 +103,15 @@ class ReimbursementSetGridView extends StatelessWidget {
               Text(
                 '暂无报销集合',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 8.0),
               Text(
                 '创建第一个报销集合开始管理发票',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -133,7 +134,8 @@ class ReimbursementSetGridView extends StatelessWidget {
   /// 构建固定网格
   Widget _buildFixedGrid() {
     return ResponsiveGridView(
-      itemBuilder: (context, index) => _buildReimbursementSetCard(reimbursementSets[index]),
+      itemBuilder: (context, index) =>
+          _buildReimbursementSetCard(reimbursementSets[index]),
       itemCount: reimbursementSets.length,
       controller: controller,
       physics: physics,
@@ -146,7 +148,8 @@ class ReimbursementSetGridView extends StatelessWidget {
   /// 构建交错网格
   Widget _buildStaggeredGrid() {
     return ResponsiveStaggeredGridView(
-      itemBuilder: (context, index) => _buildReimbursementSetCard(reimbursementSets[index]),
+      itemBuilder: (context, index) =>
+          _buildReimbursementSetCard(reimbursementSets[index]),
       itemCount: reimbursementSets.length,
       controller: controller,
       physics: physics,
@@ -159,7 +162,8 @@ class ReimbursementSetGridView extends StatelessWidget {
   /// 构建自适应网格
   Widget _buildAdaptiveGrid() {
     return AdaptiveGridView(
-      itemBuilder: (context, index) => _buildReimbursementSetCard(reimbursementSets[index]),
+      itemBuilder: (context, index) =>
+          _buildReimbursementSetCard(reimbursementSets[index]),
       itemCount: reimbursementSets.length,
       controller: controller,
       physics: physics,
@@ -196,31 +200,33 @@ class ReimbursementSetGridView extends StatelessWidget {
       reimbursementSet: reimbursementSet,
       onTap: () => onSetTap?.call(reimbursementSet),
       onDelete: () => onSetDelete?.call(reimbursementSet),
-      onStatusChange: (newStatus) => onStatusChange?.call(reimbursementSet, newStatus),
+      onStatusChange: (newStatus) =>
+          onStatusChange?.call(reimbursementSet, newStatus),
       groupTag: 'reimbursement-set-cards',
     );
   }
 }
 
 /// 响应式报销集合Sliver网格视图组件
-/// 
+///
 /// 用于在CustomScrollView中使用的网格布局
 class ReimbursementSetSliverGridView extends StatelessWidget {
   /// 报销集合列表
   final List<ReimbursementSetEntity> reimbursementSets;
-  
+
   /// 报销集合点击回调
   final ValueChanged<ReimbursementSetEntity>? onSetTap;
-  
+
   /// 报销集合长按回调
   final ValueChanged<ReimbursementSetEntity>? onSetLongPress;
-  
+
   /// 报销集合删除回调
   final ValueChanged<ReimbursementSetEntity>? onSetDelete;
-  
+
   /// 状态变更回调
-  final void Function(ReimbursementSetEntity, ReimbursementSetStatus)? onStatusChange;
-  
+  final void Function(ReimbursementSetEntity, ReimbursementSetStatus)?
+      onStatusChange;
+
   /// 网格布局模式
   final ReimbursementSetGridLayoutMode layoutMode;
 
@@ -244,7 +250,7 @@ class ReimbursementSetSliverGridView extends StatelessWidget {
       builder: (context, constraints) {
         final deviceType = DeviceType.medium;
         final gridDelegate = _getGridDelegateForDevice(deviceType);
-        
+
         return SliverGrid(
           gridDelegate: gridDelegate,
           delegate: SliverChildBuilderDelegate(
@@ -255,7 +261,8 @@ class ReimbursementSetSliverGridView extends StatelessWidget {
                 reimbursementSet: reimbursementSet,
                 onTap: () => onSetTap?.call(reimbursementSet),
                 onDelete: () => onSetDelete?.call(reimbursementSet),
-                onStatusChange: (newStatus) => onStatusChange?.call(reimbursementSet, newStatus),
+                onStatusChange: (newStatus) =>
+                    onStatusChange?.call(reimbursementSet, newStatus),
                 groupTag: 'reimbursement-set-cards',
               );
             },
@@ -288,31 +295,30 @@ class ReimbursementSetSliverGridView extends StatelessWidget {
     );
     return config.getDelegateForDevice(deviceType);
   }
-
 }
 
 /// 混合网格视图组件
-/// 
+///
 /// 同时显示发票和报销集合，自动处理不同类型的卡片
 class MixedItemGridView extends StatelessWidget {
   /// 发票列表
   final List<InvoiceEntity> invoices;
-  
+
   /// 报销集合列表
   final List<ReimbursementSetEntity> reimbursementSets;
-  
+
   /// 发票点击回调
   final ValueChanged<InvoiceEntity>? onInvoiceTap;
-  
+
   /// 报销集合点击回调
   final ValueChanged<ReimbursementSetEntity>? onSetTap;
-  
+
   /// 滚动控制器
   final ScrollController? controller;
-  
+
   /// 滚动物理效果
   final ScrollPhysics? physics;
-  
+
   /// 是否收缩包装
   final bool shrinkWrap;
 
@@ -333,7 +339,7 @@ class MixedItemGridView extends StatelessWidget {
       ...reimbursementSets,
       ...invoices,
     ];
-    
+
     if (allItems.isEmpty) {
       return _buildEmptyState(context);
     }
@@ -382,8 +388,8 @@ class MixedItemGridView extends StatelessWidget {
           Text(
             '暂无数据',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -395,10 +401,10 @@ class MixedItemGridView extends StatelessWidget {
 enum ReimbursementSetGridLayoutMode {
   /// 固定网格 - 使用固定的最小卡片宽度
   fixed,
-  
+
   /// 交错网格 - 使用最大横轴范围
   staggered,
-  
+
   /// 自适应网格 - 根据设备类型自动选择最佳布局
   adaptive,
 }

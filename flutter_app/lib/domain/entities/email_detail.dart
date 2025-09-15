@@ -78,40 +78,40 @@ class EmailDetail extends Equatable {
 
   @override
   List<Object?> get props => [
-    baseInfo,
-    emailBodyText,
-    emailBodyHtml,
-    emailBodyPreview,
-    attachmentNames,
-    shouldProcess,
-    matchedKeywords,
-    extractedSubject,
-    keywordStats,
-    node3Executed,
-    node3Status,
-    verificationLinks,
-    primaryVerificationLink,
-    targetUserEmail,
-    linkQuality,
-    extractionCompleteness,
-    node4Executed,
-    node4Status,
-    totalAttachments,
-    pdfAttachments,
-    successfulProcessing,
-    failedProcessing,
-    processingResults,
-    mappedUserId,
-    mappingMethod,
-    mappingError,
-    errorSummary,
-    totalProcessingTime,
-    node2RawOutput,
-    node3RawOutput,
-    node4RawOutput,
-    triggerRawData,
-    recommendations,
-  ];
+        baseInfo,
+        emailBodyText,
+        emailBodyHtml,
+        emailBodyPreview,
+        attachmentNames,
+        shouldProcess,
+        matchedKeywords,
+        extractedSubject,
+        keywordStats,
+        node3Executed,
+        node3Status,
+        verificationLinks,
+        primaryVerificationLink,
+        targetUserEmail,
+        linkQuality,
+        extractionCompleteness,
+        node4Executed,
+        node4Status,
+        totalAttachments,
+        pdfAttachments,
+        successfulProcessing,
+        failedProcessing,
+        processingResults,
+        mappedUserId,
+        mappingMethod,
+        mappingError,
+        errorSummary,
+        totalProcessingTime,
+        node2RawOutput,
+        node3RawOutput,
+        node4RawOutput,
+        triggerRawData,
+        recommendations,
+      ];
 
   // 便捷访问基础信息属性
   String get id => baseInfo.id;
@@ -131,9 +131,9 @@ class EmailDetail extends Equatable {
       return emailBodyPreview!;
     }
     if (emailBodyText?.isNotEmpty == true) {
-      return emailBodyText!.length > 200 
-        ? '${emailBodyText!.substring(0, 200)}...'
-        : emailBodyText!;
+      return emailBodyText!.length > 200
+          ? '${emailBodyText!.substring(0, 200)}...'
+          : emailBodyText!;
     }
     return '无邮件正文';
   }
@@ -155,7 +155,7 @@ class EmailDetail extends Equatable {
   // 是否有处理统计数据
   bool get hasProcessingStats {
     return (successfulProcessing != null && successfulProcessing! > 0) ||
-           (failedProcessing != null && failedProcessing! > 0);
+        (failedProcessing != null && failedProcessing! > 0);
   }
 
   // 链接质量状态
@@ -205,7 +205,7 @@ class EmailDetail extends Equatable {
     if (totalProcessingTime == null) {
       return '未记录';
     }
-    
+
     final seconds = totalProcessingTime! / 1000;
     if (seconds < 60) {
       return '${seconds.toStringAsFixed(1)}秒';
@@ -266,10 +266,12 @@ class EmailDetail extends Equatable {
       node3Executed: node3Executed ?? this.node3Executed,
       node3Status: node3Status ?? this.node3Status,
       verificationLinks: verificationLinks ?? this.verificationLinks,
-      primaryVerificationLink: primaryVerificationLink ?? this.primaryVerificationLink,
+      primaryVerificationLink:
+          primaryVerificationLink ?? this.primaryVerificationLink,
       targetUserEmail: targetUserEmail ?? this.targetUserEmail,
       linkQuality: linkQuality ?? this.linkQuality,
-      extractionCompleteness: extractionCompleteness ?? this.extractionCompleteness,
+      extractionCompleteness:
+          extractionCompleteness ?? this.extractionCompleteness,
       node4Executed: node4Executed ?? this.node4Executed,
       node4Status: node4Status ?? this.node4Status,
       totalAttachments: totalAttachments ?? this.totalAttachments,

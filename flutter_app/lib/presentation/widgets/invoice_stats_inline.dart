@@ -22,14 +22,14 @@ class InvoiceStatsInline extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = CupertinoTheme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
         horizontal: 16.0,
         vertical: 12.0,
       ),
-      child: isLoading 
+      child: isLoading
           ? _buildLoadingText(isDark)
           : _buildStatsText(context, isDark),
     );
@@ -41,7 +41,8 @@ class InvoiceStatsInline extends StatelessWidget {
       '加载中...',
       style: TextStyle(
         fontSize: 12.0,
-        color: isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
+        color:
+            isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
         fontWeight: FontWeight.w400,
       ),
     );
@@ -50,12 +51,12 @@ class InvoiceStatsInline extends StatelessWidget {
   /// 构建统计信息文字
   Widget _buildStatsText(BuildContext context, bool isDark) {
     final stats = _getEffectiveStats();
-    
+
     // iOS标准的颜色规范
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
     final primaryColor = CupertinoColors.label.resolveFrom(context);
     final highlightColor = CupertinoColors.systemBlue.resolveFrom(context);
-    
+
     return RichText(
       text: TextSpan(
         style: TextStyle(
@@ -87,14 +88,14 @@ class InvoiceStatsInline extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          
+
           // iOS标准的中点分隔符
           if (stats.unreimbursedCount > 0) ...[
             TextSpan(
               text: ' • ',
               style: TextStyle(color: secondaryColor),
             ),
-            
+
             // 待报销信息（高亮显示）
             TextSpan(
               text: '待报销 ',
@@ -131,7 +132,8 @@ class InvoiceStatsInline extends StatelessWidget {
       return InvoiceStatsData(
         totalCount: serverStats!.totalCount,
         totalAmount: serverStats!.totalAmount,
-        unreimbursedCount: serverStats!.getStatusCount('unsubmitted') + serverStats!.getStatusCount('submitted'),
+        unreimbursedCount: serverStats!.getStatusCount('unsubmitted') +
+            serverStats!.getStatusCount('submitted'),
         unreimbursedAmount: _calculateUnreimbursedAmount(serverStats!),
       );
     } else {
@@ -146,7 +148,8 @@ class InvoiceStatsInline extends StatelessWidget {
     // 如果服务器没有提供按状态分组的金额，可能需要扩展服务器API
     // 临时使用总金额的估算比例
     final totalCount = serverStats.totalCount;
-    final unreimbursedCount = serverStats.getStatusCount('unsubmitted') + serverStats.getStatusCount('submitted');
+    final unreimbursedCount = serverStats.getStatusCount('unsubmitted') +
+        serverStats.getStatusCount('submitted');
     if (totalCount > 0) {
       return serverStats.totalAmount * (unreimbursedCount / totalCount);
     }
@@ -171,9 +174,9 @@ class InvoiceStatsInline extends StatelessWidget {
 
     for (final invoice in invoices) {
       totalAmount += invoice.amount;
-      
+
       // 待报销：未提交和已提交状态都算待报销
-      if (invoice.status == InvoiceStatus.unsubmitted || 
+      if (invoice.status == InvoiceStatus.unsubmitted ||
           invoice.status == InvoiceStatus.submitted) {
         unreimbursedCount++;
         unreimbursedAmount += invoice.amount;

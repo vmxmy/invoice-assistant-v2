@@ -21,20 +21,20 @@ class EmailFilters extends Equatable {
 
   @override
   List<Object?> get props => [
-    category,
-    status,
-    search,
-    dateFrom,
-    dateTo,
-  ];
+        category,
+        status,
+        search,
+        dateFrom,
+        dateTo,
+      ];
 
   // 检查是否有任何过滤条件
   bool get hasFilters {
     return category != null ||
-           status != null ||
-           (search != null && search!.isNotEmpty) ||
-           dateFrom != null ||
-           dateTo != null;
+        status != null ||
+        (search != null && search!.isNotEmpty) ||
+        dateFrom != null ||
+        dateTo != null;
   }
 
   // 获取活动过滤器数量
@@ -80,13 +80,13 @@ class EmailFilters extends Equatable {
   // 转换为查询参数映射
   Map<String, dynamic> toQueryParams() {
     final Map<String, dynamic> params = {};
-    
+
     if (category != null) params['category'] = category;
     if (status != null) params['status'] = status;
     if (search != null && search!.isNotEmpty) params['search'] = search;
     if (dateFrom != null) params['dateFrom'] = dateFrom!.toIso8601String();
     if (dateTo != null) params['dateTo'] = dateTo!.toIso8601String();
-    
+
     return params;
   }
 
@@ -96,12 +96,11 @@ class EmailFilters extends Equatable {
       category: params['category'],
       status: params['status'],
       search: params['search'],
-      dateFrom: params['dateFrom'] != null 
-        ? DateTime.tryParse(params['dateFrom']) 
-        : null,
-      dateTo: params['dateTo'] != null 
-        ? DateTime.tryParse(params['dateTo']) 
-        : null,
+      dateFrom: params['dateFrom'] != null
+          ? DateTime.tryParse(params['dateFrom'])
+          : null,
+      dateTo:
+          params['dateTo'] != null ? DateTime.tryParse(params['dateTo']) : null,
     );
   }
 

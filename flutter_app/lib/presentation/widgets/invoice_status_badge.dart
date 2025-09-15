@@ -70,7 +70,6 @@ class InvoiceStatusBadge extends StatelessWidget {
     );
   }
 
-
   /// 获取发票的紧急程度
   UrgencyLevel _getUrgencyLevel() {
     final now = DateTime.now();
@@ -86,19 +85,19 @@ class InvoiceStatusBadge extends StatelessWidget {
     }
   }
 
-
   /// 新的状态颜色获取方法 - 基于紧急程度和状态
   Color _getStatusColorNew(BuildContext context, InvoiceStatus status) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // 获取要显示的状态（报销集中用有效状态，独立发票用原始状态）
-    final displayStatus = invoice.isInReimbursementSet ? status : invoice.rawStatus;
-    
+    final displayStatus =
+        invoice.isInReimbursementSet ? status : invoice.rawStatus;
+
     // 如果发票已报销，直接显示绿色
     if (displayStatus == InvoiceStatus.reimbursed) {
       return colorScheme.secondary; // 绿色
     }
-    
+
     // 待报销发票根据紧急程度决定颜色
     switch (_getUrgencyLevel()) {
       case UrgencyLevel.overdue:
@@ -113,8 +112,9 @@ class InvoiceStatusBadge extends StatelessWidget {
   /// 新的状态图标获取方法 - 基于有效状态
   IconData _getStatusIconNew(InvoiceStatus status) {
     // 获取要显示的状态（报销集中用有效状态，独立发票用原始状态）
-    final displayStatus = invoice.isInReimbursementSet ? status : invoice.rawStatus;
-    
+    final displayStatus =
+        invoice.isInReimbursementSet ? status : invoice.rawStatus;
+
     switch (displayStatus) {
       case InvoiceStatus.unsubmitted:
         return CupertinoIcons.doc_text;
@@ -124,7 +124,6 @@ class InvoiceStatusBadge extends StatelessWidget {
         return CupertinoIcons.checkmark_circle_fill;
     }
   }
-
 
   /// 根据大小获取内边距
   EdgeInsets _getPadding() {
@@ -217,9 +216,7 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
       invoice: invoice,
       size: size,
       showConsumptionDateOnly: showConsumptionDateOnly,
-      onTap: enableStatusChange
-          ? () => _handleStatusTap(context)
-          : null,
+      onTap: enableStatusChange ? () => _handleStatusTap(context) : null,
     );
   }
 
@@ -230,5 +227,4 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
       invoice: invoice,
     );
   }
-
 }

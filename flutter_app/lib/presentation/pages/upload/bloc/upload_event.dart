@@ -8,9 +8,9 @@ abstract class UploadEvent {
 /// 选择文件事件
 class SelectFiles extends UploadEvent {
   final List<File> files;
-  
+
   const SelectFiles(this.files);
-  
+
   @override
   String toString() => 'SelectFiles(${files.length} files)';
 }
@@ -18,9 +18,9 @@ class SelectFiles extends UploadEvent {
 /// 添加文件事件
 class AddFiles extends UploadEvent {
   final List<File> files;
-  
+
   const AddFiles(this.files);
-  
+
   @override
   String toString() => 'AddFiles(${files.length} files)';
 }
@@ -28,9 +28,9 @@ class AddFiles extends UploadEvent {
 /// 移除文件事件
 class RemoveFile extends UploadEvent {
   final int index;
-  
+
   const RemoveFile(this.index);
-  
+
   @override
   String toString() => 'RemoveFile($index)';
 }
@@ -38,7 +38,7 @@ class RemoveFile extends UploadEvent {
 /// 清空文件事件
 class ClearFiles extends UploadEvent {
   const ClearFiles();
-  
+
   @override
   String toString() => 'ClearFiles()';
 }
@@ -46,7 +46,7 @@ class ClearFiles extends UploadEvent {
 /// 开始上传事件
 class StartUpload extends UploadEvent {
   const StartUpload();
-  
+
   @override
   String toString() => 'StartUpload()';
 }
@@ -54,7 +54,7 @@ class StartUpload extends UploadEvent {
 /// 取消上传事件
 class CancelUpload extends UploadEvent {
   const CancelUpload();
-  
+
   @override
   String toString() => 'CancelUpload()';
 }
@@ -62,9 +62,9 @@ class CancelUpload extends UploadEvent {
 /// 重试上传事件
 class RetryUpload extends UploadEvent {
   final List<int>? failedIndices; // null表示重试所有失败的文件
-  
+
   const RetryUpload([this.failedIndices]);
-  
+
   @override
   String toString() => 'RetryUpload($failedIndices)';
 }
@@ -72,7 +72,7 @@ class RetryUpload extends UploadEvent {
 /// 重置状态事件
 class ResetUpload extends UploadEvent {
   const ResetUpload();
-  
+
   @override
   String toString() => 'ResetUpload()';
 }
@@ -81,9 +81,9 @@ class ResetUpload extends UploadEvent {
 class UpdateProgress extends UploadEvent {
   final int fileIndex;
   final double progress;
-  
+
   const UpdateProgress(this.fileIndex, this.progress);
-  
+
   @override
   String toString() => '_UpdateProgress($fileIndex, $progress)';
 }
@@ -94,14 +94,15 @@ class FileUploadCompleted extends UploadEvent {
   final bool success;
   final String? errorMessage;
   final String? invoiceId;
-  
+
   const FileUploadCompleted(
-    this.fileIndex, 
+    this.fileIndex,
     this.success, {
     this.errorMessage,
     this.invoiceId,
   });
-  
+
   @override
-  String toString() => '_FileUploadCompleted($fileIndex, $success, $errorMessage)';
+  String toString() =>
+      '_FileUploadCompleted($fileIndex, $success, $errorMessage)';
 }

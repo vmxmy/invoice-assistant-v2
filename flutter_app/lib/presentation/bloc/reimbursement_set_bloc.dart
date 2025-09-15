@@ -11,7 +11,7 @@ class ReimbursementSetBloc
     extends Bloc<ReimbursementSetEvent, ReimbursementSetState> {
   final ReimbursementSetRepository _repository;
   final AppEventBus _eventBus;
-  
+
   // 事件监听订阅
   StreamSubscription<InvoiceChangedEvent>? _invoiceEventSubscription;
   StreamSubscription<AppEvent>? _appEventSubscription;
@@ -38,7 +38,7 @@ class ReimbursementSetBloc
     on<LoadReimbursementSetStats>(_onLoadReimbursementSetStats);
     on<RefreshReimbursementSets>(_onRefreshReimbursementSets);
     on<ClearReimbursementSets>(_onClearReimbursementSets);
-    
+
     // 监听发票变更事件
     _setupInvoiceEventSubscription();
     // 监听应用生命周期事件
@@ -46,14 +46,13 @@ class ReimbursementSetBloc
     // 监听UI操作请求事件
     _setupUIActionRequestSubscription();
   }
-  
+
   /// 设置发票事件监听
   void _setupInvoiceEventSubscription() {
     _invoiceEventSubscription = _eventBus.on<InvoiceChangedEvent>().listen(
       (event) {
-        
         // 根据事件类型决定是否刷新数据
-        if (event is InvoiceDeletedEvent || 
+        if (event is InvoiceDeletedEvent ||
             event is InvoicesDeletedEvent ||
             event is InvoiceStatusChangedEvent ||
             event is InvoicesUploadedEvent) {
@@ -63,7 +62,7 @@ class ReimbursementSetBloc
       },
     );
   }
-  
+
   /// 设置应用事件监听
   void _setupAppEventSubscription() {
     _appEventSubscription = _eventBus.stream.listen(
@@ -84,12 +83,12 @@ class ReimbursementSetBloc
       },
     );
   }
-  
+
   /// 设置UI操作请求事件监听
   void _setupUIActionRequestSubscription() {
-    _uiActionSubscription = _eventBus.on<ReimbursementSetActionRequestEvent>().listen(
+    _uiActionSubscription =
+        _eventBus.on<ReimbursementSetActionRequestEvent>().listen(
       (event) {
-        
         // 将UI请求事件转换为内部Bloc事件
         switch (event) {
           case CreateReimbursementSetRequestEvent request:
@@ -99,22 +98,22 @@ class ReimbursementSetBloc
               invoiceIds: request.invoiceIds,
             ));
             break;
-            
+
           case DeleteReimbursementSetRequestEvent request:
             add(DeleteReimbursementSet(request.setId));
             break;
-            
+
           case AddInvoicesToSetRequestEvent request:
             add(AddInvoicesToReimbursementSet(
               setId: request.setId,
               invoiceIds: request.invoiceIds,
             ));
             break;
-            
+
           case RemoveInvoicesFromSetRequestEvent request:
             add(RemoveInvoicesFromReimbursementSet(request.invoiceIds));
             break;
-            
+
           case UpdateReimbursementSetRequestEvent request:
             add(UpdateReimbursementSet(
               setId: request.setId,
@@ -122,7 +121,7 @@ class ReimbursementSetBloc
               description: request.description,
             ));
             break;
-            
+
           case UpdateReimbursementSetStatusRequestEvent request:
             add(UpdateReimbursementSetStatus(
               setId: request.setId,
@@ -149,7 +148,6 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       // 如果是刷新操作，显示刷新状态
       if (event.refresh && state is ReimbursementSetLoaded) {
         final currentState = state as ReimbursementSetLoaded;
@@ -161,13 +159,11 @@ class ReimbursementSetBloc
 
       final reimbursementSets = await _repository.getReimbursementSets();
 
-
       emit(ReimbursementSetLoaded(
         reimbursementSets: reimbursementSets,
         isRefreshing: false,
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -181,13 +177,11 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       final createdSet = await _repository.createReimbursementSet(
         setName: event.setName,
         description: event.description,
         invoiceIds: event.invoiceIds,
       );
-
 
       emit(ReimbursementSetCreateSuccess(
         createdSet: createdSet,
@@ -196,14 +190,13 @@ class ReimbursementSetBloc
 
       // 创建成功后自动刷新列表
       add(const LoadReimbursementSets(refresh: true));
-      
+
       // 发送报销集创建事件
       _eventBus.emit(ReimbursementSetCreatedEvent(
         setId: createdSet.id,
         affectedInvoiceIds: event.invoiceIds,
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.create,
@@ -217,13 +210,11 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       final updatedSet = await _repository.updateReimbursementSet(
         event.setId,
         setName: event.setName,
         description: event.description,
       );
-
 
       emit(ReimbursementSetOperationSuccess(
         message: '报销集更新成功',
@@ -234,7 +225,6 @@ class ReimbursementSetBloc
       // 更新成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.update,
@@ -248,12 +238,11 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       // 1. 获取报销集的当前状态和包含的发票列表
       final currentSet = await _repository.getReimbursementSetById(event.setId);
       final invoicesInSet = await _repository.getInvoicesInSet(event.setId);
-      final affectedInvoiceIds = invoicesInSet.map((invoice) => invoice.id).toList();
-
+      final affectedInvoiceIds =
+          invoicesInSet.map((invoice) => invoice.id).toList();
 
       // 2. 更新报销集状态
       final updatedSet = await _repository.updateReimbursementSetStatus(
@@ -261,7 +250,6 @@ class ReimbursementSetBloc
         event.status,
         approvalNotes: event.approvalNotes,
       );
-
 
       emit(ReimbursementSetStatusUpdateSuccess(
         updatedSet: updatedSet,
@@ -280,7 +268,6 @@ class ReimbursementSetBloc
       // 状态更新成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.statusUpdate,
@@ -294,9 +281,7 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       await _repository.deleteReimbursementSet(event.setId);
-
 
       emit(ReimbursementSetDeleteSuccess(
         message: '报销集删除成功',
@@ -305,14 +290,13 @@ class ReimbursementSetBloc
 
       // 删除成功后刷新列表
       add(const LoadReimbursementSets(refresh: true));
-      
+
       // 发送报销集删除事件
       _eventBus.emit(ReimbursementSetDeletedEvent(
         setId: event.setId,
         affectedInvoiceIds: [], // 删除时无法获取具体发票列表，让监听者全量刷新
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.delete,
@@ -326,9 +310,7 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       await _repository.addInvoicesToSet(event.setId, event.invoiceIds);
-
 
       emit(ReimbursementSetOperationSuccess(
         message: '成功添加 ${event.invoiceIds.length} 张发票',
@@ -338,14 +320,13 @@ class ReimbursementSetBloc
 
       // 添加成功后刷新相关数据
       add(const LoadReimbursementSets(refresh: true));
-      
+
       // 发送发票添加到报销集事件
       _eventBus.emit(InvoicesAddedToSetEvent(
         setId: event.setId,
         invoiceIds: event.invoiceIds,
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.addInvoices,
@@ -359,9 +340,7 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       await _repository.removeInvoicesFromSet(event.invoiceIds);
-
 
       emit(ReimbursementSetOperationSuccess(
         message: '已移出发票',
@@ -370,13 +349,12 @@ class ReimbursementSetBloc
 
       // 移除成功后刷新相关数据
       add(const LoadReimbursementSets(refresh: true));
-      
+
       // 发送发票从报销集移除事件
       _eventBus.emit(InvoicesRemovedFromSetEvent(
         invoiceIds: event.invoiceIds,
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.removeInvoices,
@@ -390,7 +368,6 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       emit(const ReimbursementSetLoading());
 
       final [reimbursementSet, invoices] = await Future.wait([
@@ -398,13 +375,11 @@ class ReimbursementSetBloc
         _repository.getInvoicesInSet(event.setId),
       ]);
 
-
       emit(ReimbursementSetDetailLoaded(
         reimbursementSet: reimbursementSet as ReimbursementSetEntity,
         invoices: (invoices as List).cast<InvoiceEntity>(),
       ));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -418,9 +393,7 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       final invoices = await _repository.getInvoicesInSet(event.setId);
-
 
       // 如果当前状态是详情加载状态，更新发票列表
       if (state is ReimbursementSetDetailLoaded) {
@@ -431,7 +404,6 @@ class ReimbursementSetBloc
         ));
       }
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -445,16 +417,13 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       final unassignedInvoices = await _repository.getUnassignedInvoices(
         limit: event.limit,
         offset: event.offset,
       );
 
-
       emit(UnassignedInvoicesLoaded(unassignedInvoices));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,
@@ -468,13 +437,10 @@ class ReimbursementSetBloc
     Emitter<ReimbursementSetState> emit,
   ) async {
     try {
-
       final stats = await _repository.getReimbursementSetStats();
-
 
       emit(ReimbursementSetStatsLoaded(stats));
     } catch (e) {
-
       emit(ReimbursementSetError(
         message: _getErrorMessage(e),
         operationType: ReimbursementSetOperationType.load,

@@ -28,5 +28,23 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	
+	<!-- 文件访问权限描述 -->
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>此应用需要访问桌面文件夹来保存导出的发票和报销集文件。</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>此应用需要访问文档文件夹来读取和保存发票文件。</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>此应用需要访问下载文件夹来保存导出的发票和报销集文件。</string>
+	<key>NSCameraUsageDescription</key>
+	<string>此应用需要访问相机来拍摄发票照片。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>此应用需要访问照片库来选择发票图片。</string>
+	
+	<!-- macOS 特定配置 -->
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.business</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.15</string>
 </dict>
 </plist>

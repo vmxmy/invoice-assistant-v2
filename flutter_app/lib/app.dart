@@ -56,14 +56,15 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
 
   /// 设置认证状态监听器
   void _setupAuthStateListener() {
-    _authStateSubscription = SupabaseClientManager.authStateStream.listen((authState) {
+    _authStateSubscription =
+        SupabaseClientManager.authStateStream.listen((authState) {
       // 获取所有BLoC并处理认证状态变更
       if (mounted) {
         try {
           final permissionBloc = context.read<PermissionBloc>();
           final invoiceBloc = context.read<InvoiceBloc>();
           final reimbursementSetBloc = context.read<ReimbursementSetBloc>();
-          
+
           _permissionPreloader.onAuthStateChanged(
             permissionBloc: permissionBloc,
             authState: authState,
@@ -123,19 +124,19 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                 create: (context) {
                   AppLogger.debug('创建全局唯一PermissionBloc', tag: 'App');
                   final bloc = di.sl<PermissionBloc>();
-                  AppLogger.debug(
-                      'PermissionBloc实例创建完成 [${bloc.hashCode}]',
+                  AppLogger.debug('PermissionBloc实例创建完成 [${bloc.hashCode}]',
                       tag: 'App');
-                  
+
                   // 如果用户已登录且邮箱已确认，使用预加载器智能加载权限
                   final user = SupabaseClientManager.currentUser;
                   if (user != null && user.emailConfirmedAt != null) {
                     // 使用预加载器进行智能权限预加载
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _permissionPreloader.preloadPermissions(permissionBloc: bloc);
+                      _permissionPreloader.preloadPermissions(
+                          permissionBloc: bloc);
                     });
                   }
-                  
+
                   return bloc;
                 },
               ),
@@ -143,8 +144,7 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
                 create: (context) {
                   AppLogger.debug('创建全局唯一InboxBloc', tag: 'App');
                   final bloc = di.sl<InboxBloc>();
-                  AppLogger.debug(
-                      'InboxBloc实例创建完成 [${bloc.hashCode}]',
+                  AppLogger.debug('InboxBloc实例创建完成 [${bloc.hashCode}]',
                       tag: 'App');
                   return bloc;
                 },
@@ -159,10 +159,10 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
 
               // 应用配置
               locale: const Locale('zh', 'CN'),
-              
-              // 添加本地化支持
+
+              // 添加本地化支持 - 移除Material依赖，专注Cupertino架构
               localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
+                // GlobalMaterialLocalizations.delegate, // 已移除：Cupertino架构不需要Material本地化
                 GlobalCupertinoLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
               ],
@@ -189,7 +189,6 @@ class _InvoiceAssistantAppState extends State<InvoiceAssistantApp> {
       ),
     );
   }
-
 }
 
 /// 🔐 会话安全验证结果
@@ -198,7 +197,7 @@ class SessionValidationResult {
   final String status;
   final String? failureReason;
   final Map<String, dynamic> details;
-  
+
   SessionValidationResult({
     required this.isValid,
     required this.status,
@@ -212,7 +211,7 @@ SessionValidationResult _validateSessionSecurity() {
   try {
     final session = SupabaseClientManager.client.auth.currentSession;
     final user = SupabaseClientManager.currentUser;
-    
+
     // 基础验证：会话和用户存在性
     if (session == null || user == null) {
       return SessionValidationResult(
@@ -225,7 +224,7 @@ SessionValidationResult _validateSessionSecurity() {
         },
       );
     }
-    
+
     // 🚨 安全验证1：邮箱确认检查
     if (user.emailConfirmedAt == null) {
       return SessionValidationResult(
@@ -238,7 +237,7 @@ SessionValidationResult _validateSessionSecurity() {
         },
       );
     }
-    
+
     // 🚨 安全验证2：会话过期检查
     final now = DateTime.now().millisecondsSinceEpoch / 1000;
     if (session.expiresAt != null && session.expiresAt! <= now) {
@@ -253,7 +252,7 @@ SessionValidationResult _validateSessionSecurity() {
         },
       );
     }
-    
+
     // 🚨 安全验证3：Token格式验证
     if (session.accessToken.isEmpty) {
       return SessionValidationResult(
@@ -262,7 +261,7 @@ SessionValidationResult _validateSessionSecurity() {
         failureReason: 'AccessToken为空',
       );
     }
-    
+
     // 验证JWT格式（简化版本）
     final tokenParts = session.accessToken.split('.');
     if (tokenParts.length != 3) {
@@ -275,26 +274,30 @@ SessionValidationResult _validateSessionSecurity() {
         },
       );
     }
-    
+
     // 🚨 安全验证4：用户角色验证（如果适用）
     final userMetadata = user.userMetadata;
-    if (userMetadata != null && userMetadata.containsKey('banned') && userMetadata['banned'] == true) {
+    if (userMetadata != null &&
+        userMetadata.containsKey('banned') &&
+        userMetadata['banned'] == true) {
       return SessionValidationResult(
         isValid: false,
         status: 'USER_BANNED',
         failureReason: '用户已被禁用',
       );
     }
-    
+
     // 🚨 安全验证5：会话时长检查（防止异常长期会话）
     final sessionDuration = now - DateTime.now().millisecondsSinceEpoch / 1000;
     const maxSessionDuration = 24 * 60 * 60; // 24小时
     if (sessionDuration > maxSessionDuration) {
       if (AppConfig.enableLogging) {
-        AppLogger.warning('🚨 [Security] 检测到异常长期会话: ${sessionDuration / 3600}小时', tag: 'Security');
+        AppLogger.warning(
+            '🚨 [Security] 检测到异常长期会话: ${sessionDuration / 3600}小时',
+            tag: 'Security');
       }
     }
-    
+
     // ✅ 所有验证通过
     return SessionValidationResult(
       isValid: true,
@@ -302,14 +305,15 @@ SessionValidationResult _validateSessionSecurity() {
       details: {
         'userEmail': user.email,
         'emailConfirmedAt': user.emailConfirmedAt?.toString(),
-        'sessionExpiresAt': session.expiresAt != null 
-            ? DateTime.fromMillisecondsSinceEpoch((session.expiresAt! * 1000).round()).toIso8601String()
+        'sessionExpiresAt': session.expiresAt != null
+            ? DateTime.fromMillisecondsSinceEpoch(
+                    (session.expiresAt! * 1000).round())
+                .toIso8601String()
             : null,
         'sessionDurationHours': (sessionDuration / 3600).toStringAsFixed(2),
         'tokenValid': true,
       },
     );
-    
   } catch (e) {
     if (AppConfig.enableLogging) {
       AppLogger.error('🚨 [Security] 会话验证异常', tag: 'Security', error: e);
@@ -331,32 +335,42 @@ final _router = GoRouter(
     // 🚨 安全增强：全面的会话验证
     final validationResult = _validateSessionSecurity();
     final isFullyAuthenticated = validationResult.isValid;
-    
+
     final isLoginPage = state.uri.toString() == '/login';
     final isRegisterPage = state.uri.toString() == '/register';
 
     if (AppConfig.enableLogging) {
       AppLogger.debug('🔗 [Navigation] 路由重定向检查', tag: 'Navigation');
       AppLogger.debug('🔗 [Navigation] 目标路由: ${state.uri}', tag: 'Navigation');
-      AppLogger.debug('🔗 [Navigation] 会话验证状态: ${validationResult.status}', tag: 'Navigation');
-      AppLogger.debug('🔗 [Navigation] 完全认证状态: $isFullyAuthenticated', tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 会话验证状态: ${validationResult.status}',
+          tag: 'Navigation');
+      AppLogger.debug('🔗 [Navigation] 完全认证状态: $isFullyAuthenticated',
+          tag: 'Navigation');
       AppLogger.debug('🔗 [Navigation] 是登录页: $isLoginPage', tag: 'Navigation');
-      AppLogger.debug('🔗 [Navigation] 是注册页: $isRegisterPage', tag: 'Navigation');
-      AppLogger.debug('🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}', tag: 'Navigation');
-      
+      AppLogger.debug('🔗 [Navigation] 是注册页: $isRegisterPage',
+          tag: 'Navigation');
+      AppLogger.debug(
+          '🔗 [Navigation] 时间戳: ${DateTime.now().toIso8601String()}',
+          tag: 'Navigation');
+
       // 显示详细的安全验证信息
       if (validationResult.details.isNotEmpty) {
-        AppLogger.debug('🔗 [Navigation] 验证详情: ${validationResult.details}', tag: 'Navigation');
+        AppLogger.debug('🔗 [Navigation] 验证详情: ${validationResult.details}',
+            tag: 'Navigation');
       }
       if (!validationResult.isValid && validationResult.failureReason != null) {
-        AppLogger.warning('🚨 [Security] 会话验证失败: ${validationResult.failureReason}', tag: 'Navigation');
+        AppLogger.warning(
+            '🚨 [Security] 会话验证失败: ${validationResult.failureReason}',
+            tag: 'Navigation');
       }
     }
 
     // 🚨 安全检查：如果未通过安全验证且不在登录页或注册页，重定向到登录页
     if (!isFullyAuthenticated && !isLoginPage && !isRegisterPage) {
       if (AppConfig.enableLogging) {
-        AppLogger.warning('🚨 [Security] 重定向到登录页: ${validationResult.failureReason ?? '未知原因'}', tag: 'Navigation');
+        AppLogger.warning(
+            '🚨 [Security] 重定向到登录页: ${validationResult.failureReason ?? '未知原因'}',
+            tag: 'Navigation');
       }
       return '/login';
     }

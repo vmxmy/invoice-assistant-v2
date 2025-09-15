@@ -18,14 +18,14 @@ class ReimbursementSetStatsInline extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = CupertinoTheme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
         horizontal: 16.0,
         vertical: 12.0,
       ),
-      child: isLoading 
+      child: isLoading
           ? _buildLoadingText(isDark)
           : _buildStatsText(context, isDark),
     );
@@ -37,7 +37,8 @@ class ReimbursementSetStatsInline extends StatelessWidget {
       '加载中...',
       style: TextStyle(
         fontSize: 12.0,
-        color: isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
+        color:
+            isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
         fontWeight: FontWeight.w400,
       ),
     );
@@ -46,12 +47,12 @@ class ReimbursementSetStatsInline extends StatelessWidget {
   /// 构建统计信息文字
   Widget _buildStatsText(BuildContext context, bool isDark) {
     final stats = _calculateStats(reimbursementSets);
-    
+
     // iOS标准的颜色规范
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
     final primaryColor = CupertinoColors.label.resolveFrom(context);
     final highlightColor = CupertinoColors.systemBlue.resolveFrom(context);
-    
+
     return RichText(
       text: TextSpan(
         style: TextStyle(
@@ -83,14 +84,14 @@ class ReimbursementSetStatsInline extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          
+
           // iOS标准的中点分隔符
           if (stats.pendingCount > 0 || stats.submittedCount > 0) ...[
             TextSpan(
               text: ' • ',
               style: TextStyle(color: secondaryColor),
             ),
-            
+
             // 根据实际情况显示待处理或待审核信息
             if (stats.pendingCount > 0) ...[
               TextSpan(
@@ -117,14 +118,16 @@ class ReimbursementSetStatsInline extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             if (stats.pendingCount > 0 || stats.submittedCount > 0) ...[
               TextSpan(
                 text: '，',
                 style: TextStyle(color: secondaryColor),
               ),
               TextSpan(
-                text: _formatAmount(stats.pendingCount > 0 ? stats.pendingAmount : stats.submittedAmount),
+                text: _formatAmount(stats.pendingCount > 0
+                    ? stats.pendingAmount
+                    : stats.submittedAmount),
                 style: TextStyle(
                   color: highlightColor,
                   fontWeight: FontWeight.w500,
@@ -138,7 +141,8 @@ class ReimbursementSetStatsInline extends StatelessWidget {
   }
 
   /// 计算统计数据
-  ReimbursementSetStatsData _calculateStats(List<ReimbursementSetEntity> reimbursementSets) {
+  ReimbursementSetStatsData _calculateStats(
+      List<ReimbursementSetEntity> reimbursementSets) {
     if (reimbursementSets.isEmpty) {
       return const ReimbursementSetStatsData(
         totalCount: 0,
@@ -154,16 +158,16 @@ class ReimbursementSetStatsInline extends StatelessWidget {
 
     int totalCount = reimbursementSets.length;
     double totalAmount = 0.0;
-    int pendingCount = 0;      // 未提交状态
+    int pendingCount = 0; // 未提交状态
     double pendingAmount = 0.0;
-    int submittedCount = 0;    // 已提交状态
+    int submittedCount = 0; // 已提交状态
     double submittedAmount = 0.0;
-    int reimbursedCount = 0;   // 已报销状态
+    int reimbursedCount = 0; // 已报销状态
     double reimbursedAmount = 0.0;
 
     for (final set in reimbursementSets) {
       totalAmount += set.totalAmount;
-      
+
       switch (set.status) {
         case ReimbursementSetStatus.unsubmitted:
           pendingCount++;
@@ -216,11 +220,11 @@ class ReimbursementSetStatsInline extends StatelessWidget {
 class ReimbursementSetStatsData {
   final int totalCount;
   final double totalAmount;
-  final int pendingCount;      // 未提交
+  final int pendingCount; // 未提交
   final double pendingAmount;
-  final int submittedCount;    // 已提交
+  final int submittedCount; // 已提交
   final double submittedAmount;
-  final int reimbursedCount;   // 已报销
+  final int reimbursedCount; // 已报销
   final double reimbursedAmount;
 
   const ReimbursementSetStatsData({

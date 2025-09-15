@@ -31,37 +31,38 @@ class SlideAction {
 }
 
 /// 发票卡片滑动操作组件
-/// 
+///
 /// 负责处理左滑和右滑的操作功能
 class InvoiceCardSlidable extends StatefulWidget {
   /// 子组件
   final Widget child;
-  
+
   /// 左滑操作列表
   final List<SlideAction> startActions;
-  
+
   /// 右滑操作列表
   final List<SlideAction> endActions;
-  
+
   /// 是否启用滑动
   final bool enabled;
-  
+
   /// 滑动范围比例
   final double extentRatio;
-  
+
   /// 滑动动画
   final Widget motion;
-  
+
   /// 滑动阈值 (已废弃，保留以兼容旧API)
-  @Deprecated('dismissalThreshold is no longer supported in flutter_slidable 3.x')
+  @Deprecated(
+      'dismissalThreshold is no longer supported in flutter_slidable 3.x')
   final double dismissalThreshold;
-  
+
   /// 是否在滑动时关闭其他滑动项
   final bool closeOnScroll;
-  
+
   /// 滑动键，用于控制滑动状态
   final GlobalKey<State<Slidable>>? slidableKey;
-  
+
   /// 分组标识，具有相同 groupTag 的滑动卡片将互斥
   final Object? groupTag;
 
@@ -83,36 +84,37 @@ class InvoiceCardSlidable extends StatefulWidget {
   State<InvoiceCardSlidable> createState() => _InvoiceCardSlidableState();
 }
 
-class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerProviderStateMixin {
+class _InvoiceCardSlidableState extends State<InvoiceCardSlidable>
+    with TickerProviderStateMixin {
   late final flutter_slidable.SlidableController _internalController;
-  
+
   @override
   void initState() {
     super.initState();
     _internalController = flutter_slidable.SlidableController(this);
   }
-  
+
   @override
   void dispose() {
     _internalController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // 如果没有操作或禁用，直接返回子组件
-    if (!widget.enabled || 
+    if (!widget.enabled ||
         (widget.startActions.isEmpty && widget.endActions.isEmpty)) {
       return widget.child;
     }
-    
+
     return Slidable(
       key: widget.slidableKey,
       controller: _internalController, // 使用内部控制器
       enabled: widget.enabled,
       closeOnScroll: widget.closeOnScroll,
       groupTag: widget.groupTag,
-      
+
       // 左滑操作面板
       startActionPane: widget.startActions.isNotEmpty
           ? ActionPane(
@@ -122,7 +124,7 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
               children: widget.startActions.map(_buildSlidableAction).toList(),
             )
           : null,
-      
+
       // 右滑操作面板
       endActionPane: widget.endActions.isNotEmpty
           ? ActionPane(
@@ -132,7 +134,7 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
               children: widget.endActions.map(_buildSlidableAction).toList(),
             )
           : null,
-      
+
       child: widget.child,
     );
   }
@@ -142,8 +144,9 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
     return CustomSlidableAction(
       action: _wrapActionWithAutoClose(action),
       isStart: widget.startActions.contains(action),
-      isLast: (widget.startActions.isNotEmpty && widget.startActions.last == action) ||
-              (widget.endActions.isNotEmpty && widget.endActions.last == action),
+      isLast: (widget.startActions.isNotEmpty &&
+              widget.startActions.last == action) ||
+          (widget.endActions.isNotEmpty && widget.endActions.last == action),
     );
   }
 
@@ -159,14 +162,12 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
       flex: action.flex,
       // 标准方法：禁用默认的自动关闭，手动控制
       onPressed: () {
-        
         // 立即执行原始操作
         action.onPressed();
-        
+
         // 标准方法：延迟关闭给用户视觉反馈时间
         Future.delayed(AppConstants.fastAnimationDuration, () {
           if (mounted) {
-            
             try {
               // 直接使用内部控制器关闭
               _internalController.close();
@@ -181,18 +182,18 @@ class _InvoiceCardSlidableState extends State<InvoiceCardSlidable> with TickerPr
 }
 
 /// 自定义滑动操作项组件
-/// 
+///
 /// 提供更多自定义选项的滑动操作
 class CustomSlidableAction extends StatelessWidget {
   /// 操作数据
   final SlideAction action;
-  
+
   /// 是否是左侧操作（影响圆角方向）
   final bool isStart;
-  
+
   /// 是否是最后一个操作项
   final bool isLast;
-  
+
   /// 自定义内容构建器
   final Widget Function(BuildContext, SlideAction)? contentBuilder;
 
@@ -212,10 +213,13 @@ class CustomSlidableAction extends StatelessWidget {
         height: double.infinity, // 填满整个滑动区域高度
         decoration: BoxDecoration(
           border: Border(
-            left: isStart ? BorderSide.none : BorderSide(
-              color: CupertinoSemanticColors.separator.withValues(alpha: 0.2),
-              width: 0.5,
-            ),
+            left: isStart
+                ? BorderSide.none
+                : BorderSide(
+                    color: CupertinoSemanticColors.separator
+                        .withValues(alpha: 0.2),
+                    width: 0.5,
+                  ),
           ),
         ),
         child: Container(
@@ -232,13 +236,13 @@ class CustomSlidableAction extends StatelessWidget {
           ),
           child: GestureDetector(
             onTap: action.onPressed,
-            child: contentBuilder?.call(context, action) ?? _buildDefaultContent(),
+            child:
+                contentBuilder?.call(context, action) ?? _buildDefaultContent(),
           ),
         ),
       ),
     );
   }
-
 
   /// 构建默认内容
   Widget _buildDefaultContent() {
@@ -277,7 +281,7 @@ class CustomSlidableAction extends StatelessWidget {
   /// 与报销集卡片保持一致的圆角设计
   BorderRadius _getButtonBorderRadius(bool isStart, bool isLast) {
     const radius = Radius.circular(12);
-    
+
     if (isStart && isLast) {
       // 单个按钮 - 全圆角
       return BorderRadius.all(radius);
@@ -301,7 +305,7 @@ class CustomSlidableAction extends StatelessWidget {
 }
 
 /// 发票滑动操作预设
-/// 
+///
 /// 提供常用的发票操作预设
 class InvoiceSlideActions {
   InvoiceSlideActions._();
@@ -316,7 +320,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.share,
       label: '分享',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.share,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '分享发票',
     );
@@ -332,7 +337,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.delete,
       label: '删除',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.delete,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '删除发票',
       isDestructive: true,
@@ -349,7 +355,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.pencil,
       label: '编辑',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.edit,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '编辑发票',
     );
@@ -365,7 +372,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.eye,
       label: '查看',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.primary,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '查看发票详情',
     );
@@ -382,7 +390,8 @@ class InvoiceSlideActions {
       icon: isFavorited ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
       label: isFavorited ? '取消收藏' : '收藏',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.favorite,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: isFavorited ? '取消收藏' : '添加到收藏',
     );
@@ -398,7 +407,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.archivebox,
       label: '归档',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.archive,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '归档发票',
     );
@@ -414,7 +424,8 @@ class InvoiceSlideActions {
       icon: CupertinoIcons.printer,
       label: '打印',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.systemGray,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '打印发票',
     );
@@ -430,7 +441,8 @@ class InvoiceSlideActions {
       icon: IconMapping.getCupertinoIcon('folder_badge_minus'),
       label: '移出',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.warning,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '从报销集中移出',
     );
@@ -446,7 +458,8 @@ class InvoiceSlideActions {
       icon: IconMapping.getCupertinoIcon('folder_badge_plus'),
       label: '加入',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.success,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '加入报销集',
     );
@@ -462,7 +475,8 @@ class InvoiceSlideActions {
       icon: IconMapping.getCupertinoIcon('folder_fill'),
       label: '查看报销集',
       backgroundColor: backgroundColor ?? CupertinoSemanticColors.info,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '查看关联的报销集详情',
     );
@@ -477,17 +491,18 @@ class InvoiceSlideActions {
     return SlideAction(
       icon: CupertinoIcons.folder_badge_plus,
       label: '加入已有',
-      backgroundColor: backgroundColor ?? CupertinoSemanticColors.reimbursementSet,
-      foregroundColor: foregroundColor ?? CupertinoSemanticColors.systemBackground,
+      backgroundColor:
+          backgroundColor ?? CupertinoSemanticColors.reimbursementSet,
+      foregroundColor:
+          foregroundColor ?? CupertinoSemanticColors.systemBackground,
       onPressed: onPressed,
       tooltip: '加入已有报销集',
     );
   }
-
 }
 
 /// 发票状态相关的滑动操作工厂
-/// 
+///
 /// 根据发票状态和是否在报销集中，生成对应的滑动操作
 class InvoiceStatusSlidableActionsFactory {
   InvoiceStatusSlidableActionsFactory._();
@@ -500,7 +515,8 @@ class InvoiceStatusSlidableActionsFactory {
   }) {
     return [
       // 统一的"加入"按钮 - 点击后显示创建新报销集或加入已有报销集的选择
-      InvoiceSlideActions.addToReimbursementSet(onPressed: onAddToReimbursementSet),
+      InvoiceSlideActions.addToReimbursementSet(
+          onPressed: onAddToReimbursementSet),
       // 删除选项
       InvoiceSlideActions.delete(onPressed: onDelete),
     ];
@@ -514,14 +530,15 @@ class InvoiceStatusSlidableActionsFactory {
     final actions = <SlideAction>[
       InvoiceSlideActions.remove(onPressed: onRemoveFromSet),
     ];
-    
+
     // 如果提供了查看报销集的回调，添加查看报销集按钮
     if (onViewReimbursementSet != null) {
       actions.add(
-        InvoiceSlideActions.viewReimbursementSet(onPressed: onViewReimbursementSet),
+        InvoiceSlideActions.viewReimbursementSet(
+            onPressed: onViewReimbursementSet),
       );
     }
-    
+
     return actions;
   }
 
@@ -536,11 +553,10 @@ class InvoiceStatusSlidableActionsFactory {
     // 已报销状态的发票不允许任何左滑操作
     return [];
   }
-
 }
 
 /// 滑动操作构建器
-/// 
+///
 /// 用于创建复杂的滑动操作组合
 class SlidableActionsBuilder {
   final List<SlideAction> _actions = [];
@@ -583,7 +599,8 @@ class SlidableActionsBuilder {
   }
 
   /// 添加查看报销集操作
-  SlidableActionsBuilder addViewReimbursementSet({required VoidCallback onPressed}) {
+  SlidableActionsBuilder addViewReimbursementSet(
+      {required VoidCallback onPressed}) {
     return add(InvoiceSlideActions.viewReimbursementSet(onPressed: onPressed));
   }
 
@@ -599,11 +616,11 @@ class SlidableActionsBuilder {
 }
 
 /// 滑动操作控制器
-/// 
+///
 /// 用于程序化控制滑动状态
 class SlidableController extends ChangeNotifier {
   final GlobalKey<State<Slidable>> _key = GlobalKey<State<Slidable>>();
-  
+
   /// 获取滑动组件的Key
   GlobalKey<State<Slidable>> get key => _key;
 

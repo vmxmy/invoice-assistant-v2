@@ -67,17 +67,18 @@ class EnhancedErrorHandler {
   }) async {
     final friendlyMessage = getFriendlyErrorMessage(error);
 
-    return showDialog<void>(
+    return showCupertinoDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 CupertinoIcons.exclamationmark_triangle,
-                color: Theme.of(context).colorScheme.error,
-                size: 24,
+                color: CupertinoColors.systemRed,
+                size: 20,
               ),
               const SizedBox(width: 8),
               Text(title ?? '操作失败'),
@@ -88,7 +89,7 @@ class EnhancedErrorHandler {
           ),
           actions: [
             if (onCancel != null)
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () {
                   Navigator.of(context).pop();
                   onCancel();
@@ -96,7 +97,8 @@ class EnhancedErrorHandler {
                 child: Text(cancelText ?? '取消'),
               ),
             if (onRetry != null)
-              ElevatedButton(
+              CupertinoDialogAction(
+                isDefaultAction: true,
                 onPressed: () {
                   Navigator.of(context).pop();
                   onRetry();
@@ -104,7 +106,7 @@ class EnhancedErrorHandler {
                 child: Text(retryText ?? '重试'),
               )
             else
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('确定'),
               ),
@@ -202,7 +204,6 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
     super.initState();
     // 设置错误处理器
     FlutterError.onError = (FlutterErrorDetails details) {
-
       widget.onError?.call(details);
 
       if (mounted) {

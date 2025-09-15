@@ -1,16 +1,20 @@
-
 /// 发票状态
 enum InvoiceStatus {
   /// 待处理
   pending,
+
   /// 已验证
   verified,
+
   /// 处理中
   processing,
+
   /// 已完成
   completed,
+
   /// 已拒绝
   rejected,
+
   /// 已删除
   deleted,
 }

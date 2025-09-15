@@ -111,7 +111,7 @@ class ReimbursementSetEntity extends Equatable {
   final DateTime? latestInvoiceDate;
   final int? regionCount;
   final int? categoryCount;
-  
+
   // 区域统计信息
   final Map<String, int>? regionStatistics;
   final Map<String, int>? provinceStatistics;
@@ -177,7 +177,7 @@ class ReimbursementSetEntity extends Equatable {
     if (dateRangeText != null && dateRangeText!.isNotEmpty) {
       return dateRangeText!;
     }
-    
+
     // 回退到手动计算（为了向后兼容）
     if (consumptionStartDate == null || consumptionEndDate == null) {
       return '暂无发票';
@@ -193,7 +193,7 @@ class ReimbursementSetEntity extends Equatable {
   /// 获取日期范围显示文本（用于UI显示）
   String get dateRangeDisplayText {
     if (dateRangeType == null) return smartDateRangeText;
-    
+
     return '${dateRangeType!.icon} ${dateRangeType!.displayName} | $smartDateRangeText';
   }
 
@@ -209,12 +209,13 @@ class ReimbursementSetEntity extends Equatable {
   int? get metadataTotalDays => dateRangeMetadata?['total_days'] as int?;
   int? get metadataSpanMonths => dateRangeMetadata?['span_months'] as int?;
   int? get metadataSpanYears => dateRangeMetadata?['span_years'] as int?;
-  
+
   /// 是否使用智能命名
   bool get isSmartNamed => smartNameGenerated;
-  
+
   /// 获取实际使用的名称（智能生成或原始名称）
-  String get displayName => smartNameGenerated && originalName != null ? originalName! : setName;
+  String get displayName =>
+      smartNameGenerated && originalName != null ? originalName! : setName;
 
   /// 获取分类统计文本
   String get categorySummary {
@@ -265,7 +266,7 @@ class ReimbursementSetEntity extends Equatable {
     var maxEntry = regionStatistics!.entries.reduce(
       (a, b) => a.value > b.value ? a : b,
     );
-    
+
     return maxEntry.key == '未知区域' && regionStatistics!.length > 1
         ? regionStatistics!.entries
             .where((e) => e.key != '未知区域')
@@ -283,7 +284,7 @@ class ReimbursementSetEntity extends Equatable {
     var maxEntry = provinceStatistics!.entries.reduce(
       (a, b) => a.value > b.value ? a : b,
     );
-    
+
     return maxEntry.key == '未知省份' && provinceStatistics!.length > 1
         ? provinceStatistics!.entries
             .where((e) => e.key != '未知省份')

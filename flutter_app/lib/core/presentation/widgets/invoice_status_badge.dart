@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../domain/value_objects/invoice_status.dart';
 
 /// 徽章尺寸
@@ -23,12 +23,11 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     // 根据尺寸确定样式
     final double fontSize;
     final EdgeInsets padding;
     final double borderRadius;
-    
+
     switch (size) {
       case BadgeSize.small:
         fontSize = 10;
@@ -49,7 +48,8 @@ class InteractiveInvoiceStatusBadge extends StatelessWidget {
 
     // 解析颜色
     final colorString = status.color;
-    final color = Color(int.parse(colorString.substring(1), radix: 16) + 0xFF000000);
+    final color =
+        Color(int.parse(colorString.substring(1), radix: 16) + 0xFF000000);
 
     return GestureDetector(
       onTap: onTap,

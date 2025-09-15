@@ -15,13 +15,13 @@ import 'inbox_state.dart';
 class InboxBloc extends Bloc<InboxEvent, InboxState> {
   final InboxRepository repository;
   final AppEventBus eventBus;
-  
+
   // 内部状态管理
   String? _currentUserId;
   EmailFilters _currentFilters = const EmailFilters();
   int _currentPage = 1;
   int _currentPageSize = 20;
-  
+
   StreamSubscription? _eventBusSubscription;
 
   InboxBloc({
@@ -107,7 +107,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
       if (emailsResult.isSuccess && statsResult.isSuccess) {
         final emailsData = emailsResult.data;
         final stats = statsResult.data as InboxStats;
-        
+
         final totalPages = (emailsData.totalCount / event.pageSize).ceil();
         final hasMore = event.page < totalPages;
 
@@ -132,7 +132,8 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
           _emitStatsUpdatedEvent(stats);
         }
       } else {
-        final error = emailsResult.isFailure ? emailsResult.error : statsResult.error;
+        final error =
+            emailsResult.isFailure ? emailsResult.error : statsResult.error;
         emit(InboxError(
           message: error,
           canRetry: true,
@@ -154,7 +155,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     Emitter<InboxState> emit,
   ) async {
     if (state is! InboxLoaded) return;
-    
+
     final currentState = state as InboxLoaded;
     if (!currentState.hasMore || currentState.isLoadingMore) return;
 
@@ -171,7 +172,8 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
       if (result.isSuccess) {
         final newEmailsData = result.data;
         final allEmails = [...currentState.emails, ...newEmailsData.emails];
-        final totalPages = (newEmailsData.totalCount / currentState.pageSize).ceil();
+        final totalPages =
+            (newEmailsData.totalCount / currentState.pageSize).ceil();
         final hasMore = (currentState.currentPage + 1) < totalPages;
 
         emit(currentState.copyWith(
@@ -199,7 +201,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
     if (_currentUserId == null) return;
 
     _currentFilters = event.filters;
-    
+
     // 发送过滤器变更事件
     eventBus.emit(InboxFiltersChangedEvent(
       category: event.filters.category,
@@ -280,14 +282,14 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
   ) async {
     try {
       final result = await repository.getInboxStats(userId: event.userId);
-      
+
       if (result.isSuccess) {
         final stats = result.data;
-        
+
         if (state is InboxLoaded) {
           emit((state as InboxLoaded).copyWith(stats: stats));
         }
-        
+
         _emitStatsUpdatedEvent(stats);
       }
     } catch (e) {
@@ -455,7 +457,7 @@ class InboxBloc extends Bloc<InboxEvent, InboxState> {
   ) async {
     if (state is InboxLoaded) {
       final currentState = state as InboxLoaded;
-      
+
       // 发送分页变更事件
       eventBus.emit(InboxPageChangedEvent(
         newPage: event.newPage,

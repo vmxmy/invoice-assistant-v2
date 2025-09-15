@@ -45,7 +45,7 @@ class EmailRecordModel extends EmailRecord {
       hasAttachments: (json['has_attachments'] as bool?) ?? false,
       attachmentCount: (json['attachment_count'] as int?) ?? 0,
       userMappingStatus: json['user_mapping_status'] as String?,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'].toString())
           : DateTime.now(),
       totalCount: json['total_count'] as int?,

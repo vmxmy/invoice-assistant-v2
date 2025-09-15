@@ -102,8 +102,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 构建基础查询
       var query = SupabaseClientManager.from(_viewName)
           .select()
-          .eq('user_id', currentUser.id)
-;
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -132,8 +131,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         try {
           final debugQuery = SupabaseClientManager.from(_tableName)
               .select('id, user_id, status')
-              .eq('user_id', currentUser.id)
-    ;
+              .eq('user_id', currentUser.id);
           final debugResponse = await debugQuery;
           AppLogger.debug('🔍 [调试] 用户发票总记录数: ${debugResponse.length}',
               tag: 'Debug');
@@ -162,8 +160,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         try {
           final fullQuery = SupabaseClientManager.from(_viewName)
               .select('id')
-              .eq('user_id', currentUser.id)
-    ;
+              .eq('user_id', currentUser.id);
 
           final fullQueryWithFilters =
               filters != null ? _applyFilters(fullQuery, filters) : fullQuery;
@@ -263,8 +260,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 构建计数查询 - 为了与主查询保持一致，使用相同的重置逻辑
       var countQuery = SupabaseClientManager.from(_viewName)
           .select('id')
-          .eq('user_id', currentUser.id)
-;
+          .eq('user_id', currentUser.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -606,8 +602,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 获取所有发票数据进行统计
       final invoicesResponse = await SupabaseClientManager.from(_tableName)
           .select()
-          .eq('user_id', currentUser.id)
-;
+          .eq('user_id', currentUser.id);
 
       final invoicesData = invoicesResponse as List<dynamic>;
       final invoices = invoicesData
@@ -763,7 +758,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     // 🔥 简化互斥筛选逻辑：逾期、紧急、未归集、待报销只能选择一个
     if (filters.overdue == true) {
       // 逾期筛选：>90天待报销
-      final overdueDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceOverdueDays));
+      final overdueDate = DateTime.now()
+          .subtract(Duration(days: AppConstants.invoiceOverdueDays));
       final overdueThreshold = overdueDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', overdueThreshold);
@@ -776,7 +772,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       }
     } else if (filters.urgent == true) {
       // 紧急筛选：>60天待报销
-      final urgentDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceUrgentDays));
+      final urgentDate = DateTime.now()
+          .subtract(Duration(days: AppConstants.invoiceUrgentDays));
       final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
 
       query = query.lt('consumption_date', urgentThreshold);
@@ -801,7 +798,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       query = query.eq('status', InvoiceStatus.reimbursed.value);
 
       if (AppConfig.enableLogging) {
-        AppLogger.debug('✅ [RemoteDataSource] 应用已报销筛选: status = ${InvoiceStatus.reimbursed.value}',
+        AppLogger.debug(
+            '✅ [RemoteDataSource] 应用已报销筛选: status = ${InvoiceStatus.reimbursed.value}',
             tag: 'Debug');
       }
     }
@@ -883,7 +881,8 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       http.StreamedResponse streamedResponse;
       if (onProgress != null) {
         // 使用自定义进度监听
-        streamedResponse = await _sendWithProgress(request, fileBytes.length, onProgress);
+        streamedResponse =
+            await _sendWithProgress(request, fileBytes.length, onProgress);
       } else {
         // 普通发送
         streamedResponse = await request.send();
@@ -902,18 +901,25 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         final responseData = jsonDecode(response.body);
         if (AppConfig.enableLogging) {
           AppLogger.debug('🚨 [RemoteDataSource] 检测到跨用户发票重复', tag: 'Debug');
-          AppLogger.debug('🚨 [RemoteDataSource] 重复详情: ${responseData['duplicateDetails']}', tag: 'Debug');
+          AppLogger.debug(
+              '🚨 [RemoteDataSource] 重复详情: ${responseData['duplicateDetails']}',
+              tag: 'Debug');
         }
-        
+
         throw CrossUserDuplicateException(
           message: responseData['message'] ?? '检测到跨用户发票重复',
           invoiceNumber: responseData['invoice_number'] ?? '',
-          originalUserEmail: responseData['duplicateDetails']?['original_user_email'] ?? '',
-          originalUploadTime: responseData['duplicateDetails']?['original_upload_time'] ?? '',
-          originalInvoiceId: responseData['duplicateDetails']?['original_invoice_id'] ?? '',
-          similarityScore: responseData['duplicateDetails']?['similarity_score'] ?? 0.0,
+          originalUserEmail:
+              responseData['duplicateDetails']?['original_user_email'] ?? '',
+          originalUploadTime:
+              responseData['duplicateDetails']?['original_upload_time'] ?? '',
+          originalInvoiceId:
+              responseData['duplicateDetails']?['original_invoice_id'] ?? '',
+          similarityScore:
+              responseData['duplicateDetails']?['similarity_score'] ?? 0.0,
           warning: responseData['warning'] ?? '',
-          recommendations: List<String>.from(responseData['recommendations'] ?? []),
+          recommendations:
+              List<String>.from(responseData['recommendations'] ?? []),
         );
       } else if (response.statusCode != 200) {
         final errorBody = response.body;
@@ -1042,47 +1048,47 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
     Function(int sent, int total) onProgress,
   ) async {
     final completer = Completer<http.StreamedResponse>();
-    
+
     try {
       // 模拟分块上传进度
       // 由于HTTP包的限制，我们无法获取真实的上传进度
       // 这里使用更持久的进度模拟，确保用户能看到进度变化
       // 开始进度模拟
-      
+
       // 初始进度报告
       onProgress(0, totalBytes);
-      
+
       // 创建进度模拟，确保至少持续2秒钟
       int progressStep = 0;
       final totalSteps = AppConstants.ocrProcessSteps; // 20步完成，每步约150ms
-      
+
       // 异步发送实际请求
       final requestFuture = request.send();
-      
+
       // 进度模拟循环
       while (progressStep < totalSteps) {
         await Future.delayed(AppConstants.ocrStepDelay);
         progressStep++;
-        
+
         final progress = progressStep / totalSteps;
         final simulatedSent = (totalBytes * progress).round();
-        
+
         // 进度更新: $progressStep/$totalSteps
         onProgress(simulatedSent, totalBytes);
       }
-      
+
       // 等待实际请求完成（如果还没完成）
       final response = await requestFuture;
-      
+
       // 确保进度到达100%
       onProgress(totalBytes, totalBytes);
       // 进度模拟完成
-      
+
       completer.complete(response);
     } catch (e) {
       completer.completeError(e);
     }
-    
+
     return completer.future;
   }
 }

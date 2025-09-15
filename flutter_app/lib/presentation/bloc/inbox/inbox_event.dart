@@ -31,7 +31,8 @@ class LoadEmailsRequested extends InboxEvent {
   List<Object?> get props => [userId, page, pageSize, filters, isRefresh];
 
   @override
-  String toString() => 'LoadEmailsRequested(userId: $userId, page: $page, pageSize: $pageSize, isRefresh: $isRefresh)';
+  String toString() =>
+      'LoadEmailsRequested(userId: $userId, page: $page, pageSize: $pageSize, isRefresh: $isRefresh)';
 }
 
 /// 加载更多邮件
@@ -74,7 +75,8 @@ class EmailSearchRequested extends InboxEvent {
   List<Object?> get props => [userId, searchQuery];
 
   @override
-  String toString() => 'EmailSearchRequested(userId: $userId, searchQuery: $searchQuery)';
+  String toString() =>
+      'EmailSearchRequested(userId: $userId, searchQuery: $searchQuery)';
 }
 
 /// 邮件选择
@@ -138,7 +140,8 @@ class MarkEmailAsReadRequested extends InboxEvent {
   List<Object?> get props => [emailId, userId];
 
   @override
-  String toString() => 'MarkEmailAsReadRequested(emailId: $emailId, userId: $userId)';
+  String toString() =>
+      'MarkEmailAsReadRequested(emailId: $emailId, userId: $userId)';
 }
 
 /// 删除邮件
@@ -155,7 +158,8 @@ class DeleteEmailRequested extends InboxEvent {
   List<Object?> get props => [emailId, userId];
 
   @override
-  String toString() => 'DeleteEmailRequested(emailId: $emailId, userId: $userId)';
+  String toString() =>
+      'DeleteEmailRequested(emailId: $emailId, userId: $userId)';
 }
 
 /// 批量邮件操作
@@ -174,7 +178,8 @@ class BatchEmailOperationRequested extends InboxEvent {
   List<Object?> get props => [emailIds, action, userId];
 
   @override
-  String toString() => 'BatchEmailOperationRequested(emailIds: ${emailIds.length} items, action: $action, userId: $userId)';
+  String toString() =>
+      'BatchEmailOperationRequested(emailIds: ${emailIds.length} items, action: $action, userId: $userId)';
 }
 
 /// 分页变更
@@ -191,7 +196,8 @@ class PageChangedRequested extends InboxEvent {
   List<Object?> get props => [newPage, userId];
 
   @override
-  String toString() => 'PageChangedRequested(newPage: $newPage, userId: $userId)';
+  String toString() =>
+      'PageChangedRequested(newPage: $newPage, userId: $userId)';
 }
 
 /// 页面大小变更
@@ -208,7 +214,8 @@ class PageSizeChanged extends InboxEvent {
   List<Object?> get props => [newPageSize, userId];
 
   @override
-  String toString() => 'PageSizeChanged(newPageSize: $newPageSize, userId: $userId)';
+  String toString() =>
+      'PageSizeChanged(newPageSize: $newPageSize, userId: $userId)';
 }
 
 /// 重试操作

@@ -48,9 +48,10 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    
+
     // 监听tab切换事件
-    _tabChangeSubscription = di.sl<AppEventBus>().on<TabChangedEvent>().listen((event) {
+    _tabChangeSubscription =
+        di.sl<AppEventBus>().on<TabChangedEvent>().listen((event) {
       if (mounted && event.newTabIndex != _currentIndex) {
         setState(() {
           _currentIndex = event.newTabIndex;
@@ -177,7 +178,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-
   // 数据分析页面
   Widget _buildAnalysisPage() {
     return CupertinoPageScaffold(
@@ -293,7 +293,8 @@ class _MainPageState extends State<MainPage> {
                   title: Text('退出登录',
                       style: TextStyle(color: theme.colorScheme.error)),
                   onTap: () async {
-                    final shouldLogout = await UnifiedBottomSheet.showConfirmDialog(
+                    final shouldLogout =
+                        await UnifiedBottomSheet.showConfirmDialog(
                       context: context,
                       title: '退出登录',
                       content: '确定要退出登录吗？',
@@ -328,4 +329,3 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
-

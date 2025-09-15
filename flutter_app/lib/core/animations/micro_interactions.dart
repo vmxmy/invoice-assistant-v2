@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../theme/cupertino_semantic_colors.dart';
 
@@ -102,7 +102,7 @@ class _AnimatedContainerState extends State<AnimatedContainer>
 
   void _animate() {
     if (!widget.enabled) return;
-    
+
     _controller.forward().then((_) {
       if (mounted) {
         _controller.reverse();
@@ -190,7 +190,7 @@ class _BounceButtonState extends State<BounceButton>
 
     await _controller.forward();
     await _controller.reverse();
-    
+
     widget.onPressed?.call();
   }
 
@@ -422,7 +422,7 @@ class _RippleEffectState extends State<RippleEffect>
     setState(() {
       _tapPosition = details.localPosition;
     });
-    
+
     _controller.forward().then((_) {
       _controller.reset();
       widget.onTap?.call();

@@ -95,8 +95,9 @@ class PermissionValidator {
     // 验证文件扩展名
     final allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
     final lowercasePath = filePath.toLowerCase();
-    bool hasValidExtension = allowedExtensions.any((ext) => lowercasePath.endsWith(ext));
-    
+    bool hasValidExtension =
+        allowedExtensions.any((ext) => lowercasePath.endsWith(ext));
+
     if (!hasValidExtension) {
       if (AppConfig.enableLogging) {
         AppLogger.warning('不支持的文件类型', tag: 'Security');
@@ -219,15 +220,15 @@ class PermissionValidator {
       }
 
       // 调用数据库函数检测可疑活动
-      final response = await SupabaseClientManager.client
-          .rpc('detect_suspicious_activity');
+      final response =
+          await SupabaseClientManager.client.rpc('detect_suspicious_activity');
 
       final suspiciousActivities = response as List<dynamic>? ?? [];
       final currentUserId = SupabaseClientManager.currentUser?.id;
-      
+
       // 检查当前用户是否有可疑活动
-      final hasAnomalies = suspiciousActivities.any((activity) => 
-          activity['user_id'] == currentUserId);
+      final hasAnomalies = suspiciousActivities
+          .any((activity) => activity['user_id'] == currentUserId);
 
       if (hasAnomalies && AppConfig.enableLogging) {
         AppLogger.warning('检测到用户异常活动模式', tag: 'Security');
@@ -249,7 +250,7 @@ class PermissionValidator {
   static bool checkOperationRate(String operationType) {
     final now = DateTime.now();
     final lastTime = _lastOperationTime[operationType];
-    
+
     if (lastTime != null) {
       final timeDiff = now.difference(lastTime).inMilliseconds;
       if (timeDiff < _operationCooldownMs) {
@@ -259,7 +260,7 @@ class PermissionValidator {
         return false;
       }
     }
-    
+
     _lastOperationTime[operationType] = now;
     return true;
   }
@@ -268,7 +269,9 @@ class PermissionValidator {
   static bool isValidInput(String input) {
     // 检查SQL注入模式
     final sqlInjectionPatterns = [
-      RegExp(r"('|(\\')|(;)|(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b))", caseSensitive: false),
+      RegExp(
+          r"('|(\\')|(;)|(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b))",
+          caseSensitive: false),
       RegExp(r'(\b(OR|AND)\b\s*\d+\s*=\s*\d+)', caseSensitive: false),
       RegExp(r'(-{2}|/\*|\*/)', caseSensitive: false),
     ];

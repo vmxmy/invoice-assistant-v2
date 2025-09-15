@@ -35,7 +35,7 @@ class InvoiceModel with _$InvoiceModel {
     @Default(InvoiceStatus.unsubmitted) InvoiceStatus status,
     @JsonKey(name: 'invoice_type') String? invoiceType,
     @JsonKey(name: 'invoice_code') String? invoiceCode,
-    
+
     // 报销集关联
     @JsonKey(name: 'reimbursement_set_id') String? reimbursementSetId,
 

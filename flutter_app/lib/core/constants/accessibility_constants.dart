@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // ⚠️ 需要保留：使用 ColorScheme 类进行颜色对比度计算
 import 'dart:math' as math;
 
 /// 无障碍性和颜色对比度常量
@@ -11,7 +11,7 @@ class AccessibilityConstants {
   /// WCAG AA 级别最小对比度比率 (4.5:1)
   static const double minContrastRatio = 4.5;
 
-  /// WCAG AAA 级别增强对比度比率 (7:1) 
+  /// WCAG AAA 级别增强对比度比率 (7:1)
   static const double enhancedContrastRatio = 7.0;
 
   /// 大文本最小对比度比率 (3:1)
@@ -66,7 +66,7 @@ class AccessibilityConstants {
     double r = _sRGBtoLinear(((color.r * 255.0).round() & 0xff) / 255.0);
     double g = _sRGBtoLinear(((color.g * 255.0).round() & 0xff) / 255.0);
     double b = _sRGBtoLinear(((color.b * 255.0).round() & 0xff) / 255.0);
-    
+
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
@@ -83,17 +83,19 @@ class AccessibilityConstants {
   static double calculateContrastRatio(Color color1, Color color2) {
     double luminance1 = calculateRelativeLuminance(color1);
     double luminance2 = calculateRelativeLuminance(color2);
-    
+
     double lighter = math.max(luminance1, luminance2);
     double darker = math.min(luminance1, luminance2);
-    
+
     return (lighter + 0.05) / (darker + 0.05);
   }
 
   /// 验证颜色对比度是否符合 AA 标准
-  static bool isAACompliant(Color foreground, Color background, {bool isLargeText = false}) {
+  static bool isAACompliant(Color foreground, Color background,
+      {bool isLargeText = false}) {
     double ratio = calculateContrastRatio(foreground, background);
-    double requiredRatio = isLargeText ? largeTextMinContrast : minContrastRatio;
+    double requiredRatio =
+        isLargeText ? largeTextMinContrast : minContrastRatio;
     return ratio >= requiredRatio;
   }
 
@@ -121,40 +123,44 @@ class AccessibilityConstants {
   /// 验证主题颜色的无障碍性
   static Map<String, dynamic> validateThemeColors(ColorScheme colorScheme) {
     final results = <String, dynamic>{};
-    
+
     // 主色彩对比度验证
     results['primary_on_surface'] = {
       'ratio': calculateContrastRatio(colorScheme.primary, colorScheme.surface),
       'compliant': isAACompliant(colorScheme.primary, colorScheme.surface),
     };
-    
+
     results['on_primary_primary'] = {
-      'ratio': calculateContrastRatio(colorScheme.onPrimary, colorScheme.primary),
+      'ratio':
+          calculateContrastRatio(colorScheme.onPrimary, colorScheme.primary),
       'compliant': isAACompliant(colorScheme.onPrimary, colorScheme.primary),
     };
-    
+
     results['on_surface_surface'] = {
-      'ratio': calculateContrastRatio(colorScheme.onSurface, colorScheme.surface),
+      'ratio':
+          calculateContrastRatio(colorScheme.onSurface, colorScheme.surface),
       'compliant': isAACompliant(colorScheme.onSurface, colorScheme.surface),
     };
-    
+
     results['error_surface'] = {
       'ratio': calculateContrastRatio(colorScheme.error, colorScheme.surface),
       'compliant': isAACompliant(colorScheme.error, colorScheme.surface),
     };
-    
+
     results['secondary_surface'] = {
-      'ratio': calculateContrastRatio(colorScheme.secondary, colorScheme.surface),
+      'ratio':
+          calculateContrastRatio(colorScheme.secondary, colorScheme.surface),
       'compliant': isAACompliant(colorScheme.secondary, colorScheme.surface),
     };
-    
+
     return results;
   }
 
   // ==================== 调试工具 ====================
 
   /// 打印颜色对比度信息（仅在调试模式下）
-  static void debugPrintContrastInfo(Color foreground, Color background, String description) {
+  static void debugPrintContrastInfo(
+      Color foreground, Color background, String description) {
     assert(() {
       double ratio = calculateContrastRatio(foreground, background);
       String rating = getContrastRatingDescription(ratio);

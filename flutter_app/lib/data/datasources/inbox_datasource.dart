@@ -9,7 +9,7 @@ import '../../domain/entities/email_filters.dart';
 
 abstract class InboxDataSource {
   /// 调用Supabase RPC函数获取用户邮件列表
-  /// 
+  ///
   /// [userId] 用户UUID
   /// [page] 页码
   /// [pageSize] 每页数量
@@ -22,7 +22,7 @@ abstract class InboxDataSource {
   });
 
   /// 调用Supabase RPC函数获取邮件详情
-  /// 
+  ///
   /// [emailId] 邮件ID
   /// [userId] 用户UUID
   Future<EmailDetailModel> getEmailDetail({
@@ -31,14 +31,14 @@ abstract class InboxDataSource {
   });
 
   /// 调用Supabase RPC函数获取收件箱统计
-  /// 
+  ///
   /// [userId] 用户UUID
   Future<InboxStatsModel> getInboxStats({
     required String userId,
   });
 
   /// 直接查询收件箱视图（备用方法）
-  /// 
+  ///
   /// [userId] 用户ID
   /// [filters] 过滤条件
   /// [page] 页码
