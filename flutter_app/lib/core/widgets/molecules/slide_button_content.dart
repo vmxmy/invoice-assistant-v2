@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 
 /// 滑动按钮内容组件
 /// 
@@ -55,12 +55,12 @@ class SlideButtonContent extends StatelessWidget {
         // 图标
         Icon(
           icon,
-          size: iconSize ?? 20, // Material 3推荐的小图标尺寸
+          size: iconSize ?? 20, // iOS Human Interface Guidelines推荐的小图标尺寸
           color: effectiveIconColor,
         ),
         
         // 间距
-        SizedBox(height: ComponentThemeConstants.spacingXS),
+        SizedBox(height: DesignConstants.spacingXS),
         
         // 标签文字
         Flexible(

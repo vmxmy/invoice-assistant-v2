@@ -217,7 +217,7 @@ export class InboxService {
     if (!html) return ''
     
     // 增强的HTML清理，移除潜在危险的标签和属性
-    let cleanHtml = html
+    const cleanHtml = html
       // 移除危险的脚本相关标签
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')

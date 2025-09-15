@@ -23,7 +23,7 @@ import 'region_badge_widget.dart';
 import 'invoice_status_badge.dart';
 
 /// 优化后的报销集卡片组件
-/// 基于UI专家审计建议的简化设计，完全使用FlexColorScheme主题
+/// 基于UI专家审计建议的简化设计，完全使用Cupertino主题系统
 class OptimizedReimbursementSetCard extends StatelessWidget {
   final ReimbursementSetEntity reimbursementSet;
   final VoidCallback onTap;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/invoice_entity.dart';
 import '../../../presentation/widgets/invoice_card_widget.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 import 'responsive_grid_view.dart';
 
 /// 响应式发票网格视图组件
@@ -88,7 +88,7 @@ class InvoiceGridView extends StatelessWidget {
                 size: 80,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: ComponentThemeConstants.spacingL),
+              const SizedBox(height: DesignConstants.spacingL),
               Text(
                 '暂无发票数据',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -211,7 +211,7 @@ class InvoiceSliverGridView extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final deviceType = ComponentThemeConstants.getDeviceType(constraints.maxWidth);
+        final deviceType = DesignConstants.getDeviceType(constraints.maxWidth);
         final gridDelegate = _getGridDelegateForDevice(deviceType);
         
         return SliverGrid(

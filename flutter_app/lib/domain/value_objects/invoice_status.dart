@@ -1,6 +1,6 @@
 /// 发票状态枚举 - 与报销集状态保持一致
 enum InvoiceStatus {
-  unsubmitted('unsubmitted', '未提交', '发票尚未提交到报销集'),
+  unsubmitted('unsubmitted', '待报销', '发票尚未提交到报销集'),
   submitted('submitted', '已提交', '发票已提交到报销集待审核'),
   reimbursed('reimbursed', '已报销', '发票已完成报销');
 

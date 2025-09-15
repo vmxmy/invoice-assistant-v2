@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// 使用 Cupertino主题系统进行统一主题管理
 
 /// 统一的底部弹出Sheet组件
 /// 提供一致的视觉体验和交互模式

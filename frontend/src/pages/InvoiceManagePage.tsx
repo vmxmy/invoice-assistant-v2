@@ -145,6 +145,7 @@ interface SearchFilters {
   source?: string[]
   overdue?: boolean
   urgent?: boolean  // 紧急（>60天，包括临期和逾期）
+  uncollected?: boolean  // 未归集（未加入报销集）
 }
 
 export function InvoiceManagePage() {
@@ -301,7 +302,18 @@ export function InvoiceManagePage() {
       } else if (filter.id === 'invoice_type' && filter.value) {
         filters.invoice_type = filter.value as string
       } else if (filter.id === 'status' && filter.value) {
-        filters.status = filter.value as string[]
+        const statusArray = filter.value as string[]
+        // 检查是否包含"uncollected"筛选
+        if (statusArray.includes('uncollected')) {
+          filters.uncollected = true
+          // 从status数组中移除'uncollected'，只保留真实的状态值
+          const realStatuses = statusArray.filter(s => s !== 'uncollected')
+          if (realStatuses.length > 0) {
+            filters.status = realStatuses
+          }
+        } else {
+          filters.status = statusArray
+        }
       } else if (filter.id === 'source' && filter.value) {
         filters.source = filter.value as string[]
       }
@@ -1069,6 +1081,27 @@ export function InvoiceManagePage() {
                     </span>
                   </label>
                 ))}
+                
+                {/* 分隔线 */}
+                <div className="divider my-1"></div>
+                
+                {/* 未归集筛选 */}
+                <label className="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={(column.getFilterValue() as string[] || []).includes('uncollected')}
+                    onChange={(e) => {
+                      const currentFilter = column.getFilterValue() as string[] || []
+                      if (e.target.checked) {
+                        column.setFilterValue([...currentFilter, 'uncollected'])
+                      } else {
+                        column.setFilterValue(currentFilter.filter(s => s !== 'uncollected'))
+                      }
+                    }}
+                  />
+                  <span className="label-text text-sm">未归集</span>
+                </label>
               </div>
             </div>
           </div>

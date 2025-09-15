@@ -76,7 +76,7 @@ class InvoiceStatusOperationUtils {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    '标记为未报销',
+                    '标记为待报销',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.tertiary,
                       fontSize: 18,

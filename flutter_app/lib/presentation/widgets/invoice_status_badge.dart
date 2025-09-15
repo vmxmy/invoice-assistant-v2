@@ -99,7 +99,7 @@ class InvoiceStatusBadge extends StatelessWidget {
       return colorScheme.secondary; // 绿色
     }
     
-    // 未报销发票根据紧急程度决定颜色
+    // 待报销发票根据紧急程度决定颜色
     switch (_getUrgencyLevel()) {
       case UrgencyLevel.overdue:
         return colorScheme.error; // 逾期：红色

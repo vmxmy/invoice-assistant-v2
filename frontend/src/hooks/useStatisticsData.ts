@@ -138,7 +138,7 @@ const buildDateRangeFilter = (dateRange: StatisticsFilters['dateRange']) => {
 const fetchOverviewStats = async (userId: string, filters: StatisticsFilters): Promise<OverviewStats> => {
   const { startDate, endDate } = buildDateRangeFilter(filters.dateRange)
   
-  let query = supabase
+  const query = supabase
     .from('v_invoice_aggregates')
     .select('*')
     .eq('user_id', userId)
@@ -233,7 +233,7 @@ const fetchMonthlyTrends = async (userId: string, filters: StatisticsFilters): P
 const fetchCategoryStats = async (userId: string, filters: StatisticsFilters): Promise<CategoryStat[]> => {
   const { startDate, endDate } = buildDateRangeFilter(filters.dateRange)
   
-  let query = supabase
+  const query = supabase
     .from('v_category_statistics')
     .select('*')
     .eq('user_id', userId)

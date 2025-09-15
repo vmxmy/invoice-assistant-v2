@@ -40,6 +40,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       final hasFilters = filters != null &&
           (filters.overdue == true ||
               filters.urgent == true ||
+              filters.uncollected == true ||
               (filters.status != null && filters.status!.isNotEmpty) ||
               (filters.globalSearch != null &&
                   filters.globalSearch!.isNotEmpty));

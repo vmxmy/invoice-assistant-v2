@@ -156,7 +156,7 @@ class InvoiceEntity extends Equatable {
   /// 业务逻辑：是否已报销（基于有效状态）
   bool get isReimbursed => effectiveStatus == InvoiceStatus.reimbursed;
 
-  /// 业务逻辑：是否未报销（基于有效状态）
+  /// 业务逻辑：是否待报销（基于有效状态）
   bool get isUnreimbursed => effectiveStatus == InvoiceStatus.unsubmitted || effectiveStatus == InvoiceStatus.submitted;
 
   /// 业务逻辑：是否在报销集中

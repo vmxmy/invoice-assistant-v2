@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 import '../../constants/accessibility_constants.dart';
 import '../molecules/slide_button_content.dart';
 
@@ -24,7 +24,7 @@ enum SlideButtonType {
 /// 统一滑动按钮组件
 /// 
 /// 提供一致的视觉样式、交互反馈和无障碍支持的滑动操作按钮。
-/// 完全集成FlexColorScheme主题系统，支持Material 3设计规范。
+/// 完全集成Cupertino主题系统，支持iOS Human Interface Guidelines。
 /// 
 /// 特性：
 /// - 主题感知的颜色系统
@@ -132,8 +132,8 @@ class UnifiedSlideButton extends StatelessWidget {
                   minHeight: 48, // 最小触摸区域
                 ),
                 padding: EdgeInsets.symmetric(
-                  horizontal: ComponentThemeConstants.spacingM,
-                  vertical: ComponentThemeConstants.spacingS,
+                  horizontal: DesignConstants.spacingM,
+                  vertical: DesignConstants.spacingS,
                 ),
                 child: SlideButtonContent(
                   icon: icon,

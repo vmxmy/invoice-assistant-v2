@@ -149,3 +149,9 @@ class ClearUploadResults extends InvoiceEvent {
 class ClearInvoices extends InvoiceEvent {
   const ClearInvoices();
 }
+
+/// 清除筛选并重新加载全部发票事件
+/// 专门用于处理取消筛选后的完整数据重载
+class ClearFiltersAndReload extends InvoiceEvent {
+  const ClearFiltersAndReload();
+}

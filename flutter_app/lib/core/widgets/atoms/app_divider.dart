@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 
 /// 分割线类型枚举
 enum DividerType {
@@ -56,7 +56,7 @@ class AppDivider extends StatelessWidget {
     this.type = DividerType.horizontal,
     this.style = DividerStyle.solid,
     this.color,
-    this.thickness = ComponentThemeConstants.borderWidthThin,
+    this.thickness = DesignConstants.borderWidthThin,
     this.indent = 0.0,
     this.endIndent = 0.0,
     this.height,
@@ -164,11 +164,11 @@ class AppDividerWithLabel extends StatelessWidget {
     required this.label,
     this.labelStyle,
     this.color,
-    this.thickness = ComponentThemeConstants.borderWidthThin,
-    this.spacing = ComponentThemeConstants.spacingM,
+    this.thickness = DesignConstants.borderWidthThin,
+    this.spacing = DesignConstants.spacingM,
     this.labelBackgroundColor,
     this.labelPadding = const EdgeInsets.symmetric(
-      horizontal: ComponentThemeConstants.spacingM,
+      horizontal: DesignConstants.spacingM,
     ),
   });
 
@@ -198,7 +198,7 @@ class AppDividerWithLabel extends StatelessWidget {
               ? BoxDecoration(
                   color: labelBackgroundColor,
                   borderRadius: BorderRadius.circular(
-                    ComponentThemeConstants.radiusSmall,
+                    DesignConstants.radiusSmall,
                   ),
                 )
               : null,
@@ -252,10 +252,10 @@ class AppDividerWithIcon extends StatelessWidget {
     super.key,
     required this.icon,
     this.iconColor,
-    this.iconSize = ComponentThemeConstants.iconSizeS,
+    this.iconSize = DesignConstants.iconSizeS,
     this.color,
-    this.thickness = ComponentThemeConstants.borderWidthThin,
-    this.spacing = ComponentThemeConstants.spacingM,
+    this.thickness = DesignConstants.borderWidthThin,
+    this.spacing = DesignConstants.spacingM,
     this.iconBackgroundColor,
     this.iconBackgroundSize,
   });
@@ -273,7 +273,7 @@ class AppDividerWithIcon extends StatelessWidget {
     );
     
     if (iconBackgroundColor != null) {
-      final backgroundSize = iconBackgroundSize ?? (iconSize + ComponentThemeConstants.spacingM);
+      final backgroundSize = iconBackgroundSize ?? (iconSize + DesignConstants.spacingM);
       iconWidget = Container(
         width: backgroundSize,
         height: backgroundSize,

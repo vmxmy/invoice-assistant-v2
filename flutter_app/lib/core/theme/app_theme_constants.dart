@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// 应用主题常量 - 与FlexColorScheme完全集成的设计系统
-/// 替代DesignTokens，所有值都来源于FlexColorScheme主题
+/// 应用主题常量 - 与Cupertino主题系统完全集成的设计系统
+/// 替代DesignTokens，所有值都来源于Cupertino主题系统
 class AppThemeConstants {
   AppThemeConstants._();
 
   // ==================== 间距系统 ====================
-  /// 基于Material Design 3的8dp网格系统
+  /// 基于iOS Human Interface Guidelines的8dp网格系统
   static const double spacing2 = 2.0;
   static const double spacing4 = 4.0;
   static const double spacing6 = 6.0;
@@ -18,14 +18,14 @@ class AppThemeConstants {
   static const double spacing32 = 32.0;
 
   // ==================== 圆角系统 ====================
-  /// 与FlexColorScheme配置保持一致的圆角设计
+  /// 与Cupertino主题系统配置保持一致的圆角设计
   static const double radiusSmall = 8.0;
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;
   static const double radiusXLarge = 20.0;
 
   // ==================== 尺寸系统 ====================
-  /// Material Design指导原则的触摸目标和图标尺寸
+  /// iOS Human Interface Guidelines指导原则的触摸目标和图标尺寸
   static const double minTouchTarget = 48.0;
 
   static const double iconSmall = 16.0;

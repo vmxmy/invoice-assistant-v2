@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../domain/entities/invoice_entity.dart';
 import '../../../utils/icon_mapping.dart';
-import '../../../theme/component_theme_constants.dart';
+import '../../../theme/design_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 
@@ -48,7 +48,7 @@ class InvoiceCardBody extends StatelessWidget {
         
         // 可选的额外信息
         if (_hasAdditionalInfo()) ...[
-          SizedBox(height: ComponentThemeConstants.spacingS),
+          SizedBox(height: DesignConstants.spacingS),
           _buildAdditionalInfo(context),
         ],
       ],
@@ -78,7 +78,7 @@ class InvoiceCardBody extends StatelessWidget {
           child: _buildDateAndCategoryInfo(context),
         ),
         
-        SizedBox(width: ComponentThemeConstants.spacingM),
+        SizedBox(width: DesignConstants.spacingM),
         
         // 右侧：金额
         _buildAmountDisplay(context),
@@ -103,7 +103,7 @@ class InvoiceCardBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildDateAndCategoryInfo(context),
-        SizedBox(height: ComponentThemeConstants.spacingS),
+        SizedBox(height: DesignConstants.spacingS),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -130,7 +130,7 @@ class InvoiceCardBody extends StatelessWidget {
         if (showDateInfo && dateText.isNotEmpty) ...[
           _buildDateInfo(context, dateText),
           if (showCategoryIcon && categoryText.isNotEmpty)
-            SizedBox(width: ComponentThemeConstants.spacingS),
+            SizedBox(width: DesignConstants.spacingS),
         ],
         
         // 类型图标
@@ -151,7 +151,7 @@ class InvoiceCardBody extends StatelessWidget {
           color: Theme.of(context).colorScheme.onSurfaceVariant,
           semanticLabel: '消费日期',
         ),
-        SizedBox(width: ComponentThemeConstants.spacingXS),
+        SizedBox(width: DesignConstants.spacingXS),
         AppText(
           text: dateText,
           variant: TextVariant.bodySmall,
@@ -197,8 +197,8 @@ class InvoiceCardBody extends StatelessWidget {
     }
     
     return Wrap(
-      spacing: ComponentThemeConstants.spacingM,
-      runSpacing: ComponentThemeConstants.spacingXS,
+      spacing: DesignConstants.spacingM,
+      runSpacing: DesignConstants.spacingXS,
       children: items,
     );
   }

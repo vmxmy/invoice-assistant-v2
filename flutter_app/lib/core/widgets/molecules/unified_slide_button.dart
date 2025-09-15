@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 /// 统一的滑动按钮样式组件
 /// 
 /// 基于UI审计结果，统一发票卡片和报销集卡片的滑动按钮样式
-/// 遵循Material 3设计规范和项目的FlexColorScheme主题系统
+/// 遵循UIOS Human Interface Guidelines和项目的Cupertino主题系统
 class UnifiedSlideButton extends StatelessWidget {
   /// 图标
   final IconData icon;

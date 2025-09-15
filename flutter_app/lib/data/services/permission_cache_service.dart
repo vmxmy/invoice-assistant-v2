@@ -3,9 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/user_permissions.dart';
 import '../../core/utils/logger.dart';
 import '../../core/config/app_constants.dart';
+import '../../core/security/secure_storage_service.dart';
 
 /// 权限持久化缓存服务
-/// 提供权限数据的本地存储，支持离线访问和性能优化
+/// 提供权限数据的加密本地存储，支持离线访问和性能优化
+/// 🔐 安全特性：
+/// - 权限数据AES加密存储
+/// - HMAC完整性验证
+/// - 设备密钥绑定
+/// - 防止本地数据泄露
 class PermissionCacheService {
   static const String _permissionsCacheKey = 'user_permissions_cache';
   static const String _permissionsCacheTimeKey = 'user_permissions_cache_time';
@@ -14,24 +20,25 @@ class PermissionCacheService {
   // 缓存过期时间：2小时
   static Duration get _cacheExpiration => AppConstants.permissionsCacheTtl;
 
-  /// 缓存用户权限到本地存储
+  /// 缓存用户权限到本地存储（加密）
   Future<void> cachePermissions(UserPermissions permissions) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
-      // 存储权限数据
+      // 🔐 安全：加密存储权限数据
       final permissionsJson = json.encode(permissions.toJson());
-      await prefs.setString(_permissionsCacheKey, permissionsJson);
+      final encryptedData = await SecureStorageService.encryptData(permissionsJson);
+      await prefs.setString(_permissionsCacheKey, encryptedData);
       
-      // 存储缓存时间戳
+      // 存储缓存时间戳（明文，用于过期检查）
       final cacheTime = DateTime.now().millisecondsSinceEpoch;
       await prefs.setInt(_permissionsCacheTimeKey, cacheTime);
       
-      // 存储用户ID，用于验证缓存有效性
+      // 存储用户ID（明文，用于验证缓存有效性）
       await prefs.setString(_userIdKey, permissions.userId);
       
       AppLogger.debug(
-        '🔐 [PermissionCache] 权限缓存已保存到本地存储',
+        '🔐 [PermissionCache] 权限缓存已加密保存到本地存储',
         tag: 'Permission'
       );
     } catch (e, stackTrace) {
@@ -80,10 +87,18 @@ class PermissionCacheService {
         return null;
       }
       
-      // 获取权限数据
-      final permissionsJson = prefs.getString(_permissionsCacheKey);
-      if (permissionsJson == null) {
+      // 🔐 安全：获取并解密权限数据
+      final encryptedData = prefs.getString(_permissionsCacheKey);
+      if (encryptedData == null) {
         AppLogger.debug('🔐 [PermissionCache] 权限缓存数据不存在', tag: 'Permission');
+        return null;
+      }
+      
+      // 解密权限数据
+      final permissionsJson = await SecureStorageService.decryptData(encryptedData);
+      if (permissionsJson == null) {
+        AppLogger.warning('🔐 [PermissionCache] 权限数据解密失败，可能被篡改', tag: 'Permission');
+        await clearCache(); // 清除可能损坏的缓存
         return null;
       }
       
@@ -91,7 +106,7 @@ class PermissionCacheService {
       final permissions = UserPermissions.fromJson(permissionsMap);
       
       AppLogger.debug(
-        '🔐 [PermissionCache] 从本地缓存加载权限成功: ${permissions.permissionLevel.displayName}',
+        '🔐 [PermissionCache] 从加密缓存加载权限成功: ${permissions.permissionLevel.displayName}',
         tag: 'Permission'
       );
       

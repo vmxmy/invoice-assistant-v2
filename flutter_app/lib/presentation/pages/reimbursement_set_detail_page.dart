@@ -87,7 +87,7 @@ class _ReimbursementSetDetailPageState
             if (state.updatedSet.id == widget.reimbursementSetId) {
               _loadReimbursementSetDetail();
             }
-            AppFeedback.success(context, '状态更新成功');
+            // 移除 SnackBar 提示，因为 bottomsheet 已经处理了用户反馈
           } else if (state is ReimbursementSetOperationSuccess) {
             // 处理所有其他操作成功状态（添加发票、移出发票等）
             // 只有与当前详情页相关的操作才刷新详情数据

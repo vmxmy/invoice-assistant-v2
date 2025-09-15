@@ -196,7 +196,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         AppLogger.debug('🔍 [RemoteDataSource] 逾期筛选结果: ${response.length}条记录',
             tag: 'Debug');
         AppLogger.debug(
-            '🔍 [RemoteDataSource] 预期：应该只返回消费日期在2025-06-13之前且未报销的发票',
+            '🔍 [RemoteDataSource] 预期：应该只返回消费日期在2025-06-13之前且待报销的发票',
             tag: 'Debug');
       }
 
@@ -688,13 +688,14 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
   dynamic _applyFilters(dynamic query, InvoiceFilters filters) {
     if (AppConfig.enableLogging) {
       AppLogger.debug(
-          '🔍 [RemoteDataSource] _applyFilters 调用: overdue=${filters.overdue}, urgent=${filters.urgent}, status=${filters.status}',
+          '🔍 [RemoteDataSource] _applyFilters 调用: overdue=${filters.overdue}, urgent=${filters.urgent}, uncollected=${filters.uncollected}, status=${filters.status}',
           tag: 'Debug');
       AppLogger.debug('🔍 [RemoteDataSource] 筛选条件验证: 是否只有一个筛选激活?',
           tag: 'Debug');
       final activeFilters = [
         if (filters.overdue == true) 'overdue',
         if (filters.urgent == true) 'urgent',
+        if (filters.uncollected == true) 'uncollected',
         if (filters.status?.contains(InvoiceStatus.reimbursed) == true)
           'unsubmitted_status'
       ];
@@ -759,9 +760,9 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       query = query.eq('is_verified', filters.isVerified);
     }
 
-    // 🔥 简化互斥筛选逻辑：逾期、紧急、待报销只能选择一个
+    // 🔥 简化互斥筛选逻辑：逾期、紧急、未归集、待报销只能选择一个
     if (filters.overdue == true) {
-      // 逾期筛选：>90天未报销
+      // 逾期筛选：>90天待报销
       final overdueDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceOverdueDays));
       final overdueThreshold = overdueDate.toIso8601String().split('T')[0];
 
@@ -774,7 +775,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
             tag: 'Debug');
       }
     } else if (filters.urgent == true) {
-      // 紧急筛选：>60天未报销
+      // 紧急筛选：>60天待报销
       final urgentDate = DateTime.now().subtract(Duration(days: AppConstants.invoiceUrgentDays));
       final urgentThreshold = urgentDate.toIso8601String().split('T')[0];
 
@@ -784,6 +785,15 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       if (AppConfig.enableLogging) {
         AppLogger.debug(
             '✅ [RemoteDataSource] 应用紧急筛选: consumption_date < $urgentThreshold AND status = ${InvoiceStatus.unsubmitted.value}',
+            tag: 'Debug');
+      }
+    } else if (filters.uncollected == true) {
+      // 未归集筛选：未分配到任何报销集的发票（不限制状态）
+      query = query.isFilter('reimbursement_set_id', null);
+
+      if (AppConfig.enableLogging) {
+        AppLogger.debug(
+            '✅ [RemoteDataSource] 应用未归集筛选: reimbursement_set_id IS NULL',
             tag: 'Debug');
       }
     } else if (filters.status?.contains(InvoiceStatus.reimbursed) == true) {
@@ -1037,7 +1047,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       // 模拟分块上传进度
       // 由于HTTP包的限制，我们无法获取真实的上传进度
       // 这里使用更持久的进度模拟，确保用户能看到进度变化
-      print('🚀 [DataSource] Starting progress simulation for $totalBytes bytes');
+      // 开始进度模拟
       
       // 初始进度报告
       onProgress(0, totalBytes);
@@ -1057,7 +1067,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
         final progress = progressStep / totalSteps;
         final simulatedSent = (totalBytes * progress).round();
         
-        print('📊 [DataSource] Progress: $progressStep/$totalSteps ($progress)');
+        // 进度更新: $progressStep/$totalSteps
         onProgress(simulatedSent, totalBytes);
       }
       
@@ -1066,7 +1076,7 @@ class InvoiceRemoteDataSourceImpl implements InvoiceRemoteDataSource {
       
       // 确保进度到达100%
       onProgress(totalBytes, totalBytes);
-      print('✅ [DataSource] Progress simulation completed');
+      // 进度模拟完成
       
       completer.complete(response);
     } catch (e) {

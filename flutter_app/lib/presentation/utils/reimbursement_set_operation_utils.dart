@@ -747,7 +747,7 @@ class ReimbursementSetOperationUtils {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            // 使用FlexColorScheme规范的表面色彩层级
+            // 使用Cupertino主题系统规范的表面色彩层级
             color: isCurrentStatus 
               ? statusColor.withValues(alpha: 0.06)
               : colorScheme.surfaceContainerLow,

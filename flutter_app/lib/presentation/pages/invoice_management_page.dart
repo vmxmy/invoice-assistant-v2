@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-// 移除旧主题系统，使用 FlexColorScheme 统一主题管理
+// 使用 Cupertino主题系统进行统一主题管理
 import '../utils/cupertino_notification_utils.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -29,6 +29,7 @@ import '../bloc/invoice_state.dart';
 import '../widgets/invoice_card_widget.dart';
 // import '../widgets/invoice_stats_widget.dart'; // 未使用
 import '../widgets/invoice_search_filter_bar.dart';
+import '../widgets/invoice_stats_inline.dart';
 import '../widgets/app_feedback.dart';
 import '../utils/invoice_delete_utils.dart';
 import '../widgets/skeleton_loader.dart';
@@ -39,7 +40,8 @@ import '../bloc/reimbursement_set_bloc.dart';
 import '../bloc/reimbursement_set_event.dart';
 import '../bloc/reimbursement_set_state.dart';
 import '../widgets/optimized_reimbursement_set_card.dart';
-import '../widgets/responsive_stats_card.dart';
+import '../widgets/reimbursement_set_stats_inline.dart';
+import '../widgets/reimbursement_set_search_filter_bar.dart';
 import '../../core/events/app_lifecycle_manager.dart';
 
 /// 发票管理页面 - 使用新的分层架构
@@ -263,7 +265,8 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       final currentState = context.read<InvoiceBloc>().state;
 
       if (currentState is! InvoiceLoaded || currentState.invoices.isEmpty) {
-        context.read<InvoiceBloc>().add(const LoadInvoices(refresh: true));
+        // 初始化加载使用清除筛选事件，确保加载全部数据
+        context.read<InvoiceBloc>().add(const ClearFiltersAndReload());
       } else {
       }
     });
@@ -773,14 +776,14 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
     _loadInvoicesWithFilter(filterOptions);
   }
 
-  /// 处理筛选清除（带刷新，绕过缓存）
+  /// 处理筛选清除（完整重置并重新加载）
   void _handleFilterClearWithRefresh(FilterOptions filterOptions) {
     setState(() {
       _currentFilterOptions = filterOptions;
     });
 
-    // 使用refresh模式重新加载数据，绕过缓存
-    _loadInvoicesWithFilter(filterOptions, refresh: true);
+    // 使用专门的清除筛选事件，确保状态完整重置
+    context.read<InvoiceBloc>().add(const ClearFiltersAndReload());
   }
 
   /// 根据筛选条件加载发票（公共函数）
@@ -790,6 +793,7 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       globalSearch: _searchQuery.isNotEmpty ? _searchQuery : null,
       overdue: filterOptions.showOverdue,
       urgent: filterOptions.showUrgent,
+      uncollected: filterOptions.showUncollected,
       status: _getStatusFromFilter(filterOptions),
       forceRefresh: refresh, // 根据refresh参数决定是否强制刷新
     );
@@ -901,15 +905,25 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       if (AppConfig.enableLogging) {
       }
 
-      if (currentState is InvoiceLoaded &&
-          currentState.hasMore &&
-          !currentState.isLoadingMore) {
+      // 检查是否可以加载更多
+      bool hasMore = false;
+      bool isLoadingMore = false;
+      
+      if (currentState is InvoiceLoaded) {
+        hasMore = currentState.hasMore;
+        isLoadingMore = currentState.isLoadingMore;
+      } else if (currentState is InvoiceCompleteState) {
+        hasMore = currentState.hasMore;
+        isLoadingMore = currentState.isLoadingMore;
+      }
+      
+      if (hasMore && !isLoadingMore) {
         if (AppConfig.enableLogging) {
         }
         context.read<InvoiceBloc>().add(const LoadMoreInvoices());
       } else {
         if (AppConfig.enableLogging) {
-          if (currentState is InvoiceLoaded) {
+          if (currentState is InvoiceLoaded || currentState is InvoiceCompleteState) {
           } else {
           }
         }
@@ -928,10 +942,24 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
       buildWhen: (previous, current) =>
           current is InvoiceLoading ||
           current is InvoiceError ||
-          current is InvoiceLoaded,
+          current is InvoiceLoaded ||
+          current is InvoiceCompleteState,
       builder: (context, state) {
         if (state is InvoiceLoading) {
-          return const InvoiceListSkeleton();
+          return Column(
+            children: [
+              // 加载状态的统计信息
+              const InvoiceStatsInline(
+                invoices: [],
+                isLoading: true,
+              ),
+              
+              // 加载骨架屏
+              const Expanded(
+                child: InvoiceListSkeleton(),
+              ),
+            ],
+          );
         }
 
         if (state is InvoiceError) {
@@ -940,20 +968,46 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
             if (_currentFilterOptions.hasActiveFilters) {
               _loadInvoicesWithFilter(_currentFilterOptions);
             } else {
+              // 无筛选条件时使用专门的清除筛选事件，确保状态完整重置
               context
                   .read<InvoiceBloc>()
-                  .add(const LoadInvoices(refresh: true));
+                  .add(const ClearFiltersAndReload());
             }
           });
         }
 
-        if (state is InvoiceLoaded) {
+        if (state is InvoiceLoaded || state is InvoiceCompleteState) {
+          // 获取发票列表数据
+          List<InvoiceEntity> invoices;
+          InvoiceStats? stats;
+          bool isLoadingMore = false;
+          
+          if (state is InvoiceCompleteState) {
+            invoices = state.invoices;
+            stats = state.stats;
+            isLoadingMore = state.isLoadingMore;
+          } else if (state is InvoiceLoaded) {
+            invoices = state.invoices;
+            stats = null;
+            isLoadingMore = state.isLoadingMore;
+          } else {
+            invoices = [];
+            stats = null;
+            isLoadingMore = false;
+          }
+          
           // 应用搜索和筛选
-          final filteredInvoices = _applySearchAndFilter(state.invoices);
+          final filteredInvoices = _applySearchAndFilter(invoices);
 
           return Column(
             children: [
-              // 新的搜索筛选组件
+              // iOS标准的发票统计信息一行显示（使用服务器统计数据）
+              InvoiceStatsInline(
+                invoices: invoices,
+                serverStats: stats,
+              ),
+              
+              // 搜索筛选组件
               InvoiceSearchFilterBar(
                 initialSearchQuery: _searchQuery,
                 onSearchChanged: _handleSearchChanged,
@@ -968,13 +1022,27 @@ class _AllInvoicesTabState extends State<_AllInvoicesTab> {
 
               // 发票列表
               Expanded(
-                child: _buildInvoiceList(filteredInvoices, state.isLoadingMore),
+                child: _buildInvoiceList(filteredInvoices, isLoadingMore),
               ),
             ],
           );
         }
 
-        return const Center(child: Text('暂无数据'));
+        return Column(
+          children: [
+            // 空状态的统计信息
+            const InvoiceStatsInline(
+              invoices: [],
+            ),
+            
+            // 空状态提示
+            const Expanded(
+              child: Center(
+                child: Text('暂无发票数据'),
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -1215,6 +1283,10 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
   @override
   bool get wantKeepAlive => true;
 
+  // 搜索和筛选状态
+  String _searchQuery = '';
+  ReimbursementSetFilterOptions _currentFilterOptions = ReimbursementSetFilterOptions();
+
   @override
   void initState() {
     super.initState();
@@ -1245,7 +1317,7 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
         if (state is ReimbursementSetDeleteSuccess) {
           AppFeedback.success(context, '删除成功', message: state.message);
         } else if (state is ReimbursementSetStatusUpdateSuccess) {
-          AppFeedback.success(context, '状态更新成功', message: state.message);
+          // 移除 SnackBar 提示，因为 bottomsheet 已经处理了用户反馈
         } else if (state is ReimbursementSetError) {
           AppFeedback.error(context, '操作失败', message: state.message);
         }
@@ -1253,19 +1325,60 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
       builder: (context, state) {
         if (state is ReimbursementSetLoading &&
             state is! ReimbursementSetLoaded) {
-          return const InvoiceListSkeleton();
+          return Column(
+            children: [
+              // 加载状态的统计信息
+              const ReimbursementSetStatsInline(
+                reimbursementSets: [],
+                isLoading: true,
+              ),
+              
+              // 加载骨架屏
+              const Expanded(
+                child: InvoiceListSkeleton(),
+              ),
+            ],
+          );
         }
 
         if (state is ReimbursementSetLoaded) {
+          final filteredReimbursementSets = _applySearchAndFilter(state.reimbursementSets);
+          
           return Column(
             children: [
-              // 优化后的响应式统计卡片
-              ResponsiveStatsCard(reimbursementSets: state.reimbursementSets),
+              // iOS标准的报销集统计信息一行显示
+              ReimbursementSetStatsInline(
+                reimbursementSets: state.reimbursementSets,
+              ),
+              
+              // 搜索和筛选工具栏
+              ReimbursementSetSearchFilterBar(
+                onSearchChanged: (query) {
+                  setState(() {
+                    _searchQuery = query;
+                  });
+                },
+                onFilterChanged: (filterOptions) {
+                  setState(() {
+                    _currentFilterOptions = filterOptions;
+                  });
+                },
+                onFilterClearWithRefresh: (filterOptions) {
+                  setState(() {
+                    _currentFilterOptions = filterOptions;
+                  });
+                  // 清除筛选时重新加载数据
+                  context
+                      .read<ReimbursementSetBloc>()
+                      .add(const LoadReimbursementSets(refresh: true));
+                },
+                initialSearchQuery: _searchQuery,
+              ),
 
               // 报销集列表
               Expanded(
                 child: _buildReimbursementSetsList(
-                    state.reimbursementSets, state.isRefreshing),
+                    filteredReimbursementSets, state.isRefreshing),
               ),
             ],
           );
@@ -1285,48 +1398,72 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
         }
 
         if (state is ReimbursementSetError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline,
-                    size: 64, color: Theme.of(context).colorScheme.error),
-                const SizedBox(height: 16),
-                Text('加载失败', style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(state.message, textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context
-                        .read<ReimbursementSetBloc>()
-                        .add(const LoadReimbursementSets(refresh: true));
-                  },
-                  child: const Text('重试'),
+          return Column(
+            children: [
+              // 错误状态也显示统计信息
+              const ReimbursementSetStatsInline(
+                reimbursementSets: [],
+              ),
+              
+              // 错误状态显示
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline,
+                          size: 64, color: Theme.of(context).colorScheme.error),
+                      const SizedBox(height: 16),
+                      Text('加载失败', style: Theme.of(context).textTheme.headlineSmall),
+                      const SizedBox(height: 8),
+                      Text(state.message, textAlign: TextAlign.center),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context
+                              .read<ReimbursementSetBloc>()
+                              .add(const LoadReimbursementSets(refresh: true));
+                        },
+                        child: const Text('重试'),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         }
 
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.folder_copy_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-              const SizedBox(height: 16),
-              Text('暂无报销集',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-              const SizedBox(height: 8),
-              Text('创建您的第一个报销集吧',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            ],
-          ),
+        return Column(
+          children: [
+            // 空状态也显示统计信息
+            const ReimbursementSetStatsInline(
+              reimbursementSets: [],
+            ),
+            
+            // 空状态提示
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.folder_copy_outlined,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    const SizedBox(height: 16),
+                    Text('暂无报销集',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    const SizedBox(height: 8),
+                    Text('创建您的第一个报销集吧',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -1391,6 +1528,97 @@ class _ReimbursementSetsTabState extends State<_ReimbursementSetsTab>
         ),
       ),
     );
+  }
+
+  /// 应用搜索和筛选
+  List<ReimbursementSetEntity> _applySearchAndFilter(List<ReimbursementSetEntity> reimbursementSets) {
+    var filteredSets = reimbursementSets;
+
+    // 应用搜索过滤
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      filteredSets = filteredSets.where((set) {
+        // 搜索报销集名称
+        if (set.setName.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索智能生成的名称
+        if (set.displayName.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索日期范围文本
+        if (set.smartDateRangeText.toLowerCase().contains(query)) {
+          return true;
+        }
+
+        // 搜索金额（支持部分匹配）
+        final amountStr = set.totalAmount.toString();
+        if (amountStr.contains(query)) {
+          return true;
+        }
+
+        // 搜索主要地区
+        if (set.primaryRegion?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        // 搜索主要省份
+        if (set.primaryProvince?.toLowerCase().contains(query) == true) {
+          return true;
+        }
+
+        // 搜索发票数量
+        if (set.invoiceCount.toString().contains(query)) {
+          return true;
+        }
+
+        return false;
+      }).toList();
+    }
+
+    // 应用筛选条件
+    if (_currentFilterOptions.hasActiveFilters) {
+      filteredSets = filteredSets.where((set) {
+        // 状态筛选
+        if (_currentFilterOptions.showUnsubmitted && !set.isDraft) {
+          return false;
+        }
+        if (_currentFilterOptions.showSubmitted && !set.isSubmitted) {
+          return false;
+        }
+        if (_currentFilterOptions.showReimbursed && !set.isReimbursed) {
+          return false;
+        }
+
+        // 本月筛选
+        if (_currentFilterOptions.showThisMonth) {
+          final now = DateTime.now();
+          final thisMonth = DateTime(now.year, now.month);
+          final nextMonth = DateTime(now.year, now.month + 1);
+          if (set.createdAt.isBefore(thisMonth) || set.createdAt.isAfter(nextMonth)) {
+            return false;
+          }
+        }
+
+        // 大额报销筛选（大于10000元）
+        if (_currentFilterOptions.showLargeAmount && set.totalAmount <= 10000) {
+          return false;
+        }
+
+        // 跨期筛选
+        if (_currentFilterOptions.showCrossPeriod) {
+          if (set.dateRangeType == null || !set.dateRangeType!.isCrossPeriod) {
+            return false;
+          }
+        }
+
+        return true;
+      }).toList();
+    }
+
+    return filteredSets;
   }
 
   /// 显示报销集详情
@@ -1507,7 +1735,8 @@ class _FavoritesTab extends StatelessWidget {
       buildWhen: (previous, current) =>
           current is InvoiceLoading ||
           current is InvoiceError ||
-          current is InvoiceLoaded,
+          current is InvoiceLoaded ||
+          current is InvoiceCompleteState,
       builder: (context, state) {
         if (state is InvoiceLoaded) {
           // 筛选已验证的发票作为收藏

@@ -64,6 +64,7 @@ export class InvoiceService {
       global_search?: string
       overdue?: boolean
       urgent?: boolean
+      uncollected?: boolean
     },
     sortField: string = 'consumption_date',
     sortOrder: 'asc' | 'desc' = 'desc'
@@ -159,6 +160,11 @@ export class InvoiceService {
           query = query
             .eq('status', 'unreimbursed')
             .lt('consumption_date', urgentDate.toISOString().split('T')[0])
+        }
+        
+        // 未归集筛选（未加入任何报销集）
+        if (filters.uncollected === true) {
+          query = query.is('reimbursement_set_id', null)
         }
       }
 

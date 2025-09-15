@@ -13,6 +13,7 @@ import '../../core/constants/message_constants.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../../domain/value_objects/invoice_status.dart';
 import '../../core/config/app_config.dart';
+import '../../core/utils/logger.dart';
 import '../../core/events/app_event_bus.dart';
 import '../widgets/optimistic_ui_handler.dart';
 // import '../widgets/enhanced_error_handler.dart'; // 未使用
@@ -65,6 +66,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     on<LoadInvoices>(_onLoadInvoices);
     on<LoadMoreInvoices>(_onLoadMoreInvoices);
     on<RefreshInvoices>(_onRefreshInvoices);
+    on<ClearFiltersAndReload>(_onClearFiltersAndReload);
     on<DeleteInvoice>(_onDeleteInvoice);
     on<DeleteInvoices>(_onDeleteInvoices);
     on<LoadInvoiceStats>(_onLoadInvoiceStats);
@@ -177,12 +179,12 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   void _handleReimbursementSetDeleted(ReimbursementSetDeletedEvent event) async {
     
     try {
-      // 更新本地缓存中的发票状态 - 将状态改为未报销
+      // 更新本地缓存中的发票状态 - 将状态改为待报销
       if (event.affectedInvoiceIds.isNotEmpty) {
         for (int i = 0; i < _allInvoices.length; i++) {
           final invoice = _allInvoices[i];
           if (event.affectedInvoiceIds.contains(invoice.id)) {
-            // 报销集删除后，发票状态改为未报销
+            // 报销集删除后，发票状态改为待报销
             final updatedInvoice = invoice.copyWith(
               status: InvoiceStatus.unsubmitted,
               reimbursementSetId: null,
@@ -202,26 +204,14 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     }
   }
 
-  /// 处理报销集状态变更事件 - 确保发票状态同步
+  /// 处理报销集状态变更事件 - 刷新数据以获取最新状态
   void _handleReimbursementSetStatusChanged(ReimbursementSetStatusChangedEvent event) async {
-    
     try {
-      // 1. 同步更新本地缓存中的发票状态
-      if (event.affectedInvoiceIds.isNotEmpty) {
-        for (int i = 0; i < _allInvoices.length; i++) {
-          final invoice = _allInvoices[i];
-          if (event.affectedInvoiceIds.contains(invoice.id)) {
-            // 更新发票状态以匹配报销集状态
-            final updatedInvoice = invoice.copyWith(
-              status: _mapReimbursementStatusToInvoiceStatus(event.newStatus),
-              updatedAt: event.timestamp,
-            );
-            _allInvoices[i] = updatedInvoice;
-          }
-        }
-      }
+      // 后端已经直接更新了数据库中的发票状态，前端只需要刷新数据
+      // 刷新发票数据以获取最新的状态
+      add(const RefreshInvoices());
       
-      // 2. 发送状态同步确认事件
+      // 发送状态同步确认事件
       _eventBus.emit(InvoiceStatusSyncedEvent(
         invoiceIds: event.affectedInvoiceIds,
         newStatus: event.newStatus,
@@ -229,9 +219,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         reimbursementSetId: event.setId,
         timestamp: DateTime.now(),
       ));
-      
-      // 3. 刷新UI状态
-      add(const RefreshInvoices());
       
     } catch (e) {
       // 发送一致性检查事件以触发后续处理
@@ -243,6 +230,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
   }
   
   /// 将报销集状态映射为发票状态
+  /// TODO: 未来功能 - 报销集状态同步时使用
   InvoiceStatus _mapReimbursementStatusToInvoiceStatus(String reimbursementStatus) {
     switch (reimbursementStatus) {
       case 'unsubmitted':
@@ -320,10 +308,12 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
         _loadingManager.setLoading(loadingKey, message: '正在加载更多...');
       }
 
-      // 如果是刷新操作或第一页，清空数据
+      // 如果是刷新操作或第一页，完整重置状态
       if (event.refresh || event.page == 1) {
         _allInvoices.clear();
         _currentPage = 1;
+        _hasMore = true;        // 🔧 重要：重置hasMore状态
+        _totalCount = 0;        // 🔧 重要：重置总数
       }
 
       // 保存当前筛选条件
@@ -339,9 +329,6 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       );
 
       // 更新内部状态
-      if (event.page == 1) {
-        _allInvoices.clear();
-      }
       _allInvoices.addAll(result.invoices);
       _currentPage = event.page;
       _totalCount = result.total;
@@ -353,12 +340,25 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       // 更新最后加载时间
       _lastDataLoadTime = DateTime.now();
 
-      // 发送成功状态
-      emit(InvoiceLoaded(
+      // 异步加载统计数据
+      InvoiceStats? stats;
+      try {
+        stats = await _getInvoiceStatsUseCase();
+      } catch (e) {
+        if (AppConfig.enableLogging) {
+          AppLogger.debug('⚠️ [InvoiceBloc] 统计数据加载失败: $e', tag: 'Debug');
+        }
+        // 统计数据加载失败不影响主要功能，继续发送列表状态
+      }
+
+      // 发送包含统计数据的完整状态
+      emit(InvoiceCompleteState(
         invoices: List.from(_allInvoices),
         currentPage: _currentPage,
         totalCount: _totalCount,
         hasMore: _hasMore,
+        stats: stats,
+        isLoadingStats: false,
       ));
 
     } catch (error) {
@@ -379,20 +379,36 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
     final currentState = state;
 
     if (AppConfig.enableLogging) {
-      if (currentState is InvoiceLoaded) {
+      if (currentState is InvoiceLoaded || currentState is InvoiceCompleteState) {
       }
     }
 
-    if (currentState is! InvoiceLoaded ||
-        !currentState.hasMore ||
-        currentState.isLoadingMore) {
+    // 支持两种状态：InvoiceLoaded 和 InvoiceCompleteState
+    bool hasMore = false;
+    bool isLoadingMore = false;
+    
+    if (currentState is InvoiceLoaded) {
+      hasMore = currentState.hasMore;
+      isLoadingMore = currentState.isLoadingMore;
+    } else if (currentState is InvoiceCompleteState) {
+      hasMore = currentState.hasMore;
+      isLoadingMore = currentState.isLoadingMore;
+    } else {
+      return; // 不支持的状态类型
+    }
+
+    if (!hasMore || isLoadingMore) {
       return;
     }
 
     try {
 
       // 显示加载更多状态
-      emit(currentState.copyWith(isLoadingMore: true));
+      if (currentState is InvoiceLoaded) {
+        emit(currentState.copyWith(isLoadingMore: true));
+      } else if (currentState is InvoiceCompleteState) {
+        emit(currentState.copyWith(isLoadingMore: true));
+      }
 
       if (AppConfig.enableLogging) {
       }
@@ -408,17 +424,34 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       _currentPage++;
       _hasMore = result.hasMore;
 
-      emit(InvoiceLoaded(
-        invoices: List.from(_allInvoices),
-        currentPage: _currentPage,
-        totalCount: _totalCount,
-        hasMore: _hasMore,
-        isLoadingMore: false,
-      ));
+      // 发送更新后的状态，保持统计数据
+      if (currentState is InvoiceCompleteState) {
+        emit(currentState.copyWith(
+          invoices: List.from(_allInvoices),
+          currentPage: _currentPage,
+          hasMore: _hasMore,
+          isLoadingMore: false,
+        ));
+      } else {
+        // 兼容旧的 InvoiceLoaded 状态
+        emit(InvoiceLoaded(
+          invoices: List.from(_allInvoices),
+          currentPage: _currentPage,
+          totalCount: _totalCount,
+          hasMore: _hasMore,
+          isLoadingMore: false,
+        ));
+      }
 
     } catch (error) {
 
-      emit(currentState.copyWith(isLoadingMore: false));
+      // 根据状态类型进行错误处理
+      if (currentState is InvoiceCompleteState) {
+        emit(currentState.copyWith(isLoadingMore: false));
+      } else if (currentState is InvoiceLoaded) {
+        emit(currentState.copyWith(isLoadingMore: false));
+      }
+      
       emit(InvoiceError(
         message: '加载更多发票失败: ${error.toString()}',
         errorCode: 'LOAD_MORE_INVOICES_ERROR',
@@ -434,6 +467,40 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceState> {
       refresh: true,
       filters: _currentFilters, // 使用保存的筛选条件
     ));
+  }
+
+  /// 处理清除筛选并重新加载事件
+  /// 专门用于取消筛选后的完整数据重载，确保状态完整重置
+  Future<void> _onClearFiltersAndReload(
+      ClearFiltersAndReload event, Emitter<InvoiceState> emit) async {
+    
+    // 完整重置到初始状态
+    _resetToInitialState();
+    
+    // 发送加载状态
+    emit(InvoiceLoading());
+    
+    // 加载第一页无筛选数据（无任何筛选条件）
+    add(const LoadInvoices(
+      page: 1,
+      refresh: true,
+      filters: null, // 明确指定无筛选条件
+    ));
+  }
+
+  /// 重置内部状态到初始状态
+  /// 确保所有状态变量都正确初始化
+  void _resetToInitialState() {
+    _allInvoices.clear();
+    _currentPage = 1;
+    _hasMore = true;
+    _totalCount = 0;
+    _currentFilters = null;
+    _lastDataLoadTime = null;
+    
+    if (AppConfig.enableLogging) {
+      AppLogger.debug('✅ [InvoiceBloc] 状态已重置到初始状态', tag: 'Debug');
+    }
   }
 
   /// 处理删除单个发票事件

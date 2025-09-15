@@ -297,7 +297,7 @@ class ImageCacheManager {
     
     // 确定输出格式和质量
     let mimeType = img.src.includes('data:') ? 'image/jpeg' : 'image/jpeg';
-    let compressionQuality = this.config.qualitySettings[quality];
+    const compressionQuality = this.config.qualitySettings[quality];
     
     if (format === 'webp' && this.config.enableWebP) {
       mimeType = 'image/webp';

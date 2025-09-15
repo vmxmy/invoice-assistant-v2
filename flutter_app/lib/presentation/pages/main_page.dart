@@ -1,11 +1,10 @@
 import '../../core/utils/logger.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import '../../core/theme/component_theme_constants.dart';
+import '../../core/theme/design_constants.dart';
 import '../../core/events/app_event_bus.dart';
 import '../../core/di/injection_container.dart' as di;
 import '../bloc/invoice_bloc.dart';
@@ -13,8 +12,9 @@ import 'invoice_management_page.dart';
 import 'upload/ios_style_upload_page.dart';
 import '../../core/network/supabase_client.dart';
 import '../../core/config/app_config.dart';
-import '../../core/theme/theme_manager.dart';
-import '../widgets/theme_selector_widget.dart';
+import '../../core/theme/cupertino_theme_manager.dart';
+import 'package:flutter/material.dart';
+// import '../widgets/theme_selector_widget.dart'; // 已归档
 import '../widgets/unified_bottom_sheet.dart';
 import '../utils/cupertino_notification_utils.dart';
 
@@ -146,28 +146,28 @@ class _MainPageState extends State<MainPage> {
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.doc_text_fill,
-                size: ComponentThemeConstants.iconSizeL,
+                size: DesignConstants.iconSizeL,
               ),
               label: '发票管理',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.cloud_upload_fill,
-                size: ComponentThemeConstants.iconSizeL,
+                size: DesignConstants.iconSizeL,
               ),
               label: '上传发票',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.chart_bar_fill,
-                size: ComponentThemeConstants.iconSizeL,
+                size: DesignConstants.iconSizeL,
               ),
               label: '数据分析',
             ),
             BottomNavigationBarItem(
               icon: Icon(
                 CupertinoIcons.settings_solid,
-                size: ComponentThemeConstants.iconSizeL,
+                size: DesignConstants.iconSizeL,
               ),
               label: '设置',
             ),
@@ -273,11 +273,11 @@ class _MainPageState extends State<MainPage> {
                   leading: const Icon(CupertinoIcons.paintbrush_fill),
                   title: const Text('主题设置'),
                   subtitle: Text(
-                      '当前：${context.watch<ThemeManager>().currentThemeName}'),
+                      '当前：${context.watch<CupertinoThemeManager>().currentColorName}'),
                   trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: () {
-                    final themeManager = context.read<ThemeManager>();
-                    showThemeSelector(context, themeManager);
+                    // final themeManager = context.read<CupertinoThemeManager>();
+                    // showThemeSelector(context, themeManager); // 功能已禁用，等待重新实现
                   },
                 ),
                 const Divider(height: 1),

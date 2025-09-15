@@ -474,7 +474,9 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
       // 批量更新关联发票的状态
       await _supabaseClient.from('invoices').update({
         'status': invoiceStatus,
-      }).eq('reimbursement_set_id', setId).eq('user_id', _supabaseClient.auth.currentUser!.id);
+      })
+      .eq('reimbursement_set_id', setId)
+      .eq('user_id', _supabaseClient.auth.currentUser!.id);
 
       if (AppConfig.enableLogging) {
         AppLogger.debug(
@@ -489,7 +491,8 @@ class ReimbursementSetRepositoryImpl implements ReimbursementSetRepository {
           tag: 'Debug',
         );
       }
-      // 不抛出异常，避免影响主要的状态更新操作
+      // 不抛出异常，避免影响主要的状态更新操作，但需要记录错误
+      // TODO: 考虑是否应该抛出异常或者至少返回错误状态
     }
   }
 }

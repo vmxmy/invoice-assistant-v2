@@ -44,12 +44,12 @@ class EmailDetailModel extends EmailDetail {
 
   /// 从Supabase JSON响应创建模型
   factory EmailDetailModel.fromJson(Map<String, dynamic> json) {
-    print('🔍 EmailDetailModel.fromJson 输入数据: ${json.keys}');
+    // 解析邮件详情数据
     
     try {
       // 先创建基础邮件记录信息
       final baseInfo = EmailRecordModel.fromJson(json);
-      print('✅ 基础邮件记录创建成功');
+      // 基础邮件记录创建成功
 
       return EmailDetailModel(
         baseInfo: baseInfo,
@@ -87,7 +87,7 @@ class EmailDetailModel extends EmailDetail {
         recommendations: _safeStringList(json['recommendations']),
       );
     } catch (e) {
-      print('❌ EmailDetailModel.fromJson 解析失败: $e');
+      // 邮件详情解析失败
       rethrow;
     }
   }

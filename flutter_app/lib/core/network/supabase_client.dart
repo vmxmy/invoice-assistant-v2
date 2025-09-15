@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../config/app_config.dart';
@@ -107,7 +108,7 @@ class SupabaseClientManager {
       );
 
       if (AppConfig.enableLogging && response.user != null) {
-        AppLogger.info('User signed in successfully: ${response.user!.email}',
+        AppLogger.info('User signed in successfully',
             tag: 'Supabase');
       }
 
@@ -138,7 +139,7 @@ class SupabaseClientManager {
       );
 
       if (AppConfig.enableLogging) {
-        AppLogger.info('User signed up successfully: $email', tag: 'Supabase');
+        AppLogger.info('User signed up successfully', tag: 'Supabase');
       }
 
       return response;
@@ -180,7 +181,7 @@ class SupabaseClientManager {
       await _client!.auth.resetPasswordForEmail(email);
 
       if (AppConfig.enableLogging) {
-        AppLogger.info('Password reset email sent to: $email', tag: 'Supabase');
+        AppLogger.info('Password reset email sent', tag: 'Supabase');
       }
     } catch (e) {
       if (AppConfig.enableLogging) {
@@ -293,18 +294,57 @@ class SupabaseClientManager {
     }
   }
 
-  /// 获取当前用户的访问令牌
+  /// 获取当前用户的访问令牌（增强安全验证）
   static String? get accessToken {
     if (!isInitialized || !isAuthenticated) {
       return null;
     }
-    return _client!.auth.currentSession?.accessToken;
+    
+    final session = _client!.auth.currentSession;
+    if (session == null) {
+      if (AppConfig.enableLogging) {
+        AppLogger.warning('🚨 [Auth] 会话不存在', tag: 'Security');
+      }
+      return null;
+    }
+    
+    // 🚨 安全检查：验证token有效期
+    final now = DateTime.now().millisecondsSinceEpoch / 1000;
+    if (session.expiresAt != null && session.expiresAt! <= now) {
+      if (AppConfig.enableLogging) {
+        AppLogger.warning('🚨 [Auth] Token已过期: expires=${DateTime.fromMillisecondsSinceEpoch((session.expiresAt! * 1000).round())}', tag: 'Security');
+      }
+      // 自动清理过期token
+      _handleExpiredToken();
+      return null;
+    }
+    
+    // 🚨 安全检查：验证JWT格式
+    if (!_isValidJWTFormat(session.accessToken)) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 [Auth] Token格式无效', tag: 'Security');
+      }
+      return null;
+    }
+    
+    // 🚨 安全检查：验证token声明
+    if (!_validateTokenClaims(session.accessToken)) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 [Auth] Token声明验证失败', tag: 'Security');
+      }
+      return null;
+    }
+    
+    return session.accessToken;
   }
 
   /// 获取认证头信息（用于API请求）
   static Map<String, String> get authHeaders {
     final token = accessToken;
     if (token == null) {
+      if (AppConfig.enableLogging) {
+        AppLogger.debug('🚨 [Auth] 无效token，返回空认证头', tag: 'Security');
+      }
       return {};
     }
 
@@ -312,6 +352,8 @@ class SupabaseClientManager {
       'Authorization': 'Bearer $token',
       'apikey': SupabaseConfig.supabaseAnonKey,
       'Content-Type': 'application/json',
+      'X-Client-Type': 'flutter-mobile',
+      'X-Request-Time': DateTime.now().toIso8601String(),
     };
   }
 
@@ -452,7 +494,7 @@ class SupabaseClientManager {
     return {
       'isInitialized': isInitialized,
       'isAuthenticated': isAuthenticated,
-      'currentUser': currentUser?.email ?? 'None',
+      'currentUser': currentUser != null ? '[AUTHENTICATED]' : 'None',
       'clientId': _client?.hashCode.toString() ?? 'Not initialized',
     };
   }
@@ -465,6 +507,154 @@ class SupabaseClientManager {
       status.forEach((key, value) {
         AppLogger.debug('   $key: $value', tag: 'Supabase');
       });
+    }
+  }
+
+  /// 🔐 安全增强：验证JWT格式
+  static bool _isValidJWTFormat(String token) {
+    if (token.isEmpty) return false;
+    
+    // JWT应该有三个部分，用 . 分隔
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      if (AppConfig.enableLogging) {
+        AppLogger.warning('🚨 [Auth] JWT格式错误：部分数量不正确', tag: 'Security');
+      }
+      return false;
+    }
+    
+    // 验证每个部分都是有效的 base64 编码
+    try {
+      for (int i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        if (part.isEmpty) {
+          if (AppConfig.enableLogging) {
+            AppLogger.warning('🚨 [Auth] JWT部分${i + 1}为空', tag: 'Security');
+          }
+          return false;
+        }
+        
+        // 添加必要的填充并尝试解码
+        String padded = part;
+        while (padded.length % 4 != 0) {
+          padded += '=';
+        }
+        
+        try {
+          base64Url.decode(padded);
+        } catch (e) {
+          if (AppConfig.enableLogging) {
+            AppLogger.warning('🚨 [Auth] JWT部分${i + 1} base64解码失败', tag: 'Security');
+          }
+          return false;
+        }
+      }
+      return true;
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 [Auth] JWT格式验证异常', tag: 'Security', error: e);
+      }
+      return false;
+    }
+  }
+
+  /// 🔐 安全增强：验证JWT声明
+  static bool _validateTokenClaims(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+      
+      // 解码JWT payload
+      String payload = parts[1];
+      while (payload.length % 4 != 0) {
+        payload += '=';
+      }
+      
+      final decodedPayload = utf8.decode(base64Url.decode(payload));
+      final claims = json.decode(decodedPayload) as Map<String, dynamic>;
+      
+      // 验证必要的声明
+      final requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
+      for (final claim in requiredClaims) {
+        if (!claims.containsKey(claim)) {
+          if (AppConfig.enableLogging) {
+            AppLogger.warning('🚨 [Auth] JWT缺少必要声明: $claim', tag: 'Security');
+          }
+          return false;
+        }
+      }
+      
+      // 验证发行者
+      final issuer = claims['iss'] as String?;
+      if (issuer == null || !issuer.contains('supabase')) {
+        if (AppConfig.enableLogging) {
+          AppLogger.warning('🚨 [Auth] JWT发行者验证失败', tag: 'Security');
+        }
+        return false;
+      }
+      
+      // 验证受众
+      final audience = claims['aud'] as String?;
+      if (audience == null || audience != 'authenticated') {
+        if (AppConfig.enableLogging) {
+          AppLogger.warning('🚨 [Auth] JWT受众验证失败', tag: 'Security');
+        }
+        return false;
+      }
+      
+      // 验证过期时间
+      final exp = claims['exp'] as int?;
+      if (exp == null) {
+        if (AppConfig.enableLogging) {
+          AppLogger.warning('🚨 [Auth] JWT过期时间缺失', tag: 'Security');
+        }
+        return false;
+      }
+      
+      final now = DateTime.now().millisecondsSinceEpoch / 1000;
+      if (exp <= now) {
+        if (AppConfig.enableLogging) {
+          AppLogger.warning('🚨 [Auth] JWT已过期: exp=$exp, now=$now', tag: 'Security');
+        }
+        return false;
+      }
+      
+      // 验证签发时间
+      final iat = claims['iat'] as int?;
+      if (iat == null || iat > now + 60) { // 允许1分钟的时钟偏差
+        if (AppConfig.enableLogging) {
+          AppLogger.warning('🚨 [Auth] JWT签发时间无效', tag: 'Security');
+        }
+        return false;
+      }
+      
+      if (AppConfig.enableLogging && AppConfig.isDebugMode) {
+        AppLogger.debug('✅ [Auth] JWT声明验证通过', tag: 'Security');
+      }
+      
+      return true;
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 [Auth] JWT声明验证异常', tag: 'Security', error: e);
+      }
+      return false;
+    }
+  }
+
+  /// 🔐 安全增强：处理过期token
+  static void _handleExpiredToken() {
+    try {
+      if (AppConfig.enableLogging) {
+        AppLogger.warning('🚨 [Auth] 处理过期token，尝试自动刷新', tag: 'Security');
+      }
+      
+      // 尝试刷新token（Supabase会自动处理）
+      // 如果刷新失败，用户需要重新登录
+      _client?.auth.refreshSession();
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 [Auth] Token刷新失败', tag: 'Security', error: e);
+      }
     }
   }
 }

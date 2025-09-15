@@ -137,7 +137,7 @@ class DataCacheManager<T = any> {
     await this.ensureMemorySpace(dataSize);
     
     // 创建缓存页
-    let cachedPage: CachePage<T> = {
+    const cachedPage: CachePage<T> = {
       data: [],
       timestamp: Date.now(),
       accessCount: 1,

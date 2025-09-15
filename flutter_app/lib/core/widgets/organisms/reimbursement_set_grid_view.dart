@@ -3,7 +3,7 @@ import '../../../domain/entities/reimbursement_set_entity.dart';
 import '../../../domain/entities/invoice_entity.dart';
 import '../../../presentation/widgets/optimized_reimbursement_set_card.dart';
 import '../../../presentation/widgets/invoice_card_widget.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 import 'responsive_grid_view.dart';
 
 /// 响应式报销集合网格视图组件
@@ -98,14 +98,14 @@ class ReimbursementSetGridView extends StatelessWidget {
                 size: 80,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: ComponentThemeConstants.spacingL),
+              const SizedBox(height: DesignConstants.spacingL),
               Text(
                 '暂无报销集合',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: ComponentThemeConstants.spacingS),
+              const SizedBox(height: DesignConstants.spacingS),
               Text(
                 '创建第一个报销集合开始管理发票',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -168,22 +168,22 @@ class ReimbursementSetGridView extends StatelessWidget {
         mobileConfig: GridConfig(
           crossAxisCount: 1,
           childAspectRatio: 2.8, // 移动端较宽的卡片
-          mainAxisSpacing: ComponentThemeConstants.spacingM,
+          mainAxisSpacing: DesignConstants.spacingM,
         ),
         tabletConfig: GridConfig(
           crossAxisCount: 2,
           childAspectRatio: 1.4,
-          mainAxisSpacing: ComponentThemeConstants.spacingL,
+          mainAxisSpacing: DesignConstants.spacingL,
         ),
         desktopConfig: GridConfig(
           crossAxisCount: 2,
           childAspectRatio: 1.6,
-          mainAxisSpacing: ComponentThemeConstants.spacingL,
+          mainAxisSpacing: DesignConstants.spacingL,
         ),
         largeConfig: GridConfig(
           crossAxisCount: 3,
           childAspectRatio: 1.5,
-          mainAxisSpacing: ComponentThemeConstants.spacingL,
+          mainAxisSpacing: DesignConstants.spacingL,
         ),
       ),
     );
@@ -242,7 +242,7 @@ class ReimbursementSetSliverGridView extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final deviceType = ComponentThemeConstants.getDeviceType(constraints.maxWidth);
+        final deviceType = DesignConstants.getDeviceType(constraints.maxWidth);
         final gridDelegate = _getGridDelegateForDevice(deviceType);
         
         return SliverGrid(
@@ -378,7 +378,7 @@ class MixedItemGridView extends StatelessWidget {
             size: 80,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: ComponentThemeConstants.spacingL),
+          const SizedBox(height: DesignConstants.spacingL),
           Text(
             '暂无数据',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(

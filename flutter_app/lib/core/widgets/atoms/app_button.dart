@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 
 /// 按钮变体枚举
 enum ButtonVariant {
@@ -94,11 +94,11 @@ class AppButton extends StatelessWidget {
   double _getButtonHeight() {
     switch (size) {
       case ButtonSize.small:
-        return ComponentThemeConstants.buttonHeightSmall;
+        return DesignConstants.buttonHeightSmall;
       case ButtonSize.medium:
-        return ComponentThemeConstants.buttonHeightMedium;
+        return DesignConstants.buttonHeightMedium;
       case ButtonSize.large:
-        return ComponentThemeConstants.buttonHeightLarge;
+        return DesignConstants.buttonHeightLarge;
     }
   }
 
@@ -113,11 +113,11 @@ class AppButton extends StatelessWidget {
       shadowColor: _getShadowColor(colorScheme),
       side: _getBorderSide(colorScheme, isEnabled),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusMedium),
+        borderRadius: BorderRadius.circular(DesignConstants.radiusMedium),
       ),
       padding: EdgeInsets.symmetric(
         horizontal: _getHorizontalPadding(),
-        vertical: ComponentThemeConstants.spacingS,
+        vertical: DesignConstants.spacingS,
       ),
       minimumSize: Size.zero,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -128,11 +128,11 @@ class AppButton extends StatelessWidget {
   double _getHorizontalPadding() {
     switch (size) {
       case ButtonSize.small:
-        return ComponentThemeConstants.spacingM;
+        return DesignConstants.spacingM;
       case ButtonSize.medium:
-        return ComponentThemeConstants.spacingL;
+        return DesignConstants.spacingL;
       case ButtonSize.large:
-        return ComponentThemeConstants.spacingXL;
+        return DesignConstants.spacingXL;
     }
   }
 
@@ -235,7 +235,7 @@ class AppButton extends StatelessWidget {
           icon,
           size: _getIconSize(),
         ),
-        SizedBox(width: ComponentThemeConstants.spacingS),
+        SizedBox(width: DesignConstants.spacingS),
         Flexible(
           child: Text(
             text,
@@ -263,7 +263,7 @@ class AppButton extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: ComponentThemeConstants.spacingS),
+        SizedBox(width: DesignConstants.spacingS),
         Text(
           '加载中...',
           style: _getTextStyle(),

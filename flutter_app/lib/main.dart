@@ -1,7 +1,9 @@
-// import '../utils/logger.dart'; // 暂时注释掉未找到的logger
 import 'package:flutter/material.dart';
 import 'core/network/supabase_client.dart';
 import 'core/di/injection_container.dart' as di;
+import 'core/security/secure_storage_service.dart';
+import 'core/utils/logger.dart';
+import 'core/config/app_config.dart';
 import 'app.dart';
 
 void main() async {
@@ -12,11 +14,26 @@ void main() async {
     // 初始化依赖注入容器
     await di.init();
 
+    // 🔐 安全增强：初始化安全存储服务
+    try {
+      await SecureStorageService.initialize();
+      if (AppConfig.enableLogging) {
+        AppLogger.info('✅ 安全存储服务初始化成功', tag: 'Security');
+      }
+    } catch (e) {
+      if (AppConfig.enableLogging) {
+        AppLogger.error('🚨 安全存储服务初始化失败', tag: 'Security', error: e);
+      }
+      // 如果安全存储初始化失败，继续运行但记录警告
+    }
+
     // 初始化Supabase客户端
     await SupabaseClientManager.initialize();
 
   } catch (e) {
-    // Initialization error - handled silently
+    if (AppConfig.enableLogging) {
+      AppLogger.error('🚨 应用初始化失败', tag: 'App', error: e);
+    }
   }
 
   runApp(

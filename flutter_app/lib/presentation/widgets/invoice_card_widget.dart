@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +16,7 @@ import '../../core/widgets/organisms/invoice_card/invoice_card_body.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_actions.dart';
 import '../../core/widgets/organisms/invoice_card/invoice_card_slidable.dart';
 import '../../core/widgets/molecules/reimbursement_set_badge.dart';
-import '../../core/theme/component_theme_constants.dart';
+import '../../core/theme/design_constants.dart';
 import 'invoice_status_badge.dart' as status_badge;
 import 'unified_bottom_sheet.dart';
 import '../utils/invoice_to_set_operation_utils.dart';
@@ -157,10 +157,10 @@ class _InvoiceCardWidgetState extends State<InvoiceCardWidget> {
           onTap: widget.isSelectionMode ? widget.onSelectionToggle : widget.onTap,
           onLongPress: widget.onLongPress,
           margin: EdgeInsets.only(
-            left: ComponentThemeConstants.spacingL,
-            right: ComponentThemeConstants.spacingL,
-            top: ComponentThemeConstants.spacingS,
-            bottom: ComponentThemeConstants.spacingS,
+            left: DesignConstants.spacingL,
+            right: DesignConstants.spacingL,
+            top: DesignConstants.spacingS,
+            bottom: DesignConstants.spacingS,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

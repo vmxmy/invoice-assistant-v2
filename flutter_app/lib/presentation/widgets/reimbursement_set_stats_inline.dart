@@ -1,0 +1,237 @@
+import 'package:flutter/cupertino.dart';
+import '../../domain/entities/reimbursement_set_entity.dart';
+import '../../core/theme/design_constants.dart';
+
+/// iOS风格的报销集统计信息一行显示
+/// 遵循iOS Human Interface Guidelines的标准显示方式
+/// 类似于文件应用的"45 个项目，1.2 GB"样式
+class ReimbursementSetStatsInline extends StatelessWidget {
+  const ReimbursementSetStatsInline({
+    super.key,
+    required this.reimbursementSets,
+    this.isLoading = false,
+  });
+
+  final List<ReimbursementSetEntity> reimbursementSets;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = CupertinoTheme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: DesignConstants.spacingL,
+        vertical: DesignConstants.spacingM,
+      ),
+      child: isLoading 
+          ? _buildLoadingText(isDark)
+          : _buildStatsText(context, isDark),
+    );
+  }
+
+  /// 构建加载状态文字
+  Widget _buildLoadingText(bool isDark) {
+    return Text(
+      '加载中...',
+      style: TextStyle(
+        fontSize: DesignConstants.fontSizeCaption,
+        color: isDark ? CupertinoColors.systemGrey2 : CupertinoColors.systemGrey,
+        fontWeight: FontWeight.w400,
+      ),
+    );
+  }
+
+  /// 构建统计信息文字
+  Widget _buildStatsText(BuildContext context, bool isDark) {
+    final stats = _calculateStats(reimbursementSets);
+    
+    // iOS标准的颜色规范
+    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final primaryColor = CupertinoColors.label.resolveFrom(context);
+    final highlightColor = CupertinoColors.systemBlue.resolveFrom(context);
+    
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          fontSize: DesignConstants.fontSizeCaption,
+          fontWeight: FontWeight.w400,
+          height: 1.2,
+        ),
+        children: [
+          // 总报销集数量和金额
+          TextSpan(
+            text: '总共 ',
+            style: TextStyle(color: secondaryColor),
+          ),
+          TextSpan(
+            text: '${stats.totalCount} 个报销集',
+            style: TextStyle(
+              color: primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          TextSpan(
+            text: '，',
+            style: TextStyle(color: secondaryColor),
+          ),
+          TextSpan(
+            text: _formatAmount(stats.totalAmount),
+            style: TextStyle(
+              color: primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          
+          // iOS标准的中点分隔符
+          if (stats.pendingCount > 0 || stats.submittedCount > 0) ...[
+            TextSpan(
+              text: ' • ',
+              style: TextStyle(color: secondaryColor),
+            ),
+            
+            // 根据实际情况显示待处理或待审核信息
+            if (stats.pendingCount > 0) ...[
+              TextSpan(
+                text: '待处理 ',
+                style: TextStyle(color: secondaryColor),
+              ),
+              TextSpan(
+                text: '${stats.pendingCount} 个',
+                style: TextStyle(
+                  color: highlightColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ] else if (stats.submittedCount > 0) ...[
+              TextSpan(
+                text: '待审核 ',
+                style: TextStyle(color: secondaryColor),
+              ),
+              TextSpan(
+                text: '${stats.submittedCount} 个',
+                style: TextStyle(
+                  color: highlightColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            
+            if (stats.pendingCount > 0 || stats.submittedCount > 0) ...[
+              TextSpan(
+                text: '，',
+                style: TextStyle(color: secondaryColor),
+              ),
+              TextSpan(
+                text: _formatAmount(stats.pendingCount > 0 ? stats.pendingAmount : stats.submittedAmount),
+                style: TextStyle(
+                  color: highlightColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 计算统计数据
+  ReimbursementSetStatsData _calculateStats(List<ReimbursementSetEntity> reimbursementSets) {
+    if (reimbursementSets.isEmpty) {
+      return const ReimbursementSetStatsData(
+        totalCount: 0,
+        totalAmount: 0.0,
+        pendingCount: 0,
+        pendingAmount: 0.0,
+        submittedCount: 0,
+        submittedAmount: 0.0,
+        reimbursedCount: 0,
+        reimbursedAmount: 0.0,
+      );
+    }
+
+    int totalCount = reimbursementSets.length;
+    double totalAmount = 0.0;
+    int pendingCount = 0;      // 未提交状态
+    double pendingAmount = 0.0;
+    int submittedCount = 0;    // 已提交状态
+    double submittedAmount = 0.0;
+    int reimbursedCount = 0;   // 已报销状态
+    double reimbursedAmount = 0.0;
+
+    for (final set in reimbursementSets) {
+      totalAmount += set.totalAmount;
+      
+      switch (set.status) {
+        case ReimbursementSetStatus.unsubmitted:
+          pendingCount++;
+          pendingAmount += set.totalAmount;
+          break;
+        case ReimbursementSetStatus.submitted:
+          submittedCount++;
+          submittedAmount += set.totalAmount;
+          break;
+        case ReimbursementSetStatus.reimbursed:
+          reimbursedCount++;
+          reimbursedAmount += set.totalAmount;
+          break;
+      }
+    }
+
+    return ReimbursementSetStatsData(
+      totalCount: totalCount,
+      totalAmount: totalAmount,
+      pendingCount: pendingCount,
+      pendingAmount: pendingAmount,
+      submittedCount: submittedCount,
+      submittedAmount: submittedAmount,
+      reimbursedCount: reimbursedCount,
+      reimbursedAmount: reimbursedAmount,
+    );
+  }
+
+  /// iOS标准的金额格式化
+  /// 遵循iOS原生应用的数字显示规范
+  String _formatAmount(double amount) {
+    if (amount == 0) {
+      return '¥0';
+    } else if (amount >= 10000) {
+      final wan = amount / 10000;
+      if (wan >= 100) {
+        return '¥${wan.toStringAsFixed(0)}万';
+      } else {
+        return '¥${wan.toStringAsFixed(1)}万';
+      }
+    } else if (amount >= 1000) {
+      return '¥${(amount / 1000).toStringAsFixed(1)}k';
+    } else {
+      return '¥${amount.toStringAsFixed(0)}';
+    }
+  }
+}
+
+/// 报销集统计数据类（用于UI显示）
+class ReimbursementSetStatsData {
+  final int totalCount;
+  final double totalAmount;
+  final int pendingCount;      // 未提交
+  final double pendingAmount;
+  final int submittedCount;    // 已提交
+  final double submittedAmount;
+  final int reimbursedCount;   // 已报销
+  final double reimbursedAmount;
+
+  const ReimbursementSetStatsData({
+    required this.totalCount,
+    required this.totalAmount,
+    required this.pendingCount,
+    required this.pendingAmount,
+    required this.submittedCount,
+    required this.submittedAmount,
+    required this.reimbursedCount,
+    required this.reimbursedAmount,
+  });
+}

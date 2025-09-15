@@ -1,5 +1,6 @@
 import 'app_config.dart';
 import '../utils/logger.dart';
+import '../exceptions/configuration_exception.dart';
 
 /// Supabase 配置管理
 /// 复用现有前端的 Supabase 配置，保持完全兼容
@@ -10,17 +11,9 @@ class SupabaseConfig {
   static final SupabaseConfig _instance = SupabaseConfig._();
   static SupabaseConfig get instance => _instance;
 
-  // Supabase 配置 - 复用现有前端配置
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://sfenhhtvcyslxplvewmt.supabase.co', // 从前端项目复用
-  );
-
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZW5oaHR2Y3lzbHhwbHZld210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNjU4NjAsImV4cCI6MjA2Njg0MTg2MH0.ie2o7HgekEV4FaLjEpFx30KShRh2P-u0XnSQRjH1uwE', // 从前端项目复用
-  );
+  // Supabase 配置 - 只从环境变量获取，不提供硬编码默认值
+  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
   // 认证配置 - 与前端保持一致
   static const Map<String, dynamic> authConfig = {
@@ -42,22 +35,55 @@ class SupabaseConfig {
 
   static bool get isProduction => !isLocal && !AppConfig.isDebugMode;
 
-  /// 验证 Supabase 配置
+  /// 验证 Supabase 配置 - 增强安全验证
   static bool validateConfig() {
     try {
+      // 🚨 安全检查：必须配置环境变量
+      if (supabaseUrl.isEmpty) {
+        if (AppConfig.enableLogging) {
+          AppLogger.error('CRITICAL: SUPABASE_URL 环境变量未配置', tag: 'Security');
+        }
+        throw ConfigurationException('Missing SUPABASE_URL environment variable');
+      }
+
+      if (supabaseAnonKey.isEmpty) {
+        if (AppConfig.enableLogging) {
+          AppLogger.error('CRITICAL: SUPABASE_ANON_KEY 环境变量未配置', tag: 'Security');
+        }
+        throw ConfigurationException('Missing SUPABASE_ANON_KEY environment variable');
+      }
+
       // 检查 URL 格式
       final uri = Uri.tryParse(supabaseUrl);
-      if (supabaseUrl.isEmpty || uri == null || !uri.isAbsolute) {
+      if (uri == null || !uri.isAbsolute) {
         if (AppConfig.enableLogging) {
-          AppLogger.error('Invalid Supabase URL: $supabaseUrl', tag: 'Config');
+          AppLogger.error('Invalid Supabase URL format: ${supabaseUrl.substring(0, 20)}...', tag: 'Config');
         }
         return false;
       }
 
-      // 检查密钥
-      if (supabaseAnonKey.isEmpty || supabaseAnonKey == 'your-anon-key') {
+      // 🚨 安全检查：验证是否为合法的 Supabase 域名
+      if (!uri.host.endsWith('.supabase.co') && 
+          !uri.host.contains('localhost') && 
+          !uri.host.contains('127.0.0.1')) {
         if (AppConfig.enableLogging) {
-          AppLogger.error('Invalid Supabase Anon Key', tag: 'Config');
+          AppLogger.error('Untrusted Supabase domain: ${uri.host}', tag: 'Security');
+        }
+        return false;
+      }
+
+      // 🚨 安全检查：强制 HTTPS（除非本地开发）
+      if (uri.scheme != 'https' && !isLocal) {
+        if (AppConfig.enableLogging) {
+          AppLogger.error('HTTPS required for production', tag: 'Security');
+        }
+        return false;
+      }
+
+      // 检查密钥格式（JWT 格式验证）
+      if (!_isValidJWTFormat(supabaseAnonKey)) {
+        if (AppConfig.enableLogging) {
+          AppLogger.error('Invalid JWT format for anon key', tag: 'Security');
         }
         return false;
       }
@@ -65,17 +91,44 @@ class SupabaseConfig {
       // 环境一致性检查
       if (isProduction && isLocal) {
         if (AppConfig.enableLogging) {
-          AppLogger.warning('Production environment with local URL',
-              tag: 'Config');
+          AppLogger.warning('Production environment with local URL', tag: 'Config');
         }
+      }
+
+      if (AppConfig.enableLogging) {
+        AppLogger.info('✅ Supabase configuration validated successfully', tag: 'Security');
       }
 
       return true;
     } catch (e) {
       if (AppConfig.enableLogging) {
-        AppLogger.error('Supabase config validation error',
-            tag: 'Config', error: e);
+        AppLogger.error('Supabase config validation error', tag: 'Config', error: e);
       }
+      return false;
+    }
+  }
+
+  /// 验证 JWT 格式
+  static bool _isValidJWTFormat(String token) {
+    if (token.isEmpty) return false;
+    
+    // JWT 应该有三个部分，用 . 分隔
+    final parts = token.split('.');
+    if (parts.length != 3) return false;
+    
+    // 每个部分都应该是有效的 base64 编码
+    try {
+      for (final part in parts) {
+        if (part.isEmpty) return false;
+        // 尝试解码 base64（添加必要的填充）
+        String padded = part;
+        while (padded.length % 4 != 0) {
+          padded += '=';
+        }
+        Uri.decodeComponent(padded);
+      }
+      return true;
+    } catch (e) {
       return false;
     }
   }

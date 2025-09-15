@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart' as flutter_slidable;
 import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../../theme/component_theme_constants.dart';
+import '../../../theme/design_constants.dart';
 import '../../../utils/icon_mapping.dart';
 import '../../atoms/app_icon.dart';
 import '../../atoms/app_text.dart';
@@ -239,8 +239,8 @@ class CustomSlidableAction extends StatelessWidget {
   Widget _buildDefaultContent() {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: ComponentThemeConstants.spacingM,
-        vertical: ComponentThemeConstants.spacingS,
+        horizontal: DesignConstants.spacingM,
+        vertical: DesignConstants.spacingS,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -252,7 +252,7 @@ class CustomSlidableAction extends StatelessWidget {
             color: action.foregroundColor,
             semanticLabel: action.label,
           ),
-          SizedBox(height: ComponentThemeConstants.spacingXS),
+          SizedBox(height: DesignConstants.spacingXS),
           Flexible(
             child: AppText(
               text: action.label,

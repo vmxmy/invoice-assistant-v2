@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../../theme/component_theme_constants.dart';
+import '../../../theme/design_constants.dart';
 import '../../atoms/app_text.dart';
 import '../../atoms/app_icon.dart';
 import '../../atoms/app_button.dart';
@@ -58,7 +58,7 @@ class InvoiceCardActions extends StatelessWidget {
     this.displayMode = ActionDisplayMode.iconsOnly,
     this.showTime = true,
     this.timeStyle,
-    this.actionSpacing = ComponentThemeConstants.spacingS,
+    this.actionSpacing = DesignConstants.spacingS,
     this.maxVisibleActions = 3,
   });
 
@@ -153,13 +153,13 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildIconAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
       child: Padding(
-        padding: const EdgeInsets.all(ComponentThemeConstants.spacingXS),
+        padding: const EdgeInsets.all(DesignConstants.spacingXS),
         child: action.isLoading
             ? SizedBox(
-                width: ComponentThemeConstants.iconSizeS,
-                height: ComponentThemeConstants.iconSizeS,
+                width: DesignConstants.iconSizeS,
+                height: DesignConstants.iconSizeS,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation(color),
@@ -179,11 +179,11 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildLabelAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: ComponentThemeConstants.spacingS,
-          vertical: ComponentThemeConstants.spacingXS,
+          horizontal: DesignConstants.spacingS,
+          vertical: DesignConstants.spacingXS,
         ),
         child: AppText(
           text: action.label,
@@ -198,19 +198,19 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildIconWithLabelAction(BuildContext context, ActionItem action, Color color) {
     return InkWell(
       onTap: action.onPressed,
-      borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: ComponentThemeConstants.spacingS,
-          vertical: ComponentThemeConstants.spacingXS,
+          horizontal: DesignConstants.spacingS,
+          vertical: DesignConstants.spacingXS,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             action.isLoading
                 ? SizedBox(
-                    width: ComponentThemeConstants.iconSizeXS,
-                    height: ComponentThemeConstants.iconSizeXS,
+                    width: DesignConstants.iconSizeXS,
+                    height: DesignConstants.iconSizeXS,
                     child: CircularProgressIndicator(
                       strokeWidth: 1.5,
                       valueColor: AlwaysStoppedAnimation(color),
@@ -221,7 +221,7 @@ class InvoiceCardActions extends StatelessWidget {
                     size: IconSize.extraSmall,
                     color: color,
                   ),
-            SizedBox(width: ComponentThemeConstants.spacingXS),
+            SizedBox(width: DesignConstants.spacingXS),
             AppText(
               text: action.label,
               variant: TextVariant.bodySmall,
@@ -249,9 +249,9 @@ class InvoiceCardActions extends StatelessWidget {
   Widget _buildMoreActionsButton(BuildContext context) {
     return InkWell(
       onTap: () => _showMoreActionsMenu(context),
-      borderRadius: BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+      borderRadius: BorderRadius.circular(DesignConstants.radiusSmall),
       child: Padding(
-        padding: const EdgeInsets.all(ComponentThemeConstants.spacingXS),
+        padding: const EdgeInsets.all(DesignConstants.spacingXS),
         child: AppIcon(
           icon: CupertinoIcons.ellipsis,
           size: IconSize.small,
@@ -270,7 +270,7 @@ class InvoiceCardActions extends StatelessWidget {
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(ComponentThemeConstants.radiusLarge),
+          top: Radius.circular(DesignConstants.radiusLarge),
         ),
       ),
       builder: (context) => _MoreActionsBottomSheet(actions: hiddenActions),
@@ -288,7 +288,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: ComponentThemeConstants.spacingL,
+        vertical: DesignConstants.spacingL,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -299,7 +299,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
             variant: TextVariant.titleMedium,
           ),
           
-          SizedBox(height: ComponentThemeConstants.spacingL),
+          SizedBox(height: DesignConstants.spacingL),
           
           // 操作项列表
           ...actions.map((action) => _buildBottomSheetAction(context, action)),
@@ -322,8 +322,8 @@ class _MoreActionsBottomSheet extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(
-          horizontal: ComponentThemeConstants.spacingL,
-          vertical: ComponentThemeConstants.spacingM,
+          horizontal: DesignConstants.spacingL,
+          vertical: DesignConstants.spacingM,
         ),
         child: Row(
           children: [
@@ -332,7 +332,7 @@ class _MoreActionsBottomSheet extends StatelessWidget {
               size: IconSize.medium,
               color: effectiveColor,
             ),
-            SizedBox(width: ComponentThemeConstants.spacingL),
+            SizedBox(width: DesignConstants.spacingL),
             AppText(
               text: action.label,
               variant: TextVariant.bodyLarge,

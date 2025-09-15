@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/component_theme_constants.dart';
+import '../../theme/design_constants.dart';
 
 /// 图标尺寸枚举
 enum IconSize {
@@ -102,15 +102,15 @@ class AppIcon extends StatelessWidget {
   double _getIconSize() {
     switch (size) {
       case IconSize.extraSmall:
-        return ComponentThemeConstants.iconSizeXS;
+        return DesignConstants.iconSizeXS;
       case IconSize.small:
-        return ComponentThemeConstants.iconSizeS;
+        return DesignConstants.iconSizeS;
       case IconSize.medium:
-        return ComponentThemeConstants.iconSizeM;
+        return DesignConstants.iconSizeM;
       case IconSize.large:
-        return ComponentThemeConstants.iconSizeL;
+        return DesignConstants.iconSizeL;
       case IconSize.extraLarge:
-        return ComponentThemeConstants.iconSizeXL;
+        return DesignConstants.iconSizeXL;
     }
   }
 }
@@ -171,7 +171,7 @@ class AppIconWithBackground extends StatelessWidget {
             ? BoxShape.circle 
             : BoxShape.rectangle,
         borderRadius: backgroundShape == BackgroundShape.roundedSquare
-            ? BorderRadius.circular(ComponentThemeConstants.radiusSmall)
+            ? BorderRadius.circular(DesignConstants.radiusSmall)
             : null,
       ),
       child: Center(
@@ -191,7 +191,7 @@ class AppIconWithBackground extends StatelessWidget {
           onTap: onTap,
           borderRadius: backgroundShape == BackgroundShape.circle
               ? BorderRadius.circular(effectiveBackgroundSize / 2)
-              : BorderRadius.circular(ComponentThemeConstants.radiusSmall),
+              : BorderRadius.circular(DesignConstants.radiusSmall),
           child: container,
         ),
       );

@@ -80,6 +80,7 @@ class InvoiceFilters {
   final bool? isVerified;
   final bool? overdue;
   final bool? urgent;
+  final bool? uncollected; // 未归集到报销集的发票
   final bool? forceRefresh; // 强制刷新，绕过缓存
 
   const InvoiceFilters({
@@ -99,6 +100,7 @@ class InvoiceFilters {
     this.isVerified,
     this.overdue,
     this.urgent,
+    this.uncollected,
     this.forceRefresh,
   });
 }
@@ -211,6 +213,6 @@ class InvoiceStats {
   /// 动态获取已报销发票数量
   int get reimbursedCount => getStatusCount('已报销');
 
-  /// 动态获取未报销发票数量
-  int get unreimbursedCount => getStatusCount('未报销');
+  /// 动态获取待报销发票数量
+  int get unreimbursedCount => getStatusCount('待报销');
 }

@@ -40,6 +40,7 @@ export const useInvoices = (
     global_search?: string
     overdue?: boolean
     urgent?: boolean
+    uncollected?: boolean
   },
   page: number = 1,
   pageSize: number = 20,
