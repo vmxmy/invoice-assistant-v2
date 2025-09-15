@@ -27,27 +27,23 @@ class EmailListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: isSelected 
-          ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-          : colorScheme.surfaceContainerLowest,
+          ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
+          : CupertinoColors.systemGrey6,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected 
-            ? colorScheme.primary.withValues(alpha: 0.3)
-            : colorScheme.outline.withValues(alpha: 0.1),
+            ? CupertinoColors.systemBlue.withValues(alpha: 0.3)
+            : CupertinoColors.separator.withValues(alpha: 0.1),
           width: isSelected ? 1.5 : 0.5,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
             onTap();
           },
           borderRadius: BorderRadius.circular(12),

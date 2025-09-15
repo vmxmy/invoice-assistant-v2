@@ -20,17 +20,15 @@ class RegionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: _getPadding(),
         decoration: BoxDecoration(
-          color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+          color: CupertinoColors.systemBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(_getBorderRadius()),
           border: Border.all(
-            color: colorScheme.outline.withValues(alpha: 0.2),
+            color: CupertinoColors.separator.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -40,7 +38,7 @@ class RegionBadge extends StatelessWidget {
             Icon(
               CupertinoIcons.location,
               size: _getIconSize(),
-              color: colorScheme.onPrimaryContainer,
+              color: CupertinoColors.systemBlue,
             ),
             SizedBox(width: _getSpacing()),
             Text(
@@ -48,7 +46,7 @@ class RegionBadge extends StatelessWidget {
               style: TextStyle(
                 fontSize: _getFontSize(),
                 fontWeight: FontWeight.w500,
-                color: colorScheme.onPrimaryContainer,
+                color: CupertinoColors.systemBlue,
               ),
             ),
             SizedBox(width: _getSpacing() * 0.5),
@@ -58,7 +56,7 @@ class RegionBadge extends StatelessWidget {
                 vertical: 1,
               ),
               decoration: BoxDecoration(
-                color: colorScheme.primary,
+                color: CupertinoColors.systemBlue,
                 borderRadius: BorderRadius.circular(_getCountRadius()),
               ),
               child: Text(
@@ -66,7 +64,7 @@ class RegionBadge extends StatelessWidget {
                 style: TextStyle(
                   fontSize: _getCountFontSize(),
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onPrimary,
+                  color: CupertinoColors.white,
                 ),
               ),
             ),
@@ -195,7 +193,6 @@ class RegionStatisticsWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final colorScheme = Theme.of(context).colorScheme;
     final entries = regionStatistics!.entries.toList();
     
     // 按发票数量降序排列
@@ -224,10 +221,10 @@ class RegionStatisticsWidget extends StatelessWidget {
             child: Container(
               padding: _getMoreBadgePadding(),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
+                color: CupertinoColors.systemGrey6,
                 borderRadius: BorderRadius.circular(_getMoreBadgeRadius()),
                 border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.3),
+                  color: CupertinoColors.separator.withValues(alpha: 0.3),
                   width: 0.5,
                 ),
               ),
@@ -237,7 +234,7 @@ class RegionStatisticsWidget extends StatelessWidget {
                   Icon(
                     CupertinoIcons.ellipsis,
                     size: _getMoreIconSize(),
-                    color: colorScheme.onSurfaceVariant,
+                    color: CupertinoColors.secondaryLabel,
                   ),
                   SizedBox(width: _getMoreSpacing()),
                   Text(
@@ -245,7 +242,7 @@ class RegionStatisticsWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: _getMoreFontSize(),
                       fontWeight: FontWeight.w500,
-                      color: colorScheme.onSurfaceVariant,
+                      color: CupertinoColors.secondaryLabel,
                     ),
                   ),
                 ],
